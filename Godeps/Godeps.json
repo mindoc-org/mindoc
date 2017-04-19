@@ -1,0 +1,47 @@
+{
+	"ImportPath": "github.com/lifei6671/godoc",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
+	"Deps": [
+		{
+			"ImportPath": "github.com/astaxie/beego",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/config",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/context",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/grace",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/logs",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/session",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/toolbox",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/utils",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		}
+	]
+}

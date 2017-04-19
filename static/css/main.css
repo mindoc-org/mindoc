@@ -1,0 +1,46 @@
+.clearfix{
+    clear: both;
+}
+.container-body{
+    position: absolute;
+    width: 100%;
+    top: 0px;
+    bottom: 0;
+    background-color: #fff;
+    z-index: 100
+}
+.header{
+    width: 100%;
+    background-color: #24292e;
+    color: #ffffff;
+}
+.topbar-home-link{
+    display: inline-block;
+    color: #ffffff;
+    padding: 15px 20px;
+    font-size: 14px;
+    border-right: 1px solid #000000;
+}
+.topbar-home-link:hover{
+    color: #ffffff;
+    text-decoration: none;
+}
+.container-left{
+    width: 50%;
+    float: left;
+}
+.container-right{
+    width: 50%;
+    float: right;
+}
+
+.container-right .topbar-info{
+    float: right;
+}
+.container-right .topbar-info .topbar-member-link{
+    display: inline-block;
+    padding: 15px 20px;
+    margin-right: 10px;
+    font-size: 14px;
+    color: #ffffff;
+}
