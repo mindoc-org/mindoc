@@ -32,7 +32,7 @@ func (c *BookController) Create() {
 		description := strings.TrimSpace(c.GetString("description",""))
 		privately_owned := c.GetString("privately_owned")
 		comment_status := c.GetString("comment_status")
-		
+
 	}
 	c.JsonResult(6001,"error")
 }
