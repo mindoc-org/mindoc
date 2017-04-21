@@ -12,6 +12,20 @@ a:hover{
 textarea{
     resize: none;
 }
+.text{
+    font-size: 12px;
+    color: #999999;
+    font-weight: 200;
+}
+.error-message{
+    color: red;
+    font-size: 12px;
+}
+.success-message{
+    color: green;
+    font-size: 12px;
+}
+
 ::-webkit-scrollbar , body  .scrollbar-track-color{
     height: 9px;
     width: 7px;
@@ -176,7 +190,7 @@ textarea{
 .manual-list .list-item .manual-item-standard>dt{
     margin-bottom: 6px;
     height: 231px;
-    position: relative
+    position: relative;
 }
 .manual-list .list-item .manual-item-standard .cover {
     border: 1px solid #f3f3f3;
@@ -275,7 +289,101 @@ textarea{
 .users-list .list-item .operate{
     float: right;
 }
-/***************************************/
+
+/**************用户登录界面样式*******************/
+.login .login-body{
+    width: 370px;
+    padding: 5px 30px 25px 30px;
+    margin: 0 auto;
+    margin-top: 30px;
+    background-color: #FFF;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.login .login-body .tooltip.bottom .tooltip-arrow,.has-error .tooltip.bottom .tooltip-arrow{
+    border-bottom-color: #a94442;
+}
+.login .login-body .tooltip.top .tooltip-arrow,.has-error .tooltip.top .tooltip-arrow{
+    border-top-color: #a94442;
+}
+.login .login-body .tooltip.right .tooltip-arrow,.has-error .tooltip.right .tooltip-arrow{
+    border-top-color: #a94442;
+}
+.login .login-body .tooltip.left .tooltip-arrow,.has-error .tooltip.left .tooltip-arrow{
+    border-top-color: #a94442;
+}
+.login .login-body .tooltip-inner,.has-error .tooltip-inner{
+    background-color: #a94442;
+}
+/************图片上传样式*******************/
+
+#upload-logo-panel .wraper{
+    float: left;
+    background: #f6f6f6;
+    position: relative;
+    width: 360px;
+    height: 360px;
+    overflow: hidden;
+}
+#upload-logo-panel .watch-crop-list{
+    width: 170px;
+    padding:10px 20px;
+    margin-left: 10px;
+    background-color: #f6f6f6;
+    text-align: center;
+    float: right;
+    height: 360px;
+}
+#image-wraper{
+    text-align: center;
+}
+.webuploader-pick{
+
+}
+.webuploader-pick-hover{
+
+}
+.webuploader-container{
+    padding: 0;
+    border: 0;
+    height: 40px;
+}
+.watch-crop-list>ul{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.webuploader-container div{
+    width: 77px !important;
+    height: 40px !important;
+    left: 0 !important;
+}
+.img-preview {
+    margin: 5px auto 10px auto;
+    text-align: center;
+    overflow: hidden;
+}
+.img-preview > img {
+    max-width: 100%;
+}
+.preview-lg{
+    width: 120px;
+    height: 120px;
+}
+.preview-sm{
+    width: 60px;
+    height: 60px;
+}
+#error-message{
+    font-size: 13px;
+    color: red;
+    vertical-align: middle;
+    margin-top: -10px;
+    display: inline-block;
+    height: 40px;
+}
+
+/**************网站底部样式*************************/
 .footer{
     color: #777;
     padding: 30px 0;

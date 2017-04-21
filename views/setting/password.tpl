@@ -39,16 +39,16 @@
                 <div class="box-body" style="width: 300px;">
                     <form role="form" method="post" id="securityForm">
                         <div class="form-group">
-                            <label>原始密码</label>
-                            <input type="password" name="password1" class="form-control disabled" placeholder="原始密码">
+                            <label for="password1">原始密码</label>
+                            <input type="password" name="password1" id="password1" class="form-control disabled" placeholder="原始密码">
                         </div>
                         <div class="form-group">
-                            <label for="user-nickname">新密码</label>
-                            <input type="password" class="form-control" name="password2" id="user-nickname" max="50" placeholder="新密码">
+                            <label for="password2">新密码</label>
+                            <input type="password" class="form-control" name="password2" id="password2" max="50" placeholder="新密码">
                         </div>
                         <div class="form-group">
-                            <label>确认密码</label>
-                            <input type="password" class="form-control" id="user-phone" name="password2" placeholder="确认密码">
+                            <label for="password3">确认密码</label>
+                            <input type="password" class="form-control" id="password3" name="password3" placeholder="确认密码">
                         </div>
                         <div class="form-group">
                             <button type="submit" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
@@ -61,7 +61,47 @@
     </div>
     {{template "widgets/footer.tpl" .}}
 </div>
-<script src="/static/jquery/1.12.4/jquery.min.js"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/static/js/jquery.form.js" type="text/javascript"></script>
+<script src="/static/js/main.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+
+        $("#securityForm").ajaxForm({
+            beforeSubmit : function () {
+                var oldPasswd = $("#password1").val();
+                var newPasswd = $("#password2").val();
+                var confirmPassword = $("#password3").val();
+                if(!oldPasswd ){
+                    showError("原始密码不能为空");
+                    return false;
+                }
+                if(!newPasswd){
+                    showError("新密码不能为空");
+                    return false;
+                }
+                if(!confirmPassword){
+                    showError("确认密码不能为空");
+                    return false;
+                }
+                if(confirmPassword !== newPasswd){
+                    showError("确认密码不正确");
+                    return false;
+                }
+            },
+            success : function (res) {
+                if(res.errcode === 0){
+                    showSuccess('保存成功');
+                    $("#password1").val('');
+                    $("#password2").val('');
+                    $("#password3").val('');
+                }else{
+                    showError(res.message);
+                }
+            }
+        }) ;
+    });
+</script>
 </body>
 </html>

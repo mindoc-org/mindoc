@@ -12,7 +12,7 @@
                     <li><a href="https://wiki.iminho.me/setting/site" class="item"><i class="fa fa-cogs"></i> 网站设置</a> </li>
                     <li><a href="https://wiki.iminho.me/member/users" class="item"><i class="fa fa-group"></i> 用户管理</a> </li>
                     <li>
-                        <a href="https://wiki.iminho.me/logout" title="退出登录"><i class="fa fa-sign-out"></i> 退出登录</a>
+                        <a href="{{urlfor "AccountController.Logout"}}" title="退出登录"><i class="fa fa-sign-out"></i> 退出登录</a>
                     </li>
                 </ul>
             </div>
@@ -21,7 +21,7 @@
             <ul class="nav navbar-nav navbar-right">
                 <li>
                     <div class="img user-info" data-toggle="dropdown">
-                        <img src="/static/images/headimgurl.jpg" class="img-circle userbar-avatar">
+                        <img src="{{.Member.Avatar}}" class="img-circle userbar-avatar">
                         <div class="userbar-content">
                             <span>lifei6671</span>
                             <div>管理员</div>
@@ -36,10 +36,10 @@
                             <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
                         </li>
                         <li>
-                            <a href="#" title="用户管理"><i class="fa fa-users" aria-hidden="true"></i> 用户管理</a>
+                            <a href="{{urlfor "ManagerController.Users"}}" title="用户管理"><i class="fa fa-users" aria-hidden="true"></i> 用户管理</a>
                         </li>
                         <li>
-                            <a href="https://wiki.iminho.me/logout" title="退出登录"><i class="fa fa-sign-out"></i> 退出登录</a>
+                            <a href="{{urlfor "AccountController.Logout"}}" title="退出登录"><i class="fa fa-sign-out"></i> 退出登录</a>
                         </li>
                     </ul>
                 </li>

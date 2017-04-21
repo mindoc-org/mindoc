@@ -8,10 +8,17 @@ import (
 func init()  {
 	beego.Router("/",&controllers.HomeController{},"*:Index")
 
+	beego.Router("/login", &controllers.AccountController{},"*:Login")
+	beego.Router("/logout", &controllers.AccountController{},"*:Logout")
+	beego.Router("/register", &controllers.AccountController{},"*:Register")
+	beego.Router("/find_password", &controllers.AccountController{},"*:FindPassword")
+
 	beego.Router("/manager", &controllers.ManagerController{},"*:Index")
+	beego.Router("/manager/users", &controllers.ManagerController{},"*:Users")
 
 	beego.Router("/setting", &controllers.SettingController{},"*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{},"*:Password")
+	beego.Router("/setting/upload", &controllers.SettingController{},"*:Upload")
 
 	beego.Router("/book", &controllers.BookController{},"*:Index")
 	beego.Router("/book/:key/dashboard", &controllers.BookController{},"*:Dashboard")
