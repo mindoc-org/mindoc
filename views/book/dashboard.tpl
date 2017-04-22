@@ -26,53 +26,63 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li class="active"><a href="{{urlfor "BookController.Dashboard" ":key" "test"}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
-                    <li><a href="{{urlfor "BookController.Users" ":key" "test"}}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
-                    <li><a href="{{urlfor "BookController.Setting" ":key" "test"}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                    <li class="active"><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
+                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
+                    <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
                 </ul>
 
             </div>
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"><i class="fa fa-unlock" aria-hidden="true" title="公开项目" data-toggle="tooltip"></i> 这是一个测试项目</strong>
-                        <a href="{{urlfor "BookController.Edit" ":key" "test" ":id" "1"}}" class="btn btn-default btn-sm pull-right" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
-                        <a href="{{urlfor "DocumentController.Index" ":key" "test"}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-eye"></i> 阅读</a>
-                        <a href="{{urlfor "DocumentController.Index" ":key" "test"}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-upload" aria-hidden="true"></i> 发布</a>
+                        <strong class="box-title">
+                            {{if eq .Model.PrivatelyOwned 0}}
+                            <i class="fa fa-unlock" aria-hidden="true" title="公开项目" data-toggle="tooltip"></i>
+                            {{else}}
+                            <i class="fa fa-lock" aria-hidden="true" title="私有项目" data-toggle="tooltip"></i>
+                            {{end}}
+                            {{.Model.BookName}}
+                        </strong>
+                        {{if ne .Model.RoleId 3}}
+                        <a href="{{urlfor "BookController.Edit" ":key" .Model.Identify ":id" .Model.BookId}}" class="btn btn-default btn-sm pull-right" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
+                        <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-eye"></i> 阅读</a>
+                        <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-upload" aria-hidden="true"></i> 发布</a>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body">
                     <div class="dashboard">
                         <div class="pull-left" style="width: 200px;margin-bottom: 15px;">
                             <div class="book-image">
-                                <img src="/static/images/5fcb811e04c23cdb2088f26923fcc287_100.jpg">
+                                <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.jpg'" width="174" height="229" style="border: 1px solid #666">
                             </div>
                         </div>
 
                             <div class="list">
                                 <span class="title">创建者：</span>
-                                <span class="body">
-                                Minho
-                            </span>
+                                <span class="body">{{.Model.CreateName}}</span>
                             </div>
                             <div class="list">
                                 <span class="title">文档数量：</span>
-                                <span class="body">20</span>
+                                <span class="body">{{.Model.DocCount}} 篇</span>
                             </div>
                             <div class="list">
                                 <span class="title">创建时间：</span>
-                                <span class="body"> 2017-05-25 12:25:45 </span>
+                                <span class="body"> {{date .Model.CreateTime "Y-m-d H:i:s"}} </span>
                             </div>
                             <div class="list">
                                 <span class="title">修改时间：</span>
-                                <span class="body"> 2017-05-25 12:25:45 </span>
+                                <span class="body"> {{date .Model.ModifyTime "Y-m-d H:i:s"}} </span>
                             </div>
-                            <div class="summary">《TCP/IP详解，卷1：协议》是一本完整而详细的TCP/IP协议指南。描述了属于每一层的各个协议以及它们如何在不同操作系统中运行。<br>
-                                <br>
-                                作者用Lawrence Berkeley实验室的tcpdump程序来捕获不同操作系统和TCP/IP实现之间传输的不同分组。对tcpdump输出的研究可以帮助理解不同协议如何工作。 <br>
-                                <br>
-                                本书适合作为计算机专业学生学习网络的教材和教师参考书。也适用于研究网络的技术人员。
-                            </div>
+                        <div class="list">
+                            <span class="title">担任角色：</span>
+                            <span class="body">{{.Model.RoleName}}</span>
+                        </div>
+                        <div class="list">
+                            <span class="title">评论数量：</span>
+                            <span class="body">{{.Model.CommentCount}} 条</span>
+                        </div>
+                            <div class="summary">{{.Model.Description}} </div>
 
                     </div>
                 </div>

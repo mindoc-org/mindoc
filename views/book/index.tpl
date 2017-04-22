@@ -37,35 +37,54 @@
                     </div>
                 </div>
                 <div class="box-body">
-                    <div class="book-list">
-                        <div class="list-item">
+                    <div class="book-list" id="bookList">
+                        <template v-if="lists.length <= 0">
+
+                        </template>
+                        <template v-else>
+
+                        <div class="list-item" v-for="item in lists">
                             <div class="book-title">
                                 <div class="pull-left">
-                                    <a href="{{urlfor "BookController.Dashboard" ":key" "test"}}" title="项目概要" data-toggle="tooltip">
-                                        <i class="fa fa-unlock" aria-hidden="true"></i> 测试项目
+                                    <a :href="'/book/' + item.identify + '/dashboard'" title="项目概要" data-toggle="tooltip">
+                                        <i class="fa fa-unlock" aria-hidden="true"></i> ${item.book_name}
                                     </a>
                                 </div>
                                 <div class="pull-right">
-                                    <a href="{{urlfor "DocumentController.Index" ":key" "test"}}" title="查看文档" data-toggle="tooltip"><i class="fa fa-eye"></i> 查看文档</a>
-                                    <a href="{{urlfor "BookController.Edit" ":key" "test" ":id" "1"}}" title="编辑文档" data-toggle="tooltip"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
+                                    <a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip"><i class="fa fa-eye"></i> 查看文档</a>
+                                    <a :href="'/book/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
                             <div class="desc-text">
-                                <a href="{{urlfor "BookController.Dashboard" ":key" "test"}}" title="项目概要" style="font-size: 12px;" target="_blank">
-                                    这是一个测试用户测试项目
-                                </a>
-
+                                    <template v-if="item.description === ''">
+                                        &nbsp;
+                                    </template>
+                                    <template v-else="">
+                                        <a :href="'/book/' + item.identify + '/dashboard'" title="项目概要" style="font-size: 12px;" target="_blank">
+                                        ${item.description}
+                                        </a>
+                                    </template>
                             </div>
                             <div class="info">
-                                <span title="创建时间" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-clock-o"></i> 2016/11/27 06:09</span>
-                                <span title="创建者" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user"></i> admin</span>
-                                <span title="文档数量" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pie-chart"></i> 4</span>
-                                <span title="项目角色" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i>  拥有者</span>
-                                <span title="最后编辑" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pencil"></i> 最后编辑: admin 于 2017-04-20 12:19</span>
+                                <span title="创建时间" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-clock-o"></i>
+                                    ${(new Date(item.create_time)).format("yyyy-MM-dd hh:mm:ss")}
+
+                                </span>
+                                <span title="创建者" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user"></i> ${item.create_name}</span>
+                                <span title="文档数量" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pie-chart"></i> ${item.doc_count}</span>
+                                <span title="项目角色" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i>${item.role_name}</span>
+                                <template v-if="item.last_modify_text !== ''">
+                                    <span title="最后编辑" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pencil"></i> 最后编辑: ${item.last_modify_text}</span>
+                                </template>
+
                             </div>
                         </div>
+                        </template>
                     </div>
+                    <nav>
+                        {{.PageHtml}}
+                    </nav>
                 </div>
             </div>
         </div>
@@ -91,7 +110,7 @@
                     </div>
                     <input type="text" class="form-control pull-left" style="width: 220px;vertical-align: middle" placeholder="项目唯一标识(不能超过50字)" name="identify" id="identify">
                     <div class="clearfix"></div>
-                    <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母打头</p>
+                    <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
 
                 </div>
                 <div class="form-group">
@@ -118,12 +137,12 @@
                     </div>
                     <div class="col-lg-3">
                         <label>
-                            <input type="radio"  name="comment_status" value="">关闭评论<span class="text"></span>
+                            <input type="radio"  name="comment_status" value="closed">关闭评论<span class="text"></span>
                         </label>
                     </div>
                     <div class="col-lg-3">
                         <label>
-                            <input type="radio" name="comment_status" value="">仅允许参与者评论<span class="text"></span>
+                            <input type="radio" name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>
                         </label>
                     </div>
                     <div class="col-lg-3">
@@ -147,6 +166,7 @@
 
 <script src="/static/jquery/1.12.4/jquery.min.js"></script>
 <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/vuejs/vue.min.js" type="text/javascript"></script>
 <script src="/static/js/jquery.form.js" type="text/javascript"></script>
 <script src="/static/js/main.js" type="text/javascript"></script>
 <script type="text/javascript">
@@ -176,8 +196,26 @@
                 return showSuccess("");
             },
             success : function (res) {
+                console.log(res)
+                if(res.errcode === 0){
 
+                }else{
+                    showError(res.message);
+                }
             }
+        });
+
+        new Vue({
+            el : "#bookList",
+            data : {
+                lists : {{.Result}}
+            },
+            delimiters : ['${','}'],
+            methods : {
+            }
+        });
+        Vue.nextTick(function () {
+            $("[data-toggle='tooltip']").tooltip();
         });
     });
 </script>

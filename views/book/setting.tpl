@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>概要 - Powered by MinDoc</title>
+    <title>设置 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -26,9 +26,9 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li><a href="{{urlfor "BookController.Dashboard" ":key" "test"}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
-                    <li><a href="{{urlfor "BookController.Users" ":key" "test"}}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
-                    <li class="active"><a href="{{urlfor "BookController.Setting" ":key" "test"}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                    <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
+                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
+                    <li class="active"><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
                 </ul>
 
             </div>
@@ -36,8 +36,17 @@
                 <div class="m-box">
                     <div class="box-head">
                         <strong class="box-title"> 项目设置</strong>
+                        {{if eq .Model.RoleId 0 1}}
+                        {{if eq .Model.RoleId 0}}
                         <button type="button"  class="btn btn-success btn-sm pull-right">转让项目</button>
+                        {{end}}
                         <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;">删除项目</button>
+                        {{end}}
+                        {{if eq .Model.PrivatelyOwned 1}}
+                        <button type="button"  class="btn btn-success btn-sm pull-right" style="margin-right: 5px;">转为公有</button>
+                        {{else}}
+                        <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;">转为私有</button>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body" style="padding-right: 200px;">
@@ -45,18 +54,68 @@
                         <form method="post" id="bookEditForm">
                             <div class="form-group">
                                 <label>标题</label>
-                                <input type="text" class="form-control" placeholder="项目名称">
+                                <input type="text" class="form-control" placeholder="项目名称" value="{{.Model.BookName}}">
                             </div>
-
+                            <div class="form-group">
+                                <label>标识</label>
+                                <input type="text" class="form-control" value=" {{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>描述</label>
+                                <textarea rows="3" class="form-control" name="description" style="height: 90px">{{.Model.Description}}</textarea>
+                                <p class="text">描述信息不超过300个字符</p>
+                            </div>
+                            <div class="form-group">
+                                <label>标签</label>
+                                <input type="text" class="form-control" placeholder="项目标签" value="{{.Model.Label}}">
+                                <p class="text">最多允许添加10个标签，多个标签请用“;”分割</p>
+                            </div>
+                            <div class="form-group">
+                                <label>开启评论</label>
+                                <div class="radio">
+                                    <label class="radio-inline">
+                                        <input type="radio" {{if eq .Model.CommentStatus "open"}}checked{{end}} name="comment_status" value="open">允许所有人评论<span class="text"></span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" {{if eq .Model.CommentStatus "closed"}}checked{{end}} name="comment_status" value="closed">关闭评论<span class="text"></span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" {{if eq .Model.CommentStatus "group_only"}}checked{{end}} name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" {{if eq .Model.CommentStatus "registered_only"}}checked{{end}} name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            {{if eq .Model.PrivatelyOwned 1}}
+                            <div class="form-group">
+                                <label>访问令牌</label>
+                                <div class="row">
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" placeholder="访问令牌" readonly>
+                                    </div>
+                                   <div class="col-sm-4">
+                                       <button class="btn btn-success btn-sm">重写生成</button>
+                                       <button class="btn btn-danger btn-sm">删除令牌</button>
+                                   </div>
+                                </div>
+                            </div>
+                            {{end}}
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
+                                <span id="form-error-message" class="error-message"></span>
+                            </div>
                         </form>
                     </div>
                     <div class="form-right">
                         <label>
                             <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
-                                <img src="/static/images/5fcb811e04c23cdb2088f26923fcc287_100.jpg" onerror="this.src='https://wiki.iminho.me/static/images/middle.gif'" alt="头像" style="max-width: 120px;" id="headimgurl">
+                                <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.png'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
                             </a>
                         </label>
                     </div>
+                    <div class="clearfix"></div>
+
                 </div>
             </div>
         </div>

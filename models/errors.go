@@ -13,4 +13,6 @@ var(
 
 	// ErrInvalidParameter 参数错误.
 	ErrInvalidParameter = errors.New("Invalid parameter")
+
+	ErrPermissionDenied = errors.New("Permission denied")
 )

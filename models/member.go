@@ -5,6 +5,7 @@ import (
 	"time"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/godoc/utils"
+	"github.com/lifei6671/godoc/conf"
 )
 
 type Member struct {
@@ -29,6 +30,10 @@ func (m *Member) TableName() string {
 // TableEngine 获取数据使用的引擎.
 func (m *Member) TableEngine() string {
 	return "INNODB"
+}
+
+func (m *Member)TableNameWithPrefix() string {
+	return conf.GetDatabasePrefix() +  m.TableName()
 }
 
 func NewMember() *Member {
@@ -95,3 +100,32 @@ func (m *Member) Find(id int) error{
 	}
 	return nil
 }
+
+func (m *Member) FindByAccount (account string) error  {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("account",account).One(m)
+
+	return err
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

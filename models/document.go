@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"time"
+	"github.com/lifei6671/godoc/conf"
+)
 
 // Document struct.
 type Document struct {
@@ -32,3 +35,30 @@ func (m *Document) TableName() string {
 func (m *Document) TableEngine() string {
 	return "INNODB"
 }
+
+func (m *Document) TableNameWithPrefix()  string {
+	return conf.GetDatabasePrefix() + m.TableName()
+}
+
+func NewDocument() *Document  {
+	return &Document{}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
