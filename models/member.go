@@ -109,7 +109,27 @@ func (m *Member) FindByAccount (account string) error  {
 	return err
 }
 
+func (m *Member) FindToPager(pageIndex, pageSize int) ([]Member,int,error)  {
+	o := orm.NewOrm()
 
+	var members []Member
+
+	offset := (pageIndex - 1) * pageSize
+
+	totalCount,err := o.QueryTable(m.TableNameWithPrefix()).Count()
+
+	if err != nil {
+		return members,0,err
+	}
+
+	_,err = o.QueryTable(m.TableNameWithPrefix()).Offset(offset).Limit(pageSize).All(&members)
+
+	if err != nil {
+		return members,0,err
+	}
+
+	return members,totalCount,nil
+}
 
 
 
