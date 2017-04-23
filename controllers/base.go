@@ -83,3 +83,6 @@ func (c *BaseController) ExecuteViewPathTemplate(tplName string,data interface{}
 	return buf.String(),nil
 }
 
+func (c *BaseController) BaseUrl() string {
+	return c.Ctx.Input.Scheme() + "://" + c.Ctx.Request.Host
+}

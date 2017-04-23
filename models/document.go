@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 	"github.com/lifei6671/godoc/conf"
+	"github.com/astaxie/beego/orm"
 )
 
 // Document struct.
@@ -44,7 +45,20 @@ func NewDocument() *Document  {
 	return &Document{}
 }
 
+func (m *Document) Find(id int) error {
+	if id <= 0 {
+		return ErrInvalidParameter
+	}
+	o := orm.NewOrm()
 
+
+	err := o.Read(m)
+
+	if err == orm.ErrNoRows{
+		return ErrDataNotExist
+	}
+	return nil
+}
 
 
 

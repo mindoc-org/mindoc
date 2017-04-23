@@ -11,6 +11,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/godoc/utils"
 	"github.com/lifei6671/godoc/models"
+	"github.com/astaxie/beego/orm"
 )
 
 type ManagerController struct {
@@ -145,11 +146,30 @@ func (c *ManagerController) Books()  {
 
 }
 
+// 删除项目.
 func (c *ManagerController) DeleteBook()  {
 	c.Prepare()
 	if c.Member.Role != 0 {
 		c.Abort("403")
 	}
+
+	book_id,_ := c.GetInt("book_id",0)
+
+	if book_id <= 0{
+		c.JsonResult(6001,"参数错误")
+	}
+	book := models.NewBook()
+
+	err := book.ThoroughDeleteBook(book_id)
+
+	if err == orm.ErrNoRows {
+		c.JsonResult(6002,"项目不存在")
+	}
+	if err != nil {
+		logs.Error("",err)
+		c.JsonResult(6003,"删除失败")
+	}
+	c.JsonResult(0,"ok")
 }
 
 func (c *ManagerController) Comments()  {
@@ -159,12 +179,33 @@ func (c *ManagerController) Comments()  {
 	}
 }
 
+//DeleteComment 标记评论为已删除
 func (c *ManagerController) DeleteComment()  {
 	c.Prepare()
 	if c.Member.Role != 0 {
 		c.Abort("403")
 	}
+	comment_id,_ := c.GetInt("comment_id",0)
+
+	if comment_id <= 0 {
+		c.JsonResult(6001,"参数错误")
+	}
+
+	comment := models.NewComment()
+
+	if err := comment.Find(comment_id); err != nil {
+		c.JsonResult(6002,"评论不存在")
+	}
+
+	comment.Approved = 3
+
+	if err := comment.Update("approved");err != nil {
+		c.JsonResult(6003,"删除评论失败")
+	}
+	c.JsonResult(0,"ok",comment)
 }
+
+
 
 
 

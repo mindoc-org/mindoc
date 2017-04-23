@@ -22,6 +22,8 @@ type Book struct {
 	PrivatelyOwned int	`orm:"column(privately_owned);type(int);default(0)" json:"privately_owned"`
 	// 当项目是私有时的访问Token.
 	PrivateToken string 	`orm:"column(private_token);size(500);null" json:"private_token"`
+	//评论状态：0 正常/1 已删除
+	Status int 		`orm:"column(status);type(int);default(0)" json:"status"`
 	// DocCount 包含文档数量.
 	DocCount int		`orm:"column(doc_count);type(int)" json:"doc_count"`
 	// CommentStatus 评论设置的状态:open 为允许所有人评论，closed 为不允许评论, group_only 仅允许参与者评论 ,registered_only 仅允许注册者评论.
@@ -58,6 +60,15 @@ func (m *Book) Insert() error {
 	_,err := o.Insert(m)
 
 	return err
+}
+
+func (m *Book) Find(id int) error {
+	if id <= 0 {
+		return ErrInvalidParameter
+	}
+	o := orm.NewOrm()
+
+	return o.Read(m)
 }
 
 func (m *Book) Update(cols... string) error  {
@@ -138,6 +149,83 @@ func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []BookResul
 	}
 	return
 }
+
+// 彻底删除项目.
+func (m *Book) ThoroughDeleteBook(id int) error {
+	if id <= 0{
+		return ErrInvalidParameter
+	}
+	o := orm.NewOrm()
+
+	m.BookId = id
+	if err := o.Read(m); err != nil {
+		return err
+	}
+	o.Begin()
+	sql1 := "DELETE FROM " + NewComment().TableNameWithPrefix() + " WHERE book_id = ?"
+
+	_,err := o.Raw(sql1,m.BookId).Exec()
+
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	sql2 := "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?"
+
+	_,err = o.Raw(sql2,m.BookId).Exec()
+
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	sql3 := "DELETE FROM " + m.TableNameWithPrefix() + " WHERE book_id = ?"
+
+	_,err = o.Raw(sql3).Exec()
+
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	sql4 := "DELETE FROM " + NewRelationship() + " WHERE book_id = ?"
+
+	_,err = o.Raw(sql4).Exec()
+
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+
+	return o.Commit()
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

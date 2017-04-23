@@ -12,6 +12,7 @@ import (
 	"github.com/lifei6671/godoc/utils"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego/logs"
 )
 
 type BookController struct {
@@ -123,6 +124,7 @@ func (c *BookController) Users() {
 	}
 }
 
+// 参加参与用户.
 func (c *BookController) AddMember()  {
 	identify := c.GetString("identify")
 	account := c.GetString("account")
@@ -167,7 +169,7 @@ func (c *BookController) AddMember()  {
 	c.JsonResult(500,err.Error())
 }
 
-
+// 创建项目.
 func (c *BookController) Create() {
 
 	if c.Ctx.Input.IsPost() {
@@ -230,11 +232,87 @@ func (c *BookController) Create() {
 // Edit 编辑项目.
 func (p *BookController) Edit() {
 	p.TplName = "book/edit.tpl"
+
+}
+
+//创建访问来令牌
+func (c *BookController) CreateToken() {
+	book_id,_ := c.GetInt("book_id",0)
+
+	if book_id <= 0{
+		c.JsonResult(6001,"参数错误")
+	}
+
+	book := models.NewBook()
+
+	if err := book.Find(book_id);err != nil {
+		c.JsonResult(6001,"项目不存在")
+	}
+	bookResult ,err := models.NewBookResult().FindByIdentify("identify",c.Member.MemberId)
+
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.JsonResult(403,"权限不足")
+		}
+		if err == orm.ErrNoRows {
+			c.JsonResult(404,"项目不存在")
+		}
+		logs.Error("生成阅读令牌失败 =>",err)
+		c.JsonResult(6002,err.Error())
+	}
+	//必须是管理员或创始人才能删除项目
+	if bookResult.RoleId != 0 && bookResult.RoleId != 1 {
+		c.JsonResult(403,"权限不足")
+	}
+	if bookResult.PrivatelyOwned == 0 {
+		c.JsonResult(6001,"公开项目不能创建阅读令牌")
+	}
+
+	book.PrivateToken = utils.Krand(20,utils.KC_RAND_KIND_ALL)
+	if err := book.Update(); err != nil {
+		logs.Error("生成阅读令牌失败 => ",err)
+		c.JsonResult(6003,"生成阅读令牌失败")
+	}
+	c.JsonResult(0,"ok", c.BaseUrl() + "?token="+ book.PrivateToken)
 }
 
 // Delete 删除项目.
-func (p *BookController) Delete() {
-	p.StopRun()
+func (c *BookController) Delete() {
+	c.Prepare()
+
+	book_id,_ := c.GetInt("book_id",0)
+
+	if book_id <= 0{
+		c.JsonResult(6001,"参数错误")
+	}
+
+	book ,err := models.NewBookResult().FindByIdentify("identify",c.Member.MemberId)
+
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.JsonResult(403,"权限不足")
+		}
+		if err == orm.ErrNoRows {
+			c.JsonResult(404,"项目不存在")
+		}
+		logs.Error("删除项目 =>",err)
+		c.JsonResult(6002,err.Error())
+	}
+	//必须是管理员或创始人才能删除项目
+	if book.RoleId != 0 && book.RoleId != 1 {
+		c.JsonResult(403,"权限不足")
+	}
+
+	err = models.NewBook().ThoroughDeleteBook(book_id)
+
+	if err == orm.ErrNoRows {
+		c.JsonResult(6002,"项目不存在")
+	}
+	if err != nil {
+		logs.Error("删除项目 => ",err)
+		c.JsonResult(6003,"删除失败")
+	}
+	c.JsonResult(0,"ok")
 }
 
 // Transfer 转让项目.

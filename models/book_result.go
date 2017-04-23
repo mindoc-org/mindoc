@@ -25,6 +25,7 @@ type BookResult struct {
 	MemberId int            `json:"member_id"`
 	RoleId int        	`json:"role_id"`
 	RoleName string 	`json:"role_name"`
+	Status int
 
 	LastModifyText string 	`json:"last_modify_text"`
 }
@@ -81,6 +82,7 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 	m.ModifyTime = book.ModifyTime
 	m.Cover = book.Cover
 	m.Label = book.Label
+	m.Status = book.Status
 
 	m.MemberId = relationship.MemberId
 	m.RoleId = relationship.RoleId
