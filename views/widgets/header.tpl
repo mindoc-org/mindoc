@@ -23,8 +23,8 @@
                     <div class="img user-info" data-toggle="dropdown">
                         <img src="{{.Member.Avatar}}" class="img-circle userbar-avatar">
                         <div class="userbar-content">
-                            <span>lifei6671</span>
-                            <div>管理员</div>
+                            <span>{{.Member.Account}}</span>
+                            <div>{{.Member.RoleName}}</div>
                         </div>
                         <i class="fa fa-chevron-down" aria-hidden="true"></i>
                     </div>
@@ -35,9 +35,11 @@
                         <li>
                             <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
                         </li>
+                        {{if eq .Member.Role 0 }}
                         <li>
-                            <a href="{{urlfor "ManagerController.Users"}}" title="用户管理"><i class="fa fa-users" aria-hidden="true"></i> 用户管理</a>
+                            <a href="{{urlfor "ManagerController.Index"}}" title="管理后台"><i class="fa fa-university" aria-hidden="true"></i> 管理后台</a>
                         </li>
+                        {{end}}
                         <li>
                             <a href="{{urlfor "AccountController.Logout"}}" title="退出登录"><i class="fa fa-sign-out"></i> 退出登录</a>
                         </li>

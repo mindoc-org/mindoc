@@ -188,7 +188,7 @@
                 if(res.errcode === 0){
                     console.log(res);
                     $("#upload-logo-panel").modal('hide');
-                    $("#headimgurl").attr('src',res.url);
+                    $("#headimgurl").attr('src',res.data);
                 }else{
                     $("#error-message").text(res.message);
                 }

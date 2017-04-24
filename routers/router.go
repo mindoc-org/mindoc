@@ -15,6 +15,11 @@ func init()  {
 
 	beego.Router("/manager", &controllers.ManagerController{},"*:Index")
 	beego.Router("/manager/users", &controllers.ManagerController{},"*:Users")
+	beego.Router("/manager/member/create", &controllers.ManagerController{},"post:CreateMember")
+	beego.Router("/manager/member/update-member-status",&controllers.ManagerController{},"post:UpdateMemberStatus")
+	beego.Router("/manager/books", &controllers.ManagerController{},"*:Books")
+	beego.Router("/manager/books/edit/:key", &controllers.ManagerController{},"*:EditBook")
+	beego.Router("/manager/comments", &controllers.ManagerController{},"*:Comments")
 
 	beego.Router("/setting", &controllers.SettingController{},"*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{},"*:Password")
@@ -26,7 +31,8 @@ func init()  {
 	beego.Router("/book/:key/users", &controllers.BookController{},"*:Users")
 	beego.Router("/book/:key/edit", &controllers.BookController{},"*:Edit")
 	beego.Router("/book/create", &controllers.BookController{},"*:Create")
-	beego.Router("/book/member/create", &controllers.BookController{},"POST:AddMember")
+	beego.Router("/book/member/create", &controllers.BookController{},"post:AddMember")
+	beego.Router("/book/member/change-role", &controllers.BookController{},"post:ChangeRole")
 
 	beego.Router("/book/:key/users/create", &controllers.BookMemberController{},"*:Create")
 	beego.Router("/book/:key/users/change", &controllers.BookMemberController{},"*:Change")

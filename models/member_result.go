@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 	"github.com/astaxie/beego/orm"
+	"github.com/lifei6671/godoc/conf"
 )
 
 type MemberRelationshipResult struct {
@@ -20,16 +21,43 @@ type MemberRelationshipResult struct {
 	BookId int		`json:"book_id"`
 	// RoleId 角色：0 创始人(创始人不能被移除) / 1 管理员/2 编辑者/3 观察者
 	RoleId int		`json:"role_id"`
+	RoleName string		`json:"role_name"`
 }
 
 func NewMemberRelationshipResult() *MemberRelationshipResult {
 	return &MemberRelationshipResult{}
 }
 
-func (m *MemberRelationshipResult) FindForUsersByBookId(book_id ,pageIndex, pageSize int) ([]MemberRelationshipResult,int,error) {
+func (m *MemberRelationshipResult) FromMember(member *Member) *MemberRelationshipResult {
+	m.MemberId = member.MemberId
+	m.Account = member.Account
+	m.Description = member.Description
+	m.Email = member.Email
+	m.Phone = member.Phone
+	m.Avatar = member.Avatar
+	m.Role = member.Role
+	m.Status = member.Status
+	m.CreateTime = member.CreateTime
+	m.CreateAt = member.CreateAt
+
+	return m
+}
+
+func (m *MemberRelationshipResult) ResolveRoleName () *MemberRelationshipResult {
+	if m.RoleId == conf.BookAdmin {
+		m.RoleName = "管理者"
+	}else if m.RoleId == conf.BookEditor {
+		m.RoleName = "编辑者"
+	}else if m.RoleId == conf.BookObserver {
+		m.RoleName = "观察者"
+	}
+	return m
+}
+
+func (m *MemberRelationshipResult) FindForUsersByBookId(book_id ,pageIndex, pageSize int) ([]*MemberRelationshipResult,int,error) {
 	o := orm.NewOrm()
 
-	var members []MemberRelationshipResult
+	var members []*MemberRelationshipResult
 
 	sql1 := "SELECT * FROM md_relationship AS rel LEFT JOIN md_members as member ON rel.member_id = member.member_id WHERE rel.book_id = ? ORDER BY rel.relationship_id DESC  LIMIT ?,?"
 
@@ -51,6 +79,9 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(book_id ,pageIndex, page
 		return members,0,err
 	}
 
+	for _,item := range members {
+		item.ResolveRoleName()
+	}
 	return members,total_count,nil
 }
 

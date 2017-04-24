@@ -10,6 +10,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/logs"
 	"os"
+	"github.com/lifei6671/godoc/conf"
 )
 
 // RegisterDataBase 注册数据库
@@ -33,13 +34,15 @@ func RegisterDataBase()  {
 
 // RegisterModel 注册Model
 func RegisterModel()  {
-	orm.RegisterModelWithPrefix("md_",
+	orm.RegisterModelWithPrefix(conf.GetDatabasePrefix(),
 		new(models.Member),
 		new(models.Book),
 		new(models.Relationship),
 		new(models.Comment),
 		new(models.Option),
 		new(models.Document),
+		new(models.Attachment),
+		new(models.Logger),
 	)
 
 }

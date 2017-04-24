@@ -36,10 +36,10 @@
                         <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">添加项目</button>
                     </div>
                 </div>
-                <div class="box-body">
-                    <div class="book-list" id="bookList">
+                <div class="box-body" id="bookList">
+                    <div class="book-list">
                         <template v-if="lists.length <= 0">
-
+                        <div class="text-center">暂无数据</div>
                         </template>
                         <template v-else>
 
@@ -52,7 +52,9 @@
                                 </div>
                                 <div class="pull-right">
                                     <a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip"><i class="fa fa-eye"></i> 查看文档</a>
-                                    <a :href="'/book/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
+                                    <template v-if="item.role_id != 3">
+                                        <a :href="'/book/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
+                                    </template>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
@@ -73,7 +75,7 @@
                                 </span>
                                 <span title="创建者" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user"></i> ${item.create_name}</span>
                                 <span title="文档数量" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pie-chart"></i> ${item.doc_count}</span>
-                                <span title="项目角色" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i>${item.role_name}</span>
+                                <span title="项目角色" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i> ${item.role_name}</span>
                                 <template v-if="item.last_modify_text !== ''">
                                     <span title="最后编辑" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pencil"></i> 最后编辑: ${item.last_modify_text}</span>
                                 </template>
@@ -82,9 +84,11 @@
                         </div>
                         </template>
                     </div>
-                    <nav>
-                        {{.PageHtml}}
-                    </nav>
+                    <template v-if="lists.length >= 0">
+                        <nav>
+                            {{.PageHtml}}
+                        </nav>
+                    </template>
                 </div>
             </div>
         </div>
@@ -196,16 +200,17 @@
                 return showSuccess("");
             },
             success : function (res) {
-                console.log(res)
+                console.log(res);
                 if(res.errcode === 0){
-
+                    window.app.lists.splice(0,0,res.data);
+                    $("#addBookDialogModal").modal("hide");
                 }else{
                     showError(res.message);
                 }
             }
         });
 
-        new Vue({
+        window.app = new Vue({
             el : "#bookList",
             data : {
                 lists : {{.Result}}

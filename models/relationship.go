@@ -3,6 +3,8 @@ package models
 import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego/orm"
+	"errors"
+	"github.com/astaxie/beego/logs"
 )
 
 type Relationship struct {
@@ -38,6 +40,42 @@ func NewRelationship() *Relationship {
 	return &Relationship{}
 }
 
+func (m *Relationship) Find(id int) (*Relationship,error) {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("relationship_id",id).One(m)
+	return m,err
+}
+
+func (m *Relationship) UpdateRoleId(book_id,member_id, role_id int) (*Relationship,error) {
+	o := orm.NewOrm()
+	book := NewBook()
+	book.BookId = book_id
+
+	if err := o.Read(book); err != nil {
+		logs.Error("UpdateRoleId => ", err)
+		return m,errors.New("项目不存在")
+	}
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("member_id",member_id).Filter("book_id",book_id).One(m)
+
+	if err == orm.ErrNoRows {
+		m = NewRelationship()
+		m.BookId = book_id
+		m.MemberId = member_id
+		m.RoleId = role_id
+	}else if err != nil {
+		return m,err
+	}else if m.RoleId == conf.BookFounder{
+		return m,errors.New("不能变更创始人的权限")
+	}
+	m.RoleId = role_id
+
+	_,err = o.InsertOrUpdate(m)
+
+	return m,err
+
+}
+
 func (m *Relationship) FindForRoleId(book_id ,member_id int) (int,error) {
 	o := orm.NewOrm()
 
@@ -46,6 +84,7 @@ func (m *Relationship) FindForRoleId(book_id ,member_id int) (int,error) {
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",book_id).Filter("member_id",member_id).One(relationship)
 
 	if err != nil {
+
 		return 0,err
 	}
 	return relationship.RoleId,nil
@@ -66,6 +105,44 @@ func (m *Relationship) Update() error  {
 
 	return err
 }
+
+func (m *Relationship) DeleteByBookIdAndMemberId(book_id,member_id int) error {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",book_id).Filter("member_id",member_id).One(m)
+
+	if err == orm.ErrNoRows {
+		return errors.New("用户未参与该项目")
+	}
+	if m.RoleId == conf.BookFounder {
+		return errors.New("不能删除创始人")
+	}
+	_,err = o.Delete(m)
+
+	if err != nil {
+		logs.Error("删除项目参与者 => ",err)
+		return errors.New("删除失败")
+	}
+	return nil
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

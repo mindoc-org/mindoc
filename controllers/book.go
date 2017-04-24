@@ -13,6 +13,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/logs"
+	"github.com/lifei6671/godoc/conf"
 )
 
 type BookController struct {
@@ -25,19 +26,22 @@ func (c *BookController) Index() {
 
 	pageIndex, _ := c.GetInt("page", 1)
 
-	books,totalCount,err := models.NewBook().FindToPager(pageIndex,10,c.Member.MemberId)
+	books,totalCount,err := models.NewBook().FindToPager(pageIndex,conf.PageSize,c.Member.MemberId)
 
 	if err != nil {
 		c.Abort("500")
 	}
 
-	html := utils.GetPagerHtml(c.Ctx.Request.RequestURI,pageIndex,10,totalCount)
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
 
-	c.Data["PageHtml"] = html
-
+		c.Data["PageHtml"] = html
+	}else {
+		c.Data["PageHtml"] = ""
+	}
 	b,err := json.Marshal(books)
 
-	if err != nil {
+	if err != nil || len(books) <= 0{
 		c.Data["Result"] = template.JS("[]")
 	}else{
 		c.Data["Result"] = template.JS(string(b))
@@ -88,7 +92,8 @@ func (c *BookController) Setting()  {
 	c.Data["Model"] = *book
 
 }
-//用户列表.
+
+// Users 用户列表.
 func (c *BookController) Users() {
 	c.Prepare()
 	c.TplName = "book/users.tpl"
@@ -112,9 +117,13 @@ func (c *BookController) Users() {
 
 	members,totalCount,err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId,pageIndex,15)
 
-	html := utils.GetPagerHtml(c.Ctx.Request.RequestURI,pageIndex,10,totalCount)
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, totalCount)
 
-	c.Data["PageHtml"] = html
+		c.Data["PageHtml"] = html
+	}else{
+		c.Data["PageHtml"] = ""
+	}
 	b,err := json.Marshal(members)
 
 	if err != nil {
@@ -124,7 +133,7 @@ func (c *BookController) Users() {
 	}
 }
 
-// 参加参与用户.
+// AddMember 参加参与用户.
 func (c *BookController) AddMember()  {
 	identify := c.GetString("identify")
 	account := c.GetString("account")
@@ -133,14 +142,14 @@ func (c *BookController) AddMember()  {
 	if identify == "" || account == ""{
 		c.JsonResult(6001,"参数错误")
 	}
-	book ,err := models.NewBookResult().FindByIdentify("identify",c.Member.MemberId)
+	book ,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
 
 	if err != nil {
 		if err == models.ErrPermissionDenied {
 			c.JsonResult(403,"权限不足")
 		}
 		if err == orm.ErrNoRows {
-			c.JsonResult(404,"项目不能存在")
+			c.JsonResult(404,"项目不存在")
 		}
 		c.JsonResult(6002,err.Error())
 	}
@@ -153,8 +162,11 @@ func (c *BookController) AddMember()  {
 	if err := member.FindByAccount(account) ; err != nil {
 		c.JsonResult(404,"用户不存在")
 	}
+	if member.Status == 1 {
+		c.JsonResult(6003,"用户已被禁用")
+	}
 
-	if _,err := models.NewRelationship().FindForRoleId(book.BookId,member.MemberId);err == orm.ErrNoRows {
+	if _,err := models.NewRelationship().FindForRoleId(book.BookId,member.MemberId);err == nil {
 		c.JsonResult(6003,"用户已存在该项目中")
 	}
 
@@ -164,12 +176,104 @@ func (c *BookController) AddMember()  {
 	relationship.RoleId = role_id
 
 	if err := relationship.Insert(); err == nil {
-		c.JsonResult(0,"ok",member)
+		memberRelationshipResult := models.NewMemberRelationshipResult().FromMember(member)
+		memberRelationshipResult.RoleId = role_id
+		memberRelationshipResult.RelationshipId = relationship.RelationshipId
+		memberRelationshipResult.BookId = book.BookId
+		memberRelationshipResult.ResolveRoleName()
+
+
+		c.JsonResult(0,"ok",memberRelationshipResult)
 	}
 	c.JsonResult(500,err.Error())
 }
 
-// 创建项目.
+// 变更指定用户在指定项目中的权限
+func (c *BookController) ChangeRole() {
+	identify := c.GetString("identify")
+	member_id,_ := c.GetInt("member_id",0)
+	role,_ := c.GetInt("role_id",0)
+
+	if identify == "" || member_id <=0 {
+		c.JsonResult(6001,"参数错误")
+	}
+	if member_id == c.Member.MemberId {
+		c.JsonResult(6006,"不能变更自己的权限")
+	}
+	book ,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.JsonResult(403,"权限不足")
+		}
+		if err == orm.ErrNoRows {
+			c.JsonResult(404,"项目不存在")
+		}
+		c.JsonResult(6002,err.Error())
+	}
+	if book.RoleId != 0 && book.RoleId != 1 {
+		c.JsonResult(403,"权限不足")
+	}
+
+	member := models.NewMember()
+
+	if err := member.Find(member_id); err != nil {
+		c.JsonResult(6003,"用户不存在")
+	}
+	if member.Status == 1 {
+		c.JsonResult(6004,"用户已被禁用")
+	}
+
+	relationship,err := models.NewRelationship().UpdateRoleId(book.BookId,member_id,role);
+
+	if err != nil {
+		logs.Error("变更用户在项目中的权限 => ",err)
+		c.JsonResult(6005,err.Error())
+	}
+
+	memberRelationshipResult := models.NewMemberRelationshipResult().FromMember(member)
+	memberRelationshipResult.RoleId = relationship.RoleId
+	memberRelationshipResult.RelationshipId = relationship.RelationshipId
+	memberRelationshipResult.BookId = book.BookId
+	memberRelationshipResult.ResolveRoleName()
+
+	c.JsonResult(0,"ok",memberRelationshipResult)
+}
+
+// 删除参与者.
+func (c *BookController) RemoveMember()  {
+	identify := c.GetString("identify")
+	member_id,_ := c.GetInt("member_id",0)
+
+	if identify == "" || member_id <=0 {
+		c.JsonResult(6001,"参数错误")
+	}
+	if member_id == c.Member.MemberId {
+		c.JsonResult(6006,"不能变更自己的权限")
+	}
+	book ,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.JsonResult(403,"权限不足")
+		}
+		if err == orm.ErrNoRows {
+			c.JsonResult(404,"项目不存在")
+		}
+		c.JsonResult(6002,err.Error())
+	}
+	if book.RoleId != 0 && book.RoleId != 1 {
+		c.JsonResult(403,"权限不足")
+	}
+	err = models.NewRelationship().DeleteByBookIdAndMemberId(book.BookId,member_id)
+
+	if err != nil {
+		c.JsonResult(6007,err.Error())
+	}
+	c.JsonResult(0,"ok")
+}
+
+// Create 创建项目.
 func (c *BookController) Create() {
 
 	if c.Ctx.Input.IsPost() {
@@ -203,7 +307,7 @@ func (c *BookController) Create() {
 
 		book := models.NewBook()
 
-		if books,err := book.FindByField("identify",identify); err == nil || len(books) > 0 {
+		if books,_ := book.FindByField("identify",identify); len(books) > 0 {
 			c.JsonResult(6006,"项目标识已存在")
 		}
 
@@ -224,7 +328,10 @@ func (c *BookController) Create() {
 		if err != nil {
 			c.JsonResult(6005,err.Error())
 		}
-		c.JsonResult(0,"ok",book)
+		bookResult := models.NewBookResult()
+		bookResult.FindByIdentify(book.Identify,c.Member.MemberId)
+
+		c.JsonResult(0,"ok",bookResult)
 	}
 	c.JsonResult(6001,"error")
 }
@@ -235,7 +342,7 @@ func (p *BookController) Edit() {
 
 }
 
-//创建访问来令牌
+// CreateToken 创建访问来令牌.
 func (c *BookController) CreateToken() {
 	book_id,_ := c.GetInt("book_id",0)
 
@@ -268,7 +375,7 @@ func (c *BookController) CreateToken() {
 		c.JsonResult(6001,"公开项目不能创建阅读令牌")
 	}
 
-	book.PrivateToken = utils.Krand(20,utils.KC_RAND_KIND_ALL)
+	book.PrivateToken = string(utils.Krand(20,utils.KC_RAND_KIND_ALL))
 	if err := book.Update(); err != nil {
 		logs.Error("生成阅读令牌失败 => ",err)
 		c.JsonResult(6003,"生成阅读令牌失败")

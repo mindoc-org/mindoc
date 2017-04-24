@@ -4,6 +4,7 @@ import (
 	"time"
 	"github.com/astaxie/beego/orm"
 	"strings"
+	"github.com/astaxie/beego/logs"
 )
 
 type BookResult struct {
@@ -23,6 +24,8 @@ type BookResult struct {
 	Cover string            `json:"cover"`
 	Label string		`json:"label"`
 	MemberId int            `json:"member_id"`
+
+	RelationshipId int	`json:"relationship_id"`
 	RoleId int        	`json:"role_id"`
 	RoleName string 	`json:"role_name"`
 	Status int
@@ -34,6 +37,7 @@ func NewBookResult() *BookResult {
 	return &BookResult{}
 }
 
+// 根据项目标识查询项目以及指定用户权限的信息.
 func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,error) {
 	o := orm.NewOrm()
 
@@ -57,6 +61,7 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id",book.BookId).Filter("role_id",0).One(&relationship2)
 
 	if err != nil {
+		logs.Error("根据项目标识查询项目以及指定用户权限的信息 => ",err)
 		return m,ErrPermissionDenied
 	}
 
@@ -86,6 +91,7 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 
 	m.MemberId = relationship.MemberId
 	m.RoleId = relationship.RoleId
+	m.RelationshipId = relationship.RelationshipId
 
 	if m.RoleId == 0{
 		m.RoleName = "创始人"
@@ -112,3 +118,40 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 	return m,nil
 
 }
+
+func (m *BookResult) FindToPager(pageIndex, pageSize int) (books []*BookResult,totalCount int,err error)  {
+	o := orm.NewOrm()
+
+	count,err := o.QueryTable(NewBook().TableNameWithPrefix()).Count()
+
+	if err != nil {
+		return
+	}
+	totalCount = int(count)
+
+	sql := "SELECT book.*,rel.relationship_id,rel.role_id,m.account AS create_name FROM md_books AS book LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0 LEFT JOIN md_members AS m ON rel.member_id = m.member_id ORDER BY book.order_index DESC ,book.book_id DESC  LIMIT ?,?"
+	offset := (pageIndex -1 )* pageSize
+
+	_,err = o.Raw(sql,offset,pageSize).QueryRows(&books)
+
+	return
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

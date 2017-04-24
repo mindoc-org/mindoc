@@ -5,6 +5,7 @@ import (
 
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/godoc/conf"
+	"github.com/astaxie/beego/logs"
 )
 
 // Book struct .
@@ -32,7 +33,7 @@ type Book struct {
 	Cover string 		`orm:"column();size(1000)" json:"cover"`
 
 	// CreateTime 创建时间 .
-	CreateTime time.Time	`orm:"type(datetime);column(create_time);auto_now_add"`
+	CreateTime time.Time	`orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
 	MemberId int		`orm:"column(member_id);size(100)" json:"member_id"`
 	ModifyTime time.Time	`orm:"type(datetime);column(modify_time);null;auto_now" json:"modify_time"`
 	Version int64		`orm:"type(bigint);column(version)" json:"version"`
@@ -58,6 +59,14 @@ func NewBook() *Book {
 func (m *Book) Insert() error {
 	o := orm.NewOrm()
 	_,err := o.Insert(m)
+
+	if err == nil {
+		relationship := NewRelationship()
+		relationship.BookId = m.BookId
+		relationship.RoleId = 0
+		relationship.MemberId = m.MemberId
+		err = relationship.Insert()
+	}
 
 	return err
 }
@@ -87,7 +96,15 @@ func (m *Book) FindByField(field string,value interface{}) ([]Book,error)  {
 	return books,err
 }
 
-func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []BookResult,totalCount int,err error){
+func (m *Book) FindByFieldFirst(field string,value interface{})(*Book,error) {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(conf.GetDatabasePrefix() + m.TableName()).Filter(field,value).One(m)
+
+	return m,err
+
+}
+func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []*BookResult,totalCount int,err error){
 
 	relationship := NewRelationship()
 
@@ -116,12 +133,16 @@ func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []BookResul
 		On("book.book_id=rel.book_id").
 		LeftJoin(NewMember().TableNameWithPrefix() + " AS m").On("rel.member_id=m.member_id AND rel.role_id=0").
 		Where("rel.member_id=?").
-		OrderBy("book.order_index").Desc().
+		OrderBy("book.order_index DESC ","book.book_id").Desc().
 		Limit(pageSize).
 		Offset(offset)
 
+	//logs.Info("",qb2.String())
 	_,err = o.Raw(qb2.String(),memberId).QueryRows(&books)
-
+	if err != nil {
+		logs.Error("分页查询项目列表 => ",err)
+		return
+	}
 	sql := "SELECT m.account,doc.modify_time FROM md_documents AS doc LEFT JOIN md_members AS m ON doc.modify_at=m.member_id WHERE book_id = ? LIMIT 1 ORDER BY doc.modify_time DESC"
 
 	if err == nil && len(books) > 0{
@@ -142,7 +163,7 @@ func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []BookResul
 				book.RoleName = "管理员"
 			}else if book.RoleId == 2 {
 				book.RoleName = "编辑者"
-			}else if book.RoleId == 2 {
+			}else if book.RoleId == 3 {
 				book.RoleName = "观察者"
 			}
 		}
@@ -186,7 +207,7 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 		o.Rollback()
 		return err
 	}
-	sql4 := "DELETE FROM " + NewRelationship() + " WHERE book_id = ?"
+	sql4 := "DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id = ?"
 
 	_,err = o.Raw(sql4).Exec()
 

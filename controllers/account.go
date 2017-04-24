@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/utils"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 )
 
 // AccountController 用户登录与注册.
@@ -38,8 +38,8 @@ func (c *AccountController) Login()  {
 	}
 
 	if c.Ctx.Input.IsPost() {
-		account := c.GetString("inputAccount")
-		password := c.GetString("inputPassword")
+		account := c.GetString("account")
+		password := c.GetString("password")
 
 		member,err := models.NewMember().Login(account,password)
 
@@ -49,7 +49,7 @@ func (c *AccountController) Login()  {
 			c.JsonResult(0,"ok")
 			c.StopRun()
 		}else{
-			fmt.Println(err)
+			logs.Error("用户登录 =>",err)
 			c.JsonResult(500,"账号或密码错误",nil)
 		}
 

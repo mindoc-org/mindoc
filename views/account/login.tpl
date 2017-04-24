@@ -48,7 +48,7 @@
                         <div class="input-group-addon">
                             <i class="fa fa-lock"></i>
                         </div>
-                        <input type="password" class="form-control" placeholder="密码" name="passwd" id="passwd" autocomplete="off">
+                        <input type="password" class="form-control" placeholder="密码" name="password" id="password" autocomplete="off">
                     </div>
                 </div>
                 {{if ne .ENABLED_CAPTCHA "false"}}
@@ -101,7 +101,7 @@
             var $btn = $(this).button('loading');
 
             var account = $.trim($("#account").val());
-            var passwd = $.trim($("#passwd").val());
+            var password = $.trim($("#password").val());
             var code = $("#code").val();
             if(account === ""){
                 $("#account").tooltip({placement:"auto",title : "账号不能为空",trigger : 'manual'})
@@ -110,8 +110,8 @@
                 $btn.button('reset');
                 return false;
 
-            }else if(passwd === ""){
-                $("#passwd").tooltip({title : '密码不能为空',trigger : 'manual'})
+            }else if(password === ""){
+                $("#password").tooltip({title : '密码不能为空',trigger : 'manual'})
                     .tooltip('show')
                     .parents('.form-group').addClass('has-error');
                 $btn.button('reset');
@@ -130,7 +130,7 @@
                     type : "POST",
                     success : function (res) {
 
-                        if(res.errcode != 20001){
+                        if(res.errcode !== 0){
                             $("#captcha-img").click();
                             $("#code").val('');
                             layer.msg(res.message);

@@ -52,18 +52,31 @@
                                     <template v-if="item.role_id == 0">
                                         创始人
                                     </template>
-                                   <template v-else-if="item.role_id == 1">
-                                       {{if eq .Member.Role 0}}
-                                       <div class="btn-group">
-                                           <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">编辑者 <span class="caret"></span></button>
-                                           <ul class="dropdown-menu">
-                                               <li><a href="#">管理员</a> </li>
-                                               <li><a href="#">编辑者</a> </li>
-                                               <li><a href="#">观察者</a> </li>
-                                           </ul>
-                                       </div>
-                                       <a href="#" class="btn btn-danger btn-sm">移除</a>
-                                       {{end}}
+                                   <template v-else>
+                                       <template v-if="(book.role_id == 1 || book.role_id == 0) && member.member_id != item.member_id">
+                                           <div class="btn-group">
+                                               <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                   ${item.role_name}
+                                                   <span class="caret"></span></button>
+                                               <ul class="dropdown-menu">
+                                                   <li><a href="javascript:;" @click="setBookMemberRole(item.member_id,1)">管理员</a> </li>
+                                                   <li><a href="javascript:;" @click="setBookMemberRole(item.member_id,2)">编辑者</a> </li>
+                                                   <li><a href="javascript:;" @click="setBookMemberRole(item.member_id,3)">观察者</a> </li>
+                                               </ul>
+                                           </div>
+                                           <button type="button" class="btn btn-danger btn-sm">移除</button>
+                                       </template>
+                                       <template v-else>
+                                           <template v-if="item.role_id == 1">
+                                               管理员
+                                           </template>
+                                           <template v-else-if="item.role_id == 2">
+                                               编辑者
+                                           </template>
+                                           <template v-else-if="item.role_id == 3">
+                                               观察者
+                                           </template>
+                                       </template>
                                    </template>
                                 </div>
                             </div>
@@ -108,7 +121,7 @@
                 <div class="modal-footer">
                     <span id="form-error-message"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success">保存</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddMember">保存</button>
                 </div>
             </div>
         </form>
@@ -127,19 +140,56 @@
                 if(account === ""){
                     return showError("账号不能为空");
                 }
+                $("#btnAddMember").button("loading");
             },
             success : function (res) {
-
+                if(res.errcode === 0){
+                    app.lists.splice(0,0,res.data);
+                    $("#addBookMemberDialogModal").modal("hide");
+                }else{
+                    showError(res.message);
+                }
+                $("#btnAddMember").button("reset");
             }
         });
 
-        new Vue({
+        var app = new Vue({
             el : "#userList",
             data : {
-                lists : {{.Result}}
+                lists : {{.Result}},
+                member : {
+                    member_role : {{.Member.Role}},
+                    member_id : {{.Member.MemberId}}
+                },
+                book : {
+                    role_id : {{.Model.RoleId}},
+                    identify : {{.Model.Identify}}
+                }
             },
             delimiters : ['${','}'],
             methods : {
+                setBookMemberRole : function (member_id, role_id) {
+                    var $this = this;
+                    $.ajax({
+                       url : "{{urlfor "BookController.ChangeRole"}}",
+                        data : { "identify" : $this.book.identify,"member_id" : member_id,"role_id" : role_id },
+                        type :"post",
+                        dataType : "json",
+                        success : function (res) {
+                            console.log(res);
+                            if (res.errcode === 0){
+                                for(var index in $this.lists){
+                                    var item = $this.lists[index];
+                                    if (item.member_id === member_id){
+                                        $this.lists.splice(index,1,res.data);
+                                    }
+                                }
+                            }else{
+                                alert(res.message);
+                            }
+                        }
+                    });
+                }
             }
         });
         Vue.nextTick(function () {

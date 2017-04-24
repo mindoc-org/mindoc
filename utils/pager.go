@@ -8,6 +8,7 @@ import (
 
 	"github.com/astaxie/beego/orm"
 	"fmt"
+	"math"
 )
 
 type PageOptions struct {
@@ -99,19 +100,21 @@ func GetPagerHtml(requestURI string,pageIndex, pageSize,totalCount int) (html.HT
 		EnableFirstLastLink : true,
 		ParamName : "page",
 	}
-	setDefault(po,totalCount)
+	totalPages := int(math.Ceil(float64(totalCount) / float64(pageSize)))
+
+	setDefault(po,totalPages)
 	DealUri(po,requestURI)
 	str := ""
-	if totalCount <= po.LinkItemCount {
-		str = fun1(po, totalCount) //显示完全  12345678910
-	} else if totalCount > po.LinkItemCount {
+	if totalPages <= po.LinkItemCount {
+		str = fun1(po, totalPages) //显示完全  12345678910
+	} else if totalPages > po.LinkItemCount {
 		if po.CurrentPage < po.LinkItemCount {
-			str = fun2(po, totalCount) //123456789...200
+			str = fun2(po, totalPages) //123456789...200
 		} else {
-			if po.CurrentPage + po.LinkItemCount < totalCount {
-				str = fun3(po, totalCount)
+			if po.CurrentPage + po.LinkItemCount < totalPages {
+				str = fun3(po, totalPages)
 			} else {
-				str = fun4(po, totalCount)
+				str = fun4(po, totalPages)
 			}
 		}
 	}

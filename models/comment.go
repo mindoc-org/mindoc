@@ -58,7 +58,7 @@ func (m *Comment) Find(id int) error {
 func (m *Comment) Update(cols... string)  error {
 	o := orm.NewOrm()
 
-	_,err := o.Update(m,cols)
+	_,err := o.Update(m,cols...)
 
 	return err
 }

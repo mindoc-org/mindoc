@@ -27,7 +27,7 @@ func (c *ManagerController) Users()  {
 	c.Prepare()
 	c.TplName = "manager/users.tpl"
 
-	if c.Member.Role != 0 {
+	if !c.Member.IsAdministrator() {
 		c.Abort("403")
 	}
 
@@ -40,9 +40,14 @@ func (c *ManagerController) Users()  {
 		return
 	}
 
-	html := utils.GetPagerHtml(c.Ctx.Request.RequestURI,pageIndex,10,totalCount)
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, int(totalCount))
 
-	c.Data["PageHtml"] = html
+		c.Data["PageHtml"] = html
+	}else{
+		c.Data["PageHtml"] = ""
+	}
+
 	b,err := json.Marshal(members)
 
 	if err != nil {
@@ -55,7 +60,7 @@ func (c *ManagerController) Users()  {
 // 添加用户
 func (c *ManagerController) CreateMember() {
 	c.Prepare()
-	if c.Member.Role != 0{
+	if !c.Member.IsAdministrator(){
 		c.Abort("403")
 	}
 
@@ -77,7 +82,7 @@ func (c *ManagerController) CreateMember() {
 		c.JsonResult(6003,"确认密码不正确")
 	}
 	if  ok,err := regexp.MatchString(conf.RegexpEmail,email); !ok || err != nil || email == "" {
-		c.JsonResult(6004,"邮箱不能为空")
+		c.JsonResult(6004,"邮箱格式不正确")
 	}
 	if role != 0 && role != 1 {
 		role = 1
@@ -88,7 +93,7 @@ func (c *ManagerController) CreateMember() {
 
 	member := models.NewMember()
 
-	if err := member.FindByAccount(account); err != nil {
+	if err := member.FindByAccount(account); err == nil && member.MemberId > 0 {
 		c.JsonResult(6005,"账号已存在")
 	}
 
@@ -113,7 +118,7 @@ func (c *ManagerController) CreateMember() {
 func (c *ManagerController) UpdateMemberStatus()  {
 	c.Prepare()
 
-	if c.Member.Role != 0 {
+	if !c.Member.IsAdministrator() {
 		c.Abort("403")
 	}
 
@@ -144,12 +149,43 @@ func (c *ManagerController) Books()  {
 	c.Prepare()
 	c.TplName = "manager/books.tpl"
 
+	pageIndex, _ := c.GetInt("page", 1)
+
+	books,totalCount,err := models.NewBookResult().FindToPager(pageIndex,conf.PageSize)
+
+	if err != nil {
+		c.Abort("500")
+	}
+
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
+
+		c.Data["PageHtml"] = html
+	}else {
+		c.Data["PageHtml"] = ""
+	}
+
+	c.Data["Lists"] = books
+}
+
+func (c *ManagerController) EditBook()  {
+	c.TplName = "manager/edit_book.tpl"
+	identify := c.GetString(":key")
+
+	if identify == "" {
+		c.Abort("404")
+	}
+	book,err := models.NewBook().FindByFieldFirst("identify",identify)
+	if err != nil {
+		c.Abort("500")
+	}
+	c.Data["Model"] = book
 }
 
 // 删除项目.
 func (c *ManagerController) DeleteBook()  {
 	c.Prepare()
-	if c.Member.Role != 0 {
+	if !c.Member.IsAdministrator() {
 		c.Abort("403")
 	}
 
@@ -174,7 +210,7 @@ func (c *ManagerController) DeleteBook()  {
 
 func (c *ManagerController) Comments()  {
 	c.Prepare()
-	if c.Member.Role != 0 {
+	if !c.Member.IsAdministrator() {
 		c.Abort("403")
 	}
 }
@@ -182,7 +218,7 @@ func (c *ManagerController) Comments()  {
 //DeleteComment 标记评论为已删除
 func (c *ManagerController) DeleteComment()  {
 	c.Prepare()
-	if c.Member.Role != 0 {
+	if !c.Member.IsAdministrator() {
 		c.Abort("403")
 	}
 	comment_id,_ := c.GetInt("comment_id",0)
