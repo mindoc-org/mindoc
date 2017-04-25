@@ -2,13 +2,19 @@
     $("[data-toggle='tooltip']").tooltip();
 })();
 
-function showError($msg) {
-    $("#form-error-message").addClass("error-message").removeClass("success-message").text($msg);
+function showError($msg,$id) {
+    if(!$id){
+        $id = "#form-error-message"
+    }
+    $($id).addClass("error-message").removeClass("success-message").text($msg);
     return false;
 }
 
-function showSuccess($msg) {
-    $("#form-error-message").addClass("success-message").removeClass("error-message").text($msg);
+function showSuccess($msg,$id) {
+    if(!$id){
+        $id = "#form-error-message"
+    }
+    $($id).addClass("success-message").removeClass("error-message").text($msg);
     return true;
 }
 

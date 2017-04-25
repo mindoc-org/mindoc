@@ -12,14 +12,20 @@ import (
 	"github.com/lifei6671/godoc/utils"
 	"github.com/lifei6671/godoc/models"
 	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego"
 )
 
 type ManagerController struct {
 	BaseController
 }
 
-func (p *ManagerController) Index() {
-	p.TplName = "manager/index.tpl"
+func (c *ManagerController) Index() {
+	c.TplName = "manager/index.tpl"
+	if !c.Member.IsAdministrator() {
+		c.Abort("403")
+	}
+
+	c.Data["Model"] = models.NewDashboard().Query()
 }
 
 // 用户列表.
@@ -93,7 +99,7 @@ func (c *ManagerController) CreateMember() {
 
 	member := models.NewMember()
 
-	if err := member.FindByAccount(account); err == nil && member.MemberId > 0 {
+	if _,err := member.FindByAccount(account); err == nil && member.MemberId > 0 {
 		c.JsonResult(6005,"账号已存在")
 	}
 
@@ -145,6 +151,36 @@ func (c *ManagerController) UpdateMemberStatus()  {
 	c.JsonResult(0,"ok",member)
 }
 
+func (c *ManagerController) ChangeMemberRole()  {
+	c.Prepare()
+
+	if !c.Member.IsAdministrator() {
+		c.Abort("403")
+	}
+
+	member_id,_ := c.GetInt("member_id",0)
+	role ,_ := c.GetInt("role",0)
+	if member_id <= 0 {
+		c.JsonResult(6001,"参数错误")
+	}
+	if role != conf.MemberAdminRole && role != conf.MemberGeneralRole {
+		c.JsonResult(6001,"用户权限不正确")
+	}
+	member := models.NewMember()
+
+	if err := member.Find(member_id); err != nil {
+		c.JsonResult(6002,"用户不存在")
+	}
+	member.Role = role
+
+	if err := member.Update();err != nil {
+		logs.Error("",err)
+		c.JsonResult(6003,"用户权限设置失败")
+	}
+	member.ResolveRoleName()
+	c.JsonResult(0,"ok",member)
+}
+
 func (c *ManagerController) Books()  {
 	c.Prepare()
 	c.TplName = "manager/books.tpl"
@@ -168,6 +204,7 @@ func (c *ManagerController) Books()  {
 	c.Data["Lists"] = books
 }
 
+//编辑项目
 func (c *ManagerController) EditBook()  {
 	c.TplName = "manager/edit_book.tpl"
 	identify := c.GetString(":key")
@@ -179,8 +216,43 @@ func (c *ManagerController) EditBook()  {
 	if err != nil {
 		c.Abort("500")
 	}
+	if c.Ctx.Input.IsPost() {
+
+		book_name := strings.TrimSpace(c.GetString("book_name"))
+		description := strings.TrimSpace(c.GetString("description",""))
+		comment_status := c.GetString("comment_status")
+		tag := strings.TrimSpace(c.GetString("label"))
+
+		if strings.Count(description,"") > 500 {
+			c.JsonResult(6004,"项目描述不能大于500字")
+		}
+		if comment_status != "open" && comment_status != "closed" && comment_status != "group_only" && comment_status != "registered_only" {
+			comment_status = "closed"
+		}
+		if tag != ""{
+			tags := strings.Split(tag,";")
+			if len(tags) > 10 {
+				c.JsonResult(6005,"最多允许添加10个标签")
+			}
+		}
+
+
+		book.BookName = book_name
+		book.Description = description
+		book.CommentStatus = comment_status
+		book.Label = tag
+
+		if err := book.Update();err != nil {
+			c.JsonResult(6006,"保存失败")
+		}
+		c.JsonResult(0,"ok")
+	}
+	if book.PrivateToken != "" {
+		book.PrivateToken = c.BaseUrl() + beego.URLFor("DocumentController.Index",":key",book.Identify,"token",book.PrivateToken)
+	}
 	c.Data["Model"] = book
 }
+
 
 // 删除项目.
 func (c *ManagerController) DeleteBook()  {
@@ -202,17 +274,54 @@ func (c *ManagerController) DeleteBook()  {
 		c.JsonResult(6002,"项目不存在")
 	}
 	if err != nil {
-		logs.Error("",err)
+		logs.Error("DeleteBook => ",err)
 		c.JsonResult(6003,"删除失败")
 	}
 	c.JsonResult(0,"ok")
 }
 
+
+// CreateToken 创建访问来令牌.
+func (c *ManagerController) CreateToken() {
+
+	action := c.GetString("action")
+
+	identify := c.GetString("identify")
+
+	book,err := models.NewBook().FindByFieldFirst("identify",identify);
+
+	if err != nil {
+		c.JsonResult(6001,"项目不存在")
+	}
+	if action == "create" {
+
+		if book.PrivatelyOwned == 0 {
+			c.JsonResult(6001, "公开项目不能创建阅读令牌")
+		}
+
+		book.PrivateToken = string(utils.Krand(conf.GetTokenSize(), utils.KC_RAND_KIND_ALL))
+		if err := book.Update(); err != nil {
+			logs.Error("生成阅读令牌失败 => ", err)
+			c.JsonResult(6003, "生成阅读令牌失败")
+		}
+		c.JsonResult(0, "ok", c.BaseUrl() +  beego.URLFor("DocumentController.Index",":key",book.Identify,"token",book.PrivateToken))
+	}else{
+		book.PrivateToken = ""
+		if err := book.Update();err != nil {
+			logs.Error("CreateToken => ",err)
+			c.JsonResult(6004,"删除令牌失败")
+		}
+		c.JsonResult(0,"ok","")
+	}
+}
+
 func (c *ManagerController) Comments()  {
 	c.Prepare()
+	c.TplName = "manager/comments.tpl"
 	if !c.Member.IsAdministrator() {
 		c.Abort("403")
 	}
+
 }
 
 //DeleteComment 标记评论为已删除

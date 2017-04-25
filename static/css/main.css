@@ -382,6 +382,32 @@ textarea{
     display: inline-block;
     height: 40px;
 }
+.manager .dashboard-item{
+    float: left;
+    width: 100px;
+    height: 115px;
+    padding: 10px;
+    font-size: 10px;
+    line-height: 1.4;
+    text-align: center;
+    background-color: #f9f9f9;
+    border: 1px solid #fff;
+    cursor: pointer;
+}
+.manager .dashboard-item:hover{
+    background-color: #563D7C;
+    color: #ffffff;
+}
+.manager .dashboard-item .fa{
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+.manager .dashboard-item .fa-class {
+    display: block;
+    text-align: center;
+    word-wrap: break-word; /* Help out IE10+ with class names */
+}
 
 /**************网站底部样式*************************/
 .footer{

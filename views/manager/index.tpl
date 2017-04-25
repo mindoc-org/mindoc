@@ -32,6 +32,40 @@
                     <li><a href="{{urlfor "ManagerController.Comments" }}" class="item"><i class="fa fa-comments-o" aria-hidden="true"></i> 评论管理</a> </li>
                 </ul>
             </div>
+            <div class="page-right">
+                <div class="m-box">
+                    <div class="box-head">
+                        <strong class="box-title">仪表盘</strong>
+                    </div>
+                </div>
+                <div class="box-body manager">
+                    <div class="dashboard-item">
+                        <span class="fa fa-book" aria-hidden="true"></span>
+                        <span class="fa-class">项目数量</span>
+                        <span class="fa-class">{{.Model.BookNumber}}</span>
+                    </div>
+                    <div class="dashboard-item">
+                        <span class="fa fa-file-text-o" aria-hidden="true"></span>
+                        <span class="fa-class">文章数量</span>
+                        <span class="fa-class">{{.Model.DocumentNumber}}</span>
+                    </div>
+                    <div class="dashboard-item">
+                        <span class="fa fa-users" aria-hidden="true"></span>
+                        <span class="fa-class">会员数量</span>
+                        <span class="fa-class">{{.Model.MemberNumber}}</span>
+                    </div>
+                    <div class="dashboard-item">
+                        <span class="fa fa-comments-o" aria-hidden="true"></span>
+                        <span class="fa-class">评论数量</span>
+                        <span class="fa-class">{{.Model.CommentNumber}}</span>
+                    </div>
+                    <div class="dashboard-item">
+                        <span class="fa fa-cloud-download" aria-hidden="true"></span>
+                        <span class="fa-class">附件数量</span>
+                        <span class="fa-class">{{.Model.AttachmentNumber}}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

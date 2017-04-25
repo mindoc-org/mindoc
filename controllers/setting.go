@@ -1,22 +1,17 @@
 package controllers
 
 import (
-	"image"
 	"fmt"
 	"os"
 	"strings"
-	"image/jpeg"
-	"image/png"
-	"image/gif"
 	"path/filepath"
 	"strconv"
 	"time"
-	"io/ioutil"
-	"bytes"
 
 	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/utils"
+	"github.com/lifei6671/godoc/graphics"
 )
 
 type SettingController struct {
@@ -113,9 +108,9 @@ func (c *SettingController) Upload() {
 
 	fmt.Println(x,x1,y,y1)
 
-	fileName := "avatar_" +  strconv.FormatInt(int64(time.Now().Nanosecond()), 16)
+	fileName := "avatar_" +  strconv.FormatInt(time.Now().UnixNano(), 16)
 
-	filePath := "static/uploads/" + time.Now().Format("200601") + "/" + fileName + ext
+	filePath := "uploads/" + time.Now().Format("200601") + "/" + fileName + ext
 
 	path := filepath.Dir(filePath)
 
@@ -128,61 +123,22 @@ func (c *SettingController) Upload() {
 		c.JsonResult(500,"图片保存失败")
 	}
 
-	fileBytes,err := ioutil.ReadFile(filePath)
+
+	//剪切图片
+	subImg,err := graphics.ImageCopyFromFile(filePath,x,y,width,height)
 
 	if err != nil {
-		logs.Error("",err)
-		c.JsonResult(500,"图片保存失败")
+		logs.Error("ImageCopyFromFile => ",err)
+		c.JsonResult(6001,"头像剪切失败")
 	}
 
-	buf := bytes.NewBuffer(fileBytes)
-
-	m,_,err := image.Decode(buf)
-
-	if err != nil{
-		logs.Error("image.Decode => ",err)
-		c.JsonResult(500,"图片解码失败")
-	}
-
-
-	var subImg image.Image
-
-	if rgbImg,ok := m.(*image.YCbCr); ok {
-		subImg = rgbImg.SubImage(image.Rect(x, y, x+width, y+height)).(*image.YCbCr) //图片裁剪x0 y0 x1 y1
-	}else if rgbImg,ok := m.(*image.RGBA); ok {
-		subImg = rgbImg.SubImage(image.Rect(x, y, x+width, y+height)).(*image.YCbCr) //图片裁剪x0 y0 x1 y1
-	}else if rgbImg,ok := m.(*image.NRGBA); ok {
-		subImg = rgbImg.SubImage(image.Rect(x, y, x+width, y+height)).(*image.YCbCr) //图片裁剪x0 y0 x1 y1
-	} else {
-		fmt.Println(m)
-		c.JsonResult(500,"图片解码失败")
-	}
-
-	f, err := os.OpenFile("./" + filePath, os.O_SYNC | os.O_RDWR, 0666)
-
-	if err != nil{
-		c.JsonResult(500,"保存图片失败")
-	}
-	defer f.Close()
-
-	if strings.EqualFold(ext,".jpg") || strings.EqualFold(ext,".jpeg"){
-
-		err = jpeg.Encode(f,subImg,&jpeg.Options{ Quality : 100 })
-	}else if strings.EqualFold(ext,".png") {
-		err = png.Encode(f,subImg)
-	}else if strings.EqualFold(ext,".gif") {
-		err = gif.Encode(f,subImg,&gif.Options{ NumColors : 256})
-	}
-	if err != nil {
-		logs.Error("图片剪切失败 => ",err.Error())
-		c.JsonResult(500,"图片剪切失败")
-	}
-
+	err = graphics.SaveImage(filePath,subImg)
 
 	if err != nil {
 		logs.Error("保存文件失败 => ",err.Error())
 		c.JsonResult(500,"保存文件失败")
 	}
+
 	url := "/" + filePath
 
 	member := models.NewMember()

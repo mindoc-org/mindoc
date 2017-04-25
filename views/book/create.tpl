@@ -28,7 +28,9 @@
                 <ul class="menu">
                     <li><a href="{{urlfor "BookController.Dashboard" ":key" "test"}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
                     <li><a href="{{urlfor "BookController.Users" ":key" "test"}}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
+                    {{if eq .Model.RoleId 0 1}}
                     <li class="active"><a href="{{urlfor "BookController.Setting" ":key" "test"}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                    {{end}}
                 </ul>
 
             </div>

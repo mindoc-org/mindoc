@@ -47,7 +47,14 @@
                             <div class="book-title">
                                 <div class="pull-left">
                                     <a :href="'/book/' + item.identify + '/dashboard'" title="项目概要" data-toggle="tooltip">
-                                        <i class="fa fa-unlock" aria-hidden="true"></i> ${item.book_name}
+                                       <template v-if="item.privately_owned == 0">
+                                           <i class="fa fa-unlock" aria-hidden="true"></i>
+                                       </template>
+                                       <template v-else-if="item.privately_owned == 1">
+                                           <i class="fa fa-lock" aria-hidden="true"></i>
+                                       </template>
+
+                                        ${item.book_name}
                                     </a>
                                 </div>
                                 <div class="pull-right">

@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"strings"
 	"github.com/astaxie/beego/logs"
+	"github.com/lifei6671/godoc/conf"
 )
 
 type BookResult struct {
@@ -93,15 +94,16 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 	m.RoleId = relationship.RoleId
 	m.RelationshipId = relationship.RelationshipId
 
-	if m.RoleId == 0{
+	if m.RoleId == conf.BookFounder {
 		m.RoleName = "创始人"
-	}else if m.RoleId == 1 {
+	}else if m.RoleId == conf.BookAdmin {
 		m.RoleName = "管理员"
-	}else if m.RoleId == 2 {
+	}else if m.RoleId == conf.BookEditor {
 		m.RoleName = "编辑者"
-	}else if m.RoleId == 2 {
+	}else if m.RoleId == conf.BookObserver {
 		m.RoleName = "观察者"
 	}
+
 
 
 	doc := NewDocument()

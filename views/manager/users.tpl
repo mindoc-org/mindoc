@@ -68,11 +68,16 @@
                                         <template v-if="item.role == 0">
                                             超级管理员
                                         </template>
-                                        <template v-else-if="item.role === 1">
-                                            管理员
-                                        </template>
                                         <template v-else>
-                                            普通用户
+                                            <div class="btn-group">
+                                            <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                ${item.role_name}
+                                                <span class="caret"></span></button>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="javascript:;" @click="setMemberRole(item.member_id,1)">管理员</a> </li>
+                                                <li><a href="javascript:;" @click="setMemberRole(item.member_id,2)">普通用户</a> </li>
+                                            </ul>
+                                            </div>
                                         </template>
                                     </td>
                                     <td>
@@ -84,15 +89,12 @@
                                         </template>
                                     </td>
                                     <td>
-                                        <template v-if="item.role == 0">
-                                            超级管理员
-                                        </template>
-                                        <template v-else>
-                                            <template v-if="item.status == 1">
-                                                <button type="button" class="btn btn-danger btn-sm" @click="setMemberStatus(item.member_id,0,$event)" data-loading-text="启用中...">禁用</button>
+                                        <template v-if="item.role != 0">
+                                            <template v-if="item.status == 0">
+                                                <button type="button" class="btn btn-danger btn-sm" @click="setMemberStatus(item.member_id,1,$event)" data-loading-text="启用中...">禁用</button>
                                             </template>
                                             <template v-else>
-                                                <button type="button" class="btn btn-success btn-sm" @click="setMemberStatus(item.member_id,1,$event)" data-loading-text="禁用中...">启用</button>
+                                                <button type="button" class="btn btn-success btn-sm" @click="setMemberStatus(item.member_id,0,$event)" data-loading-text="禁用中...">启用</button>
                                             </template>
                                         </template>
                                     </td>
@@ -236,9 +238,9 @@
                                 for (var index in $this.lists) {
                                     var item = $this.lists[index];
 
-                                    if (item.member_id == id) {
+                                    if (item.member_id === id) {
                                         console.log(item);
-                                        item.status = status;
+                                        $this.lists[index].status = status;
                                         break;
                                         //$this.lists.splice(index,1,item);
                                     }
@@ -249,6 +251,30 @@
                         }
                     })
 
+                },
+                setMemberRole : function (member_id, role) {
+                    var $this = this;
+                    $.ajax({
+                        url :"{{urlfor "ManagerController.ChangeMemberRole"}}",
+                        dataType :"json",
+                        type :"post",
+                        data : { "member_id" : member_id,"role" : role },
+                        success : function (res) {
+                            if(res.errcode === 0){
+                                for (var index in $this.lists) {
+                                    var item = $this.lists[index];
+
+                                    if (item.member_id === member_id) {
+
+                                        $this.lists.splice(index,1,res.data);
+                                        break;
+                                    }
+                                }
+                            }else{
+                                alert("操作失败：" + res.message);
+                            }
+                        }
+                    })
                 }
             }
         });

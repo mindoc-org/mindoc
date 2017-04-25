@@ -28,7 +28,9 @@
                 <ul class="menu">
                     <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
                     <li class="active"><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
+                    {{if eq .Model.RoleId 0 1}}
                     <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                    {{end}}
                 </ul>
 
             </div>
@@ -36,7 +38,9 @@
                 <div class="m-box">
                     <div class="box-head">
                         <strong class="box-title"> 成员管理</strong>
+                        {{if eq .Model.RoleId 0 1}}
                         <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addBookMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> 添加成员</button>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body">
@@ -64,7 +68,7 @@
                                                    <li><a href="javascript:;" @click="setBookMemberRole(item.member_id,3)">观察者</a> </li>
                                                </ul>
                                            </div>
-                                           <button type="button" class="btn btn-danger btn-sm">移除</button>
+                                           <button type="button" class="btn btn-danger btn-sm" @click="removeBookMember(item.member_id)">移除</button>
                                        </template>
                                        <template v-else>
                                            <template v-if="item.role_id == 1">
@@ -182,6 +186,27 @@
                                     var item = $this.lists[index];
                                     if (item.member_id === member_id){
                                         $this.lists.splice(index,1,res.data);
+                                    }
+                                }
+                            }else{
+                                alert(res.message);
+                            }
+                        }
+                    });
+                },
+                removeBookMember : function (member_id) {
+                    var $this = this;
+                    $.ajax({
+                        url : "{{urlfor "BookController.RemoveMember"}}",
+                        type :"post",
+                        dataType :"json",
+                        data :{ "identify" : $this.book.identify,"member_id" : member_id},
+                        success : function (res) {
+                            if(res.errcode === 0){
+                                for(var index in $this.lists){
+                                    if($this.lists[index].member_id === member_id){
+                                        $this.lists.splice(index,1);
+                                        break;
                                     }
                                 }
                             }else{

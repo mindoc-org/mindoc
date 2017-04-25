@@ -10,7 +10,8 @@
     <!-- Bootstrap -->
     <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-
+    <link href="/static/webuploader/webuploader.css" rel="stylesheet">
+    <link href="/static/cropper/2.3.4/cropper.min.css" rel="stylesheet">
     <link href="/static/css/main.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -36,15 +37,16 @@
                 <div class="m-box">
                     <div class="box-head">
                         <strong class="box-title"> 项目设置</strong>
-                        <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;">删除项目</button>
+                        <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;" data-toggle="modal" data-target="#deleteBookModal">删除项目</button>
                     </div>
                 </div>
                 <div class="box-body" style="padding-right: 200px;">
                     <div class="form-left">
-                        <form method="post" id="bookEditForm">
+                        <form method="post" id="bookEditForm" action="{{urlfor "ManagerController.EditBook"}}">
+                            <input type="hidden" name="identify" value="{{.Model.Identify}}">
                             <div class="form-group">
                                 <label>标题</label>
-                                <input type="text" class="form-control" placeholder="项目名称" value="{{.Model.BookName}}">
+                                <input type="text" class="form-control" name="book_name" id="bookName" placeholder="项目名称" value="{{.Model.BookName}}">
                             </div>
                             <div class="form-group">
                                 <label>标识</label>
@@ -53,11 +55,11 @@
                             <div class="form-group">
                                 <label>描述</label>
                                 <textarea rows="3" class="form-control" name="description" style="height: 90px">{{.Model.Description}}</textarea>
-                                <p class="text">描述信息不超过300个字符</p>
+                                <p class="text">描述信息不超过500个字符</p>
                             </div>
                             <div class="form-group">
                                 <label>标签</label>
-                                <input type="text" class="form-control" placeholder="项目标签" value="{{.Model.Label}}">
+                                <input type="text" class="form-control" name="label" placeholder="项目标签" value="{{.Model.Label}}">
                                 <p class="text">最多允许添加10个标签，多个标签请用“;”分割</p>
                             </div>
                             <div class="form-group">
@@ -81,27 +83,25 @@
                             <div class="form-group">
                                 <label>访问令牌</label>
                                 <div class="row">
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" placeholder="访问令牌" readonly>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="token" id="token" class="form-control" placeholder="访问令牌" readonly value="{{.Model.PrivateToken}}">
                                     </div>
-                                    <div class="col-sm-4">
-                                        <button class="btn btn-success btn-sm">重写生成</button>
-                                        <button class="btn btn-danger btn-sm">删除令牌</button>
+                                    <div class="col-sm-2">
+                                        <button type="button" class="btn btn-success btn-sm" id="createToken" data-loading-text="生成" data-action="create">生成</button>
+                                        <button type="button" class="btn btn-danger btn-sm" id="deleteToken" data-loading-text="删除" data-action="delete">删除</button>
                                     </div>
                                 </div>
                             </div>
                             {{end}}
                             <div class="form-group">
-                                <button type="submit" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
+                                <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
                                 <span id="form-error-message" class="error-message"></span>
                             </div>
                         </form>
                     </div>
                     <div class="form-right">
                         <label>
-                            <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
-                                <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.png'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
-                            </a>
+                           <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.png'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
                         </label>
                     </div>
                     <div class="clearfix"></div>
@@ -112,9 +112,101 @@
     </div>
     {{template "widgets/footer.tpl" .}}
 </div>
-<script src="/static/jquery/1.12.4/jquery.min.js"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
+<!-- Delete Book Modal -->
+<div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel">
+    <div class="modal-dialog" role="document">
+        <form method="post" id="deleteBookForm" action="{{urlfor "BookController.Delete"}}">
+            <input type="hidden" name="identify" value="{{.Model.Identify}}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">删除项目</h4>
+                </div>
+                <div class="modal-body">
+                    <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
+                    <p></p>
+                    <p class="text error-message">删除项目后将无法找回。</p>
+                </div>
+                <div class="modal-footer">
+                    <span id="form-error-message2" class="error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" id="btnDeleteBook" class="btn btn-primary">确定删除</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
+<script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
+<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/static/webuploader/webuploader.min.js" type="text/javascript"></script>
+<script src="/static/cropper/2.3.4/cropper.min.js" type="text/javascript"></script>
+<script src="/static/js/jquery.form.js" type="text/javascript"></script>
+<script src="/static/js/main.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        $("#upload-logo-panel").on("hidden.bs.modal",function () {
+            $("#upload-logo-panel").find(".modal-body").html(window.modalHtml);
+        }).on("show.bs.modal",function () {
+            window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
+        });
+        $("#createToken,#deleteToken").on("click",function () {
+            var btn = $(this).button("loading");
+            var action = $(this).attr("data-action");
+            $.ajax({
+                url : "{{urlfor "ManagerController.CreateToken"}}",
+                type :"post",
+                data : { "identify" : {{.Model.Identify}} , "action" : action },
+                dataType : "json",
+                success : function (res) {
+                    if(res.errcode === 0){
+                        $("#token").val(res.data);
+                    }else{
+                        alert(res.message);
+                    }
+                    btn.button("reset");
+                },
+                error : function () {
+                    btn.button("reset");
+                    alert("服务器错误");
+                }
+            }) ;
+        });
+        $("#token").on("focus",function () {
+            $(this).select();
+        });
+        $("#bookEditForm").ajaxForm({
+            beforeSubmit : function () {
+                var bookName = $.trim($("#bookName").val());
+                if (bookName === "") {
+                    return showError("项目名称不能为空");
+                }
+                $("#btnSaveBookInfo").button("loading");
+            },
+            success : function (res) {
+                if(res.errcode === 0){
+                    showSuccess("保存成功")
+                }else{
+                    showError("保存失败")
+                }
+                $("#btnSaveBookInfo").button("reset");
+            },
+            error : function () {
+                showError("服务错误");
+                $("#btnSaveBookInfo").button("reset");
+            }
+        });
+        $("#deleteBookForm").ajaxForm({
+            success : function (res) {
+                if(res.errcode === 0){
+                    window.location = "{{urlfor "ManagerController.Books"}}";
+                }else{
+                    console.log(res.message)
+                    showError(res.message,"#form-error-message2");
+                }
+            }
+        });
+    });
+</script>
 </body>
 </html>

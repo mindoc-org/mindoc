@@ -103,6 +103,17 @@ func (m *Member) Find(id int) error{
 	if err := o.Read(m); err != nil {
 		return  err
 	}
+	if m.Role == conf.MemberSuperRole {
+		m.RoleName = "超级管理员"
+	}else if m.Role == conf.MemberAdminRole {
+		m.RoleName = "管理员"
+	}else if m.Role == conf.MemberGeneralRole {
+		m.RoleName = "普通用户"
+	}
+	return nil
+}
+
+func (m *Member) ResolveRoleName (){
 	if m.Role == 0 {
 		m.RoleName = "超级管理员"
 	}else if m.Role == 1 {
@@ -110,24 +121,17 @@ func (m *Member) Find(id int) error{
 	}else if m.Role == 2 {
 		m.RoleName = "普通用户"
 	}
-	return nil
 }
 
-func (m *Member) FindByAccount (account string) error  {
+func (m *Member) FindByAccount (account string) (*Member,error)  {
 	o := orm.NewOrm()
 
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter("account",account).One(m)
 
 	if err == nil {
-		if m.Role == 0 {
-			m.RoleName = "超级管理员"
-		}else if m.Role == 1 {
-			m.RoleName = "管理员"
-		}else if m.Role == 2 {
-			m.RoleName = "普通用户"
-		}
+		m.ResolveRoleName()
 	}
-	return err
+	return m,err
 }
 
 func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member,int64,error)  {

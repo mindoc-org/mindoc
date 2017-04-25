@@ -18,5 +18,13 @@ db_port=3306
 db_database=webhook_db
 db_username=root
 db_password=123456
+db_prefix=md_
 
-queue_size=50
+#项目默认封面
+cover=/static/images/book.jpg
+
+#默认头像
+avatar=/static/images/headimgurl.jpg
+
+#默认阅读令牌长度
+token_size=12

@@ -46,3 +46,11 @@ func GetDatabasePrefix() string  {
 func GetDefaultAvatar() string {
 	return beego.AppConfig.DefaultString("avatar","/static/images/headimgurl.jpg")
 }
+
+func GetTokenSize() int {
+	return beego.AppConfig.DefaultInt("token_size",12)
+}
+
+func GetDefaultCover() string {
+	return beego.AppConfig.DefaultString("cover","/static/images/book.jpg")
+}

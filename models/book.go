@@ -71,13 +71,16 @@ func (m *Book) Insert() error {
 	return err
 }
 
-func (m *Book) Find(id int) error {
+func (m *Book) Find(id int) (*Book,error) {
 	if id <= 0 {
-		return ErrInvalidParameter
+		return m,ErrInvalidParameter
 	}
 	o := orm.NewOrm()
 
-	return o.Read(m)
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",id).One(m)
+
+	return m,err
 }
 
 func (m *Book) Update(cols... string) error  {
@@ -201,7 +204,7 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 	}
 	sql3 := "DELETE FROM " + m.TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_,err = o.Raw(sql3).Exec()
+	_,err = o.Raw(sql3,m.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
@@ -209,7 +212,7 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 	}
 	sql4 := "DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_,err = o.Raw(sql4).Exec()
+	_,err = o.Raw(sql4,m.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()

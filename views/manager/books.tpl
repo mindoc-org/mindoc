@@ -46,7 +46,12 @@
                                 <div class="book-title">
                                     <div class="pull-left">
                                         <a href="{{urlfor "ManagerController.EditBook" ":key" $item.Identify}}" title="编辑项目" data-toggle="tooltip">
-                                            <i class="fa fa-unlock" aria-hidden="true"></i> {{$item.BookName}}
+                                            {{if eq $item.PrivatelyOwned 0}}
+                                            <i class="fa fa-unlock" aria-hidden="true"></i>
+                                            {{else}}
+                                            <i class="fa fa-lock" aria-hidden="true"></i>
+                                            {{end}}
+                                            {{$item.BookName}}
                                         </a>
                                     </div>
                                     <div class="pull-right">

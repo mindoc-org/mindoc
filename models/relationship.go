@@ -90,6 +90,14 @@ func (m *Relationship) FindForRoleId(book_id ,member_id int) (int,error) {
 	return relationship.RoleId,nil
 }
 
+func (m *Relationship) FindByBookIdAndMemberId(book_id ,member_id int) (*Relationship,error) {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",book_id).Filter("member_id",member_id).One(m)
+
+	return m,err
+}
+
 func (m *Relationship) Insert() error  {
 	o := orm.NewOrm()
 
@@ -126,6 +134,46 @@ func (m *Relationship) DeleteByBookIdAndMemberId(book_id,member_id int) error {
 	return nil
 
 }
+
+func (m *Relationship) Transfer(book_id,founder_id,receive_id int) error {
+	o := orm.NewOrm()
+
+	founder := NewRelationship()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",book_id).Filter("member_id",founder_id).One(founder)
+
+	if err != nil {
+		return err
+	}
+	if founder.RoleId != conf.BookFounder {
+		return errors.New("转让者不是创始人")
+	}
+	receive := NewRelationship()
+
+	err = o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",book_id).Filter("member_id",receive_id).One(receive)
+
+	if err != orm.ErrNoRows && err != nil {
+		return err
+	}
+	o.Begin()
+
+	founder.RoleId = conf.BookAdmin
+
+	receive.MemberId = receive_id
+	receive.RoleId = conf.BookFounder
+	receive.BookId = book_id
+
+	if err := founder.Update();err != nil {
+		o.Rollback()
+		return err
+	}
+	if _,err := o.InsertOrUpdate(receive);err != nil {
+		o.Rollback()
+		return err
+	}
+	return o.Commit()
+}
+
 
 
 

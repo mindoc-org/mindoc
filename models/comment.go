@@ -87,9 +87,9 @@ func (m *Comment) Insert() error {
 	if err := document.Find(m.DocumentId); err != nil {
 		return err
 	}
-	book := NewBook()
+	book ,err := NewBook().Find(document.BookId);
 	//如果评论的项目不存在
-	if err := book.Find(document.BookId); err != nil {
+	if err != nil {
 		return err
 	}
 	//如果已关闭评论
@@ -124,7 +124,7 @@ func (m *Comment) Insert() error {
 		m.Author = "[匿名用户]"
 	}
 	m.BookId = book.BookId
-	_,err := o.Insert(m)
+	_,err = o.Insert(m)
 
 	return err
 }

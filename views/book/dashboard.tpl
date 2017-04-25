@@ -28,7 +28,9 @@
                 <ul class="menu">
                     <li class="active"><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
                     <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
+                    {{if eq .Model.RoleId 0 1}}
                     <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                    {{end}}
                 </ul>
 
             </div>
@@ -45,7 +47,10 @@
                         </strong>
                         {{if ne .Model.RoleId 3}}
                         <a href="{{urlfor "BookController.Edit" ":key" .Model.Identify ":id" .Model.BookId}}" class="btn btn-default btn-sm pull-right" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
+                        {{end}}
                         <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-eye"></i> 阅读</a>
+
+                        {{if eq .Model.RoleId 0 1 2}}
                         <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-upload" aria-hidden="true"></i> 发布</a>
                         {{end}}
                     </div>
