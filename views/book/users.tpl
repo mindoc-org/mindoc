@@ -95,7 +95,7 @@
 <!-- Modal -->
 <div class="modal fade" id="addBookMemberDialogModal" tabindex="-1" role="dialog" aria-labelledby="addBookMemberDialogModalLabel">
     <div class="modal-dialog modal-sm" role="document" style="width: 400px;">
-        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "BookController.AddMember"}}" id="addBookMemberDialogForm">
+        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "BookMemberController.AddMember"}}" id="addBookMemberDialogForm">
             <input type="hidden" name="identify" value="{{.Model.Identify}}">
             <div class="modal-content">
                 <div class="modal-header">
@@ -175,7 +175,7 @@
                 setBookMemberRole : function (member_id, role_id) {
                     var $this = this;
                     $.ajax({
-                       url : "{{urlfor "BookController.ChangeRole"}}",
+                       url : "{{urlfor "BookMemberController.ChangeRole"}}",
                         data : { "identify" : $this.book.identify,"member_id" : member_id,"role_id" : role_id },
                         type :"post",
                         dataType : "json",
@@ -197,7 +197,7 @@
                 removeBookMember : function (member_id) {
                     var $this = this;
                     $.ajax({
-                        url : "{{urlfor "BookController.RemoveMember"}}",
+                        url : "{{urlfor "BookMemberController.RemoveMember"}}",
                         type :"post",
                         dataType :"json",
                         data :{ "identify" : $this.book.identify,"member_id" : member_id},

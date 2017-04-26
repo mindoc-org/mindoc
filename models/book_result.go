@@ -25,6 +25,7 @@ type BookResult struct {
 	Cover string            `json:"cover"`
 	Label string		`json:"label"`
 	MemberId int            `json:"member_id"`
+	Editor string           `json:"editor"`
 
 	RelationshipId int	`json:"relationship_id"`
 	RoleId int        	`json:"role_id"`
@@ -52,63 +53,62 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 
 	relationship := NewRelationship()
 
-	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id",book.BookId).Filter("member_id",member_id).One(relationship)
+	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("member_id", member_id).One(relationship)
 
 	if err != nil {
-		return m,err
+		return m, err
 	}
 	var relationship2 Relationship
 
-	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id",book.BookId).Filter("role_id",0).One(&relationship2)
+	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("role_id", 0).One(&relationship2)
 
 	if err != nil {
-		logs.Error("根据项目标识查询项目以及指定用户权限的信息 => ",err)
-		return m,ErrPermissionDenied
+		logs.Error("根据项目标识查询项目以及指定用户权限的信息 => ", err)
+		return m, ErrPermissionDenied
 	}
 
 	member := NewMember()
 
 	err = member.Find(relationship2.MemberId)
 	if err != nil {
-		return m,err
+		return m, err
 	}
 
-	m.BookId = book.BookId
-	m.BookName = book.BookName
-	m.Identify = book.Identify
-	m.OrderIndex = book.OrderIndex
-	m.Description = strings.Replace(book.Description,"\r\n","<br/>",-1)
-	m.PrivatelyOwned = book.PrivatelyOwned
-	m.PrivateToken = book.PrivateToken
-	m.DocCount = book.DocCount
-	m.CommentStatus = book.CommentStatus
-	m.CommentCount = book.CommentCount
-	m.CreateTime = book.CreateTime
-	m.CreateName = member.Account
-	m.ModifyTime = book.ModifyTime
-	m.Cover = book.Cover
-	m.Label = book.Label
-	m.Status = book.Status
+	m.BookId 	 	= book.BookId
+	m.BookName 	 	= book.BookName
+	m.Identify 	 	= book.Identify
+	m.OrderIndex 	 	= book.OrderIndex
+	m.Description 	 	= strings.Replace(book.Description, "\r\n", "<br/>", -1)
+	m.PrivatelyOwned 	= book.PrivatelyOwned
+	m.PrivateToken 		= book.PrivateToken
+	m.DocCount 		= book.DocCount
+	m.CommentStatus 	= book.CommentStatus
+	m.CommentCount 		= book.CommentCount
+	m.CreateTime 		= book.CreateTime
+	m.CreateName 		= member.Account
+	m.ModifyTime 		= book.ModifyTime
+	m.Cover 		= book.Cover
+	m.Label 		= book.Label
+	m.Status 		= book.Status
+	m.Editor 		= book.Editor
 
-	m.MemberId = relationship.MemberId
-	m.RoleId = relationship.RoleId
-	m.RelationshipId = relationship.RelationshipId
+	m.MemberId 		= relationship.MemberId
+	m.RoleId		= relationship.RoleId
+	m.RelationshipId	= relationship.RelationshipId
 
 	if m.RoleId == conf.BookFounder {
 		m.RoleName = "创始人"
-	}else if m.RoleId == conf.BookAdmin {
+	} else if m.RoleId == conf.BookAdmin {
 		m.RoleName = "管理员"
-	}else if m.RoleId == conf.BookEditor {
+	} else if m.RoleId == conf.BookEditor {
 		m.RoleName = "编辑者"
-	}else if m.RoleId == conf.BookObserver {
+	} else if m.RoleId == conf.BookObserver {
 		m.RoleName = "观察者"
 	}
 
-
-
 	doc := NewDocument()
 
-	err = o.QueryTable(doc.TableNameWithPrefix()).Filter("book_id",book.BookId).OrderBy("modify_time").One(doc)
+	err = o.QueryTable(doc.TableNameWithPrefix()).Filter("book_id", book.BookId).OrderBy("modify_time").One(doc)
 
 	if err == nil {
 		member2 := NewMember()
@@ -117,8 +117,7 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 		m.LastModifyText = member2.Account + " 于 " + doc.ModifyTime.Format("2006-01-02 15:04:05")
 	}
 
-	return m,nil
-
+	return m, nil
 }
 
 func (m *BookResult) FindToPager(pageIndex, pageSize int) (books []*BookResult,totalCount int,err error)  {

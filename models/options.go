@@ -24,6 +24,11 @@ func (m *Option) TableEngine() string {
 	return "INNODB"
 }
 
+func (m *Option)TableNameWithPrefix() string {
+	return conf.GetDatabasePrefix() +  m.TableName()
+}
+
+
 func NewOption() *Option  {
 	return &Option{}
 }
@@ -79,11 +84,11 @@ func (p *Option) InsertMulti(option... Option )  (error){
 	return err
 }
 
-func (p *Option) All() ([]Option,error)  {
+func (p *Option) All() ([]*Option,error)  {
 	o := orm.NewOrm()
-	var options []Option
+	var options []*Option
 
-	_,err := o.QueryTable(conf.GetDatabasePrefix() + p.TableName()).All(&options)
+	_,err := o.QueryTable(p.TableNameWithPrefix()).All(&options)
 
 	if err != nil {
 		return options,err

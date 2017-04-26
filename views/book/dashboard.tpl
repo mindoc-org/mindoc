@@ -46,7 +46,7 @@
                             {{.Model.BookName}}
                         </strong>
                         {{if ne .Model.RoleId 3}}
-                        <a href="{{urlfor "BookController.Edit" ":key" .Model.Identify ":id" .Model.BookId}}" class="btn btn-default btn-sm pull-right" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
+                        <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default btn-sm pull-right" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
                         {{end}}
                         <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-eye"></i> 阅读</a>
 

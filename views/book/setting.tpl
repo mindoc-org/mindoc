@@ -73,6 +73,17 @@
                                 <p class="text">最多允许添加10个标签，多个标签请用“;”分割</p>
                             </div>
                             <div class="form-group">
+                                <label>编辑器</label>
+                                <div class="radio">
+                                    <label class="radio-inline">
+                                        <input type="radio"{{if eq .Model.Editor "markdown"}} checked{{end}} name="editor" value="markdown"> Markdown编辑器
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio"{{if eq .Model.Editor "html"}} checked{{end}} name="editor" value="html"> Html编辑器
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label>开启评论</label>
                                 <div class="radio">
                                     <label class="radio-inline">

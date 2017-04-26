@@ -25,6 +25,8 @@ type Book struct {
 	PrivateToken string 	`orm:"column(private_token);size(500);null" json:"private_token"`
 	//评论状态：0 正常/1 已删除
 	Status int 		`orm:"column(status);type(int);default(0)" json:"status"`
+	//默认的编辑器.
+	Editor string		`orm:"column(editor);size(50)" json:"editor"`
 	// DocCount 包含文档数量.
 	DocCount int		`orm:"column(doc_count);type(int)" json:"doc_count"`
 	// CommentStatus 评论设置的状态:open 为允许所有人评论，closed 为不允许评论, group_only 仅允许参与者评论 ,registered_only 仅允许注册者评论.

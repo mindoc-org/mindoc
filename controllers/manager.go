@@ -253,7 +253,6 @@ func (c *ManagerController) EditBook()  {
 	c.Data["Model"] = book
 }
 
-
 // 删除项目.
 func (c *ManagerController) DeleteBook()  {
 	c.Prepare()
@@ -279,7 +278,6 @@ func (c *ManagerController) DeleteBook()  {
 	}
 	c.JsonResult(0,"ok")
 }
-
 
 // CreateToken 创建访问来令牌.
 func (c *ManagerController) CreateToken() {
@@ -313,6 +311,27 @@ func (c *ManagerController) CreateToken() {
 		}
 		c.JsonResult(0,"ok","")
 	}
+}
+
+func (c *ManagerController) Setting() {
+	c.Prepare()
+	c.TplName = "manager/setting.tpl"
+
+	if !c.Member.IsAdministrator() {
+		c.Abort("403")
+	}
+	if c.Ctx.Input.IsPost() {
+
+	}
+	options,err := models.NewOption().All()
+
+	if err != nil {
+		c.Abort("500")
+	}
+	for _,item := range options {
+		c.Data[item.OptionName] = item
+	}
+
 }
 
 func (c *ManagerController) Comments()  {

@@ -22,6 +22,7 @@ func init()  {
 	beego.Router("/manager/books/edit/:key", &controllers.ManagerController{},"*:EditBook")
 	beego.Router("/manager/comments", &controllers.ManagerController{},"*:Comments")
 	beego.Router("/manager/books/token", &controllers.ManagerController{},"post:CreateToken")
+	beego.Router("/manager/setting",&controllers.ManagerController{},"*:Setting")
 
 	beego.Router("/setting", &controllers.SettingController{},"*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{},"*:Password")
@@ -31,11 +32,11 @@ func init()  {
 	beego.Router("/book/:key/dashboard", &controllers.BookController{},"*:Dashboard")
 	beego.Router("/book/:key/setting", &controllers.BookController{},"*:Setting")
 	beego.Router("/book/:key/users", &controllers.BookController{},"*:Users")
-	beego.Router("/book/:key/edit", &controllers.BookController{},"*:Edit")
+
 	beego.Router("/book/create", &controllers.BookController{},"*:Create")
-	beego.Router("/book/users/create", &controllers.BookController{},"post:AddMember")
-	beego.Router("/book/users/change", &controllers.BookController{},"post:ChangeRole")
-	beego.Router("/book/users/delete", &controllers.BookController{},"post:RemoveMember")
+	beego.Router("/book/users/create", &controllers.BookMemberController{},"post:AddMember")
+	beego.Router("/book/users/change", &controllers.BookMemberController{},"post:ChangeRole")
+	beego.Router("/book/users/delete", &controllers.BookMemberController{},"post:RemoveMember")
 
 	beego.Router("/book/setting/save", &controllers.BookController{},"post:SaveBook")
 	beego.Router("/book/setting/open", &controllers.BookController{},"post:PrivatelyOwned")
@@ -43,6 +44,8 @@ func init()  {
 	beego.Router("/book/setting/upload", &controllers.BookController{},"post:UploadCover")
 	beego.Router("/book/setting/token", &controllers.BookController{},"post:CreateToken")
 	beego.Router("/book/setting/delete", &controllers.BookController{},"post:Delete")
+
+	beego.Router("/book/:key/edit/?:id", &controllers.DocumentController{},"*:Edit")
 
 
 	beego.Router("/docs/:key", &controllers.DocumentController{},"*:Index")

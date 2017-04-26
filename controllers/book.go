@@ -34,6 +34,7 @@ func (c *BookController) Index() {
 	books,totalCount,err := models.NewBook().FindToPager(pageIndex,conf.PageSize,c.Member.MemberId)
 
 	if err != nil {
+		logs.Error("BookController.Index => ",err)
 		c.Abort("500")
 	}
 
@@ -125,6 +126,7 @@ func (c *BookController) SaveBook()  {
 	description := strings.TrimSpace(c.GetString("description",""))
 	comment_status := c.GetString("comment_status")
 	tag := strings.TrimSpace(c.GetString("label"))
+	editor := strings.TrimSpace(c.GetString("editor"))
 
 	if strings.Count(description,"") > 500 {
 		c.JsonResult(6004,"项目描述不能大于500字")
@@ -138,12 +140,15 @@ func (c *BookController) SaveBook()  {
 			c.JsonResult(6005,"最多允许添加10个标签")
 		}
 	}
+	if editor != "markdown" && editor != "html" {
+		editor = "markdown"
+	}
 
-
-	book.BookName = book_name
-	book.Description = description
-	book.CommentStatus = comment_status
-	book.Label = tag
+	book.BookName 		= book_name
+	book.Description 	= description
+	book.CommentStatus 	= comment_status
+	book.Label 		= tag
+	book.Editor 		= editor
 
 	if err := book.Update();err != nil {
 		c.JsonResult(6006,"保存失败")
@@ -359,138 +364,6 @@ func (c *BookController) Users() {
 	}
 }
 
-// AddMember 参加参与用户.
-func (c *BookController) AddMember()  {
-	identify := c.GetString("identify")
-	account := c.GetString("account")
-	role_id,_ := c.GetInt("role_id",3)
-
-	if identify == "" || account == ""{
-		c.JsonResult(6001,"参数错误")
-	}
-	book ,err := c.IsPermission()
-
-	if err != nil {
-		c.JsonResult(6001,err.Error())
-	}
-
-	member := models.NewMember()
-
-	if _,err := member.FindByAccount(account) ; err != nil {
-		c.JsonResult(404,"用户不存在")
-	}
-	if member.Status == 1 {
-		c.JsonResult(6003,"用户已被禁用")
-	}
-
-	if _,err := models.NewRelationship().FindForRoleId(book.BookId,member.MemberId);err == nil {
-		c.JsonResult(6003,"用户已存在该项目中")
-	}
-
-	relationship := models.NewRelationship()
-	relationship.BookId = book.BookId
-	relationship.MemberId = member.MemberId
-	relationship.RoleId = role_id
-
-	if err := relationship.Insert(); err == nil {
-		memberRelationshipResult := models.NewMemberRelationshipResult().FromMember(member)
-		memberRelationshipResult.RoleId = role_id
-		memberRelationshipResult.RelationshipId = relationship.RelationshipId
-		memberRelationshipResult.BookId = book.BookId
-		memberRelationshipResult.ResolveRoleName()
-
-
-		c.JsonResult(0,"ok",memberRelationshipResult)
-	}
-	c.JsonResult(500,err.Error())
-}
-
-// 变更指定用户在指定项目中的权限
-func (c *BookController) ChangeRole() {
-	identify := c.GetString("identify")
-	member_id,_ := c.GetInt("member_id",0)
-	role,_ := c.GetInt("role_id",0)
-
-	if identify == "" || member_id <=0 {
-		c.JsonResult(6001,"参数错误")
-	}
-	if member_id == c.Member.MemberId {
-		c.JsonResult(6006,"不能变更自己的权限")
-	}
-	book ,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
-
-	if err != nil {
-		if err == models.ErrPermissionDenied {
-			c.JsonResult(403,"权限不足")
-		}
-		if err == orm.ErrNoRows {
-			c.JsonResult(404,"项目不存在")
-		}
-		c.JsonResult(6002,err.Error())
-	}
-	if book.RoleId != 0 && book.RoleId != 1 {
-		c.JsonResult(403,"权限不足")
-	}
-
-	member := models.NewMember()
-
-	if err := member.Find(member_id); err != nil {
-		c.JsonResult(6003,"用户不存在")
-	}
-	if member.Status == 1 {
-		c.JsonResult(6004,"用户已被禁用")
-	}
-
-	relationship,err := models.NewRelationship().UpdateRoleId(book.BookId,member_id,role);
-
-	if err != nil {
-		logs.Error("变更用户在项目中的权限 => ",err)
-		c.JsonResult(6005,err.Error())
-	}
-
-	memberRelationshipResult := models.NewMemberRelationshipResult().FromMember(member)
-	memberRelationshipResult.RoleId = relationship.RoleId
-	memberRelationshipResult.RelationshipId = relationship.RelationshipId
-	memberRelationshipResult.BookId = book.BookId
-	memberRelationshipResult.ResolveRoleName()
-
-	c.JsonResult(0,"ok",memberRelationshipResult)
-}
-
-// 删除参与者.
-func (c *BookController) RemoveMember()  {
-	identify := c.GetString("identify")
-	member_id,_ := c.GetInt("member_id",0)
-
-	if identify == "" || member_id <=0 {
-		c.JsonResult(6001,"参数错误")
-	}
-	if member_id == c.Member.MemberId {
-		c.JsonResult(6006,"不能删除自己")
-	}
-	book ,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
-
-	if err != nil {
-		if err == models.ErrPermissionDenied {
-			c.JsonResult(403,"权限不足")
-		}
-		if err == orm.ErrNoRows {
-			c.JsonResult(404,"项目不存在")
-		}
-		c.JsonResult(6002,err.Error())
-	}
-	//如果不是创始人也不是管理员则不能操作
-	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
-		c.JsonResult(403,"权限不足")
-	}
-	err = models.NewRelationship().DeleteByBookIdAndMemberId(book.BookId,member_id)
-
-	if err != nil {
-		c.JsonResult(6007,err.Error())
-	}
-	c.JsonResult(0,"ok")
-}
-
 // Create 创建项目.
 func (c *BookController) Create() {
 
@@ -529,17 +402,18 @@ func (c *BookController) Create() {
 			c.JsonResult(6006,"项目标识已存在")
 		}
 
-		book.BookName = book_name
+		book.BookName 	= book_name
 		book.Description = description
 		book.CommentCount = 0
 		book.PrivatelyOwned = privately_owned
 		book.CommentStatus = comment_status
-		book.Identify = identify
-		book.DocCount = 0
-		book.MemberId = c.Member.MemberId
+		book.Identify 	= identify
+		book.DocCount 	= 0
+		book.MemberId 	= c.Member.MemberId
 		book.CommentCount = 0
-		book.Version = time.Now().Unix()
-		book.Cover = beego.AppConfig.String("cover")
+		book.Version 	= time.Now().Unix()
+		book.Cover 	= conf.GetDefaultCover()
+		book.Editor 	= "markdown"
 
 		err := book.Insert()
 
@@ -552,12 +426,6 @@ func (c *BookController) Create() {
 		c.JsonResult(0,"ok",bookResult)
 	}
 	c.JsonResult(6001,"error")
-}
-
-// Edit 编辑项目.
-func (p *BookController) Edit() {
-	p.TplName = "book/edit.tpl"
-
 }
 
 // CreateToken 创建访问来令牌.
@@ -646,3 +514,4 @@ func (c *BookController) IsPermission() (*models.BookResult,error) {
 	}
 	return book,nil
 }
+
