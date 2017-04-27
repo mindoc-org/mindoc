@@ -28,3 +28,6 @@ avatar=/static/images/headimgurl.jpg
 
 #默认阅读令牌长度
 token_size=12
+
+#上传文件的后缀
+upload_file_ext=txt|doc|docx|xls|xlsx|ppt|pptx|pdf|7z|rar|jpg|jpeg|png|gif

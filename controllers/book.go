@@ -381,7 +381,7 @@ func (c *BookController) Create() {
 			c.JsonResult(6002,"项目标识不能为空")
 		}
 		if ok,err := regexp.MatchString(`^[a-z]+[a-zA-Z0-9_\-]*$`,identify); !ok || err != nil {
-			c.JsonResult(6003,"文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
+			c.JsonResult(6003,"项目标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
 		}
 		if strings.Count(identify,"") > 50 {
 			c.JsonResult(6004,"文档标识不能超过50字")

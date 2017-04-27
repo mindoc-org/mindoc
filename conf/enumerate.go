@@ -1,7 +1,10 @@
 // package conf 为配置相关.
 package conf
 
-import "github.com/astaxie/beego"
+import (
+	"github.com/astaxie/beego"
+	"strings"
+)
 
 // 登录用户的Session名
 const LoginSessionName = "LoginSessionName"
@@ -53,4 +56,36 @@ func GetTokenSize() int {
 
 func GetDefaultCover() string {
 	return beego.AppConfig.DefaultString("cover","/static/images/book.jpg")
+}
+
+func GetUploadFileExt()  []string {
+	ext := beego.AppConfig.DefaultString("upload_file_ext","png|jpg|jpeg|gif|txt|doc|docx|pdf")
+	
+	temp := strings.Split(ext,"|")
+	
+	exts := make([]string,len(temp))
+	
+	i := 0
+	for _,item := range temp {
+		if item != "" {
+			exts[i] = item
+			i++
+		}
+	}
+	return exts
+}
+
+func IsAllowUploadFileExt(ext string) bool  {
+
+	if strings.HasPrefix(ext,".") {
+		ext = string(ext[1:])
+	}
+	exts := GetUploadFileExt()
+
+	for _,item := range exts {
+		if strings.EqualFold(item,ext) {
+			return  true
+		}
+	}
+	return false
 }

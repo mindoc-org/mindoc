@@ -84,7 +84,7 @@ func (m *Comment) Insert() error {
 
 	document := NewDocument()
 	//如果评论的文档不存在
-	if err := document.Find(m.DocumentId); err != nil {
+	if _,err := document.Find(m.DocumentId); err != nil {
 		return err
 	}
 	book ,err := NewBook().Find(document.BookId);

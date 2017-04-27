@@ -4,9 +4,10 @@ body{
     left: 0;
     right: 0;
     bottom: 0;
-    color: #FAFAFA;
 }
-
+.error-message{
+    color: red;
+}
 .manual-head{
     padding: 5px 5px 5px 5px;
     position: fixed;
@@ -18,6 +19,46 @@ body{
     border-top: 1px solid #DDDDDD;
     bottom: 0;
     top: 40px;
+    background-color: #FAFAFA;
+}
+.manual-category .manual-nav {
+    font-size: 14px;
+    color: #333333;
+    font-weight: 200;
+    zoom:1;
+    border-bottom: 1px solid #ddd
+}
+.manual-category .manual-tree{
+    margin-top: 10px;
+}
+.manual-category .manual-nav .nav-item{
+    font-size: 14px;
+    padding: 0 9px;
+    cursor: pointer;
+    float: left;
+    height: 30px;
+    line-height: 30px;
+    color: #666;
+}
+.manual-category .manual-nav .nav-plus {
+    color: #999;
+    cursor: pointer;
+    height: 24px;
+    width: 24px;
+    line-height: 24px;
+    display: inline-block;
+    margin-top: 4px
+}
+.manual-category .manual-nav .nav-plus:hover{
+    color: #333333;
+}
+.manual-category .manual-nav .nav-item.active{
+    border-bottom: 1px solid #fafafa;
+    margin-bottom: -1px;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 .manual-editor-container{
     position: absolute;
@@ -26,6 +67,11 @@ body{
     right: 0;
     bottom: 0;
     overflow: hidden;
+    border-top: 1px solid #DDDDDD;
+}
+.manual-editor-container .manual-editormd{
+    position: absolute;
+    bottom: 15px;
 }
 .editormd-group{
     float: left;
@@ -76,4 +122,16 @@ body{
     text-align: center;
     font-family: icomoon,Helvetica,Arial,sans-serif;
     font-style: normal;
+}
+
+.manual-editor-status{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 30px;
+    overflow: hidden;
+    border-left: 1px solid #DDDDDD;
+    color: #555;
+    background-color: #FAFAFA;
 }

@@ -1,0 +1,196 @@
+.jstree-contextmenu{
+    z-index: 999999;
+}
+.jstree-contextmenu {
+    z-index: 3000
+}
+
+.jstree-contextmenu.jstree-default-contextmenu {
+    border: 1px solid #d6d6d6;
+    box-shadow: 0 0 8px rgba(99,99,99,.3);
+    background-color: #f6f6f6;
+    padding: 0
+}
+
+.jstree-contextmenu.jstree-default-contextmenu li {
+    display: block
+}
+
+.jstree-contextmenu.jstree-default-contextmenu .vakata-context-separator {
+    display: none
+}
+
+.jstree-contextmenu.jstree-default-contextmenu .vakata-contextmenu-sep {
+    display: none
+}
+
+.jstree-contextmenu.jstree-default-contextmenu li a {
+    border-bottom: 0;
+    height: 30px;
+    line-height: 24px;
+    padding-top: 3px;
+    padding-bottom: 3px
+}
+
+.jstree-contextmenu.jstree-default-contextmenu li.vakata-context-hover a {
+    text-shadow: none;
+    background: #116cd6;
+    box-shadow: none;
+    color: #fff
+}
+
+.jstree-contextmenu.jstree-default-contextmenu li>a>i:empty {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    vertical-align: middle
+}
+
+.jstree .jstree-node .jstree-anchor {
+    padding-right: 36px;
+    color: #666
+}
+
+.jstree .jstree-node .m-tree-operate {
+    position: absolute;
+    right: 6px;
+    z-index: 100;
+    display: block
+}
+
+.jstree .jstree-node .m-tree-operate .operate-show {
+    font-size: 20px;
+    color: #999;
+    display: none
+}
+
+.jstree .jstree-node .m-tree-operate .operate-show i {
+    height: 24px;
+    line-height: 24px;
+    vertical-align: top;
+    margin-top: 1px;
+    display: inline-block;
+    font-size: 18px;
+    transition-property: transform;
+    transition-duration: .3s;
+    transition-timing-function: .3s;
+    transition-delay: 0s;
+    -moz-transition-property: transform;
+    -moz-transition-duration: .3s;
+    -moz-transition-timing-function: .3s;
+    -moz-transition-delay: 0s;
+    -webkit-transition-property: transform;
+    -webkit-transition-duration: .3s;
+    -webkit-transition-timing-function: .3s;
+    -webkit-transition-delay: 0s;
+    -o-transition-property: transform;
+    -o-transition-duration: .3s;
+    -o-transition-timing-function: .3s;
+    -o-transition-delay: 0s
+}
+
+.jstree .jstree-node .m-tree-operate .operate-hide {
+    width: 0;
+    right: 100%;
+    top: 2px;
+    position: absolute;
+    overflow: hidden;
+    transition-property: width;
+    transition-duration: .3s;
+    transition-timing-function: linear;
+    transition-delay: 0s;
+    -moz-transition-property: width;
+    -moz-transition-duration: .3s;
+    -moz-transition-timing-function: linear;
+    -moz-transition-delay: 0s;
+    -webkit-transition-property: width;
+    -webkit-transition-duration: .3s;
+    -webkit-transition-timing-function: linear;
+    -webkit-transition-delay: 0s;
+    -o-transition-property: width;
+    -o-transition-duration: .3s;
+    -o-transition-timing-function: linear;
+    -o-transition-delay: 0s
+}
+
+.jstree .jstree-node .m-tree-operate .operate-hide b {
+    font-size: 12px;
+    display: inline-block;
+    margin: 3px 2px 0;
+    vertical-align: top;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+    line-height: 18px;
+    border-radius: 9px;
+    color: #fff;
+    cursor: pointer
+}
+
+.jstree .jstree-node .m-tree-operate .operate-hide b.add {
+    background-color: #39f
+}
+
+.jstree .jstree-node .m-tree-operate .operate-hide b.del {
+    background-color: #c00
+}
+
+.jstree .jstree-node .m-tree-operate .operate-hide b.edit {
+    background-color: #e5b120
+}
+
+.jstree .jstree-node .m-tree-operate .operate-hide b.up {
+    background-color: #3e8a2a;
+    font-size: 18px
+}
+
+.jstree .jstree-node .m-tree-operate .operate-hide b.down {
+    background-color: #3e8a2a;
+    font-size: 18px
+}
+
+.jstree .jstree-node .m-tree-operate:hover .operate-hide {
+    width: 108px
+}
+
+.jstree .jstree-node .m-tree-operate:hover .operate-show i {
+    color: #333;
+    transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg)
+}
+
+.jstree .jstree-node .jstree-anchor.jstree-clicked ,.jstree .jstree-hovered{
+    color: #ffffff !important;
+}
+
+.jstree .jstree-node .m-tree-operate.operate-hover .operate-hide {
+    width: 108px
+}
+.jstree-default .jstree-wholerow-clicked {
+    background: #10af88;
+    background: -webkit-linear-gradient(top, #beebff 0%, #a8e4ff 100%);
+    background: linear-gradient(to bottom, #10af88 0%, #10af88 100%);
+    color: #ffffff;
+}
+.jstree-default .jstree-wholerow {
+    height: 30px;
+}
+.jstree-default .jstree-node {
+    min-height: 30px;
+    line-height: 30px;
+    margin-left: 30px;
+    min-width: 30px;
+}
+.jstree-default .jstree-node {
+    min-height: 30px;
+    line-height: 30px;
+    margin-left: 30px;
+    min-width: 30px;
+}
+.jstree-default .jstree-anchor {
+    line-height: 30px;
+    height: 30px;
+}

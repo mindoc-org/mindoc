@@ -14,7 +14,7 @@ func init()  {
 	beego.Router("/find_password", &controllers.AccountController{},"*:FindPassword")
 
 	beego.Router("/manager", &controllers.ManagerController{},"*:Index")
-	beego.Router("/manager/users", &controllers.ManagerController{},"*:Users")
+	beego.Router("/manager/users", &controllers.ManagerController{})
 	beego.Router("/manager/member/create", &controllers.ManagerController{},"post:CreateMember")
 	beego.Router("/manager/member/update-member-status",&controllers.ManagerController{},"post:UpdateMemberStatus")
 	beego.Router("/manager/member/change-member-role", &controllers.ManagerController{},"post:ChangeMemberRole")
@@ -45,9 +45,13 @@ func init()  {
 	beego.Router("/book/setting/token", &controllers.BookController{},"post:CreateToken")
 	beego.Router("/book/setting/delete", &controllers.BookController{},"post:Delete")
 
-	beego.Router("/book/:key/edit/?:id", &controllers.DocumentController{},"*:Edit")
+	beego.Router("/docs/:key/edit/?:id", &controllers.DocumentController{},"*:Edit")
+	beego.Router("/docs/upload",&controllers.DocumentController{},"post:Upload")
+	beego.Router("/docs/:key/create",&controllers.DocumentController{},"post:Create")
 
 
 	beego.Router("/docs/:key", &controllers.DocumentController{},"*:Index")
 	beego.Router("/docs/:key/:id", &controllers.DocumentController{},"*:Read")
+
+	beego.Router("/:key/attach_files/:attach_id",&controllers.DocumentController{},"get:DownloadAttachment")
 }
