@@ -156,11 +156,12 @@ $(function () {
             resetEditor();
             if(res.errcode === 0){
                 window.isLoad = true;
+                window.editor.clear();
                 window.editor.insertValue(res.data.markdown);
                 window.editor.setCursor({line:0, ch:0});
                 var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
                 pushDocumentCategory(node);
-
+                window.selectNode = node;
 
             }else{
                 layer.msg("文档加载失败");
@@ -253,7 +254,7 @@ $(function () {
 
     function saveDocument($is_cover) {
         var index = null;
-        var node = window.treeCatalog.get_selected();
+        var node = window.selectNode;
         var content = window.editor.getMarkdown();
         var html = window.editor.getPreviewedHTML();
         var version = "";
@@ -265,7 +266,7 @@ $(function () {
             layer.msg("获取当前文档信息失败");
             return;
         }
-        var doc_id = parseInt(node[0]);
+        var doc_id = parseInt(node.id);
 
         for(var i in window.documentCategory){
             var item = window.documentCategory[i];
@@ -281,7 +282,7 @@ $(function () {
                 index = layer.load(1, {shade: [0.1,'#fff'] });
             },
             url :  window.editURL,
-            data : {"identify" : window.book.identify,"doc_id" : node[0],"markdown" : content,"html" : html,"cover" : $is_cover ? "yes":"no","version": version},
+            data : {"identify" : window.book.identify,"doc_id" : doc_id,"markdown" : content,"html" : html,"cover" : $is_cover ? "yes":"no","version": version},
             type :"post",
             dataType :"json",
             success : function (res) {
@@ -420,5 +421,42 @@ $(function () {
         }
     }).on('loaded.jstree', function () {
         window.treeCatalog = $(this).jstree();
+    }).on('select_node.jstree', function (node, selected, event) {
+        if($("#markdown-save").hasClass('change')) {
+            if(confirm("编辑内容未保存，需要保存吗？")){
+                saveDocument();
+            }
+        }
+        loadDocument(selected);
+
+    }).on("move_node.jstree", function (node, parent) {
+
+        var parentNode = window.treeCatalog.get_node(parent.parent);
+
+        var nodeData = window.getSiblingSort(parentNode);
+
+        if (parent.parent != parent.old_parent) {
+            parentNode = window.treeCatalog.get_node(parent.old_parent);
+            var newNodeData = window.getSiblingSort(parentNode);
+            if (newNodeData.length > 0) {
+                nodeData = nodeData.concat(newNodeData);
+            }
+        }
+
+        var index = layer.load(1, {
+            shade: [0.1, '#fff'] //0.1透明度的白色背景
+        });
+
+        $.post("https://wiki.iminho.me/docs/sort/2", JSON.stringify(nodeData)).done(function (res) {
+            layer.close(index);
+            if (res.errcode != 0) {
+                layer.msg(res.message);
+            } else {
+                layer.msg("保存排序成功");
+            }
+        }).fail(function () {
+            layer.close(index);
+            layer.msg("保存排序失败");
+        });
     });
 });

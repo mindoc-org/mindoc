@@ -12,6 +12,7 @@
         window.fileUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
         window.documentCategory = {{.Result}};
         window.book = {{.ModelResult}};
+        window.selectNode = null;
         window.deleteURL = "{{urlfor "DocumentController.Delete" ":key" .Model.Identify}}";
         window.editURL = "{{urlfor "DocumentController.Content" ":key" .Model.Identify ":id" ""}}"
     </script>
