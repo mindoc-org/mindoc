@@ -155,10 +155,12 @@ $(function () {
 
             resetEditor();
             if(res.errcode === 0){
+                window.isLoad = true;
                 window.editor.insertValue(res.data.markdown);
                 window.editor.setCursor({line:0, ch:0});
                 var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
                 pushDocumentCategory(node);
+
 
             }else{
                 layer.msg("文档加载失败");
@@ -291,7 +293,6 @@ $(function () {
 
                         if(item.id === doc_id){
                             window.documentCategory[i].version = res.data.version;
-                            console.log(res.data)
                             break;
                         }
                     }
@@ -314,11 +315,12 @@ $(function () {
     }
 
     function resetEditorChanged($is_change) {
-        if($is_change){
+        if($is_change && !window.isLoad ){
             $("#markdown-save").removeClass('disabled').addClass('change');
         }else{
             $("#markdown-save").removeClass('change').addClass('disabled');
         }
+        window.isLoad = false;
     }
     /**
      * 添加顶级文档
