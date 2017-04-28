@@ -71,7 +71,17 @@ body{
 }
 .manual-editor-container .manual-editormd{
     position: absolute;
-    bottom: 15px;
+    bottom: 30px;
+    top: -1px;
+    left: 0;
+    right: 0;
+}
+.manual-editor-container .manual-editormd .manual-editormd-active{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 .editormd-group{
     float: left;
@@ -80,6 +90,20 @@ body{
 }
 .editormd-group a{
     float: left;
+}
+.editormd-group a.change{
+
+}
+.editormd-group .change i{
+    color: #ffffff;
+    background-color: #44B036 !important;
+    border: 1px #44B036 solid !important;
+}
+.editormd-group .change i:hover{
+    background-color: #58CB48 !important;
+}
+.editormd-group .disabled i:hover{
+    background: #ffffff !important;
 }
 .editormd-group a.disabled{
     border-color: #c9c9c9;
@@ -134,4 +158,5 @@ body{
     border-left: 1px solid #DDDDDD;
     color: #555;
     background-color: #FAFAFA;
+    z-index: 1000;
 }

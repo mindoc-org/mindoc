@@ -12,6 +12,8 @@
         window.fileUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
         window.documentCategory = {{.Result}};
         window.book = {{.ModelResult}};
+        window.deleteURL = "{{urlfor "DocumentController.Delete" ":key" .Model.Identify}}";
+        window.editURL = "{{urlfor "DocumentController.Content" ":key" .Model.Identify ":id" ""}}"
     </script>
     <!-- Bootstrap -->
     <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -35,7 +37,7 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="保存" class="disabled"><i class="fa fa-save" aria-hidden="true"></i></a>
+            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
         </div>
         <div class="editormd-group">
             <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
@@ -100,7 +102,9 @@
             </div>
         </div>
         <div class="manual-editor-container" id="manualEditorContainer">
-            <div class="manual-editormd" id="docEditor"></div>
+            <div class="manual-editormd">
+                <div id="docEditor" class="manual-editormd-active"></div>
+            </div>
             <div class="manual-editor-status">
 
             </div>
@@ -113,6 +117,8 @@
     <div class="modal-dialog" role="document">
         <form method="post" action="{{urlfor "DocumentController.Create" ":key" .Model.Identify}}" id="addDocumentForm" class="form-horizontal">
             <input type="hidden" name="identify" value="{{.Model.Identify}}">
+            <input type="hidden" name="doc_id" value="0">
+            <input type="hidden" name="parent_id" value="0">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>

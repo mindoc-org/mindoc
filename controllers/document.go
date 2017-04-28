@@ -81,6 +81,7 @@ func (c *DocumentController) Create() {
 	doc_identify := c.GetString("doc_identify")
 	doc_name := c.GetString("doc_name")
 	parent_id,_ := c.GetInt("parent_id",0)
+	doc_id,_ := c.GetInt("doc_id",0)
 
 	if identify == "" {
 		c.JsonResult(6001,"参数错误")
@@ -94,7 +95,7 @@ func (c *DocumentController) Create() {
 			c.JsonResult(6003, "文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
 		}
 		d,_ := models.NewDocument().FindByFieldFirst("identify",doc_identify);
-		if  d.DocumentId > 0{
+		if  d.DocumentId > 0 && d.DocumentId != doc_id{
 			c.JsonResult(6006,"文档标识已被使用")
 		}
 	}
@@ -112,16 +113,17 @@ func (c *DocumentController) Create() {
 		}
 	}
 
-	document := models.NewDocument()
+	document,_ := models.NewDocument().Find(doc_id)
+
 	document.MemberId = c.Member.MemberId
 	document.BookId = bookResult.BookId
 	if doc_identify != ""{
 		document.Identify = doc_identify
 	}
-	document.Version = time.Now().UnixNano()
+	document.Version = time.Now().Unix()
 	document.DocumentName = doc_name
 	document.ParentId = parent_id
-	logs.Info("%+v",document)
+
 	if err := document.InsertOrUpdate();err != nil {
 		logs.Error("InsertOrUpdate => ",err)
 		c.JsonResult(6005,"保存失败")
@@ -279,3 +281,116 @@ func (c *DocumentController) DownloadAttachment()  {
 
 	c.StopRun()
 }
+
+func (c *DocumentController) Delete() {
+	c.Prepare()
+
+	identify := c.GetString("identify")
+	doc_id,err := c.GetInt("doc_id",0)
+
+	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+
+	if err != nil || bookResult.RoleId == conf.BookObserver {
+		logs.Error("FindByIdentify => ",err)
+		c.JsonResult(6002,"项目不存在或权限不足")
+	}
+
+	if doc_id <= 0 {
+		c.JsonResult(6001,"参数错误")
+	}
+
+	doc,err := models.NewDocument().Find(doc_id)
+
+	if err != nil {
+		logs.Error("Delete => ",err)
+		c.JsonResult(6003,"删除失败")
+	}
+	if doc.BookId != bookResult.BookId {
+		c.JsonResult(6004,"参数错误")
+	}
+	err = doc.RecursiveDocument(doc.DocumentId)
+	if err != nil {
+		c.JsonResult(6005,"删除失败")
+	}
+
+	c.JsonResult(0,"ok")
+}
+
+func (c *DocumentController) Content()  {
+	c.Prepare()
+
+	identify := c.Ctx.Input.Param(":key")
+	doc_id,err := c.GetInt("doc_id")
+
+	if err != nil {
+		doc_id,_ = strconv.Atoi(c.Ctx.Input.Param(":id"))
+	}
+
+	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+
+	if err != nil || bookResult.RoleId == conf.BookObserver {
+		logs.Error("FindByIdentify => ",err)
+		c.JsonResult(6002,"项目不存在或权限不足")
+	}
+
+	if doc_id <= 0 {
+		c.JsonResult(6001,"参数错误")
+	}
+
+	if c.Ctx.Input.IsPost() {
+		markdown := strings.TrimSpace(c.GetString("markdown",""))
+		content := c.GetString("html")
+		version,_ := c.GetInt64("version",0)
+		is_cover := c.GetString("cover")
+
+		doc ,err := models.NewDocument().Find(doc_id);
+
+		if err != nil {
+			c.JsonResult(6003,"读取文档错误")
+		}
+		if doc.BookId != bookResult.BookId {
+			c.JsonResult(6004,"保存的文档不属于指定项目")
+		}
+		if doc.Version != version && !strings.EqualFold(is_cover,"yes"){
+			logs.Info("%d|",version,doc.Version)
+			c.JsonResult(6005,"文档已被修改确定要覆盖吗？")
+		}
+		if markdown == "" && content != ""{
+			doc.Markdown = content
+		}else{
+			doc.Markdown = markdown
+		}
+		doc.Version = time.Now().Unix()
+		doc.Content = content
+		if err := doc.InsertOrUpdate();err != nil {
+			logs.Error("InsertOrUpdate => ",err)
+			c.JsonResult(6006,"保存失败")
+		}
+
+		c.JsonResult(0,"ok",doc)
+	}
+	doc,err := models.NewDocument().Find(doc_id)
+
+	if err != nil {
+		c.JsonResult(6003,"文档不存在")
+	}
+	c.JsonResult(0,"ok",doc)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

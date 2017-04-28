@@ -48,6 +48,8 @@ func init()  {
 	beego.Router("/docs/:key/edit/?:id", &controllers.DocumentController{},"*:Edit")
 	beego.Router("/docs/upload",&controllers.DocumentController{},"post:Upload")
 	beego.Router("/docs/:key/create",&controllers.DocumentController{},"post:Create")
+	beego.Router("/docs/:key/delete", &controllers.DocumentController{},"post:Delete")
+	beego.Router("/docs/:key/content/?:id",&controllers.DocumentController{},"*:Content")
 
 
 	beego.Router("/docs/:key", &controllers.DocumentController{},"*:Index")

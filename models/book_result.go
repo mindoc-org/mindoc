@@ -41,6 +41,9 @@ func NewBookResult() *BookResult {
 
 // 根据项目标识查询项目以及指定用户权限的信息.
 func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,error) {
+	if identify == "" || member_id <= 0 {
+		return m,ErrInvalidParameter
+	}
 	o := orm.NewOrm()
 
 	book := NewBook()

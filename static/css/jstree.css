@@ -169,6 +169,10 @@
 .jstree .jstree-node .m-tree-operate.operate-hover .operate-hide {
     width: 108px
 }
+.jstree-default .jstree-wholerow-hovered {
+    background: #08c;
+    color: white !important;
+}
 .jstree-default .jstree-wholerow-clicked {
     background: #10af88;
     background: -webkit-linear-gradient(top, #beebff 0%, #a8e4ff 100%);
