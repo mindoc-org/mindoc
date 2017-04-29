@@ -10,6 +10,7 @@ import (
 type Attachment struct {
 	AttachmentId int	`orm:"column(attachment_id);pk;auto;unique" json:"attachment_id"`
 	BookId int		`orm:"column(book_id);type(int)" json:"book_id"`
+	DocumentId int		`orm:"column(document_id);type(int);null" json:"doc_id"`
 	FileName string 	`orm:"column(file_name);size(255)" json:"file_name"`
 	FilePath string		`orm:"column(file_path);size(2000)" json:"file_path"`
 	FileSize float64	`orm:"column(file_size);type(float)" json:"file_size"`

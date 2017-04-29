@@ -418,7 +418,8 @@ func (c *BookController) Create() {
 		err := book.Insert()
 
 		if err != nil {
-			c.JsonResult(6005,err.Error())
+			logs.Error("Insert => ",err)
+			c.JsonResult(6005,"保存项目失败")
 		}
 		bookResult := models.NewBookResult()
 		bookResult.FindByIdentify(book.Identify,c.Member.MemberId)
@@ -492,6 +493,80 @@ func (c *BookController) Delete() {
 	if err != nil {
 		logs.Error("删除项目 => ",err)
 		c.JsonResult(6003,"删除失败")
+	}
+	c.JsonResult(0,"ok")
+}
+
+//发布项目
+func (c *BookController) Release() {
+	c.JsonResult(0,"ok")
+}
+
+func (c *BookController) SaveSort() {
+	c.Prepare()
+
+	identify := c.Ctx.Input.Param(":key")
+	if identify == "" {
+		c.Abort("404")
+	}
+
+	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+
+	if err != nil {
+		beego.Error("DocumentController.Edit => ",err)
+
+		c.Abort("403")
+	}
+	if bookResult.RoleId == conf.BookObserver {
+		c.JsonResult(6002,"项目不存在或权限不足")
+	}
+	content := c.Ctx.Input.RequestBody
+
+	var docs []map[string]interface{}
+
+	err = json.Unmarshal(content,&docs)
+
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(6003,"数据错误")
+	}
+	fmt.Printf("%+v",docs)
+	for _,item := range docs {
+		if doc_id,ok := item["id"].(float64);ok {
+			doc,err := models.NewDocument().Find(int(doc_id));
+			if err != nil {
+				beego.Error(err)
+				continue;
+			}
+			if doc.BookId != bookResult.BookId {
+				logs.Info("%s","权限错误")
+				continue;
+			}
+			sort,ok := item["sort"].(float64);
+			if !ok {
+				beego.Info("排序数字转换失败 => ",item)
+				continue
+			}
+			parent_id,ok := item["parent"].(float64)
+			if !ok {
+				beego.Info("父分类转换失败 => ",item)
+				continue
+			}
+			if parent_id > 0 {
+				if parent,err := models.NewDocument().Find(int(parent_id)); err != nil || parent.BookId != bookResult.BookId {
+					continue
+				}
+			}
+			doc.OrderSort = int(sort)
+			doc.ParentId = int(parent_id)
+			if err := doc.InsertOrUpdate(); err != nil {
+				fmt.Printf("%s",err.Error())
+				beego.Error(err)
+			}
+		}else{
+			fmt.Printf("文档ID转换失败 => %+v",item)
+		}
+
 	}
 	c.JsonResult(0,"ok")
 }

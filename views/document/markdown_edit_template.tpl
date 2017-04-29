@@ -14,7 +14,9 @@
         window.book = {{.ModelResult}};
         window.selectNode = null;
         window.deleteURL = "{{urlfor "DocumentController.Delete" ":key" .Model.Identify}}";
-        window.editURL = "{{urlfor "DocumentController.Content" ":key" .Model.Identify ":id" ""}}"
+        window.editURL = "{{urlfor "DocumentController.Content" ":key" .Model.Identify ":id" ""}}";
+        window.releaseURL = "{{urlfor "BookController.Release" ":key" .Model.Identify}}";
+        window.sortURL = "{{urlfor "BookController.SaveSort" ":key" .Model.Identify}}";
     </script>
     <!-- Bootstrap -->
     <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -22,6 +24,7 @@
     <link href="/static/jstree/3.3.4/themes/default/style.min.css" rel="stylesheet">
     <link href="/static/editor.md/css/editormd.css" rel="stylesheet">
     <link href="/static/css/jstree.css" rel="stylesheet">
+    <link href="/static/highlight/styles/zenburn.css" rel="stylesheet">
     <link href="/static/css/markdown.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -35,7 +38,7 @@
 <div class="m-manual manual-editor">
     <div class="manual-head" id="editormd-tools">
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+            <a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
         <div class="editormd-group">
             <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
@@ -76,8 +79,9 @@
 
         <div class="editormd-group pull-right">
             <a href="javascript:;" data-toggle="tooltip" data-title="关闭实时预览"><i class="fa fa-eye-slash first" name="watch" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="修改历史"><i class="fa fa-history item" name="history" aria-hidden="true"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="边栏"><i class="fa fa-columns last" aria-hidden="true" name="sidebar"></i></a>
+            {{/*<a href="javascript:;" data-toggle="tooltip" data-title="修改历史"><i class="fa fa-history item" name="history" aria-hidden="true"></i></a>*/}}
+            <a href="javascript:;" data-toggle="tooltip" data-title="边栏"><i class="fa fa-columns item" aria-hidden="true" name="sidebar"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="使用帮助"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
         </div>
 
         <div class="editormd-group pull-right">
@@ -156,6 +160,7 @@
 <script src="/static/editor.md/editormd.js" type="text/javascript"></script>
 <script type="text/javascript" src="/static/layer/layer.js"></script>
 <script src="/static/js/jquery.form.js" type="text/javascript"></script>
+<script src="/static/js/edirot.js" type="text/javascript"></script>
 <script src="/static/js/markdown.js" type="text/javascript"></script>
 </body>
 </html>

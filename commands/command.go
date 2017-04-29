@@ -70,20 +70,30 @@ func Initialization()  {
 // RegisterLogger 注册日志
 func RegisterLogger()  {
 
+	logs.SetLogFuncCall(true)
 	logs.SetLogger("console")
-	logs.SetLogger("file",`{"filename":"logs/log.log"}`)
 	logs.EnableFuncCallDepth(true)
 	logs.Async()
+
+	beego.BeeLogger.DelLogger("console")
+	beego.SetLogger("file",`{"filename":"logs/log.log"}`)
+	beego.SetLogFuncCall(true)
+	beego.BeeLogger.Async()
 }
 
 // RunCommand 注册orm命令行工具
 func RegisterCommand() {
 
 	if _,err := os.Stat("install.lock"); os.IsNotExist(err){
-		orm.RunSyncdb("default",true,false)
-		Initialization()
-		f,_ := os.Create("install.lock")
-		defer f.Close()
+		err = orm.RunSyncdb("default",true,false)
+		if err == nil {
+			Initialization()
+			f, _ := os.Create("install.lock")
+			defer f.Close()
+		}else{
+			logs.Info("初始化数据库失败 =>",err)
+			os.Exit(2)
+		}
 	}
 
 }

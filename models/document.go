@@ -5,7 +5,7 @@ import (
 
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego/orm"
-	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego"
 )
 
 // Document struct.
@@ -15,14 +15,14 @@ type Document struct {
 	// Identify 文档唯一标识
 	Identify string		`orm:"column(identify);size(100);index;null;default(null)" json:"identify"`
 	BookId int		`orm:"column(book_id);type(int);index" json:"book_id"`
-	ParentId int 		`orm:"column(parent_id);type(int);index" json:"parent_id"`
+	ParentId int 		`orm:"column(parent_id);type(int);index;default(0)" json:"parent_id"`
 	OrderSort int		`orm:"column(order_sort);default(0);type(int);index" json:"order_sort"`
 	// Markdown markdown格式文档.
-	Markdown string		`orm:"column(markdown);type(longtext)" json:"markdown"`
+	Markdown string		`orm:"column(markdown);type(text);null" json:"markdown"`
 	// Release 发布后的Html格式内容.
-	Release string		`orm:"column(release);type(longtext)" json:"release"`
+	Release string		`orm:"column(release);type(text);null" json:"release"`
 	// Content 未发布的 Html 格式内容.
-	Content string		`orm:"column(content);type(longtext)" json:"content"`
+	Content string		`orm:"column(content);type(text);null" json:"content"`
 	CreateTime time.Time	`orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
 	MemberId int		`orm:"column(member_id);type(int)" json:"member_id"`
 	ModifyTime time.Time	`orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
@@ -45,7 +45,9 @@ func (m *Document) TableNameWithPrefix()  string {
 }
 
 func NewDocument() *Document  {
-	return &Document{}
+	return &Document{
+		Version: time.Now().Unix(),
+	}
 }
 
 func (m *Document) Find(id int) (*Document,error) {
@@ -88,12 +90,16 @@ func (m *Document) RecursiveDocument(doc_id int) error {
 
 	o := orm.NewOrm()
 
+	if doc,err := m.Find(doc_id); err == nil {
+		o.Delete(doc)
+	}
+
 	var docs []*Document
 
 	_,err := o.QueryTable(m.TableNameWithPrefix()).Filter("parent_id",doc_id).All(&docs)
 
 	if err != nil {
-		logs.Error("",err)
+		beego.Error("RecursiveDocument => ",err)
 		return err
 	}
 
@@ -102,9 +108,7 @@ func (m *Document) RecursiveDocument(doc_id int) error {
 		o.QueryTable(m.TableNameWithPrefix()).Filter("document_id",doc_id).Delete()
 		m.RecursiveDocument(doc_id)
 	}
-	if doc,err := m.Find(doc_id); err != nil {
-		o.Delete(doc)
-	}
+
 	return nil
 }
 

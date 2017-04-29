@@ -60,6 +60,8 @@ func NewBook() *Book {
 
 func (m *Book) Insert() error {
 	o := orm.NewOrm()
+	o.Begin()
+
 	_,err := o.Insert(m)
 
 	if err == nil {
@@ -68,8 +70,23 @@ func (m *Book) Insert() error {
 		relationship.RoleId = 0
 		relationship.MemberId = m.MemberId
 		err = relationship.Insert()
+		if err != nil {
+			logs.Error("插入项目与用户关联 => ",err)
+			o.Rollback()
+			return err
+		}
+		document := NewDocument()
+		document.BookId = m.BookId
+		document.DocumentName = "空白文档"
+		document.MemberId = m.MemberId
+		err = document.InsertOrUpdate()
+		if err != nil{
+			o.Rollback()
+			return err
+		}
+		o.Commit()
 	}
-
+	o.Rollback()
 	return err
 }
 

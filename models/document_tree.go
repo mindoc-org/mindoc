@@ -25,7 +25,7 @@ func (m *Document) FindDocumentTree(book_id int) ([]*DocumentTree,error){
 
 	var docs []*Document
 
-	count ,err := o.QueryTable(m).Filter("book_id",book_id).OrderBy("-order_sort","document_id").All(&docs,"document_id","version","document_name","parent_id","identify")
+	count ,err := o.QueryTable(m).Filter("book_id",book_id).OrderBy("order_sort","document_id").All(&docs,"document_id","version","document_name","parent_id","identify")
 
 	if err != nil {
 		return trees,err

@@ -1,127 +1,47 @@
-
-
 $(function () {
+
     window.addDocumentModalFormHtml = $(this).find("form").html();
-    window.editor = editormd("docEditor", {
-        width : "100%",
-        height : "100%",
-        path : "/static/editor.md/lib/",
-        toolbar : true,
-        placeholder: "本编辑器支持Markdown编辑，左边编写，右边预览",
-        imageUpload: true,
-        imageFormats: ["jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG"],
-        imageUploadURL: window.imageUploadURL ,
-        toolbarModes : "full",
-        fileUpload: true,
-        fileUploadURL : window.fileUploadURL,
-        taskList : true,
-        flowChart : true,
-        htmlDecode : "style,script,iframe,title,onmouseover,onmouseout,style",
-        lineNumbers : false,
-        tocStartLevel : 1,
-        tocm : true,
-        saveHTMLToTextarea : true,
-        onload : function() {
-            this.hideToolbar();
-            var keyMap = {
-                "Ctrl-S": function(cm) {
-                    saveDocument(false);
-                },
-                "Cmd-S" : function(cm){
-                    saveDocument(false);
-                },
-                "Ctrl-A": function(cm) {
-                    cm.execCommand("selectAll");
-                }
-            };
-            this.addKeyMap(keyMap);
+    wangEditor.config.printLog = false;
+    window.editor = new wangEditor('htmlEditor');
+    editor.config.uploadImgUrl = window.imageUploadURL;
+    editor.config.uploadImgFileName = "editormd-file-file";
+    editor.config.uploadParams = {
+        "editor" : "wangEditor"
+    };
+    wangEditor.config.menus.splice(0,0,"|");
+    wangEditor.config.menus.splice(0,0,"save");
 
-            var $select_node_id = window.treeCatalog.get_selected();
-            if($select_node_id) {
-                var $select_node = window.treeCatalog.get_node($select_node_id[0])
-                if ($select_node) {
-                    $select_node.node = {
-                        id: $select_node.id
-                    };
-
-                    loadDocument($select_node);
-                }
-            }
-        },
-        onchange : function () {
-            resetEditorChanged(true);
+    window.editor.ready(function () {
+        if(window.documentCategory.length > 0){
+            var item =  window.documentCategory[0];
+            var $select_node = { node : {id : item.id}};
+            loadDocument($select_node);
         }
+
     });
-    editormd.loadPlugin("/static/editor.md/plugins/file-dialog/file-dialog");
+
+    window.editor.config.uploadImgFns.onload = function (resultText, xhr) {
+        // resultText 服务器端返回的text
+        // xhr 是 xmlHttpRequest 对象，IE8、9中不支持
+
+        // 上传图片时，已经将图片的名字存在 editor.uploadImgOriginalName
+        var originalName = editor.uploadImgOriginalName || '';
+
+        var res = jQuery.parseJSON(resultText);
+        if (res.errcode === 0){
+            editor.command(null, 'insertHtml', '<img src="' + res.url + '" alt="' + res.alt + '" style="max-width:100%;"/>');
+        }else{
+            layer.msg(res.message);
+        }
+    };
 
 
-    /**
-     * 实现标题栏操作
-     */
-    $("#editormd-tools").on("click","a[class!='disabled']",function () {
-       var name = $(this).find("i").attr("name");
-       if(name === "attachment"){
-            window.editor.fileDialog();
-       }else if(name === "history"){
+    window.editor.create();
 
-       }else if(name === "save"){
-            saveDocument(false);
 
-       }else if(name === "sidebar"){
-            $("#manualCategory").toggle(0,"swing",function () {
+    $("#htmlEditor").css("height","100%");
 
-                var $then = $("#manualEditorContainer");
-                var left = parseInt($then.css("left"));
-                if(left > 0){
-                    window.editorContainerLeft = left;
-                    $then.css("left","0");
-                }else{
-                    $then.css("left",window.editorContainerLeft + "px");
-                }
-                window.editor.resize();
-            });
-       }else if(name === "release"){
-            if(Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0){
-                $.ajax({
-                    url : window.releaseURL,
-                    type : "post",
-                    dataType : "json",
-                    success : function (res) {
-                        if(res.errcode === 0){
-                            layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
-                        }else{
-                            layer.msg(res.message);
-                        }
-                    }
-                });
-            }else{
-                layer.msg("没有需要发布的文档")
-            }
-       }else if(name === "tasks") {
-           //插入GFM任务列表
-           var cm = window.editor.cm;
-           var selection = cm.getSelection();
 
-           if (selection === "") {
-               cm.replaceSelection("- [x] " + selection);
-           }
-           else {
-               var selectionText = selection.split("\n");
-
-               for (var i = 0, len = selectionText.length; i < len; i++) {
-                   selectionText[i] = (selectionText[i] === "") ? "" : "- [x] " + selectionText[i];
-               }
-               cm.replaceSelection(selectionText.join("\n"));
-           }
-       }else {
-           var action = window.editor.toolbarHandlers[name];
-
-           if (action !== "undefined") {
-               $.proxy(action, window.editor)();
-               window.editor.focus();
-           }
-       }
-   }) ;
 
     /***
      * 加载指定的文档到编辑器中
@@ -135,12 +55,10 @@ $(function () {
         $.get(window.editURL + $node.node.id ).done(function (res) {
             layer.close(index);
 
-            resetEditor();
             if(res.errcode === 0){
                 window.isLoad = true;
                 window.editor.clear();
-                window.editor.insertValue(res.data.markdown);
-                window.editor.setCursor({line:0, ch:0});
+                window.editor.$txt.html(res.data.content);
                 var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
                 pushDocumentCategory(node);
                 window.selectNode = node;
@@ -161,8 +79,13 @@ $(function () {
     function saveDocument($is_cover,callback) {
         var index = null;
         var node = window.selectNode;
-        var content = window.editor.getMarkdown();
-        var html = window.editor.getPreviewedHTML();
+
+        var html = window.editor.$txt.html() ;
+
+        var content = "";
+        if($.trim(html) !== ""){
+            content = toMarkdown(html, { gfm: true });
+        }
         var version = "";
 
         if(!node){
@@ -176,7 +99,6 @@ $(function () {
 
             if(item.id === doc_id){
                 version = item.version;
-                console.log(item)
                 break;
             }
         }
@@ -191,7 +113,6 @@ $(function () {
             success : function (res) {
                 layer.close(index);
                 if(res.errcode === 0){
-                    resetEditorChanged(false);
                     for(var i in window.documentCategory){
                         var item = window.documentCategory[i];
 
@@ -217,22 +138,7 @@ $(function () {
         });
     }
 
-    function resetEditor($node) {
 
-    }
-
-    /**
-     * 设置编辑器变更状态
-     * @param $is_change
-     */
-    function resetEditorChanged($is_change) {
-        if($is_change && !window.isLoad ){
-            $("#markdown-save").removeClass('disabled').addClass('change');
-        }else{
-            $("#markdown-save").removeClass('change').addClass('disabled');
-        }
-        window.isLoad = false;
-    }
     /**
      * 添加顶级文档
      */
@@ -342,5 +248,7 @@ $(function () {
         }
         loadDocument(selected);
 
-    }).on("move_node.jstree",jstree_save);
+    }).on("move_node.jstree", jstree_save);
+
+    window.saveDocument = saveDocument;
 });

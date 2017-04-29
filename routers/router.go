@@ -32,6 +32,8 @@ func init()  {
 	beego.Router("/book/:key/dashboard", &controllers.BookController{},"*:Dashboard")
 	beego.Router("/book/:key/setting", &controllers.BookController{},"*:Setting")
 	beego.Router("/book/:key/users", &controllers.BookController{},"*:Users")
+	beego.Router("/book/:key/release", &controllers.BookController{},"post:Release")
+	beego.Router("/book/:key/sort", &controllers.BookController{},"post:SaveSort")
 
 	beego.Router("/book/create", &controllers.BookController{},"*:Create")
 	beego.Router("/book/users/create", &controllers.BookMemberController{},"post:AddMember")

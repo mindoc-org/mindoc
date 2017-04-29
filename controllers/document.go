@@ -12,7 +12,6 @@ import (
 	"html/template"
 
 	"github.com/lifei6671/godoc/models"
-	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
@@ -38,31 +37,39 @@ func (c *DocumentController) Edit()  {
 		c.Abort("404")
 	}
 
-	book,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
 
 	if err != nil {
-		logs.Error("DocumentController.Edit => ",err)
+		beego.Error("DocumentController.Edit => ",err)
 
 		c.Abort("403")
 	}
-	if book.Editor == "markdown" {
-		c.TplName = "document/markdown_edit_template.tpl"
-	}else{
-		c.TplName = "document/html_edit_template.tpl"
+	if bookResult.RoleId == conf.BookObserver {
+
+		c.JsonResult(6002,"项目不存在或权限不足")
 	}
 
-	c.Data["Model"] = book
+	//根据不同编辑器类型加载编辑器
+	if bookResult.Editor == "markdown" {
+		c.TplName = "document/markdown_edit_template.tpl"
+	}else if bookResult.Editor == "html"{
+		c.TplName = "document/html_edit_template.tpl"
+	}else{
+		c.TplName = "document/" + bookResult.Editor + "_edit_template.tpl"
+	}
 
-	r,_ := json.Marshal(book)
+	c.Data["Model"] = bookResult
+
+	r,_ := json.Marshal(bookResult)
 
 	c.Data["ModelResult"] = template.JS(string(r))
 
 	c.Data["Result"] = template.JS("[]")
 
-	trees ,err := models.NewDocument().FindDocumentTree(book.BookId)
-	logs.Info("",trees)
+	trees ,err := models.NewDocument().FindDocumentTree(bookResult.BookId)
+	beego.Info("",trees)
 	if err != nil {
-		logs.Error("FindDocumentTree => ", err)
+		beego.Error("FindDocumentTree => ", err)
 	}else{
 		if len(trees) > 0 {
 			if jtree, err := json.Marshal(trees); err == nil {
@@ -75,7 +82,7 @@ func (c *DocumentController) Edit()  {
 
 }
 
-//创建一个文档
+//创建一个文档.
 func (c *DocumentController) Create() {
 	identify := c.GetString("identify")
 	doc_identify := c.GetString("doc_identify")
@@ -103,7 +110,7 @@ func (c *DocumentController) Create() {
 	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
 
 	if err != nil || bookResult.RoleId == conf.BookObserver {
-		logs.Error("FindByIdentify => ",err)
+		beego.Error("FindByIdentify => ",err)
 		c.JsonResult(6002,"项目不存在或权限不足")
 	}
 	if parent_id > 0 {
@@ -125,18 +132,19 @@ func (c *DocumentController) Create() {
 	document.ParentId = parent_id
 
 	if err := document.InsertOrUpdate();err != nil {
-		logs.Error("InsertOrUpdate => ",err)
+		beego.Error("InsertOrUpdate => ",err)
 		c.JsonResult(6005,"保存失败")
 	}else{
-		logs.Info("",document)
+		beego.Info("",document)
 		c.JsonResult(0,"ok",document)
 	}
 }
 
-//上传附件或图片
+//上传附件或图片.
 func (c *DocumentController) Upload()  {
 
 	identify := c.GetString("identify")
+	doc_id,_ := c.GetInt("doc_id")
 
 	if identify == "" {
 		c.JsonResult(6001,"参数错误")
@@ -172,7 +180,7 @@ func (c *DocumentController) Upload()  {
 	book,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
 
 	if err != nil {
-		logs.Error("DocumentController.Edit => ",err)
+		beego.Error("DocumentController.Edit => ",err)
 		if err == orm.ErrNoRows {
 			c.JsonResult(6006,"权限不足")
 		}
@@ -182,15 +190,28 @@ func (c *DocumentController) Upload()  {
 	if book.RoleId != conf.BookEditor && book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder {
 		c.JsonResult(6006,"权限不足")
 	}
+	if doc_id > 0 {
+		doc,err := models.NewDocument().Find(doc_id);
+		if err != nil {
+			c.JsonResult(6007,"文档不存在")
+		}
+		if doc.BookId != book.BookId {
+			c.JsonResult(6008,"文档不属于指定的项目")
+		}
+	}
 
 	fileName := "attachment_" +  strconv.FormatInt(time.Now().UnixNano(), 16)
 
 	filePath := "uploads/" + time.Now().Format("200601") + "/" + fileName + ext
 
+	path := filepath.Dir(filePath)
+
+	os.MkdirAll(path, os.ModePerm)
+
 	err = c.SaveToFile(name,filePath)
 
 	if err != nil {
-		logs.Error("SaveToFile => ",err)
+		beego.Error("SaveToFile => ",err)
 		c.JsonResult(6005,"保存文件失败")
 	}
 	attachment := models.NewAttachment()
@@ -199,6 +220,9 @@ func (c *DocumentController) Upload()  {
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
 	attachment.FilePath = filePath
+	if doc_id > 0{
+		attachment.DocumentId = doc_id
+	}
 
 	if strings.EqualFold(ext,".jpg") || strings.EqualFold(ext,".jpeg") || strings.EqualFold(ext,"png") || strings.EqualFold(ext,"gif") {
 		attachment.HttpPath = c.BaseUrl() + "/" + filePath
@@ -208,18 +232,20 @@ func (c *DocumentController) Upload()  {
 
 	if err != nil {
 		os.Remove(filePath)
-		logs.Error("Attachment Insert => ",err)
+		beego.Error("Attachment Insert => ",err)
 		c.JsonResult(6006,"文件保存失败")
 	}
 	if attachment.HttpPath == "" {
 		attachment.HttpPath = c.BaseUrl() + beego.URLFor("DocumentController.DownloadAttachment",":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update();err != nil {
-			logs.Error("SaveToFile => ",err)
+			beego.Error("SaveToFile => ",err)
 			c.JsonResult(6005,"保存文件失败")
 		}
 	}
+
 	result := map[string]interface{}{
+		"errcode" : 0,
 		"success" : 1,
 		"message" :"ok",
 		"url" : attachment.HttpPath,
@@ -267,7 +293,7 @@ func (c *DocumentController) DownloadAttachment()  {
 	attachment,err := models.NewAttachment().Find(attach_id)
 
 	if err != nil {
-		logs.Error("DownloadAttachment => ", err)
+		beego.Error("DownloadAttachment => ", err)
 		if err == orm.ErrNoRows {
 			c.Abort("404")
 		} else {
@@ -291,7 +317,7 @@ func (c *DocumentController) Delete() {
 	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
 
 	if err != nil || bookResult.RoleId == conf.BookObserver {
-		logs.Error("FindByIdentify => ",err)
+		beego.Error("FindByIdentify => ",err)
 		c.JsonResult(6002,"项目不存在或权限不足")
 	}
 
@@ -302,7 +328,7 @@ func (c *DocumentController) Delete() {
 	doc,err := models.NewDocument().Find(doc_id)
 
 	if err != nil {
-		logs.Error("Delete => ",err)
+		beego.Error("Delete => ",err)
 		c.JsonResult(6003,"删除失败")
 	}
 	if doc.BookId != bookResult.BookId {
@@ -329,7 +355,7 @@ func (c *DocumentController) Content()  {
 	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
 
 	if err != nil || bookResult.RoleId == conf.BookObserver {
-		logs.Error("FindByIdentify => ",err)
+		beego.Error("FindByIdentify => ",err)
 		c.JsonResult(6002,"项目不存在或权限不足")
 	}
 
@@ -352,7 +378,7 @@ func (c *DocumentController) Content()  {
 			c.JsonResult(6004,"保存的文档不属于指定项目")
 		}
 		if doc.Version != version && !strings.EqualFold(is_cover,"yes"){
-			logs.Info("%d|",version,doc.Version)
+			beego.Info("%d|",version,doc.Version)
 			c.JsonResult(6005,"文档已被修改确定要覆盖吗？")
 		}
 		if markdown == "" && content != ""{
@@ -363,7 +389,7 @@ func (c *DocumentController) Content()  {
 		doc.Version = time.Now().Unix()
 		doc.Content = content
 		if err := doc.InsertOrUpdate();err != nil {
-			logs.Error("InsertOrUpdate => ",err)
+			beego.Error("InsertOrUpdate => ",err)
 			c.JsonResult(6006,"保存失败")
 		}
 
@@ -376,10 +402,6 @@ func (c *DocumentController) Content()  {
 	}
 	c.JsonResult(0,"ok",doc)
 }
-
-
-
-
 
 
 

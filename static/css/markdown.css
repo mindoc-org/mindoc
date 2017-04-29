@@ -5,6 +5,22 @@ body{
     right: 0;
     bottom: 0;
 }
+::-webkit-scrollbar , body  .scrollbar-track-color{
+    height: 9px;
+    width: 7px;
+    background: #E6E6E6;
+}
+::-webkit-scrollbar:hover {
+    background: #CCCCCC;
+}
+::-webkit-scrollbar-thumb {
+    background: #A2A2A2;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    -ms-border-radius: 6px;
+    -o-border-radius: 6px;
+    border-radius: 6px;
+}
 .error-message{
     color: red;
 }
@@ -76,9 +92,30 @@ body{
     left: 0;
     right: 0;
 }
-.manual-editor-container .manual-editormd .manual-editormd-active{
+.manual-editor-container .manual-editormd .manual-editormd-active,
+.manual-wangEditor,.manual-wangEditor .wangEditor-container,
+.manual-wangEditor .wangEditor-container .wangEditor-txt{
     position: absolute;
-    top: 0;
+    top:0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+.manual-wangEditor,.manual-wangEditor .wangEditor-container{
+    bottom: 15px;
+    border-top: 0;
+    overflow: hidden;
+}
+.manual-wangEditor .wangEditor-container .wangEditor-txt{
+    top: 32px;
+}
+.manual-wangEditor .wangEditor-container .wangEditor-menu-container{
+    position: fixed;
+    z-index: 10000;
+}
+.manual-wangEditor .wangEditor-container .code-textarea{
+    position: absolute;
+    top: 32px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -147,6 +184,8 @@ body{
     font-family: icomoon,Helvetica,Arial,sans-serif;
     font-style: normal;
 }
+
+
 
 .manual-editor-status{
     position: absolute;
