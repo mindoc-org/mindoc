@@ -1,0 +1,35 @@
+$ benchcmp -mag -changed log-bench-2016-02-08-2109-120f703e log-bench-2016-07-19-1813-32e56c29-lldb-2016-07-24-1458-74c3b196
+benchmark                  old ns/op     new ns/op     delta
+BenchmarkFirst16-4         4715          3680          -21.95%
+BenchmarkSet16-4           105255        88470         -15.95%
+BenchmarkPut16-4           121708        104760        -13.93%
+BenchmarkGet16-4           108211        93534         -13.56%
+BenchmarkDelete16-4        111052        96004         -13.55%
+BenchmarkExtract16-4       107820        93991         -12.83%
+BenchmarkSeek-4            104365        93677         -10.24%
+BenchmarkLast16-4          4075          3671          -9.91%
+BenchmarkInc-4             2207          2046          -7.29%
+BenchmarkEnumerateDB-4     231182        227247        -1.70%
+BenchmarkNext1e3-4         222782        222161        -0.28%
+
+benchmark                  old allocs     new allocs     delta
+BenchmarkFirst16-4         4              6              +50.00%
+BenchmarkLast16-4          4              6              +50.00%
+BenchmarkSeek-4            19             22             +15.79%
+BenchmarkPut16-4           15             14             -6.67%
+BenchmarkDelete16-4        18             19             +5.56%
+BenchmarkGet16-4           18             19             +5.56%
+BenchmarkEnumerateDB-4     3008           3010           +0.07%
+
+benchmark                  old bytes     new bytes     delta
+BenchmarkDelete16-4        10193         502           -95.08%
+BenchmarkGet16-4           147867        31569         -78.65%
+BenchmarkSeek-4            133654        31436         -76.48%
+BenchmarkPut16-4           1127          360           -68.06%
+BenchmarkExtract16-4       1042          360           -65.45%
+BenchmarkSet16-4           874           350           -59.95%
+BenchmarkFirst16-4         24944         16730         -32.93%
+BenchmarkLast16-4          20848         16730         -19.75%
+BenchmarkEnumerateDB-4     65159         57065         -12.42%
+BenchmarkInc-4             32            36            +12.50%
+BenchmarkNext1e3-4         24002         24000         -0.01%
