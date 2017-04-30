@@ -99,7 +99,21 @@
 <script src="/static/js/main.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+        $("#gloablEditForm").ajaxForm({
+            beforeSubmit : function () {
+                var title = $.trim($("#siteName").val());
 
+                if (title === ""){
+                    return showError("网站标题不能为空");
+                }
+            },success : function (res) {
+                if(res.errcode === 0) {
+                    showSuccess("保存成功")
+                }else{
+                    showError(res.message);
+                }
+            }
+        });
     });
 </script>
 </body>

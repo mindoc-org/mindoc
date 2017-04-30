@@ -1,9 +1,44 @@
 package controllers
 
+import (
+	"github.com/astaxie/beego"
+	"github.com/lifei6671/godoc/models"
+	"github.com/lifei6671/godoc/utils"
+)
+
 type HomeController struct {
 	BaseController
 }
 
-func (p *HomeController) Index() {
-	p.TplName = "home/index.tpl"
+func (c *HomeController) Index() {
+	c.Prepare()
+	c.TplName = "home/index.tpl"
+	//如果没有开启匿名访问，则跳转到登录页面
+	if !c.EnableAnonymous && c.Member == nil {
+		c.Redirect(beego.URLFor("AccountController.Login"),302)
+	}
+	pageIndex,_ := c.GetInt("page",1)
+	pageSize := 18
+
+	member_id := 0
+
+	if c.Member != nil {
+		member_id = c.Member.MemberId
+	}
+	books,totalCount,err := models.NewBook().FindForHomeToPager(pageIndex,pageSize,member_id)
+
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, pageSize, totalCount)
+
+		c.Data["PageHtml"] = html
+	}else {
+		c.Data["PageHtml"] = ""
+	}
+
+	c.Data["Lists"] = books
+
 }

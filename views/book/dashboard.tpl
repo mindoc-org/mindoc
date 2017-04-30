@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -51,7 +51,7 @@
                         <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-eye"></i> 阅读</a>
 
                         {{if eq .Model.RoleId 0 1 2}}
-                        <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-upload" aria-hidden="true"></i> 发布</a>
+                        <button class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" id="btnRelease"><i class="fa fa-upload" aria-hidden="true"></i> 发布</button>
                         {{end}}
                     </div>
                 </div>
@@ -98,7 +98,27 @@
 </div>
 <script src="/static/jquery/1.12.4/jquery.min.js"></script>
 <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/layer/layer.js"></script>
 <script src="/static/js/main.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        $("#btnRelease").on("click",function () {
+            $.ajax({
+                url : "{{urlfor "BookController.Release" ":key" .Model.Identify}}",
+                data :{"identify" : "{{.Model.Identify}}" },
+                type : "post",
+                dataType : "json",
+                success : function (res) {
+                    if(res.errcode === 0){
+                        layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
+                    }else{
+                        layer.msg(res.message);
+                    }
+                }
+            });
+        });
 
+    });
+</script>
 </body>
 </html>

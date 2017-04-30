@@ -7,32 +7,42 @@ import (
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego"
+	"strings"
 )
 
 
 type BaseController struct {
 	beego.Controller
 	Member *models.Member
+	Option map[string]string
+	EnableAnonymous bool
 }
 
 // Prepare 预处理.
 func (c *BaseController) Prepare (){
 	c.Data["SiteName"] = "MinDoc"
 	c.Data["Member"] = models.Member{}
+	c.EnableAnonymous = false
+
 
 	if member,ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0{
 		c.Member = &member
 		c.Data["Member"] = c.Member
 	}else{
-		c.Member = models.NewMember()
-		c.Member.Find(1)
-		c.Data["Member"] = *c.Member
+		//c.Member = models.NewMember()
+		//c.Member.Find(1)
+		//c.Data["Member"] = *c.Member
 	}
 	c.Data["BaseUrl"] = c.Ctx.Input.Scheme() + "://" + c.Ctx.Request.Host
 
 	if options,err := models.NewOption().All();err == nil {
+		c.Option = make(map[string]string,len(options))
 		for _,item := range options {
 			c.Data[item.OptionName] = item.OptionValue
+			c.Option[item.OptionName] = item.OptionValue
+			if strings.EqualFold(item.OptionName,"ENABLE_ANONYMOUS") && item.OptionValue == "true" {
+				c.EnableAnonymous = true
+			}
 		}
 	}
 }

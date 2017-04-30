@@ -112,7 +112,17 @@ func (m *Document) RecursiveDocument(doc_id int) error {
 	return nil
 }
 
+func (m *Document) ReleaseContent(book_id int)  {
 
+	o := orm.NewOrm()
+
+	_,err := o.Raw("UPDATE md_documents SET `release` = content WHERE book_id =?",book_id).Exec()
+
+	if err != nil {
+		beego.Error(err)
+	}
+
+}
 
 
 

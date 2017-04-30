@@ -21,12 +21,135 @@ type DocumentController struct {
 	BaseController
 }
 
-func (p *DocumentController) Index()  {
-	p.TplName = "document/index.tpl"
+func isReadable (identify,token string,c *DocumentController) *models.BookResult {
+	book,err := models.NewBook().FindByFieldFirst("identify",identify)
+
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
+	//如果文档是私有的
+	if book.PrivatelyOwned == 1 {
+
+		is_ok := false
+
+		if c.Member != nil{
+			_, err := models.NewRelationship().FindForRoleId(book.BookId, c.Member.MemberId)
+			if err == nil {
+				is_ok = true
+			}
+		}
+		if book.PrivateToken != "" && !is_ok {
+			//如果有访问的Token，并且该项目设置了访问Token，并且和用户提供的相匹配，则记录到Session中.
+			//如果用户未提供Token且用户登录了，则判断用户是否参与了该项目.
+			//如果用户未登录，则从Session中读取Token.
+			if token != "" && strings.EqualFold(token, book.PrivateToken) {
+				c.SetSession(identify, token)
+
+			}  else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
+				c.Abort("403")
+			}
+		}else{
+			c.Abort("403")
+		}
+
+	}
+	bookResult := book.ToBookResult()
+
+	if c.Member != nil {
+		rel ,err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId,c.Member.MemberId)
+
+		if err == nil {
+			bookResult.MemberId 		= rel.MemberId
+			bookResult.RoleId		= rel.RoleId
+			bookResult.RelationshipId	= rel.RelationshipId
+		}
+	}
+	return bookResult
 }
 
-func (p *DocumentController) Read() {
-	p.TplName = "document/kancloud.tpl"
+func (c *DocumentController) Index()  {
+	c.Prepare()
+	identify := c.Ctx.Input.Param(":key")
+	token := c.GetString("token")
+
+	if identify == "" {
+		c.Abort("404")
+	}
+	bookResult := isReadable(identify,token,c)
+
+	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
+
+	tree,err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId,0)
+
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
+
+
+	c.Data["Model"] = bookResult
+	c.Data["Result"] = template.HTML(tree)
+	c.Data["Title"] = "概要"
+	c.Data["Content"] = bookResult.Description
+}
+
+func (c *DocumentController) Read() {
+	c.Prepare()
+	identify := c.Ctx.Input.Param(":key")
+	token := c.GetString("token")
+	id :=  c.GetString(":id")
+
+	if identify == "" || id == ""{
+		c.Abort("404")
+	}
+	bookResult := isReadable(identify,token,c)
+
+	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
+
+	doc := models.NewDocument()
+
+	if doc_id,err := strconv.Atoi(id);err == nil  {
+		doc,err = doc.Find(doc_id)
+		if err != nil {
+			beego.Error(err)
+			c.Abort("500")
+		}
+	}else{
+		doc,err = doc.FindByFieldFirst("identify",id)
+		if err != nil {
+			beego.Error(err)
+			c.Abort("500")
+		}
+	}
+
+	if doc.BookId != bookResult.BookId {
+		c.Abort("403")
+	}
+	if c.IsAjax() {
+		var data struct{
+			DocTitle string `json:"doc_title"`
+			Body string	`json:"body"`
+			Title string `json:"title"`
+		}
+		data.DocTitle = doc.DocumentName
+		data.Body = doc.Release
+		data.Title = doc.DocumentName + " - Powered by MinDoc"
+
+		c.JsonResult(0,"ok",data)
+	}
+
+	tree,err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId,doc.DocumentId)
+
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
+
+	c.Data["Model"] = bookResult
+	c.Data["Result"] = template.HTML(tree)
+	c.Data["Title"] = doc.DocumentName
+	c.Data["Content"] = template.HTML(doc.Release)
 }
 
 func (c *DocumentController) Edit()  {
@@ -67,7 +190,7 @@ func (c *DocumentController) Edit()  {
 	c.Data["Result"] = template.JS("[]")
 
 	trees ,err := models.NewDocument().FindDocumentTree(bookResult.BookId)
-	beego.Info("",trees)
+
 	if err != nil {
 		beego.Error("FindDocumentTree => ", err)
 	}else{

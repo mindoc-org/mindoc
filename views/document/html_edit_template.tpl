@@ -129,7 +129,7 @@
 <script type="text/javascript" src="/static/layer/layer.js"></script>
 <script src="/static/to-markdown/dist/to-markdown.js" type="text/javascript"></script>
 <script src="/static/js/jquery.form.js" type="text/javascript"></script>
-<script src="/static/js/edirot.js" type="text/javascript"></script>
+<script src="/static/js/editor.js" type="text/javascript"></script>
 <script src="/static/js/html-editor.js" type="text/javascript"></script>
 </body>
 </html>

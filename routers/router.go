@@ -12,9 +12,10 @@ func init()  {
 	beego.Router("/logout", &controllers.AccountController{},"*:Logout")
 	beego.Router("/register", &controllers.AccountController{},"*:Register")
 	beego.Router("/find_password", &controllers.AccountController{},"*:FindPassword")
+	beego.Router("/captcha", &controllers.AccountController{},"*:Captcha")
 
 	beego.Router("/manager", &controllers.ManagerController{},"*:Index")
-	beego.Router("/manager/users", &controllers.ManagerController{})
+	beego.Router("/manager/users", &controllers.ManagerController{},"*:Users")
 	beego.Router("/manager/member/create", &controllers.ManagerController{},"post:CreateMember")
 	beego.Router("/manager/member/update-member-status",&controllers.ManagerController{},"post:UpdateMemberStatus")
 	beego.Router("/manager/member/change-member-role", &controllers.ManagerController{},"post:ChangeMemberRole")
@@ -47,15 +48,15 @@ func init()  {
 	beego.Router("/book/setting/token", &controllers.BookController{},"post:CreateToken")
 	beego.Router("/book/setting/delete", &controllers.BookController{},"post:Delete")
 
-	beego.Router("/docs/:key/edit/?:id", &controllers.DocumentController{},"*:Edit")
-	beego.Router("/docs/upload",&controllers.DocumentController{},"post:Upload")
-	beego.Router("/docs/:key/create",&controllers.DocumentController{},"post:Create")
-	beego.Router("/docs/:key/delete", &controllers.DocumentController{},"post:Delete")
-	beego.Router("/docs/:key/content/?:id",&controllers.DocumentController{},"*:Content")
+	beego.Router("/api/:key/edit/?:id", &controllers.DocumentController{},"*:Edit")
+	beego.Router("/api/upload",&controllers.DocumentController{},"post:Upload")
+	beego.Router("/api/:key/create",&controllers.DocumentController{},"post:Create")
+	beego.Router("/api/:key/delete", &controllers.DocumentController{},"post:Delete")
+	beego.Router("/api/:key/content/?:id",&controllers.DocumentController{},"*:Content")
 
 
 	beego.Router("/docs/:key", &controllers.DocumentController{},"*:Index")
 	beego.Router("/docs/:key/:id", &controllers.DocumentController{},"*:Read")
 
-	beego.Router("/:key/attach_files/:attach_id",&controllers.DocumentController{},"get:DownloadAttachment")
+	beego.Router("/attach_files/:key/:attach_id",&controllers.DocumentController{},"get:DownloadAttachment")
 }

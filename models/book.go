@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego/logs"
+	"strings"
 )
 
 // Book struct .
@@ -32,8 +33,10 @@ type Book struct {
 	// CommentStatus 评论设置的状态:open 为允许所有人评论，closed 为不允许评论, group_only 仅允许参与者评论 ,registered_only 仅允许注册者评论.
 	CommentStatus string	`orm:"column(comment_status);size(20);default(open)" json:"comment_status"`
 	CommentCount int	`orm:"column(comment_count);type(int)" json:"comment_count"`
-	Cover string 		`orm:"column();size(1000)" json:"cover"`
-
+	//封面地址
+	Cover string 		`orm:"column(cover);size(1000)" json:"cover"`
+	//主题风格
+	Theme string 		`orm:"columen(theme);size(255);default(default)" json:"theme"`
 	// CreateTime 创建时间 .
 	CreateTime time.Time	`orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
 	MemberId int		`orm:"column(member_id);size(100)" json:"member_id"`
@@ -109,23 +112,27 @@ func (m *Book) Update(cols... string) error  {
 	return err
 }
 
-func (m *Book) FindByField(field string,value interface{}) ([]Book,error)  {
+//根据指定字段查询结果集.
+func (m *Book) FindByField(field string,value interface{}) ([]*Book,error)  {
 	o := orm.NewOrm()
 
-	var books []Book
-	_,err := o.QueryTable(conf.GetDatabasePrefix() + m.TableName()).Filter(field,value).All(&books)
+	var books []*Book
+	_,err := o.QueryTable(m.TableNameWithPrefix()).Filter(field,value).All(&books)
 
 	return books,err
 }
 
+//根据指定字段查询一个结果.
 func (m *Book) FindByFieldFirst(field string,value interface{})(*Book,error) {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(conf.GetDatabasePrefix() + m.TableName()).Filter(field,value).One(m)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter(field,value).One(m)
 
 	return m,err
 
 }
+
+//分页查询指定用户的项目
 func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []*BookResult,totalCount int,err error){
 
 	relationship := NewRelationship()
@@ -242,11 +249,75 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 
 }
 
+func (m *Book) FindForHomeToPager(pageIndex, pageSize ,member_id int) (books []*BookResult,totalCount int,err error) {
+	o := orm.NewOrm()
+
+	offset := (pageIndex - 1) * pageSize
+	//如果是登录用户
+	if member_id > 0 {
+		sql1 := "SELECT COUNT(*) FROM md_books AS book LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ? WHERE relationship_id > 0 OR book.privately_owned = 0"
+
+		err = o.Raw(sql1,member_id).QueryRow(&totalCount)
+		if err != nil {
+			return
+		}
+		sql2 := `SELECT book.*,rel1.*,member.account AS create_name FROM md_books AS book
+			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
+			LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
+			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
+			WHERE rel.relationship_id > 0 OR book.privately_owned = 0 ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
+
+		_,err = o.Raw(sql2,member_id,offset,pageSize).QueryRows(&books)
+
+		return
+
+	}else{
+		count,err1 := o.QueryTable(m.TableNameWithPrefix()).Filter("privately_owned",0).Count()
+
+		if err1 != nil {
+			err = err1
+			return
+		}
+		totalCount = int(count)
+
+		sql := `SELECT book.*,rel.*,member.account AS create_name FROM md_books AS book
+			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
+			LEFT JOIN md_members AS member ON rel.member_id = member.member_id
+			WHERE book.privately_owned = 0 ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
+
+		_,err = o.Raw(sql,offset,pageSize).QueryRows(&books)
+
+		return
+
+	}
+
+}
+
+func (book *Book) ToBookResult() *BookResult {
+
+	m := NewBookResult()
+
+	m.BookId 	 	= book.BookId
+	m.BookName 	 	= book.BookName
+	m.Identify 	 	= book.Identify
+	m.OrderIndex 	 	= book.OrderIndex
+	m.Description 	 	= strings.Replace(book.Description, "\r\n", "<br/>", -1)
+	m.PrivatelyOwned 	= book.PrivatelyOwned
+	m.PrivateToken 		= book.PrivateToken
+	m.DocCount 		= book.DocCount
+	m.CommentStatus 	= book.CommentStatus
+	m.CommentCount 		= book.CommentCount
+	m.CreateTime 		= book.CreateTime
+	m.ModifyTime 		= book.ModifyTime
+	m.Cover 		= book.Cover
+	m.Label 		= book.Label
+	m.Status 		= book.Status
+	m.Editor 		= book.Editor
+	m.Theme			= book.Theme
 
 
-
-
-
+	return m
+}
 
 
 

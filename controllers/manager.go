@@ -320,17 +320,26 @@ func (c *ManagerController) Setting() {
 	if !c.Member.IsAdministrator() {
 		c.Abort("403")
 	}
-	if c.Ctx.Input.IsPost() {
 
-	}
 	options,err := models.NewOption().All()
+
+	if c.Ctx.Input.IsPost() {
+		for _,item := range options {
+			item.OptionValue = c.GetString(item.OptionName)
+			item.InsertOrUpdate()
+		}
+		c.JsonResult(0,"ok")
+	}
 
 	if err != nil {
 		c.Abort("500")
 	}
+	c.Data["SITE_TITLE"] = c.Option["SITE_NAME"]
+
 	for _,item := range options {
 		c.Data[item.OptionName] = item
 	}
+
 
 }
 

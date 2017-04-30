@@ -193,7 +193,7 @@ textarea{
     position: relative;
 }
 .manual-list .list-item .manual-item-standard .cover {
-    border: 1px solid #f3f3f3;
+    border: 1px solid #999999;
     width: 171px;
     position: relative;
     display: inline-block;

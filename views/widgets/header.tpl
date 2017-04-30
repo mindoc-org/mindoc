@@ -1,7 +1,13 @@
 <header class="navbar navbar-static-top navbar-fixed-top manual-header" role="banner">
     <div class="container">
         <div class="navbar-header col-sm-12 col-md-6 col-lg-5">
-            <a href="/" class="navbar-brand">MinDoc</a>
+            <a href="/" class="navbar-brand">
+                {{if .SITE_TITLE}}
+                {{.SITE_TITLE}}
+                {{else}}
+                {{.SITE_NAME}}
+                {{end}}
+            </a>
             <div class="btn-group dropdown-menu-right pull-right slidebar visible-xs-inline-block visible-sm-inline-block">
                 <button class="btn btn-default dropdown-toggle hidden-lg" type="button" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
                 <ul class="dropdown-menu" role="menu">
@@ -19,6 +25,7 @@
         </div>
         <nav class="navbar-collapse hidden-xs hidden-sm" role="navigation">
             <ul class="nav navbar-nav navbar-right">
+                {{if gt .Member.MemberId 0}}
                 <li>
                     <div class="img user-info" data-toggle="dropdown">
                         <img src="{{.Member.Avatar}}" class="img-circle userbar-avatar">
@@ -45,6 +52,9 @@
                         </li>
                     </ul>
                 </li>
+                {{else}}
+                <li><a href="{{urlfor "AccountController.Login"}}" title="用户登录">登录</a></li>
+                {{end}}
             </ul>
         </nav>
     </div>

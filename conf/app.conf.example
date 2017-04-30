@@ -6,6 +6,12 @@ sessionon = true
 sessionname = smart_webhook_id
 copyrequestbody = true
 
+#默认Session生成Key的秘钥
+beegoserversessionkey=123456
+#Session储存方式
+sessionprovider=file
+sessionproviderconfig=./logs
+
 #生成回调地址时完整的域名
 base_url = https://hook.iminho.me
 

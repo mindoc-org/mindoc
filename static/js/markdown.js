@@ -84,6 +84,7 @@ $(function () {
             if(Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0){
                 $.ajax({
                     url : window.releaseURL,
+                    data :{"identify" : window.book.identify },
                     type : "post",
                     dataType : "json",
                     success : function (res) {

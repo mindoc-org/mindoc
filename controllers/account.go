@@ -77,3 +77,6 @@ func (c *AccountController) Logout(){
 	c.Redirect(beego.URLFor("AccountController.Login"),302)
 }
 
+func (c *AccountController) Captcha()  {
+
+}

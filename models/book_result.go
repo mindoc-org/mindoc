@@ -2,8 +2,8 @@ package models
 
 import (
 	"time"
+
 	"github.com/astaxie/beego/orm"
-	"strings"
 	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/godoc/conf"
 )
@@ -23,6 +23,7 @@ type BookResult struct {
 	CreateName string 	`json:"create_name"`
 	ModifyTime time.Time	`json:"modify_time"`
 	Cover string            `json:"cover"`
+	Theme string		`json:"theme"`
 	Label string		`json:"label"`
 	MemberId int            `json:"member_id"`
 	Editor string           `json:"editor"`
@@ -38,6 +39,7 @@ type BookResult struct {
 func NewBookResult() *BookResult {
 	return &BookResult{}
 }
+
 
 // 根据项目标识查询项目以及指定用户权限的信息.
 func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,error) {
@@ -77,24 +79,9 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 		return m, err
 	}
 
-	m.BookId 	 	= book.BookId
-	m.BookName 	 	= book.BookName
-	m.Identify 	 	= book.Identify
-	m.OrderIndex 	 	= book.OrderIndex
-	m.Description 	 	= strings.Replace(book.Description, "\r\n", "<br/>", -1)
-	m.PrivatelyOwned 	= book.PrivatelyOwned
-	m.PrivateToken 		= book.PrivateToken
-	m.DocCount 		= book.DocCount
-	m.CommentStatus 	= book.CommentStatus
-	m.CommentCount 		= book.CommentCount
-	m.CreateTime 		= book.CreateTime
-	m.CreateName 		= member.Account
-	m.ModifyTime 		= book.ModifyTime
-	m.Cover 		= book.Cover
-	m.Label 		= book.Label
-	m.Status 		= book.Status
-	m.Editor 		= book.Editor
+	m = book.ToBookResult()
 
+	m.CreateName 		= member.Account
 	m.MemberId 		= relationship.MemberId
 	m.RoleId		= relationship.RoleId
 	m.RelationshipId	= relationship.RelationshipId

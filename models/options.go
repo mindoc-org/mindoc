@@ -67,9 +67,10 @@ func GetOptionValue(key, def string) string {
 func (p *Option) InsertOrUpdate() error  {
 
 	o := orm.NewOrm()
+
 	var err error
 	if p.OptionId > 0 {
-		_,err = o.Update(o)
+		_,err = o.Update(p)
 	}else{
 		_,err = o.Insert(p)
 	}

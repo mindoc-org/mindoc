@@ -60,6 +60,7 @@ func (m *Member) Login(account string,password string) (*Member,error) {
 	ok,err := utils.PasswordVerify(member.Password,password) ;
 
 	if ok && err == nil {
+		m.ResolveRoleName()
 		return member,nil
 	}
 
@@ -67,22 +68,23 @@ func (m *Member) Login(account string,password string) (*Member,error) {
 }
 
 // Add 添加一个用户.
-func (member *Member) Add () (error) {
+func (m *Member) Add () (error) {
 	o := orm.NewOrm()
 
-	hash ,err := utils.PasswordHash(member.Password);
+	hash ,err := utils.PasswordHash(m.Password);
 
 	if  err != nil {
 		return err
 	}
 
-	member.Password = hash
+	m.Password = hash
 
-	_,err = o.Insert(member)
+	_,err = o.Insert(m)
 
 	if err != nil {
 		return err
 	}
+	m.ResolveRoleName()
 	return  nil
 }
 
@@ -103,22 +105,16 @@ func (m *Member) Find(id int) error{
 	if err := o.Read(m); err != nil {
 		return  err
 	}
+	m.ResolveRoleName()
+	return nil
+}
+
+func (m *Member) ResolveRoleName (){
 	if m.Role == conf.MemberSuperRole {
 		m.RoleName = "超级管理员"
 	}else if m.Role == conf.MemberAdminRole {
 		m.RoleName = "管理员"
 	}else if m.Role == conf.MemberGeneralRole {
-		m.RoleName = "普通用户"
-	}
-	return nil
-}
-
-func (m *Member) ResolveRoleName (){
-	if m.Role == 0 {
-		m.RoleName = "超级管理员"
-	}else if m.Role == 1 {
-		m.RoleName = "管理员"
-	}else if m.Role == 2 {
 		m.RoleName = "普通用户"
 	}
 }
@@ -154,13 +150,7 @@ func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member,int64,error)  {
 	}
 
 	for _,m := range members {
-		if m.Role == 0 {
-			m.RoleName = "超级管理员"
-		}else if m.Role == 1 {
-			m.RoleName = "管理员"
-		}else if m.Role == 2 {
-			m.RoleName = "普通用户"
-		}
+		m.ResolveRoleName()
 	}
 	return members,totalCount,nil
 }

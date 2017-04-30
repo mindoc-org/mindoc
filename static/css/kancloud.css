@@ -141,6 +141,71 @@ h6 {
     zoom:1;border-bottom: 1px solid #ddd
 }
 
+.m-manual .manual-tab .tab-util {
+    position: absolute;
+    top: 50%;
+    right: -14px
+}
+.m-manual .manual-tab .tab-util .item {
+    color: #999;
+    cursor: pointer;
+    height: 24px;
+    line-height: 24px;
+    display: inline-block;
+    margin-top: 4px
+}
+
+.manual-fullscreen-switch {
+    display: block
+}
+
+.manual-fullscreen-switch .open,.manual-fullscreen-switch .close {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    background-color: #5cb85c;
+    border-radius: 50%;
+    color: #fff;
+    position: relative;
+    font-size: 16px;
+    vertical-align: top;
+    opacity : 1;
+    text-shadow:none;
+    font-weight: 400;
+}
+.manual-fullscreen-switch .open:hover,.manual-fullscreen-switch .close:hover {
+    background-color: #449d44;
+}
+
+.manual-fullscreen-switch .open:before,.manual-fullscreen-switch .close:before {
+    position: absolute;
+    top: 7px;
+    right: 5px;
+}
+
+.manual-fullscreen-switch .open {
+    display: none;
+}
+
+.m-manual.manual-fullscreen-active .manual-fullscreen-switch {
+    /*margin-top: 30px;*/
+}
+
+.m-manual.manual-fullscreen-active .manual-fullscreen-switch .open {
+    display: inline-block;
+}
+
+.m-manual.manual-fullscreen-active .manual-fullscreen-switch .close {
+    display: none;
+}
+.m-manual.manual-fullscreen-active .manual-left .m-copyright,.m-manual.manual-fullscreen-active .manual-left .tab-navg,.m-manual.manual-fullscreen-active .manual-left .tab-wrap{
+    display: none;
+}
+.m-manual.manual-fullscreen-active .manual-left{
+    width: 0px;
+}
+
 .m-manual .manual-tab .tab-navg:after {
     content: '.';
     display: block;
@@ -149,7 +214,7 @@ h6 {
     line-height: 9;
     overflow: hidden;
     clear: both;
-    visibility: hidden
+    visibility: hidden;
 }
 
 .m-manual .manual-tab .tab-navg .navg-item {
@@ -246,6 +311,9 @@ h6 {
     -o-transition-timing-function: linear;
     -o-transition-delay: 0s
 }
+.m-manual.manual-fullscreen-active .manual-right{
+    left: 0;
+}
 .m-manual .manual-right .manual-article{
     background: #ffffff;
 }
@@ -266,7 +334,9 @@ h6 {
     color: #7e888b
 }
 .manual-article .article-content{
-    max-width: 980px;
+    min-width: 980px;
+    max-width: 98%;
+    padding: 10px 20px;
     margin-left: auto!important;
     margin-right: auto!important
 }

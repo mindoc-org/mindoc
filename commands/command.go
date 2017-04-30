@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"net/url"
 	"time"
+	"os"
+	"encoding/gob"
 
 	"github.com/lifei6671/godoc/models"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/logs"
-	"os"
 	"github.com/lifei6671/godoc/conf"
+
 )
 
 // RegisterDataBase 注册数据库
@@ -75,7 +77,7 @@ func RegisterLogger()  {
 	logs.EnableFuncCallDepth(true)
 	logs.Async()
 
-	beego.BeeLogger.DelLogger("console")
+	//beego.BeeLogger.DelLogger("console")
 	beego.SetLogger("file",`{"filename":"logs/log.log"}`)
 	beego.SetLogFuncCall(true)
 	beego.BeeLogger.Async()
@@ -100,4 +102,8 @@ func RegisterCommand() {
 
 func RegisterFunction()  {
 	beego.AddFuncMap("config",models.GetOptionValue)
+}
+
+func init()  {
+	gob.Register(models.Member{})
 }
