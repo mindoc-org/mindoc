@@ -34,6 +34,7 @@ type BookResult struct {
 	Status int
 
 	LastModifyText string 	`json:"last_modify_text"`
+	IsDisplayComment bool	`json:"is_display_comment"`
 }
 
 func NewBookResult() *BookResult {

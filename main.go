@@ -3,7 +3,6 @@ package main
 import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lifei6671/godoc/routers"
-	_ "github.com/garyburd/redigo/redis"
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/godoc/commands"
 )

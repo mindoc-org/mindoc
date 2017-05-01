@@ -24,7 +24,7 @@ type Book struct {
 	PrivatelyOwned int	`orm:"column(privately_owned);type(int);default(0)" json:"privately_owned"`
 	// 当项目是私有时的访问Token.
 	PrivateToken string 	`orm:"column(private_token);size(500);null" json:"private_token"`
-	//评论状态：0 正常/1 已删除
+	//状态：0 正常/1 已删除
 	Status int 		`orm:"column(status);type(int);default(0)" json:"status"`
 	//默认的编辑器.
 	Editor string		`orm:"column(editor);size(50)" json:"editor"`
@@ -316,6 +316,12 @@ func (book *Book) ToBookResult() *BookResult {
 	m.Theme			= book.Theme
 
 
+	if book.Theme == ""{
+		m.Theme = "default"
+	}
+	if book.Editor == "" {
+		m.Editor = "markdown"
+	}
 	return m
 }
 

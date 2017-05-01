@@ -21,8 +21,9 @@ type DocumentController struct {
 	BaseController
 }
 
+//判断用户是否可以阅读文档
 func isReadable (identify,token string,c *DocumentController) *models.BookResult {
-	book,err := models.NewBook().FindByFieldFirst("identify",identify)
+	book, err := models.NewBook().FindByFieldFirst("identify", identify)
 
 	if err != nil {
 		beego.Error(err)
@@ -33,7 +34,7 @@ func isReadable (identify,token string,c *DocumentController) *models.BookResult
 
 		is_ok := false
 
-		if c.Member != nil{
+		if c.Member != nil {
 			_, err := models.NewRelationship().FindForRoleId(book.BookId, c.Member.MemberId)
 			if err == nil {
 				is_ok = true
@@ -46,10 +47,10 @@ func isReadable (identify,token string,c *DocumentController) *models.BookResult
 			if token != "" && strings.EqualFold(token, book.PrivateToken) {
 				c.SetSession(identify, token)
 
-			}  else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
+			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
 				c.Abort("403")
 			}
-		}else{
+		} else {
 			c.Abort("403")
 		}
 
@@ -57,16 +58,29 @@ func isReadable (identify,token string,c *DocumentController) *models.BookResult
 	bookResult := book.ToBookResult()
 
 	if c.Member != nil {
-		rel ,err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId,c.Member.MemberId)
+		rel, err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId, c.Member.MemberId)
 
 		if err == nil {
-			bookResult.MemberId 		= rel.MemberId
-			bookResult.RoleId		= rel.RoleId
-			bookResult.RelationshipId	= rel.RelationshipId
+			bookResult.MemberId = rel.MemberId
+			bookResult.RoleId = rel.RoleId
+			bookResult.RelationshipId = rel.RelationshipId
 		}
+
 	}
+	//判断是否需要显示评论框
+	if bookResult.CommentStatus == "closed" {
+		bookResult.IsDisplayComment = false
+	} else if bookResult.CommentStatus == "open" {
+		bookResult.IsDisplayComment = true
+	} else if bookResult.CommentStatus == "group_only" {
+		bookResult.IsDisplayComment = bookResult.RelationshipId > 0
+	} else if bookResult.CommentStatus == "registered_only" {
+		bookResult.IsDisplayComment = true
+	}
+
 	return bookResult
 }
+
 
 func (c *DocumentController) Index()  {
 	c.Prepare()
@@ -77,6 +91,7 @@ func (c *DocumentController) Index()  {
 		c.Abort("404")
 	}
 	bookResult := isReadable(identify,token,c)
+
 
 	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
 

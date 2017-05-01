@@ -33,8 +33,8 @@
 <div class="container manual-body">
     <div class="row login">
         <div class="login-body">
-            <form role="form" method="post">
-                <h3 class="text-center">用户登录</h3>
+            <form role="form" method="post" id="registerForm">
+                <h3 class="text-center">用户注册</h3>
                 <div class="form-group">
                     <div class="input-group">
                         <div class="input-group-addon">
@@ -48,7 +48,21 @@
                         <div class="input-group-addon">
                             <i class="fa fa-lock"></i>
                         </div>
-                        <input type="password" class="form-control" placeholder="密码" name="password" id="password" autocomplete="off">
+                        <input type="password" class="form-control" placeholder="密码" name="password1" id="password1" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon">
+                            <i class="fa fa-lock"></i>
+                        </div>
+                        <input type="password" class="form-control" placeholder="确认密码" name="password2" id="password2" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <div class="input-group-addon" style="padding: 6px 9px;"><i class="fa fa-envelope"></i></div>
+                        <input type="email" class="form-control" placeholder="用户邮箱" name="email" id="email" autocomplete="off">
                     </div>
                 </div>
                 {{if ne .ENABLED_CAPTCHA "false"}}
@@ -63,18 +77,12 @@
                     <div class="clearfix"></div>
                 </div>
                 {{end}}
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" name="is_remember" value="yes"> 保持登录
-                    </label>
-                    <a href="{{urlfor "AccountController.FindPassword" }}" style="display: inline-block;float: right">忘记密码？</a>
-                </div>
                 <div class="form-group">
-                    <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="正在登录..." autocomplete="off">立即登录</button>
+                    <button type="submit" id="btnRegister" class="btn btn-success" style="width: 100%"  data-loading-text="正在注册..." autocomplete="off">立即注册</button>
                 </div>
                 {{if ne .ENABLED_REGISTER "false"}}
                 <div class="form-group">
-                    还没有账号？<a href="{{urlfor "AccountController.Register" }}" title="立即注册">立即注册</a>
+                    已有账号？<a href="{{urlfor "AccountController.Register" }}" title="立即登录">立即登录</a>
                 </div>
                 {{end}}
             </form>
@@ -86,72 +94,68 @@
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="/static/layer/layer.js" type="text/javascript"></script>
+<script src="/static/js/jquery.form.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        $("#account,#passwd,#code").on('focus',function () {
+        $("#account,#password,#confirm_password,#code").on('focus',function () {
             $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');;
         });
 
-        $(document).keydown(function (e) {
+        $(document).keyup(function (e) {
             var event = document.all ? window.event : e;
             if(event.keyCode === 13){
-                $("#btn-login").click();
+                $("#btnRegister").trigger("click");
             }
         });
-        $("#btn-login").on('click',function () {
-            var $btn = $(this).button('loading');
+        $("#registerForm").ajaxForm({
+            beforeSubmit : function () {
+                var account = $.trim($("#account").val());
+                var password = $.trim($("#password1").val());
+                var confirmPassword = $.trim($("#password2").val());
+                var code = $.trim($("#code").val());
+                var email = $.trim($("#email").val());
 
-            var account = $.trim($("#account").val());
-            var password = $.trim($("#password").val());
-            var code = $("#code").val();
-            if(account === ""){
-                $("#account").tooltip({placement:"auto",title : "账号不能为空",trigger : 'manual'})
-                    .tooltip('show')
-                    .parents('.form-group').addClass('has-error');
-                $btn.button('reset');
-                return false;
+                if(account === ""){
+                    $("#account").focus().tooltip({placement:"auto",title : "账号不能为空",trigger : 'manual'})
+                        .tooltip('show')
+                        .parents('.form-group').addClass('has-error');
+                    return false;
 
-            }else if(password === ""){
-                $("#password").tooltip({title : '密码不能为空',trigger : 'manual'})
-                    .tooltip('show')
-                    .parents('.form-group').addClass('has-error');
-                $btn.button('reset');
-                return false;
-            }else if(code !== undefined && code === ""){
-                $("#code").tooltip({title : '验证码不能为空',trigger : 'manual'})
-                    .tooltip('show')
-                    .parents('.form-group').addClass('has-error');
-                $btn.button('reset');
-                return false;
-            }else{
-                $.ajax({
-                    url : "{{urlfor "AccountController.Login"}}",
-                    data : $("form").serializeArray(),
-                    dataType : "json",
-                    type : "POST",
-                    success : function (res) {
+                }else if(password === ""){
+                    $("#password").focus().tooltip({title : '密码不能为空',trigger : 'manual'})
+                        .tooltip('show')
+                        .parents('.form-group').addClass('has-error');
+                    return false;
+                }else if(confirmPassword !== password){
+                    $("#confirm_password").focus().tooltip({title : '确认密码不正确',trigger : 'manual'})
+                        .tooltip('show')
+                        .parents('.form-group').addClass('has-error');
+                    return false;
+                }else if(email === ""){
+                    $("#email").focus().tooltip({title : '邮箱不能为空',trigger : 'manual'})
+                        .tooltip('show')
+                        .parents('.form-group').addClass('has-error');
+                    return false;
+                }else if(code !== undefined && code === ""){
+                    $("#code").focus().tooltip({title : '验证码不能为空',trigger : 'manual'})
+                        .tooltip('show')
+                        .parents('.form-group').addClass('has-error');
+                    return false;
+                }else {
 
-                        if(res.errcode !== 0){
-                            $("#captcha-img").click();
-                            $("#code").val('');
-                            layer.msg(res.message);
-                            $btn.button('reset');
-                        }else{
-                            window.location = "/";
-                        }
-
-                    },
-                    error :function () {
-                        $("#captcha-img").click();
-                        $("#code").val('');
-                        layer.msg('系统错误');
-                        $btn.button('reset');
-                    }
-                });
+                    $("button[type='submit']").button('loading');
+                }
+            },
+            success : function (res) {
+                $("button[type='submit']").button('reset');
+                if(res.errcode === 0){
+                    window.location = "{{urlfor "AccountController.Login"}}";
+                }else{
+                    $("#captcha-img").click();
+                    $("#code").val('');
+                    layer.msg(res.message);
+                }
             }
-
-
-            return false;
         });
     });
 </script>

@@ -110,7 +110,32 @@
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
                     </div>
+                    {{if .Model.IsDisplayComment}}
+                    <div id="articleComment" class="m-comment">
+                        <div class="comment-result">
+                            <strong class="title">相关评论(<b class="comment-total">100</b>)</strong>
+                            <div class="comment-post">
+                                <form class="form" action="/comment/create" method="post">
+                                    <label class="enter w-textarea textarea-full">
+                                        <textarea class="textarea-input form-control" name="content" placeholder="文明上网，理性发言" style="height: 72px;"></textarea>
+                                        <input type="hidden" name="doc_id" value="118003"></label>
+                                    <div class="util cf">
+                                        <div class="pull-left"><span style="font-size: 12px;color: #999"> 支持Markdown语法 </span></div>
+                                        <div class="pull-right">
+                                            <span class="form-tip w-fragment fragment-tip">Ctrl + Enter快速发布</span>
+                                            <label class="form-submit w-btn btn-success btn-m">
+                                                <button class="btn btn-success btn-sm" type="submit">发布</button>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                    {{end}}
                 </div>
+
             </div>
         </div>
         <div class="manual-progress"><b class="progress-bar"></b></div>

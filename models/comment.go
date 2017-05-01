@@ -29,6 +29,8 @@ type Comment struct {
 	UserAgent string		`orm:"column(user_agent);size(500)" json:"user_agent"`
 	// Parent 评论所属父级
 	ParentId int			`orm:"column(parent_id);type(int);default(0)" json:"parent_id"`
+	AgreeCount int			`orm:"column(agree_count);type(int);default(0)" json:"agree_count"`
+	AgainstCount int		`orm:"column(against_count);type(int);default(0)" json:"against_count"`
 }
 
 // TableName 获取对应数据库表名.

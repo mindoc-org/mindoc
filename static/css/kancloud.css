@@ -376,6 +376,38 @@ h6 {
     background-color: #136ec2;
     height: 100%
 }
+.m-comment{
+    margin: 30px auto 70px auto;
+}
+.m-comment .comment-result .title {
+    display: block;
+    font-size: 16px;
+    padding-bottom: 6px;
+    line-height: 1.5em;
+    border-bottom: 1px solid #ddddd9;
+    margin-bottom: 10px;
+}
+.w-textarea.textarea-full {
+    display: block;
+}
+.w-fragment.fragment-tip {
+    color: #999;
+}
+.w-textarea .textarea-input {
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    line-height: 1.7em;
+    font-weight: 200;
+}
+.m-comment .comment-post .form .enter textarea {
+    resize: none;
+    min-height: 72px;
+    overflow: hidden;
+    width: 100%;
+}
+
 .editor-content {
     line-height: 1.7em;
     font-size: 14px

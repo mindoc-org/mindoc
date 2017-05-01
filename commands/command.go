@@ -13,6 +13,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/godoc/conf"
 
+	"github.com/lifei6671/gocaptcha"
 )
 
 // RegisterDataBase 注册数据库
@@ -105,5 +106,6 @@ func RegisterFunction()  {
 }
 
 func init()  {
+	gocaptcha.ReadFonts("./static/fonts", ".ttf")
 	gob.Register(models.Member{})
 }

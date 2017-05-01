@@ -414,6 +414,7 @@ func (c *BookController) Create() {
 		book.Version 	= time.Now().Unix()
 		book.Cover 	= conf.GetDefaultCover()
 		book.Editor 	= "markdown"
+		book.Theme	= "default"
 
 		err := book.Insert()
 
@@ -421,8 +422,11 @@ func (c *BookController) Create() {
 			logs.Error("Insert => ",err)
 			c.JsonResult(6005,"保存项目失败")
 		}
-		bookResult := models.NewBookResult()
-		bookResult.FindByIdentify(book.Identify,c.Member.MemberId)
+		bookResult,err := models.NewBookResult().FindByIdentify(book.Identify,c.Member.MemberId)
+
+		if err != nil {
+			beego.Error(err)
+		}
 
 		c.JsonResult(0,"ok",bookResult)
 	}
