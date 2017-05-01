@@ -37,7 +37,7 @@ if [ ! -z $httpport ] ; then
 fi
 
 if [ ! -f "logs/log.log" ] ; then
-   cp uploads/.gitignore logs/log.log
+   echo "" > /go/src/github.com/lifei6671/godoc/logs/log.log
 fi
 
 ./$goFile
