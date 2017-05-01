@@ -51,6 +51,7 @@
                         <input type="password" class="form-control" placeholder="密码" name="password" id="password" autocomplete="off">
                     </div>
                 </div>
+                {{if .ENABLED_CAPTCHA }}
                 {{if ne .ENABLED_CAPTCHA "false"}}
                 <div class="form-group">
                     <div class="input-group" style="float: left;width: 195px;">
@@ -63,6 +64,7 @@
                     <div class="clearfix"></div>
                 </div>
                 {{end}}
+                {{end}}
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" name="is_remember" value="yes"> 保持登录
@@ -72,10 +74,12 @@
                 <div class="form-group">
                     <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="正在登录..." autocomplete="off">立即登录</button>
                 </div>
+                {{if .ENABLED_REGISTER}}
                 {{if ne .ENABLED_REGISTER "false"}}
                 <div class="form-group">
                     还没有账号？<a href="{{urlfor "AccountController.Register" }}" title="立即注册">立即注册</a>
                 </div>
+                {{end}}
                 {{end}}
             </form>
         </div>
