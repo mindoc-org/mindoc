@@ -37,7 +37,7 @@ if [ ! -z $httpport ] ; then
 fi
 
 if [ ! -f "logs/log.log" ]; then
-    echo "" >> logs/log.log
+   touch logs/log.log
 fi
 
 ./$goFile
