@@ -37,7 +37,7 @@ if [ ! -z $httpport ] ; then
 fi
 
 if [ ! -f "logs/log.log" ] ; then
-   touch logs/log.log
+   cp uploads/.gitignore logs/log.log
 fi
 
 ./$goFile
