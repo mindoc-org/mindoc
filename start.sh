@@ -37,4 +37,4 @@ if [ ! -z $httpport ] ; then
 fi
 
 
-./$goFile
+./go/src/github.com/lifei6671/godoc/godoc
