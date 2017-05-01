@@ -8,7 +8,7 @@ ADD . /go/src/github.com/lifei6671/godoc
 
 WORKDIR /go/src/github.com/lifei6671/godoc
 
-RUN touch logs/log.log
+RUN echo > logs/log.log
 RUN chmod +x start.sh
 
 RUN  go get -d ./... && \
