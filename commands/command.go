@@ -52,18 +52,15 @@ func RegisterModel()  {
 
 func Initialization()  {
 
-	(&models.Option{
-		OptionName: "ENABLED_CAPTCHA", OptionValue: "false", OptionTitle:"是否启用验证码",
-	}).InsertOrUpdate()
-	(&models.Option{
-		OptionName: "ENABLED_REGISTER",OptionValue:"false",OptionTitle:"是否启用注册",
-	}).InsertOrUpdate()
-	(&models.Option{
-		OptionName: "ENABLE_ANONYMOUS" , OptionValue:"false", OptionTitle:"启用匿名访问",
-	}).InsertOrUpdate()
-	(&models.Option{
-		OptionName: "SITE_NAME", OptionValue:"MinDoc", OptionTitle: "站点名称",
-	}).InsertOrUpdate()
+	options := []models.Option {
+		{ OptionName: "ENABLED_CAPTCHA", OptionValue: "false", OptionTitle:"是否启用验证码"},
+		{ OptionName: "ENABLED_REGISTER",OptionValue:"false",OptionTitle:"是否启用注册"},
+		{ OptionName: "ENABLE_ANONYMOUS" , OptionValue:"false", OptionTitle:"启用匿名访问"},
+		{ OptionName: "SITE_NAME", OptionValue:"MinDoc", OptionTitle: "站点名称"},
+	}
+
+
+	models.NewOption().InsertMulti(options...)
 
 	member := models.NewMember()
 	member.Account = "admin"

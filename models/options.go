@@ -8,7 +8,7 @@ import (
 
 // Option struct .
 type Option struct {
-	OptionId int		`orm:"pk;auto;unique;column(option_id)" json:"option_id"`
+	OptionId int		`orm:"column(option_id);pk;auto;unique;" json:"option_id"`
 	OptionTitle string	`orm:"column(option_title);size(500)" json:"option_title"`
 	OptionName string	`orm:"column(option_name);unique;size(80)" json:"option_name"`
 	OptionValue string	`orm:"column(option_value);type(text);null" json:"option_value"`
