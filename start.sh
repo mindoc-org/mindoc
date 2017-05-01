@@ -32,8 +32,8 @@ if [ ! -z $MYSQL_PASSWORD ] ; then
     sed -i 's/^db_password.*/db_password='$MYSQL_PASSWORD'/g' conf/app.conf
 fi
 
-if [ ! -z $httpport ] ; then
-    sed -i 's/^httpport.*/httpport='$httpport'/g' conf/app.conf
+if [ ! -z $HTTP_PORT] ; then
+    sed -i 's/^httpport.*/httpport='$HTTP_PORT'/g' conf/app.conf
 fi
 
 
