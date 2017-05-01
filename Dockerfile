@@ -1,6 +1,8 @@
 FROM golang:1.8.1-alpine
 
 
+RUN apk add --update bash git make gcc
+
 ADD . /go/src/github.com/lifei6671/godoc
 
 
