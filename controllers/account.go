@@ -22,6 +22,7 @@ type AccountController struct {
 // Login 用户登录.
 func (c *AccountController) Login()  {
 	c.Prepare()
+	c.TplName = "account/login.tpl"
 
 	var remember struct { MemberId int ; Account string; Time time.Time}
 
@@ -76,10 +77,6 @@ func (c *AccountController) Login()  {
 		}
 
 		return
-	}else{
-
-		c.Layout = ""
-		c.TplName = "account/login.tpl"
 	}
 }
 
