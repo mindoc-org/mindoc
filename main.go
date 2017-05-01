@@ -5,6 +5,8 @@ import (
 	_ "github.com/lifei6671/godoc/routers"
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/godoc/commands"
+	"fmt"
+	"os"
 )
 
 func main() {
@@ -17,5 +19,6 @@ func main() {
 	beego.SetStaticPath("uploads","uploads")
 
 
+	fmt.Printf("%+v",os.Args)
 	beego.Run()
 }
