@@ -1,9 +1,9 @@
-appname = smartwebhook
+appname = godoc
 # httpaddr = 127.0.0.1
 httpport = 8181
 runmode = dev
 sessionon = true
-sessionname = smart_webhook_id
+sessionname = mindoc_id
 copyrequestbody = true
 
 #默认Session生成Key的秘钥
@@ -12,8 +12,6 @@ beegoserversessionkey=123456
 sessionprovider=file
 sessionproviderconfig=./logs
 
-#生成回调地址时完整的域名
-base_url = https://hook.iminho.me
 
 #时区设置
 timezone = Asia/Shanghai
