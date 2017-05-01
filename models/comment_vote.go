@@ -17,7 +17,7 @@ type CommentVote struct {
 
 // TableName 获取对应数据库表名.
 func (m *CommentVote) TableName() string {
-	return "comments"
+	return "comment_votes"
 }
 // TableEngine 获取数据使用的引擎.
 func (m *CommentVote) TableEngine() string {
