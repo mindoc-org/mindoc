@@ -366,7 +366,7 @@ func (c *ManagerController) DeleteComment()  {
 
 	comment := models.NewComment()
 
-	if err := comment.Find(comment_id); err != nil {
+	if _,err := comment.Find(comment_id); err != nil {
 		c.JsonResult(6002,"评论不存在")
 	}
 

@@ -10,6 +10,7 @@ import (
 //Comment struct
 type Comment struct {
 	CommentId int			`orm:"pk;auto;unique;column(comment_id)" json:"comment_id"`
+	Floor int 			`orm:"column(floor);type(unsigned);default(0)" json:"floor"`
 	BookId int			`orm:"column(book_id);type(int)" json:"book_id"`
 	// DocumentId 评论所属的文档.
 	DocumentId int			`orm:"column(document_id);type(int)" json:"document_id"`
@@ -49,12 +50,14 @@ func (m *Comment) TableNameWithPrefix() string  {
 func NewComment() *Comment {
 	return &Comment{}
 }
-func (m *Comment) Find(id int) error {
+func (m *Comment) Find(id int) (*Comment,error) {
 	if id <= 0 {
-		return ErrInvalidParameter
+		return m,ErrInvalidParameter
 	}
 	o := orm.NewOrm()
-	return o.Read(m)
+	err :=  o.Read(m)
+
+	return m,err
 }
 
 func (m *Comment) Update(cols... string)  error {
@@ -130,10 +133,6 @@ func (m *Comment) Insert() error {
 
 	return err
 }
-
-
-
-
 
 
 
