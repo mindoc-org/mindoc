@@ -407,7 +407,241 @@ h6 {
     overflow: hidden;
     width: 100%;
 }
+.m-comment .comment-list {
+    padding-bottom: 12px
+}
 
+.m-comment .comment-post {
+    padding-bottom: 35px
+}
+
+.m-comment .comment-item {
+    position: relative;
+    font-size: 1em;
+    border-top: 1px dotted #eee;
+    margin-bottom: -1px;
+    padding: 12px 0;
+    line-height: 1.7em
+}
+
+.m-comment .comment-item .avatar {
+    position: absolute;
+    left: 0;
+    top: 12px;
+    display: inline-block;
+    border-radius: 50%;
+    background: #eee
+}
+
+.m-comment .comment-item .avatar img {
+    border-radius: 50%
+}
+
+.m-comment .comment-item .date {
+    font-weight: 200;
+    color: #999;
+    margin-left: 12px
+}
+
+.m-comment .comment-item .name {
+    color: #136ec2
+}
+
+.m-comment .comment-item .content {
+    margin: 6px 0 9px;
+    font-size: 1.14em;
+    padding: 3px 0
+}
+
+.m-comment .comment-item .content pre {
+    padding: 16px;
+    overflow: auto;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    font-family: Consolas,"Liberation Mono",Menlo,Courier,monospace
+}
+
+.m-comment .comment-item .content pre>code {
+    display: inline;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    overflow: initial;
+    line-height: inherit;
+    background-color: transparent;
+    border: 0;
+    font-size: 100%
+}
+
+.m-comment .comment-item .operate {
+    position: absolute;
+    top: 12px;
+    right: 0;
+    height: 24px;
+    line-height: 24px
+}
+
+.m-comment .comment-item .operate .number {
+    color: #999
+}
+
+.m-comment .comment-item .operate .delete {
+    display: none
+}
+
+.m-comment .comment-item:hover .operate.toggle .delete {
+    display: inline-block
+}
+
+.m-comment .comment-item:hover .operate.toggle .number {
+    display: none
+}
+
+.m-comment .comment-item .info {
+    height: 24px;
+    line-height: 24px
+}
+
+.m-comment .comment-item .vote {
+    display: inline-block;
+    margin-right: 12px
+}
+
+.m-comment .comment-item .vote .agree,.m-comment .comment-item .vote .oppose {
+    display: inline-block;
+    vertical-align: top;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    background-color: #f5f5f5;
+    color: #666666;
+}
+.m-comment .comment-item .vote .agree:hover,.m-comment .comment-item .vote .oppose:hover{
+    color: #333333;
+}
+
+.m-comment .comment-item .vote .count {
+    height: 30px;
+    line-height: 30px;
+    color: #999;
+    display: inline-block;
+    text-align: center;
+    padding: 0 6px;
+    min-width: 12px;
+    font-weight: 200;
+    vertical-align: top;
+    background-color: #f5f5f5;
+    border-left: 1px solid #eee;
+    border-right: 1px solid #eee
+}
+
+.m-comment .comment-item .vote .agree {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0
+}
+
+.m-comment .comment-item .vote .oppose {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0
+}
+
+.m-comment .comment-item .vote.disabled .agree,.m-comment .comment-item .vote.disabled .oppose {
+    cursor: default
+}
+
+.m-comment .comment-item .vote.disabled .agree i,.m-comment .comment-item .vote.disabled .oppose i {
+    color: #ccc
+}
+
+.m-comment .comment-item .vote.disabled .agree:hover i,.m-comment .comment-item .vote.disabled .oppose:hover i {
+    color: #ccc
+}
+
+.m-comment .comment-item .reply {
+    float: right;
+    line-height: 30px;
+    display: none
+}
+
+.m-comment .comment-item:hover .reply {
+    display: inline-block
+}
+
+.m-comment .comment-empty {
+    text-align: center;
+    display: block;
+    padding-top: 36px;
+    padding-bottom: 36px
+}
+
+.m-comment .comment-empty .text {
+    color: #666;
+    font-weight: 200
+}
+
+.m-comment .comment-empty.empty-active {
+    display: block
+}
+
+.m-comment .comment-more,.m-comment .comment-replace {
+    display: none;
+    text-align: center;
+    margin-bottom: 24px
+}
+
+.m-comment .comment-more .more-inner,.m-comment .comment-replace .more-inner {
+    display: inline-block;
+    text-align: center;
+    height: 36px;
+    line-height: 36px;
+    cursor: pointer;
+    min-width: 300px;
+    border-radius: 4px;
+    border: 1px solid #aaa
+}
+
+.m-comment .comment-more .more-inner:hover,.m-comment .comment-replace .more-inner:hover {
+    background-color: #f3f3f3;
+    border-color: #888
+}
+
+.m-comment .comment-more .more-inner:active,.m-comment .comment-replace .more-inner:active {
+    box-shadow: 0 3px 6px rgba(99,99,99,.1) inset
+}
+
+.m-comment .comment-more.more-active,.m-comment .comment-replace.more-active {
+    display: block
+}
+
+.m-comment .comment-more.replace-active,.m-comment .comment-replace.replace-active {
+    display: block
+}
+
+.m-comment .think-loading.loading-ripple-empty {
+    text-align: center
+}
+
+.m-comment .comment-post-disabeld {
+    display: none;
+    height: 72px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 5px 10px;
+    text-align: center;
+    line-height: 72px
+}
+
+.m-comment.comment-disabled .comment-post {
+    display: none
+}
+
+.m-comment.comment-disabled .comment-post-disabeld {
+    display: block
+}
 .editor-content {
     line-height: 1.7em;
     font-size: 14px
