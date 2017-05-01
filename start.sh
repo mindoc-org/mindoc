@@ -36,7 +36,7 @@ if [ ! -z $httpport ] ; then
     sed -i 's/^httpport.*/httpport='$httpport'/g' conf/app.conf
 fi
 
-if [ ! -f "logs/log.log" ]; then
+if [ ! -f "logs/log.log" ] ; then
    touch logs/log.log
 fi
 
