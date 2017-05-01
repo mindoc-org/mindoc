@@ -32,7 +32,9 @@ func (u *CommentVote) TableUnique() [][]string {
 		[]string{"comment_id", "vote_member_id"},
 	}
 }
-
+func NewCommentVote() *CommentVote {
+	return &CommentVote{}
+}
 func (m *CommentVote) InsertOrUpdate() (*CommentVote,error)  {
 	o := orm.NewOrm()
 

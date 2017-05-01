@@ -37,7 +37,9 @@ func (m *Logger) TableNameWithPrefix() string {
 	return conf.GetDatabasePrefix() + m.TableName()
 }
 
-
+func NewLogger() *Logger {
+	return &Logger{}
+}
 
 
 
