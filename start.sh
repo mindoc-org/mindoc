@@ -36,8 +36,5 @@ if [ ! -z $httpport ] ; then
     sed -i 's/^httpport.*/httpport='$httpport'/g' conf/app.conf
 fi
 
-if [ ! -f "logs/log.log" ] ; then
-   echo "" > /go/src/github.com/lifei6671/godoc/logs/log.log
-fi
 
 ./$goFile

@@ -79,6 +79,11 @@ func RegisterLogger()  {
 	logs.Async()
 
 	//beego.BeeLogger.DelLogger("console")
+	if _,err := os.Stat("logs/log.log"); os.IsNotExist(err) {
+		if f,err := os.Create("logs/log.log");err == nil {
+			f.Close()
+		}
+	}
 	beego.SetLogger("file",`{"filename":"logs/log.log"}`)
 	beego.SetLogFuncCall(true)
 	beego.BeeLogger.Async()
