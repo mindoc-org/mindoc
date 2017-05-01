@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	fmt.Println(os.Args[0])
 	commands.RegisterDataBase()
 	commands.RegisterModel()
 	commands.RegisterLogger()
@@ -19,6 +20,6 @@ func main() {
 	beego.SetStaticPath("uploads","uploads")
 
 
-	fmt.Printf("%+v",os.Args)
+
 	beego.Run()
 }
