@@ -243,7 +243,7 @@ $(function () {
             if (doc_name === ""){
                 return showError("目录名称不能为空","#add-error-message")
             }
-            window.addDocumentFormIndex = layer.load(1, { shade: [0.1,'#fff']  });
+            $("#btnSaveDocument").button("loading");
             return true;
         },
         success : function (res) {
@@ -266,7 +266,7 @@ $(function () {
             }else{
                 showError(res.message,"#add-error-message")
             }
-            layer.close(window.addDocumentFormIndex);
+            $("#btnSaveDocument").button("reset");
         }
     });
 

@@ -83,11 +83,15 @@
                             <span class="title">担任角色：</span>
                             <span class="body">{{.Model.RoleName}}</span>
                         </div>
-                        <div class="list">
+                       {{/* <div class="list">
                             <span class="title">评论数量：</span>
                             <span class="body">{{.Model.CommentCount}} 条</span>
-                        </div>
-                            <div class="summary">{{.Model.Description}} </div>
+                        </div>*/}}
+                    <div class="list">
+                        <span class="title">文档标签：</span>
+                        <span class="body">{{.Model.Label}}</span>
+                    </div>
+                        <div class="summary">{{.Model.Description}} </div>
 
                     </div>
                 </div>

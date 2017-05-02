@@ -168,7 +168,7 @@
             <div class="modal-footer">
                 <span id="form-error-message"></span>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="submit" class="btn btn-success">保存</button>
+                <button type="submit" class="btn btn-success" id="btnSaveDocument" data-loading-text="保存中...">保存</button>
             </div>
         </div>
         </form>
@@ -204,16 +204,18 @@
                 if(description.length > 500){
                     return showError("描述信息不超过500个字符");
                 }
+                $("#btnSaveDocument").button("loading");
                 return showSuccess("");
             },
             success : function (res) {
-                console.log(res);
+                $("#btnSaveDocument").button("reset");
                 if(res.errcode === 0){
                     window.app.lists.splice(0,0,res.data);
                     $("#addBookDialogModal").modal("hide");
                 }else{
                     showError(res.message);
                 }
+
             }
         });
 

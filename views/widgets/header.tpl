@@ -8,6 +8,15 @@
                 {{.SITE_NAME}}
                 {{end}}
             </a>
+            <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">
+                <form class="form-inline" action="{{urlfor "SearchController.Index"}}" method="get">
+                    <input class="form-control" name="keyword" type="search" style="width: 230px;" placeholder="请输入关键词..." value="{{.Keyword}}">
+                    <button class="search-btn">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            {{/*
             <div class="btn-group dropdown-menu-right pull-right slidebar visible-xs-inline-block visible-sm-inline-block">
                 <button class="btn btn-default dropdown-toggle hidden-lg" type="button" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
                 <ul class="dropdown-menu" role="menu">
@@ -22,6 +31,7 @@
                     </li>
                 </ul>
             </div>
+        */}}
         </div>
         <nav class="navbar-collapse hidden-xs hidden-sm" role="navigation">
             <ul class="nav navbar-nav navbar-right">

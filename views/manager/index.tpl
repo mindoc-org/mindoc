@@ -29,7 +29,7 @@
                     <li class="active"><a href="{{urlfor "ManagerController.Index"}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 仪表盘</a> </li>
                     <li><a href="{{urlfor "ManagerController.Users" }}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 用户管理</a> </li>
                     <li><a href="{{urlfor "ManagerController.Books" }}" class="item"><i class="fa fa-book" aria-hidden="true"></i> 项目管理</a> </li>
-                    <li><a href="{{urlfor "ManagerController.Comments" }}" class="item"><i class="fa fa-comments-o" aria-hidden="true"></i> 评论管理</a> </li>
+                    {{/*<li><a href="{{urlfor "ManagerController.Comments" }}" class="item"><i class="fa fa-comments-o" aria-hidden="true"></i> 评论管理</a> </li>*/}}
                     <li><a href="{{urlfor "ManagerController.Setting" }}" class="item"><i class="fa fa-cogs" aria-hidden="true"></i> 配置管理</a> </li>
                 </ul>
             </div>
@@ -55,11 +55,13 @@
                         <span class="fa-class">会员数量</span>
                         <span class="fa-class">{{.Model.MemberNumber}}</span>
                     </div>
+                    {{/*
                     <div class="dashboard-item">
                         <span class="fa fa-comments-o" aria-hidden="true"></span>
                         <span class="fa-class">评论数量</span>
                         <span class="fa-class">{{.Model.CommentNumber}}</span>
                     </div>
+                */}}
                     <div class="dashboard-item">
                         <span class="fa fa-cloud-download" aria-hidden="true"></span>
                         <span class="fa-class">附件数量</span>

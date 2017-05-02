@@ -63,4 +63,7 @@ func init()  {
 	beego.Router("/comment/create", &controllers.CommentController{},"post:Create")
 	beego.Router("/comment/lists", &controllers.CommentController{},"get:Lists")
 	beego.Router("/comment/index", &controllers.CommentController{},"*:Index")
+
+	beego.Router("/search",&controllers.SearchController{},"get:Index")
 }
+
