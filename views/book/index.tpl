@@ -140,6 +140,7 @@
                     </div>
                     <div class="clearfix"></div>
                 </div>
+				{{/*
                 <div class="form-group">
                     <div class="col-lg-3">
                         <label>
@@ -163,6 +164,7 @@
                     </div>
                     <div class="clearfix"></div>
                 </div>
+				*/}}
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">

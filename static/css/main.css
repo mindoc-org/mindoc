@@ -290,7 +290,7 @@ textarea{
     float: right;
 }
 /**************用户搜索界面样式********************/
-.manual-search-reader .searchbar{
+.searchbar{
     padding: 8px;
 }
 .manual-search-reader .manual-body{

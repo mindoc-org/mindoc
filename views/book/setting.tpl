@@ -83,6 +83,7 @@
                                     </label>
                                 </div>
                             </div>
+							{{/*
                             <div class="form-group">
                                 <label>开启评论</label>
                                 <div class="radio">
@@ -100,6 +101,7 @@
                                     </label>
                                 </div>
                             </div>
+							*/}}
                             {{if eq .Model.PrivatelyOwned 1}}
                             <div class="form-group">
                                 <label>访问令牌</label>
