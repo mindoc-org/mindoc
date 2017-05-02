@@ -293,6 +293,18 @@ textarea{
 .searchbar{
     padding: 8px;
 }
+.searchbar .search-btn {
+    display: inline-block;
+    line-height: 100%;
+    cursor: pointer;
+    margin-top: -10px;
+    margin-left: -45px;
+    border: 0;
+    background-color: transparent
+}
+.searchbar .search-btn>i.fa{
+    padding: 10px;
+}
 .manual-search-reader .manual-body{
     margin-top: 60px;
 }
@@ -309,17 +321,17 @@ textarea{
 .manual-search-reader .search-body {
     margin-top: 80px;
 }
-.manual-search-reader .searchbar .search-btn {
-    display: inline-block;
-    line-height: 100%;
-    cursor: pointer;
-    margin-top: -10px;
-    margin-left: -45px;
-    border: 0;
-    background-color: transparent
+.manual-search-reader .search-empty{
+	margin:150px auto;
+	text-align:center; 
 }
-.manual-search-reader .searchbar .search-btn>i.fa{
-    padding: 10px;
+.manual-search-reader .search-empty .empty-text {
+    font-size: 18px;
+    display: block;
+    margin: 24px;
+    text-align: center;
+    opacity: .5;
+    filter: alpha(opacity=50)
 }
 .manual-search-reader .search-empty .empty-image{
     margin: 5px auto;

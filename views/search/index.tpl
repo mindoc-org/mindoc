@@ -44,6 +44,7 @@
                 {{else}}
                 <div class="search-empty">
                     <img src="/static/images/search_empty.png" class="empty-image">
+					<span class="empty-text">暂无相关搜索结果</span>
                 </div>
                 {{end}}
                 <div class="clearfix"></div>
