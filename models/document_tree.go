@@ -96,7 +96,7 @@ func getDocumentTree(array []*DocumentTree,parent_id int,selected_id int,selecte
 	for _,item := range array {
 		pid := 0
 
-		if p,ok := item.ParentId.(int);ok {
+		if p, ok := item.ParentId.(int); ok {
 			pid = p
 		}
 		if pid == parent_id {
@@ -126,11 +126,11 @@ func getDocumentTree(array []*DocumentTree,parent_id int,selected_id int,selecte
 			buf.WriteString("\"")
 			buf.WriteString(selected_li)
 			buf.WriteString("><a href=\"")
-			if item.Identify != ""{
-				uri := beego.URLFor("DocumentController.Read",":key",item.BookIdentify,":id" ,item.Identify)
+			if item.Identify != "" {
+				uri := beego.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.Identify)
 				buf.WriteString(uri)
-			}else{
-				uri := beego.URLFor("DocumentController.Read",":key",item.BookIdentify,":id" ,item.DocumentId)
+			} else {
+				uri := beego.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.DocumentId)
 				buf.WriteString(uri)
 			}
 			buf.WriteString("\" title=\"")
@@ -138,9 +138,10 @@ func getDocumentTree(array []*DocumentTree,parent_id int,selected_id int,selecte
 			buf.WriteString(selected + ">")
 			buf.WriteString(template.HTMLEscapeString(item.DocumentName) + "</a>")
 
-			for _,sub := range array {
-				if p,ok := sub.ParentId.(int);ok && p == item.DocumentId{
-					getDocumentTree(array,p,selected_id,selected_parent_id,buf)
+			for _, sub := range array {
+				if p, ok := sub.ParentId.(int); ok && p == item.DocumentId {
+					getDocumentTree(array, p, selected_id, selected_parent_id, buf)
+					break
 				}
 			}
 			buf.WriteString("</li>")

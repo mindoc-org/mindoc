@@ -17,11 +17,12 @@ import (
 	"github.com/astaxie/beego/orm"
 )
 
+//DocumentController struct.
 type DocumentController struct {
 	BaseController
 }
 
-//判断用户是否可以阅读文档
+//判断用户是否可以阅读文档.
 func isReadable (identify,token string,c *DocumentController) *models.BookResult {
 	book, err := models.NewBook().FindByFieldFirst("identify", identify)
 
@@ -81,7 +82,7 @@ func isReadable (identify,token string,c *DocumentController) *models.BookResult
 	return bookResult
 }
 
-
+//文档首页.
 func (c *DocumentController) Index()  {
 	c.Prepare()
 	identify := c.Ctx.Input.Param(":key")
@@ -108,7 +109,7 @@ func (c *DocumentController) Index()  {
 	c.Data["Title"] = "概要"
 	c.Data["Content"] = bookResult.Description
 }
-
+//阅读文档.
 func (c *DocumentController) Read() {
 	c.Prepare()
 	identify := c.Ctx.Input.Param(":key")
@@ -167,6 +168,7 @@ func (c *DocumentController) Read() {
 	c.Data["Content"] = template.HTML(doc.Release)
 }
 
+//编辑文档.
 func (c *DocumentController) Edit()  {
 	c.Prepare()
 
@@ -273,7 +275,7 @@ func (c *DocumentController) Create() {
 		beego.Error("InsertOrUpdate => ",err)
 		c.JsonResult(6005,"保存失败")
 	}else{
-		beego.Info("",document)
+
 		c.JsonResult(0,"ok",document)
 	}
 }
@@ -446,6 +448,7 @@ func (c *DocumentController) DownloadAttachment()  {
 	c.StopRun()
 }
 
+//删除文档.
 func (c *DocumentController) Delete() {
 	c.Prepare()
 
@@ -476,10 +479,12 @@ func (c *DocumentController) Delete() {
 	if err != nil {
 		c.JsonResult(6005,"删除失败")
 	}
-
+	//重置文档数量统计
+	models.NewBook().ResetDocumentNumber(doc.BookId)
 	c.JsonResult(0,"ok")
 }
 
+//获取文档内容.
 func (c *DocumentController) Content()  {
 	c.Prepare()
 

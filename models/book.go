@@ -7,6 +7,7 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego/logs"
 	"strings"
+	"github.com/astaxie/beego"
 )
 
 // Book struct .
@@ -325,7 +326,17 @@ func (book *Book) ToBookResult() *BookResult {
 	return m
 }
 
+//重置文档数量
+func (m *Book) ResetDocumentNumber(book_id int)  {
+	o := orm.NewOrm()
 
+	totalCount,err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id",book_id).Count()
+	if err == nil {
+		o.Raw("UPDATE md_books SET doc_count = ? WHERE book_id = ?",int(totalCount),book_id).Exec()
+	}else{
+		beego.Error(err)
+	}
+}
 
 
 

@@ -65,6 +65,7 @@ func (m *Document) Find(id int) (*Document,error) {
 	return m,nil
 }
 
+//插入和更新文档.
 func (m *Document) InsertOrUpdate(cols... string) error {
 	o := orm.NewOrm()
 
@@ -73,10 +74,12 @@ func (m *Document) InsertOrUpdate(cols... string) error {
 		return err
 	}else{
 		_,err := o.Insert(m)
+		NewBook().ResetDocumentNumber(m.BookId)
 		return err
 	}
 }
 
+//根据指定字段查询一条文档.
 func (m *Document) FindByFieldFirst(field string,v interface{}) (*Document,error) {
 	o := orm.NewOrm()
 
@@ -112,6 +115,7 @@ func (m *Document) RecursiveDocument(doc_id int) error {
 	return nil
 }
 
+//发布文档
 func (m *Document) ReleaseContent(book_id int)  {
 
 	o := orm.NewOrm()

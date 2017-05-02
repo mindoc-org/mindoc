@@ -70,6 +70,7 @@ func (c *BookController) Dashboard() {
 		if err == models.ErrPermissionDenied {
 			c.Abort("403")
 		}
+		beego.Error(err)
 		c.Abort("500")
 	}
 
@@ -501,7 +502,7 @@ func (c *BookController) Delete() {
 	c.JsonResult(0,"ok")
 }
 
-//发布项目
+//发布项目.
 func (c *BookController) Release() {
 	c.Prepare()
 
@@ -527,6 +528,7 @@ func (c *BookController) Release() {
 	c.JsonResult(0,"发布任务已推送到任务队列，稍后将在后台执行。")
 }
 
+//文档排序.
 func (c *BookController) SaveSort() {
 	c.Prepare()
 
