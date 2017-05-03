@@ -12,7 +12,7 @@ RUN chmod +x start.sh
 
 RUN  go get -d ./... && \
     go get github.com/mitchellh/gox && \
-    gox
+    gox -os "windows linux darwin" -arch amd64
 
 
 CMD ["./start.sh"]

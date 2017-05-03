@@ -3,11 +3,6 @@ set -e
 
 cd /go/src/github.com/lifei6671/godoc/
 
-goFile="godoc-linux-amd64"
-
-
-chmod +x $goFile
-
 if [ ! -f "conf/app.conf" ] ; then
     cp conf/app.conf.example conf/app.conf
 fi
@@ -37,4 +32,4 @@ if [ ! -z $HTTP_PORT] ; then
 fi
 
 
-/go/src/github.com/lifei6671/godoc/godoc-linux-amd64
+/go/src/github.com/lifei6671/godoc/godoc_linux_amd64
