@@ -33,25 +33,25 @@ func NewOption() *Option  {
 	return &Option{}
 }
 
-func (p *Option) Find(id int) error {
+func (p *Option) Find(id int) (*Option,error) {
 	o := orm.NewOrm()
 
 	p.OptionId = id
 
 	if err := o.Read(p);err != nil {
-		return err
+		return p,err
 	}
-	return  nil
+	return  p,nil
 }
 
-func (p *Option) FindByKey(key string) error {
+func (p *Option) FindByKey(key string) (*Option,error) {
 	o := orm.NewOrm()
 
 	p.OptionName = key
 	if err := o.Read(p);err != nil {
-		return err
+		return p,err
 	}
-	return  nil
+	return  p,nil
 }
 
 func GetOptionValue(key, def string) string {

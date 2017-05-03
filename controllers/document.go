@@ -91,6 +91,11 @@ func (c *DocumentController) Index()  {
 	if identify == "" {
 		c.Abort("404")
 	}
+	//如果没有开启你们访问则跳转到登录
+	if !c.EnableAnonymous && c.Member == nil {
+		c.Redirect(beego.URLFor("AccountController.Login"),302)
+		return
+	}
 	bookResult := isReadable(identify,token,c)
 
 
@@ -119,6 +124,13 @@ func (c *DocumentController) Read() {
 	if identify == "" || id == ""{
 		c.Abort("404")
 	}
+
+	//如果没有开启你们访问则跳转到登录
+	if !c.EnableAnonymous && c.Member == nil {
+		c.Redirect(beego.URLFor("AccountController.Login"),302)
+		return
+	}
+
 	bookResult := isReadable(identify,token,c)
 
 	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
