@@ -73,9 +73,7 @@ func (m *BookResult) FindByIdentify(identify string,member_id int) (*BookResult,
 		return m, ErrPermissionDenied
 	}
 
-	member := NewMember()
-
-	err = member.Find(relationship2.MemberId)
+	member, err := NewMember().Find(relationship2.MemberId)
 	if err != nil {
 		return m, err
 	}

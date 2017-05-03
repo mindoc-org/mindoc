@@ -8,6 +8,8 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego"
 	"strings"
+	"encoding/json"
+	"io"
 )
 
 
@@ -62,17 +64,25 @@ func (c *BaseController) SetMember(member models.Member) {
 
 // JsonResult 响应 json 结果
 func (c *BaseController) JsonResult(errCode int,errMsg string,data ...interface{}){
-	json := make(map[string]interface{},3)
+	jsonData := make(map[string]interface{},3)
 
-	json["errcode"] = errCode
-	json["message"] = errMsg
+	jsonData["errcode"] = errCode
+	jsonData["message"] = errMsg
 
 	if len(data) > 0 && data[0] != nil{
-		json["data"] = data[0]
+		jsonData["data"] = data[0]
 	}
 
-	c.Data["json"] = json
-	c.ServeJSON(true)
+	returnJSON, err := json.Marshal(jsonData)
+
+	if err != nil {
+		beego.Error(err)
+	}
+
+	c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	io.WriteString(c.Ctx.ResponseWriter,string(returnJSON))
+
 	c.StopRun()
 }
 

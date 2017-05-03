@@ -26,7 +26,7 @@ func RegisterDataBase()  {
 
 	port := beego.AppConfig.String("db_port")
 
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=true&loc=%s",username,password,host,port,database,url.QueryEscape(timezone))
+	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s",username,password,host,port,database,url.QueryEscape(timezone))
 
 
 	orm.RegisterDataBase("default", "mysql", dataSource)
@@ -47,22 +47,23 @@ func RegisterModel()  {
 		new(models.Attachment),
 		new(models.Logger),
 		new(models.CommentVote),
+		new(models.MemberToken),
 	)
 
 }
 
 func Initialization()  {
 
-	o := orm.NewOrm()
-	o.Raw("alter table "+models.NewMember().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	o.Raw("alter table "+models.NewBook().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	o.Raw("alter table "+models.NewRelationship().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	o.Raw("alter table "+models.NewComment().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	o.Raw("alter table " +models.NewOption().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	o.Raw("alter table "+models.NewDocument().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	o.Raw("alter table "+models.NewAttachment().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	o.Raw("alter table "+models.NewLogger().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	o.Raw("alter table "+models.NewCommentVote().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o := orm.NewOrm()
+	//o.Raw("alter table "+models.NewMember().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o.Raw("alter table "+models.NewBook().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o.Raw("alter table "+models.NewRelationship().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o.Raw("alter table "+models.NewComment().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o.Raw("alter table " +models.NewOption().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o.Raw("alter table "+models.NewDocument().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o.Raw("alter table "+models.NewAttachment().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o.Raw("alter table "+models.NewLogger().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
+	//o.Raw("alter table "+models.NewCommentVote().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
 
 	options := []models.Option {
 		{ OptionName: "ENABLED_CAPTCHA", OptionValue: "false", OptionTitle:"是否启用验证码"},
@@ -91,7 +92,6 @@ func RegisterLogger()  {
 	logs.EnableFuncCallDepth(true)
 	logs.Async()
 
-	//beego.BeeLogger.DelLogger("console")
 	if _,err := os.Stat("logs/log.log"); os.IsNotExist(err) {
 		if f,err := os.Create("logs/log.log");err == nil {
 			f.Close()

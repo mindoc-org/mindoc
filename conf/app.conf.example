@@ -35,3 +35,21 @@ token_size=12
 
 #上传文件的后缀
 upload_file_ext=txt|doc|docx|xls|xlsx|ppt|pptx|pdf|7z|rar|jpg|jpeg|png|gif
+
+####################邮件配置######################
+#是否启用邮件
+enable_mail=false
+#每小时限制指定邮箱邮件发送次数
+mail_number=5
+#smtp服务用户名
+smtp_user_name=admin@iminho.me
+#smtp服务器地址
+smtp_host=smtp.ym.163.com
+#smtp密码
+smtp_password=
+#端口号
+smtp_port=25
+#发送邮件的显示名称
+form_user_name=admin@iminho.me
+#邮件有效期30分钟
+mail_expired=30

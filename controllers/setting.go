@@ -141,8 +141,7 @@ func (c *SettingController) Upload() {
 
 	url := "/" + filePath
 
-	member := models.NewMember()
-	if err := member.Find(c.Member.MemberId);err == nil {
+	if member,err := models.NewMember().Find(c.Member.MemberId);err == nil {
 		member.Avatar = url
 		member.Update()
 		c.SetMember(*member)

@@ -118,7 +118,7 @@ func (m *Comment) Insert() error {
 	if m.MemberId > 0 {
 		member := NewMember()
 		//如果用户不存在
-		if err := member.Find(m.MemberId) ; err != nil {
+		if _,err := member.Find(m.MemberId) ; err != nil {
 			return ErrMemberNoExist
 		}
 		//如果用户被禁用

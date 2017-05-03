@@ -7,6 +7,9 @@ import (
 	"github.com/lifei6671/godoc/utils"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego/logs"
+	"errors"
+	"regexp"
+	"strings"
 )
 
 type Member struct {
@@ -14,7 +17,7 @@ type Member struct {
 	Account string 		`orm:"size(100);unique;column(account)" json:"account"`
 	Password string 	`orm:"size(1000);column(password)" json:"-"`
 	Description string	`orm:"column(description);size(2000)" json:"description"`
-	Email string 		`orm:"size(255);column(email);null;default(null)" json:"email"`
+	Email string 		`orm:"size(255);column(email);unique" json:"email"`
 	Phone string 		`orm:"size(255);column(phone);null;default(null)" json:"phone"`
 	Avatar string 		`orm:"size(1000);column(avatar)" json:"avatar"`
 	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户 .
@@ -71,6 +74,22 @@ func (m *Member) Login(account string,password string) (*Member,error) {
 func (m *Member) Add () (error) {
 	o := orm.NewOrm()
 
+	if ok,err := regexp.MatchString(conf.RegexpAccount,m.Account); m.Account == "" || !ok || err != nil {
+		return errors.New("账号只能由英文字母数字组成，且在3-50个字符")
+	}
+	if m.Email == "" {
+		return errors.New("邮箱不能为空")
+	}
+	if  ok,err := regexp.MatchString(conf.RegexpEmail,m.Email); !ok || err != nil || m.Email == "" {
+		return errors.New("邮箱格式不正确")
+	}
+	if l :=  strings.Count(m.Password,""); l <6 || l > 50{
+		return errors.New("密码不能为空且必须在6-50个字符之间")
+	}
+	if c,err :=  o.QueryTable(m.TableNameWithPrefix()).Filter("email",m.Email).Count(); err == nil || c > 0 {
+		return  errors.New("邮箱已被使用")
+	}
+
 	hash ,err := utils.PasswordHash(m.Password);
 
 	if  err != nil {
@@ -92,21 +111,24 @@ func (m *Member) Add () (error) {
 func (m *Member) Update(cols... string) (error) {
 	o := orm.NewOrm()
 
+	if m.Email == "" {
+		return errors.New("邮箱不能为空")
+	}
 	if _,err := o.Update(m,cols...);err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *Member) Find(id int) error{
+func (m *Member) Find(id int) (*Member,error){
 	o := orm.NewOrm()
 
 	m.MemberId = id
 	if err := o.Read(m); err != nil {
-		return  err
+		return  m,err
 	}
 	m.ResolveRoleName()
-	return nil
+	return m,nil
 }
 
 func (m *Member) ResolveRoleName (){
@@ -163,7 +185,13 @@ func (c *Member) IsAdministrator() bool {
 	return c.Role == 0 || c.Role == 1
 }
 
+func (m *Member) FindByFieldFirst(field string,value interface{}) (*Member,error)  {
+	o := orm.NewOrm()
 
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter(field,value).OrderBy("-member_id").One(m)
+
+	return m,err
+}
 
 
 

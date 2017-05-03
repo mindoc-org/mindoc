@@ -12,6 +12,7 @@ func init()  {
 	beego.Router("/logout", &controllers.AccountController{},"*:Logout")
 	beego.Router("/register", &controllers.AccountController{},"*:Register")
 	beego.Router("/find_password", &controllers.AccountController{},"*:FindPassword")
+	beego.Router("/valid_email", &controllers.AccountController{},"post:ValidEmail")
 	beego.Router("/captcha", &controllers.AccountController{},"*:Captcha")
 
 	beego.Router("/manager", &controllers.ManagerController{},"*:Index")

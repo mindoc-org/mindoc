@@ -88,7 +88,7 @@ func (c *BookMemberController) ChangeRole() {
 
 	member := models.NewMember()
 
-	if err := member.Find(member_id); err != nil {
+	if _,err := member.Find(member_id); err != nil {
 		c.JsonResult(6003,"用户不存在")
 	}
 	if member.Status == 1 {

@@ -110,6 +110,7 @@
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
                     </div>
+                    {{/*
                     {{if .Model.IsDisplayComment}}
                     <div id="articleComment" class="m-comment">
                         <div class="comment-result">
@@ -154,6 +155,7 @@
                         </div>
                     </div>
                     {{end}}
+*/}}
                 </div>
 
             </div>

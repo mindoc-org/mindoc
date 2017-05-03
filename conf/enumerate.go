@@ -52,14 +52,17 @@ func GetDefaultAvatar() string {
 	return beego.AppConfig.DefaultString("avatar","/static/images/headimgurl.jpg")
 }
 
+//获取阅读令牌长度.
 func GetTokenSize() int {
 	return beego.AppConfig.DefaultInt("token_size",12)
 }
 
+//获取默认文档封面.
 func GetDefaultCover() string {
 	return beego.AppConfig.DefaultString("cover","/static/images/book.jpg")
 }
 
+//获取允许的商城文件的类型.
 func GetUploadFileExt()  []string {
 	ext := beego.AppConfig.DefaultString("upload_file_ext","png|jpg|jpeg|gif|txt|doc|docx|pdf")
 	
@@ -76,7 +79,7 @@ func GetUploadFileExt()  []string {
 	}
 	return exts
 }
-
+//判断是否是允许商城的文件类型.
 func IsAllowUploadFileExt(ext string) bool  {
 
 	if strings.HasPrefix(ext,".") {
@@ -90,4 +93,9 @@ func IsAllowUploadFileExt(ext string) bool  {
 		}
 	}
 	return false
+}
+
+//获取当前版本.
+func Version() string {
+	return "v0.1"
 }

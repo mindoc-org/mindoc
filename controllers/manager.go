@@ -139,7 +139,7 @@ func (c *ManagerController) UpdateMemberStatus()  {
 	}
 	member := models.NewMember()
 
-	if err := member.Find(member_id); err != nil {
+	if _,err := member.Find(member_id); err != nil {
 		c.JsonResult(6002,"用户不存在")
 	}
 	member.Status = status
@@ -168,7 +168,7 @@ func (c *ManagerController) ChangeMemberRole()  {
 	}
 	member := models.NewMember()
 
-	if err := member.Find(member_id); err != nil {
+	if _,err := member.Find(member_id); err != nil {
 		c.JsonResult(6002,"用户不存在")
 	}
 	member.Role = role

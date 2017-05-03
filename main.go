@@ -7,6 +7,7 @@ import (
 	"github.com/lifei6671/godoc/commands"
 	"fmt"
 	"os"
+	"github.com/lifei6671/godoc/controllers"
 )
 
 func main() {
@@ -21,5 +22,7 @@ func main() {
 
 	fmt.Println(os.Args[0])
 
+	beego.ErrorController(&controllers.ErrorController{})
 	beego.Run()
 }
+
