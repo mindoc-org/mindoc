@@ -70,7 +70,7 @@ func (c *SearchController) Index()  {
 					src = re.ReplaceAllString(src, "\n")
 
 					r := []rune(src)
-					beego.Info(r)
+
 					if len(r) > 100 {
 						src = string(r[:100])
 					}else{

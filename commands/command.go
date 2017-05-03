@@ -86,8 +86,8 @@ func Initialization()  {
 	member.Email = "admin@iminho.me"
 
 	if err := member.Add();err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
+		os.Exit(0)
 	}
 
 	book := models.NewBook()
@@ -108,8 +108,8 @@ func Initialization()  {
 	book.Theme	= "default"
 
 	if err := book.Insert(); err != nil {
-		beego.Error(err)
-		os.Exit(1)
+		panic(err)
+		os.Exit(0)
 	}
 }
 
@@ -142,8 +142,8 @@ func RegisterCommand() {
 			f, _ := os.Create("install.lock")
 			defer f.Close()
 		}else{
-			logs.Info("初始化数据库失败 =>",err)
-			os.Exit(2)
+			panic(err.Error())
+			os.Exit(0)
 		}
 	}
 
