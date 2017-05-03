@@ -11,7 +11,8 @@ WORKDIR /go/src/github.com/lifei6671/godoc
 RUN chmod +x start.sh
 
 RUN  go get -d ./... && \
-    go build  -v -o godoc-linux-amd64 -ldflags "-w" 
+    go get github.com/mitchellh/gox && \
+    gox
 
 
 CMD ["./start.sh"]

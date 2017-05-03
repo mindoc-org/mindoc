@@ -5,7 +5,6 @@ import (
 	"github.com/astaxie/beego/context"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
-	"strings"
 )
 
 func init()  {

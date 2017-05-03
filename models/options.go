@@ -56,9 +56,7 @@ func (p *Option) FindByKey(key string) (*Option,error) {
 
 func GetOptionValue(key, def string) string {
 
-	option := NewOption()
-
-	if err := option.FindByKey(key); err == nil {
+	if option,err := NewOption().FindByKey(key); err == nil {
 		return option.OptionValue
 	}
 	return def
