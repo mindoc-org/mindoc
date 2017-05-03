@@ -8,10 +8,19 @@ copyrequestbody = true
 
 #默认Session生成Key的秘钥
 beegoserversessionkey=123456
-#Session储存方式
+
+########Session储存方式##############
+#以文件方式储存
 sessionprovider=file
 sessionproviderconfig=./logs
-
+#以redis方式储存
+#sessionprovider=redis
+#sessionproviderconfig=127.0.0.1:6379
+#以memcache方式储存
+#sessionprovider=memcache
+#sessionproviderconfig=127.0.0.1:11211
+#以内存方式托管Session
+#sessionprovider=memory
 
 #时区设置
 timezone = Asia/Shanghai
