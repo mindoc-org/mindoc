@@ -68,7 +68,7 @@ func (c *SearchController) Index()  {
 					//去除连续的换行符
 					re, _ = regexp.Compile("\\s{2,}")
 					src = re.ReplaceAllString(src, "\n")
-					
+
 					r := []rune(src)
 					beego.Info(r)
 					if len(r) > 100 {
