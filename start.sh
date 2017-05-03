@@ -36,5 +36,10 @@ if [ ! -z $HTTP_PORT] ; then
     sed -i 's/^httpport.*/httpport='$HTTP_PORT'/g' conf/app.conf
 fi
 
+for GOOS in darwin linux windows; do
+   for GOARCH in 386 amd64; do
+     go build -v -o godoc-$GOOS-$GOARCH
+   done
+done
 
-/go/src/github.com/lifei6671/godoc/godoc
+/go/src/github.com/lifei6671/godoc/godoc-linux-amd64
