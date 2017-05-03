@@ -19,10 +19,38 @@ git clone https://github.com/lifei6671/godoc.git
 
 go get -d ./...
 
-go build
+go build -ldflags "-w"
+
 ```
 
 MinDoc 使用MySQL储存数据，且编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 conf/app.conf 中。
+
+如果conf目录下不存在 app.conf 请重命名 app.conf.example 为 app.conf。
+ 
+如果 MinDoc 根目录下存在 install.lock 文件表示已经初始化过数据库，想要重新初始化数据库，只需要删除该文件重新启动程序即可。
+
+## Linux 下后台运行
+
+在 Linux 如果想让程序后台运行可以执行如下命令：
+
+```bash
+#使程序后台运行
+nohup ./godoc &
+```
+
+该命令会使程序后台执行，但是服务器重启后不会自动启动服务。
+
+使用 supervisor 做服务，可以使服务器重启后自动重启 MinDoc。
+
+## Windows 下后台运行
+
+Windows 下后台运行需要借助 CMD 命令行命令：
+
+```bash
+go build -ldflags "-H=windowsgui"
+```
+
+通过该命令编译的Golang程序在Windows上默认后台运行。同时将 MinDoc 加入开机启动列表，可以使程序开机启动。
 
 # 使用Docker部署
 

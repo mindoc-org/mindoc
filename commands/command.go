@@ -82,6 +82,24 @@ func Initialization()  {
 	member.Role = 0
 
 	member.Add()
+
+	book := models.NewBook()
+
+	book.MemberId = member.MemberId
+	book.BookName = "MinDoc演示项目"
+	book.Status = 0
+	book.Description = "这是一个MinDoc演示项目，该项目是由系统初始化时自动创建。"
+	book.CommentCount = 0
+	book.PrivatelyOwned = 0
+	book.CommentStatus = "closed"
+	book.Identify 	= "mindoc"
+	book.DocCount 	= 0
+	book.CommentCount = 0
+	book.Version 	= time.Now().Unix()
+	book.Cover 	= conf.GetDefaultCover()
+	book.Editor 	= "markdown"
+	book.Theme	= "default"
+	book.Insert()
 }
 
 // RegisterLogger 注册日志
