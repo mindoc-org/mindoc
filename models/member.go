@@ -83,7 +83,7 @@ func (m *Member) Add () (error) {
 	if  ok,err := regexp.MatchString(conf.RegexpEmail,m.Email); !ok || err != nil || m.Email == "" {
 		return errors.New("邮箱格式不正确")
 	}
-	if l :=  strings.Count(m.Password,""); l <6 || l > 50{
+	if l :=  strings.Count(m.Password,""); l <= 6 || l >= 50{
 		return errors.New("密码不能为空且必须在6-50个字符之间")
 	}
 	if c,err :=  o.QueryTable(m.TableNameWithPrefix()).Filter("email",m.Email).Count(); err == nil || c > 0 {

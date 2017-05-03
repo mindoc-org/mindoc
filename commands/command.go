@@ -73,7 +73,10 @@ func Initialization()  {
 	}
 
 
-	models.NewOption().InsertMulti(options...)
+	if err := models.NewOption().InsertMulti(options...);err != nil {
+		beego.Error(err)
+		os.Exit(2)
+	}
 
 	member := models.NewMember()
 	member.Account = "admin"
@@ -81,7 +84,10 @@ func Initialization()  {
 	member.Password = "123456"
 	member.Role = 0
 
-	member.Add()
+	if err := member.Add();err != nil {
+		beego.Error(err)
+		os.Exit(2)
+	}
 
 	book := models.NewBook()
 
@@ -99,7 +105,11 @@ func Initialization()  {
 	book.Cover 	= conf.GetDefaultCover()
 	book.Editor 	= "markdown"
 	book.Theme	= "default"
-	book.Insert()
+
+	if err := book.Insert(); err != nil {
+		beego.Error(err)
+		os.Exit(2)
+	}
 }
 
 // RegisterLogger 注册日志
