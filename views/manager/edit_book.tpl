@@ -63,6 +63,7 @@
                                 <input type="text" class="form-control" name="label" placeholder="项目标签" value="{{.Model.Label}}">
                                 <p class="text">最多允许添加10个标签，多个标签请用“;”分割</p>
                             </div>
+                            {{/*
                             <div class="form-group">
                                 <label>开启评论</label>
                                 <div class="radio">
@@ -80,6 +81,7 @@
                                     </label>
                                 </div>
                             </div>
+                */}}
                             {{if eq .Model.PrivatelyOwned 1}}
                             <div class="form-group">
                                 <label>访问令牌</label>
