@@ -3,7 +3,7 @@ set -e
 
 cd /go/src/github.com/lifei6671/godoc/
 
-goFile="godoc"
+goFile="godoc-linux-amd64"
 
 
 chmod +x $goFile
