@@ -67,7 +67,7 @@
 <div>
     <div class="wrapper" style="margin: 20px auto 0; width: 500px; padding-top:16px; padding-bottom:10px;">
         <div class="header clearfix">
-            <a class="logo" href="https://www.iminho.me/" target="_blank"><b>MinDoc</b></a>
+            <a class="logo" href="https://www.iminho.me/" target="_blank"><b>{{.SITE_NAME}}</b></a>
         </div>
         <br style="clear:both; height:0">
         <div class="content" style="background: none repeat scroll 0 0 #FFFFFF; border: 1px solid #E9E9E9; margin: 2px 0 0; padding: 30px;">

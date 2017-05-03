@@ -26,7 +26,7 @@
 <header class="navbar navbar-static-top smart-nav navbar-fixed-top manual-header" role="banner">
     <div class="container">
         <div class="navbar-header col-sm-12 col-md-6 col-lg-5">
-            <a href="/" class="navbar-brand">MinDoc</a>
+            <a href="/" class="navbar-brand">{{.SITE_NAME}}</a>
         </div>
     </div>
 </header>
