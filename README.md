@@ -49,8 +49,11 @@ Windows 下后台运行需要借助 CMD 命令行命令：
 ```bash
 go build -ldflags "-H=windowsgui"
 ```
-
 通过该命令编译的Golang程序在Windows上默认后台运行。同时将 MinDoc 加入开机启动列表，可以使程序开机启动。
+
+如果下载的是编译后的文件，只需要配置 conf/app.conf 中的数据库，然后双击可执行文件即可。
+
+
 
 # 使用Docker部署
 
