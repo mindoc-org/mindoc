@@ -11,7 +11,7 @@ WORKDIR /go/src/github.com/lifei6671/godoc
 RUN chmod +x start.sh
 
 RUN  go get -d ./... && \
-    go build -ldflags "-w" && \
-    rm -rf commands controllers models routers search vendor .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md utils graphics Godeps
+    go build  -v -o godoc-linux-amd64 -ldflags "-w" && \
+    rm -rf commands controllers models routers search vendor .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md utils graphics Godeps conf/*.go
 
 CMD ["./start.sh"]
