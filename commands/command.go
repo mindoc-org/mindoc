@@ -75,7 +75,7 @@ func Initialization()  {
 
 	if err := models.NewOption().InsertMulti(options...);err != nil {
 		beego.Error(err)
-		os.Exit(2)
+		os.Exit(1)
 	}
 
 	member := models.NewMember()
@@ -83,10 +83,11 @@ func Initialization()  {
 	member.Avatar = "/static/images/headimgurl.jpg"
 	member.Password = "123456"
 	member.Role = 0
+	member.Email = "admin@iminho.me"
 
 	if err := member.Add();err != nil {
-		beego.Error(err)
-		os.Exit(2)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	book := models.NewBook()
@@ -108,7 +109,7 @@ func Initialization()  {
 
 	if err := book.Insert(); err != nil {
 		beego.Error(err)
-		os.Exit(2)
+		os.Exit(1)
 	}
 }
 
