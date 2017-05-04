@@ -13,7 +13,15 @@ import (
 	"github.com/lifei6671/godoc/controllers"
 )
 
+var (
+	VERSION    string
+	BUILD_TIME string
+	GO_VERSION string
+)
+
 func main() {
+
+	fmt.Printf("MinDoc version%s\n%s\n%s\nstart directory%s\n", VERSION, BUILD_TIME, GO_VERSION,os.Args[0])
 
 	commands.RegisterDataBase()
 	commands.RegisterModel()
@@ -23,7 +31,7 @@ func main() {
 
 	beego.SetStaticPath("uploads","uploads")
 
-	fmt.Println(os.Args[0])
+
 
 	beego.ErrorController(&controllers.ErrorController{})
 	beego.Run()

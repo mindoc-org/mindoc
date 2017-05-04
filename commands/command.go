@@ -52,18 +52,8 @@ func RegisterModel()  {
 
 }
 
+//初始化数据
 func Initialization()  {
-
-	//o := orm.NewOrm()
-	//o.Raw("alter table "+models.NewMember().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	//o.Raw("alter table "+models.NewBook().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	//o.Raw("alter table "+models.NewRelationship().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	//o.Raw("alter table "+models.NewComment().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	//o.Raw("alter table " +models.NewOption().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	//o.Raw("alter table "+models.NewDocument().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	//o.Raw("alter table "+models.NewAttachment().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	//o.Raw("alter table "+models.NewLogger().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
-	//o.Raw("alter table "+models.NewCommentVote().TableNameWithPrefix()+" convert to character set utf8mb4_general_ci;").Exec()
 
 	options := []models.Option {
 		{ OptionName: "ENABLED_CAPTCHA", OptionValue: "false", OptionTitle:"是否启用验证码"},
@@ -122,6 +112,8 @@ func RegisterLogger()  {
 	logs.Async()
 
 	if _,err := os.Stat("logs/log.log"); os.IsNotExist(err) {
+		os.MkdirAll("./logs",0777)
+
 		if f,err := os.Create("logs/log.log");err == nil {
 			f.Close()
 			beego.SetLogger("file",`{"filename":"logs/log.log"}`)

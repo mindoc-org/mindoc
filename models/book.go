@@ -89,6 +89,7 @@ func (m *Book) Insert() error {
 			return err
 		}
 		o.Commit()
+		return nil
 	}
 	o.Rollback()
 	return err
