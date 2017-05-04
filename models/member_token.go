@@ -9,7 +9,7 @@ import (
 type MemberToken struct {
 	TokenId int		`orm:"column(token_id);pk;auto;unique" json:"token_id"`
 	MemberId int		`orm:"column(member_id);type(int)" json:"member_id"`
-	Token string		`orm:"column(token);size(255);index" json:"token"`
+	Token string		`orm:"column(token);size(150);index" json:"token"`
 	Email string 		`orm:"column(email);size(255)" json:"email"`
 	IsValid bool		`orm:"column(is_valid)" json:"is_valid"`
 	ValidTime time.Time	`orm:"column(valid_time);null" json:"valid_time"`
