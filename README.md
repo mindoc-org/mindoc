@@ -68,7 +68,6 @@ godoc_windows_amd64.exe
 ```bash
 go build -ldflags "-H=windowsgui"
 ```
-
 通过该命令编译的Golang程序在Windows上默认后台运行。
 
 请将将 MinDoc 加入开机启动列表，使程序开机启动。
