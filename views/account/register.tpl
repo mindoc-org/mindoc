@@ -82,7 +82,7 @@
                 </div>
                 {{if ne .ENABLED_REGISTER "false"}}
                 <div class="form-group">
-                    已有账号？<a href="{{urlfor "AccountController.Register" }}" title="立即登录">立即登录</a>
+                    已有账号？<a href="{{urlfor "AccountController.Login" }}" title="立即登录">立即登录</a>
                 </div>
                 {{end}}
             </form>
