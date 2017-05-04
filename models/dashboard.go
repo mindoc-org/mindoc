@@ -27,8 +27,8 @@ func (m *Dashboard) Query() (*Dashboard) {
 	member_number,_ := o.QueryTable(NewMember().TableNameWithPrefix()).Count()
 	m.MemberNumber = member_number
 
-	comment_number,_ := o.QueryTable(NewComment().TableNameWithPrefix()).Count()
-	m.CommentNumber = comment_number
+	//comment_number,_ := o.QueryTable(NewComment().TableNameWithPrefix()).Count()
+	m.CommentNumber = 0
 
 	attachment_number,_ := o.QueryTable(NewAttachment().TableNameWithPrefix()).Count()
 
