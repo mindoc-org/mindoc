@@ -2,14 +2,7 @@
 	"ImportPath": "github.com/lifei6671/godoc",
 	"GoVersion": "go1.8",
 	"GodepVersion": "v79",
-	"Packages": [
-		"./..."
-	],
 	"Deps": [
-		{
-			"ImportPath": "github.com/adamzy/cedar-go",
-			"Rev": "d348c21f72432c2b6d5f05f68759fde94f64b227"
-		},
 		{
 			"ImportPath": "github.com/astaxie/beego",
 			"Comment": "v1.8.1",
@@ -46,6 +39,21 @@
 			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
 		},
 		{
+			"ImportPath": "github.com/astaxie/beego/session/memcache",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/session/mysql",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
+			"ImportPath": "github.com/astaxie/beego/session/redis",
+			"Comment": "v1.8.0",
+			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
+		},
+		{
 			"ImportPath": "github.com/astaxie/beego/toolbox",
 			"Comment": "v1.8.1",
 			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
@@ -56,53 +64,19 @@
 			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
 		},
 		{
-			"ImportPath": "github.com/boltdb/bolt",
-			"Comment": "v1.3.0-58-ge9cf4fa",
-			"Rev": "e9cf4fae01b5a8ff89d0ec6b32f0d9c9f79aefdd"
+			"ImportPath": "github.com/bradfitz/gomemcache/memcache",
+			"Comment": "release.r60-46-g1952afa",
+			"Rev": "1952afaa557dc08e8e0d89eafab110fb501c1a2b"
 		},
 		{
-			"ImportPath": "github.com/cznic/fileutil",
-			"Rev": "90cf820aafe8f7df39416fdbb932029ff99bd1ab"
+			"ImportPath": "github.com/garyburd/redigo/internal",
+			"Comment": "v1.0.0-23-gac91d6f",
+			"Rev": "ac91d6ff49bd0d278a90201de77a4f8ad9628e25"
 		},
 		{
-			"ImportPath": "github.com/cznic/internal/buffer",
-			"Comment": "1.0.0-1-ge5e1c3e",
-			"Rev": "e5e1c3e9165d0a72507c2bbb0ffac1c02b8d3f7c"
-		},
-		{
-			"ImportPath": "github.com/cznic/internal/file",
-			"Comment": "1.0.0-1-ge5e1c3e",
-			"Rev": "e5e1c3e9165d0a72507c2bbb0ffac1c02b8d3f7c"
-		},
-		{
-			"ImportPath": "github.com/cznic/internal/slice",
-			"Comment": "1.0.0-1-ge5e1c3e",
-			"Rev": "e5e1c3e9165d0a72507c2bbb0ffac1c02b8d3f7c"
-		},
-		{
-			"ImportPath": "github.com/cznic/kv",
-			"Rev": "c5de474a2ccdaed5ba5ff8b5d2d213dbf48a8b5e"
-		},
-		{
-			"ImportPath": "github.com/cznic/lldb",
-			"Comment": "v1.1.0",
-			"Rev": "bea8611dd5c407f3c5eab9f9c68e887a27dc6f0e"
-		},
-		{
-			"ImportPath": "github.com/cznic/mathutil",
-			"Rev": "1447ad269d64ca91aa8d7079baa40b6fc8b965e7"
-		},
-		{
-			"ImportPath": "github.com/cznic/sortutil",
-			"Rev": "4c7342852e65c2088c981288f2c5610d10b9f7f4"
-		},
-		{
-			"ImportPath": "github.com/cznic/zappy",
-			"Rev": "2533cb5b45cc6c07421468ce262899ddc9d53fb7"
-		},
-		{
-			"ImportPath": "github.com/edsrzf/mmap-go",
-			"Rev": "0bce6a6887123b67a60366d2c9fe2dfb74289d2e"
+			"ImportPath": "github.com/garyburd/redigo/redis",
+			"Comment": "v1.0.0-23-gac91d6f",
+			"Rev": "ac91d6ff49bd0d278a90201de77a4f8ad9628e25"
 		},
 		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
@@ -110,45 +84,35 @@
 			"Rev": "1421caf44f6464fd2ee8de694c7508ee13f92964"
 		},
 		{
-			"ImportPath": "github.com/huichen/murmur",
-			"Rev": "e0489551cf5116e27d7cc69d97a53cdbdd028acf"
+			"ImportPath": "github.com/golang/freetype",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
 		},
 		{
-			"ImportPath": "github.com/huichen/sego",
-			"Rev": "d06fe1b3abe3877ab593b57e5e43daf6c4c25add"
+			"ImportPath": "github.com/golang/freetype/raster",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
 		},
 		{
-			"ImportPath": "github.com/huichen/wukong/core",
-			"Comment": "v0.1-94-gd014a1f",
-			"Rev": "d014a1f19dae3664677c11bd25549cfc820cd890"
+			"ImportPath": "github.com/golang/freetype/truetype",
+			"Comment": "release-132-gd9be45a",
+			"Rev": "d9be45aaf7452cc30c0ceb1b1bf7efe1d17b7c87"
 		},
 		{
-			"ImportPath": "github.com/huichen/wukong/engine",
-			"Comment": "v0.1-94-gd014a1f",
-			"Rev": "d014a1f19dae3664677c11bd25549cfc820cd890"
-		},
-		{
-			"ImportPath": "github.com/huichen/wukong/storage",
-			"Comment": "v0.1-94-gd014a1f",
-			"Rev": "d014a1f19dae3664677c11bd25549cfc820cd890"
-		},
-		{
-			"ImportPath": "github.com/huichen/wukong/types",
-			"Comment": "v0.1-94-gd014a1f",
-			"Rev": "d014a1f19dae3664677c11bd25549cfc820cd890"
-		},
-		{
-			"ImportPath": "github.com/huichen/wukong/utils",
-			"Comment": "v0.1-94-gd014a1f",
-			"Rev": "d014a1f19dae3664677c11bd25549cfc820cd890"
+			"ImportPath": "github.com/lifei6671/gocaptcha",
+			"Rev": "b244e66362327cfd7d47c1a75eb1ca3845ffc52a"
 		},
 		{
 			"ImportPath": "github.com/nfnt/resize",
 			"Rev": "891127d8d1b52734debe1b3c3d7e747502b6c366"
 		},
 		{
-			"ImportPath": "golang.org/x/sys/unix",
-			"Rev": "9ccfe848b9db8435a24c424abbc07a921adf1df5"
+			"ImportPath": "golang.org/x/image/font",
+			"Rev": "69afd001f792d732a78bd7225793315a8deb09ea"
+		},
+		{
+			"ImportPath": "golang.org/x/image/math/fixed",
+			"Rev": "69afd001f792d732a78bd7225793315a8deb09ea"
 		}
 	]
 }
