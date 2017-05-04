@@ -41,12 +41,12 @@ func RegisterModel()  {
 		new(models.Member),
 		new(models.Book),
 		new(models.Relationship),
-		new(models.Comment),
+		//new(models.Comment),
 		new(models.Option),
 		new(models.Document),
 		new(models.Attachment),
 		new(models.Logger),
-		new(models.CommentVote),
+		//new(models.CommentVote),
 		new(models.MemberToken),
 	)
 
