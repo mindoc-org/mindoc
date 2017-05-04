@@ -17,7 +17,7 @@ type Member struct {
 	Account string 		`orm:"size(100);unique;column(account)" json:"account"`
 	Password string 	`orm:"size(1000);column(password)" json:"-"`
 	Description string	`orm:"column(description);size(2000)" json:"description"`
-	Email string 		`orm:"size(255);column(email);unique" json:"email"`
+	Email string 		`orm:"size(100);column(email);unique" json:"email"`
 	Phone string 		`orm:"size(255);column(phone);null;default(null)" json:"phone"`
 	Avatar string 		`orm:"size(1000);column(avatar)" json:"avatar"`
 	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户 .

@@ -64,7 +64,7 @@ func Initialization()  {
 
 
 	if err := models.NewOption().InsertMulti(options...);err != nil {
-		beego.Error(err)
+		panic("Option.InsertMulti => " + err.Error())
 		os.Exit(1)
 	}
 
@@ -76,7 +76,7 @@ func Initialization()  {
 	member.Email = "admin@iminho.me"
 
 	if err := member.Add();err != nil {
-		panic(err)
+		panic("Member.Add => " + err.Error())
 		os.Exit(0)
 	}
 
@@ -98,7 +98,7 @@ func Initialization()  {
 	book.Theme	= "default"
 
 	if err := book.Insert(); err != nil {
-		panic(err)
+		panic("Book.Insert => " + err.Error())
 		os.Exit(0)
 	}
 }
