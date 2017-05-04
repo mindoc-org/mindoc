@@ -21,7 +21,7 @@ var (
 
 func main() {
 
-	fmt.Printf("MinDoc version%s\n%s\n%s\nstart directory%s\n", VERSION, BUILD_TIME, GO_VERSION,os.Args[0])
+	fmt.Printf("MinDoc version => %s\nbuild time => %s\nstart directory => %s\n%s\n", VERSION, BUILD_TIME, os.Args[0],GO_VERSION)
 
 	commands.RegisterDataBase()
 	commands.RegisterModel()
