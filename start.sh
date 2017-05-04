@@ -31,5 +31,6 @@ if [ ! -z $HTTP_PORT] ; then
     sed -i 's/^httpport.*/httpport='$HTTP_PORT'/g' conf/app.conf
 fi
 
+sed -i 's/^runmode.*/runmode=prod'
 
 /go/src/github.com/lifei6671/godoc/godoc_linux_amd64
