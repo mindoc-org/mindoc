@@ -18,6 +18,12 @@ func (c *SearchController) Index()  {
 	c.Prepare()
 	c.TplName = "search/index.tpl"
 
+	//如果没有开启你们访问则跳转到登录
+	if !c.EnableAnonymous && c.Member == nil {
+		c.Redirect(beego.URLFor("AccountController.Login"),302)
+		return
+	}
+	
 	keyword := c.GetString("keyword")
 	pageIndex,_ := c.GetInt("page",1)
 
