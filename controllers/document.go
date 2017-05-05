@@ -51,7 +51,7 @@ func isReadable (identify,token string,c *DocumentController) *models.BookResult
 			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
 				c.Abort("403")
 			}
-		} else {
+		} else if !is_ok {
 			c.Abort("403")
 		}
 
