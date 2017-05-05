@@ -39,6 +39,10 @@ const (
 	BookObserver = 3
 )
 
+var (
+	VERSION string
+)
+
 // app_key
 func GetAppKey()  (string) {
 	return beego.AppConfig.DefaultString("app_key","godoc")
@@ -47,6 +51,7 @@ func GetAppKey()  (string) {
 func GetDatabasePrefix() string  {
 	return beego.AppConfig.DefaultString("db_prefix","md_")
 }
+
 //获取默认头像
 func GetDefaultAvatar() string {
 	return beego.AppConfig.DefaultString("avatar","/static/images/headimgurl.jpg")
@@ -79,6 +84,7 @@ func GetUploadFileExt()  []string {
 	}
 	return exts
 }
+
 //判断是否是允许商城的文件类型.
 func IsAllowUploadFileExt(ext string) bool  {
 
@@ -97,5 +103,6 @@ func IsAllowUploadFileExt(ext string) bool  {
 
 //获取当前版本.
 func Version() string {
-	return "v0.1"
+
+	return VERSION
 }

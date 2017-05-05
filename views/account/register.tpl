@@ -65,7 +65,7 @@
                         <input type="email" class="form-control" placeholder="用户邮箱" name="email" id="email" autocomplete="off">
                     </div>
                 </div>
-                {{if ne .ENABLED_CAPTCHA "false"}}
+
                 <div class="form-group">
                     <div class="input-group" style="float: left;width: 195px;">
                         <div class="input-group-addon">
@@ -76,7 +76,7 @@
                     <img id="captcha-img" style="width: 140px;height: 40px;display: inline-block;float: right" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title="点击换一张">
                     <div class="clearfix"></div>
                 </div>
-                {{end}}
+
                 <div class="form-group">
                     <button type="submit" id="btnRegister" class="btn btn-success" style="width: 100%"  data-loading-text="正在注册..." autocomplete="off">立即注册</button>
                 </div>

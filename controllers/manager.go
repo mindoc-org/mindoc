@@ -222,6 +222,7 @@ func (c *ManagerController) EditBook()  {
 		description := strings.TrimSpace(c.GetString("description",""))
 		comment_status := c.GetString("comment_status")
 		tag := strings.TrimSpace(c.GetString("label"))
+		order_index ,_ := c.GetInt("order_index",0)
 
 		if strings.Count(description,"") > 500 {
 			c.JsonResult(6004,"项目描述不能大于500字")
@@ -241,6 +242,7 @@ func (c *ManagerController) EditBook()  {
 		book.Description = description
 		book.CommentStatus = comment_status
 		book.Label = tag
+		book.OrderIndex = order_index
 
 		if err := book.Update();err != nil {
 			c.JsonResult(6006,"保存失败")

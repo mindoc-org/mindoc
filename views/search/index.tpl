@@ -47,6 +47,9 @@
 					<span class="empty-text">暂无相关搜索结果</span>
                 </div>
                 {{end}}
+                <nav>
+                    {{.PageHtml}}
+                </nav>
                 <div class="clearfix"></div>
             </div>
         </div>

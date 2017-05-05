@@ -51,37 +51,41 @@
                             </div>
                             <div class="form-group">
                                 <label>标识</label>
-                                <input type="text" class="form-control" value=" {{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" disabled>
+                                <input type="text" class="form-control" value=" {{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" disabled placeholder="项目标识">
+                            </div>
+                            <div class="form-group">
+                                <label>排序</label>
+                                <input type="number" min="0" class="form-control" value="{{.Model.OrderIndex}}" name="order_index" placeholder="项目排序">
+                                <p class="text">只能是数字，序号越大排序越靠前</p>
                             </div>
                             <div class="form-group">
                                 <label>描述</label>
-                                <textarea rows="3" class="form-control" name="description" style="height: 90px">{{.Model.Description}}</textarea>
+                                <textarea rows="3" class="form-control" name="description" style="height: 90px" placeholder="项目描述">{{.Model.Description}}</textarea>
                                 <p class="text">描述信息不超过500个字符</p>
                             </div>
+
                             <div class="form-group">
                                 <label>标签</label>
                                 <input type="text" class="form-control" name="label" placeholder="项目标签" value="{{.Model.Label}}">
                                 <p class="text">最多允许添加10个标签，多个标签请用“;”分割</p>
                             </div>
-                            {{/*
-                            <div class="form-group">
-                                <label>开启评论</label>
-                                <div class="radio">
-                                    <label class="radio-inline">
-                                        <input type="radio" {{if eq .Model.CommentStatus "open"}}checked{{end}} name="comment_status" value="open">允许所有人评论<span class="text"></span>
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" {{if eq .Model.CommentStatus "closed"}}checked{{end}} name="comment_status" value="closed">关闭评论<span class="text"></span>
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" {{if eq .Model.CommentStatus "group_only"}}checked{{end}} name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" {{if eq .Model.CommentStatus "registered_only"}}checked{{end}} name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>
-                                    </label>
-                                </div>
-                            </div>
-                */}}
+                            {{/*{*<div class="form-group">*}
+                                {*<label>开启评论</label>*}
+                                {*<div class="radio">*}
+                                    {*<label class="radio-inline">*}
+                                        {*<input type="radio" {{if eq .Model.CommentStatus "open"}}checked{{end}} name="comment_status" value="open">允许所有人评论<span class="text"></span>*}
+                                    {*</label>*}
+                                    {*<label class="radio-inline">*}
+                                        {*<input type="radio" {{if eq .Model.CommentStatus "closed"}}checked{{end}} name="comment_status" value="closed">关闭评论<span class="text"></span>*}
+                                    {*</label>*}
+                                    {*<label class="radio-inline">*}
+                                        {*<input type="radio" {{if eq .Model.CommentStatus "group_only"}}checked{{end}} name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>*}
+                                    {*</label>*}
+                                    {*<label class="radio-inline">*}
+                                        {*<input type="radio" {{if eq .Model.CommentStatus "registered_only"}}checked{{end}} name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>*}
+                                    {*</label>*}
+                                {*</div>*}
+                            {*</div>*} */}}
                             {{if eq .Model.PrivatelyOwned 1}}
                             <div class="form-group">
                                 <label>访问令牌</label>
