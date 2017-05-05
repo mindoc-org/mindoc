@@ -12,6 +12,7 @@ import (
 	"os"
 	"github.com/lifei6671/godoc/controllers"
 	"github.com/lifei6671/godoc/conf"
+	"github.com/lifei6671/godoc/utils"
 )
 
 var (
@@ -36,6 +37,7 @@ func main() {
 
 	beego.ErrorController(&controllers.ErrorController{})
 
+	utils.ConverterPdf("a.pdf",nil)
 	beego.Run()
 }
 
