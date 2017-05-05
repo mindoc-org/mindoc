@@ -1,4 +1,4 @@
-# Windows 下安装和配置 MinDoc
+# Linux 下安装和配置 MinDoc
 
 **第一步 下载可执行文件**
 
