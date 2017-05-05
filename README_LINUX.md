@@ -53,6 +53,10 @@ db_password=123456
 执行如下命令启动程序：
 
 ```bash
+#修改可执行权限
+chmod +x godoc_linux_amd64
+
+#启动程序
 ./godoc_linux_amd64
 ```
 

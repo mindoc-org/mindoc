@@ -23,7 +23,7 @@ func (c *SearchController) Index()  {
 		c.Redirect(beego.URLFor("AccountController.Login"),302)
 		return
 	}
-	
+
 	keyword := c.GetString("keyword")
 	pageIndex,_ := c.GetInt("page",1)
 
