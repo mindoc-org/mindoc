@@ -100,19 +100,7 @@ func getDocumentTree(array []*DocumentTree,parent_id int,selected_id int,selecte
 			pid = p
 		}
 		if pid == parent_id {
-			/**
-			$selected = $item['doc_id'] == $selected_id ? ' class="jstree-clicked"' : '';
-                $selected_li = $item['doc_id'] == $selected_parent_id ? ' class="jstree-open"' : '';
 
-                $menu .= '<li id="'.$item['doc_id'].'"'.$selected_li.'><a href="'. route('document.show',['doc_id'=> $item['doc_id']]) .'" title="' . htmlspecialchars($item['doc_name']) . '"'.$selected.'>' . $item['doc_name'] .'</a>';
-
-                $key = array_search($item['doc_id'], array_column($array, 'parent_id'));
-
-                if ($key !== false) {
-                    self::createTree($item['doc_id'], $array,$selected_id,$selected_parent_id);
-                }
-                $menu .= '</li>';
-			 */
 			selected := ""
 			if item.DocumentId == selected_id {
 				selected = ` class="jstree-clicked"`

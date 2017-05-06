@@ -58,6 +58,7 @@ func init()  {
 
 	beego.Router("/docs/:key", &controllers.DocumentController{},"*:Index")
 	beego.Router("/docs/:key/:id", &controllers.DocumentController{},"*:Read")
+	beego.Router("/export/:key", &controllers.DocumentController{},"*:Export")
 
 	beego.Router("/attach_files/:key/:attach_id",&controllers.DocumentController{},"get:DownloadAttachment")
 

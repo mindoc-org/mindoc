@@ -287,16 +287,16 @@ func getFooter(po *PageOptions, totalpages int) string {
  */
 func setDefault(po *PageOptions, totalpages int) *PageOptions {
 	if len(po.FirstPageText) <= 0 {
-		po.FirstPageText = "首页"
+		po.FirstPageText = "&laquo;"
 	}
 	if len(po.LastPageText) <= 0 {
-		po.LastPageText = "尾页"
+		po.LastPageText = "&raquo;"
 	}
 	if len(po.PrePageText) <= 0 {
-		po.PrePageText = "上一页"
+		po.PrePageText = "&lsaquo;"
 	}
 	if len(po.NextPageText) <= 0 {
-		po.NextPageText = "下一页"
+		po.NextPageText = "&rsaquo;"
 	}
 	if po.CurrentPage >= totalpages {
 		po.CurrentPage = totalpages

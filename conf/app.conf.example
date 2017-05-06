@@ -61,3 +61,7 @@ smtp_port=25
 form_user_name=admin@iminho.me
 #邮件有效期30分钟
 mail_expired=30
+
+
+###############配置PDF生成工具地址###################
+wkhtmltopdf=D:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe

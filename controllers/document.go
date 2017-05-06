@@ -10,11 +10,13 @@ import (
 	"path/filepath"
 	"encoding/json"
 	"html/template"
+	"container/list"
 
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"github.com/lifei6671/godoc/utils"
 )
 
 //DocumentController struct.
@@ -558,10 +560,109 @@ func (c *DocumentController) Content()  {
 	c.JsonResult(0,"ok",doc)
 }
 
+//导出文件
+func (c *DocumentController) Export() {
+	c.Prepare()
+	c.TplName = "document/export.tpl"
+
+	identify := c.Ctx.Input.Param(":key")
+	//	token := c.GetString("token")
+	output := c.GetString("output")
+	//id, _ := c.GetInt(":id")
+	token := c.GetString("token")
+
+	if identify == "" {
+		c.Abort("404")
+	}
+	//如果没有开启你们访问则跳转到登录
+	if !c.EnableAnonymous && c.Member == nil {
+		c.Redirect(beego.URLFor("AccountController.Login"),302)
+		return
+	}
+	book := isReadable(identify,token,c)
+
+	if book.PrivatelyOwned == 1 {
+
+	}
+
+	docs, err := models.NewDocument().FindListByBookId(book.BookId)
+
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
+
+	if output == "pdf" {
+		dpath := "cache/" + book.Identify
+
+		os.MkdirAll(dpath, 0766)
+
+		pathList := list.New()
+
+		RecursiveFun(0, "", dpath, c, book, docs, pathList)
+
+		defer os.RemoveAll(dpath)
+
+		os.MkdirAll("./cache", 0766)
+		pdfpath := "cache/" + identify + ".pdf"
+
+		paths := make([]string, len(docs))
+		index := 0
+		for e := pathList.Front(); e != nil; e = e.Next() {
+			paths[index] = e.Value.(string)
+			index ++
+		}
+
+		beego.Info(paths)
+
+		utils.ConverterHtmlToPdf(paths, pdfpath)
 
 
 
+		c.Ctx.Output.Download(pdfpath, identify + ".pdf")
 
+		defer os.Remove(pdfpath)
+		
+		c.StopRun()
+	}
+
+	c.StopRun()
+}
+
+
+func RecursiveFun(parent_id int,prefix,dpath  string,c *DocumentController,book *models.BookResult,docs []*models.Document,paths *list.List) {
+	for _, item := range docs {
+		if item.ParentId == parent_id {
+			name := prefix + strconv.Itoa(item.ParentId) + strconv.Itoa(item.OrderSort) + strconv.Itoa(item.DocumentId)
+			fpath := dpath + "/" + name  + ".html"
+			paths.PushBack(fpath)
+
+
+			f, err := os.OpenFile(fpath, os.O_CREATE, 0666)
+
+			if err != nil {
+				beego.Error(err)
+				c.Abort("500")
+			}
+
+			html, err := c.ExecuteViewPathTemplate("document/export.tpl", map[string]interface{}{"Model" : book, "Lists":item,"BaseUrl" : c.BaseUrl()})
+			if err != nil {
+				f.Close()
+				beego.Error(err)
+				c.Abort("500")
+			}
+			f.WriteString(html)
+			f.Close()
+
+			for _, sub := range docs {
+				if sub.ParentId == item.DocumentId {
+					RecursiveFun(item.DocumentId,name,dpath,c,book,docs,paths)
+					break;
+				}
+			}
+		}
+	}
+}
 
 
 
