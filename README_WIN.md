@@ -68,8 +68,6 @@ server {
     #此处配置你的访问日志，请手动创建该目录：
     access_log  /var/log/nginx/webhook.iminho.me/access.log;
 
-    root "/var/go/src/go-git-webhook";
-
     location ~ .*\.(ttf|woff2|eot|otf|map|swf|svg|gif|jpg|jpeg|bmp|png|ico|txt|js|css)$ {
     
         #此处将路径执行 MinDoc 的跟目录
