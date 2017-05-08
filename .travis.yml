@@ -2,10 +2,24 @@ language: go
 
 go:
   - 1.8
+  - tip
+
+sudo: true
+
+before_install:
+  - go get github.com/bradfitz/gomemcache/memcache
+  - go get github.com/garyburd/redigo/internal
+  - go get github.com/garyburd/redigo/redis
+  - go get github.com/go-sql-driver/mysql
+  - go get github.com/golang/freetype
+
+script:
+  - go get -t -v ./...
+  - go test -v -race ./...
+  - go build -v -tags "pam" && go install
 
 before_deploy:
   - sudo apt-get -qq update
-  - go get -v -u ./...
   - GOARCH=amd64 GOOS=linux go build -o godoc_linux_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
   - GOARCH=amd64 GOOS=darwin go build -o godoc_darwin_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
   - GOARCH=amd64 GOOS=windows go build -o godoc_windows_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
