@@ -15,7 +15,6 @@ before_install:
 
 script:
   - go get -t -v ./...
-  - go test -v -race ./...
   - go build -v -tags "pam" && go install
 
 before_deploy:
