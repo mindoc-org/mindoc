@@ -24,7 +24,7 @@ before_deploy:
   - rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
   - zip -r godoc_linux_amd64.zip conf logs static uploads views godoc_linux_amd64
   - zip -r godoc_darwin_amd64.zip conf logs static uploads views godoc_darwin_amd64
-  - zip -r godoc_windows_amd64.zip conf logs static uploads views godoc_windows_amd64
+  - zip -r godoc_windows_amd64.zip conf logs static uploads views godoc_windows_amd64.exe
 
 deploy:
   provider: releases
