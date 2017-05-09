@@ -1,0 +1,45 @@
+language: go
+
+go:
+  - 1.8
+
+sudo: true
+
+before_install:
+  - go get github.com/bradfitz/gomemcache/memcache
+  - go get github.com/garyburd/redigo/internal
+  - go get github.com/garyburd/redigo/redis
+  - go get github.com/go-sql-driver/mysql
+  - go get github.com/golang/freetype
+
+script:
+  - go get -t -v ./...
+  - go build -v -tags "pam" && go install
+
+before_deploy:
+  - sudo apt-get -qq update
+  - GOARCH=amd64 GOOS=linux go build -o godoc_linux_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
+  - GOARCH=amd64 GOOS=darwin go build -o godoc_darwin_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
+  - GOARCH=amd64 GOOS=windows go build -o godoc_windows_amd64.exe -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
+  - rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
+  - zip -r godoc_linux_amd64.zip conf logs static uploads views godoc_linux_amd64
+  - zip -r godoc_darwin_amd64.zip conf logs static uploads views godoc_darwin_amd64
+  - zip -r godoc_windows_amd64.zip conf logs static uploads views godoc_windows_amd64.exe
+
+deploy:
+  provider: releases
+  api_key: $CI_USER_TOKEN
+  skip_cleanup: true
+  file:
+    - godoc_linux_amd64.zip
+    - godoc_darwin_amd64.zip
+    - godoc_windows_amd64.zip
+  on:
+    overwrite: true
+    tags: true
+    all_branches: true
+    go: 1.8
+
+env:
+ global:
+   - TAG: 0.1.3
