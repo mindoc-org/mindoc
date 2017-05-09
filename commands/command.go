@@ -14,6 +14,7 @@ import (
 	"github.com/lifei6671/godoc/conf"
 
 	"github.com/lifei6671/gocaptcha"
+	"syscall"
 )
 
 // RegisterDataBase 注册数据库
@@ -32,7 +33,6 @@ func RegisterDataBase()  {
 	orm.RegisterDataBase("default", "mysql", dataSource)
 
 	orm.DefaultTimeLoc, _ = time.LoadLocation(timezone)
-
 }
 
 // RegisterModel 注册Model
@@ -146,6 +146,7 @@ func RegisterFunction()  {
 }
 
 func init()  {
+	syscall.Setenv("ZONEINFO","./lib/time/zoneinfo.zip")
 	gocaptcha.ReadFonts("./static/fonts", ".ttf")
 	gob.Register(models.Member{})
 }
