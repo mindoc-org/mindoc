@@ -3,10 +3,6 @@ language: go
 go:
   - 1.8
 
-branches:
-  only:
-  - master
-  
 sudo: true
 
 before_install:
