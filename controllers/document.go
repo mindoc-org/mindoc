@@ -566,9 +566,9 @@ func (c *DocumentController) Export() {
 	c.TplName = "document/export.tpl"
 
 	identify := c.Ctx.Input.Param(":key")
-	//	token := c.GetString("token")
+
 	output := c.GetString("output")
-	//id, _ := c.GetInt(":id")
+
 	token := c.GetString("token")
 
 	if identify == "" {
@@ -629,7 +629,7 @@ func (c *DocumentController) Export() {
 	c.StopRun()
 }
 
-
+//递归生成文档序列数组.
 func RecursiveFun(parent_id int,prefix,dpath  string,c *DocumentController,book *models.BookResult,docs []*models.Document,paths *list.List) {
 	for _, item := range docs {
 		if item.ParentId == parent_id {

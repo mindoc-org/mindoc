@@ -7,26 +7,24 @@ import (
 	"io/ioutil"
 	"errors"
 
-	"github.com/axgle/mahonia"
 	"github.com/astaxie/beego"
 )
+
 
 // 使用 wkhtmltopdf 是实现 html 转 pdf.
 // 中文说明：http://www.jianshu.com/p/4d65857ffe5e#
 func ConverterHtmlToPdf(uri []string,path string) (error) {
-
 	exe := beego.AppConfig.String("wkhtmltopdf")
 
 	if exe == "" {
 		return errors.New("wkhtmltopdf not exist.")
 	}
-
 	params := []string{"/C",exe,"--margin-bottom","25"}
 
 	params = append(params,uri...)
 	params = append(params,path)
 
-	cmd := exec.Command("cmd",params...)
+	cmd := exec.Command("/bin/bash",params...)
 
 	stdout, err := cmd.StdoutPipe()
 
@@ -45,7 +43,6 @@ func ConverterHtmlToPdf(uri []string,path string) (error) {
 	}
 
 	reader := bufio.NewReader(stdout)
-	enc := mahonia.NewDecoder("gbk")
 
 	//实时循环读取输出流中的一行内容
 	for {
@@ -55,13 +52,13 @@ func ConverterHtmlToPdf(uri []string,path string) (error) {
 			break
 		}
 
-		beego.Info(enc.ConvertString(line))
+		beego.Info(line)
 	}
 
 	bytesErr, err := ioutil.ReadAll(stderr)
 
 	if err == nil {
-		beego.Info(enc.ConvertString(string(bytesErr)))
+		beego.Info(string(bytesErr))
 	}else{
 		beego.Error("Error: Stderr => " + err.Error())
 		return err
@@ -75,5 +72,4 @@ func ConverterHtmlToPdf(uri []string,path string) (error) {
 	}
 
 	return nil
-
 }
