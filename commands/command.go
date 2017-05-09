@@ -12,9 +12,8 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/godoc/conf"
-
 	"github.com/lifei6671/gocaptcha"
-	"syscall"
+
 )
 
 // RegisterDataBase 注册数据库
@@ -32,7 +31,13 @@ func RegisterDataBase()  {
 
 	orm.RegisterDataBase("default", "mysql", dataSource)
 
-	orm.DefaultTimeLoc, _ = time.LoadLocation(timezone)
+	location , err := time.LoadLocation(timezone);
+	if err == nil {
+		orm.DefaultTimeLoc = location
+	}else{
+		fmt.Println(err)
+	}
+
 }
 
 // RegisterModel 注册Model
@@ -146,7 +151,6 @@ func RegisterFunction()  {
 }
 
 func init()  {
-	syscall.Setenv("ZONEINFO","./lib/time/zoneinfo.zip")
 	gocaptcha.ReadFonts("./static/fonts", ".ttf")
 	gob.Register(models.Member{})
 }
