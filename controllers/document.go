@@ -622,7 +622,7 @@ func (c *DocumentController) Export() {
 		c.Ctx.Output.Download(pdfpath, identify + ".pdf")
 
 		defer os.Remove(pdfpath)
-		
+
 		c.StopRun()
 	}
 
