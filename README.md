@@ -12,7 +12,7 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 
 # 安装与使用
 
-**如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc程序所在路径。**
+**如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。**
 
 **Windows 教程:** [https://github.com/lifei6671/godoc/blob/master/README_WIN.md](https://github.com/lifei6671/godoc/blob/master/README_WIN.md)
 

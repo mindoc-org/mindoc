@@ -557,7 +557,7 @@ func (c *BookController) SaveSort() {
 		beego.Error(err)
 		c.JsonResult(6003,"数据错误")
 	}
-	fmt.Printf("%+v",docs)
+
 	for _,item := range docs {
 		if doc_id,ok := item["id"].(float64);ok {
 			doc,err := models.NewDocument().Find(int(doc_id));

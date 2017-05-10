@@ -1,5 +1,7 @@
 # Windows 下安装和配置 MinDoc
 
+**如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 绝对路径。**
+
 **第一步 下载可执行文件**
 
 请从 [https://github.com/lifei6671/godoc/releases](https://github.com/lifei6671/godoc/releases)  下载最新版的可执行文件，一般文件名为 godoc_windows_amd.zip .
@@ -40,7 +42,9 @@ db_password=123456
 
 **第五步 启动程序**
 
-此时，双击 godoc_windows_amd64.exe 文件，该程序会自动在后台执行，打开任务管理器会看到运行中的程序。
+如果你设置了环境变量，但是没有重启电脑，请在cmd命令行启动 godoc_windows_amd64.exe 程序。
+
+如果你设置了环境变量，并且重启了电脑，双击 godoc_windows_amd64.exe 即可。
 
 稍等一分钟，程序会自动初始化数据库，并创建一个超级管理员账号：admin 密码：123456
 

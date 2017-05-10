@@ -32,10 +32,8 @@ func main() {
 
 	beego.SetStaticPath("uploads","uploads")
 
-
-
-
 	beego.ErrorController(&controllers.ErrorController{})
+
 	beego.Run()
 }
 
