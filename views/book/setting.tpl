@@ -168,7 +168,7 @@
             <div class="modal-footer">
                 <span class="error-message" id="form-error-message1"></span>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="submit" class="btn btn-primary">确定</button>
+                <button type="submit" class="btn btn-primary" data-loading-text="变更中..." id="btnChangePrivatelyOwned">确定</button>
             </div>
         </div>
         </form>
@@ -229,7 +229,7 @@
             <div class="modal-footer">
                 <span id="form-error-message2" class="error-message"></span>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="submit" id="btnDeleteBook" class="btn btn-primary">确定删除</button>
+                <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
             </div>
         </div>
         </form>
@@ -278,16 +278,24 @@
         });
 
        $("#changePrivatelyOwnedForm").ajaxForm({
+           beforeSumbit :function () {
+             $("#btnChangePrivatelyOwned").button("loading");
+           },
             success :function (res) {
 
                 if(res.errcode === 0){
                     window.location = window.location.href;
                 }else{
-                    console.log(res.message)
                     showError(res.message,"#form-error-message1");
                 }
-            }
+                $("#btnChangePrivatelyOwned").button("reset");
+            },
+           error :function () {
+               showError("服务器异常","#form-error-message1");
+               $("#btnChangePrivatelyOwned").button("reset");
+           }
        });
+       
        $("#createToken,#deleteToken").on("click",function () {
            var btn = $(this).button("loading");
            var action = $(this).attr("data-action");
@@ -335,13 +343,20 @@
            }
        });
        $("#deleteBookForm").ajaxForm({
+           beforeSubmit : function () {
+             $("#btnDeleteBook").button("loading");
+           },
            success : function (res) {
                if(res.errcode === 0){
                    window.location = "{{urlfor "BookController.Index"}}";
                }else{
-                   console.log(res.message)
                    showError(res.message,"#form-error-message2");
                }
+               $("#btnDeleteBook").button("reset");
+           },
+           error : function () {
+               showError("服务器异常","#form-error-message2");
+               $("#btnDeleteBook").button("reset");
            }
        });
        $("#transferBookForm").ajaxForm({
