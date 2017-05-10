@@ -295,7 +295,7 @@
                $("#btnChangePrivatelyOwned").button("reset");
            }
        });
-       
+
        $("#createToken,#deleteToken").on("click",function () {
            var btn = $(this).button("loading");
            var action = $(this).attr("data-action");
