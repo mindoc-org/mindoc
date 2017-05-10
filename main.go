@@ -3,17 +3,14 @@ package main
 import (
 	"fmt"
 	"os"
-
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lifei6671/godoc/routers"
 	_ "github.com/astaxie/beego/session/redis"
 	_ "github.com/astaxie/beego/session/memcache"
 	_ "github.com/astaxie/beego/session/mysql"
-
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/godoc/commands"
 	"github.com/lifei6671/godoc/controllers"
-	"github.com/lifei6671/godoc/conf"
 )
 
 var (
@@ -22,11 +19,10 @@ var (
 	GO_VERSION string
 )
 
+
 func main() {
 
 	fmt.Printf("MinDoc version => %s\nbuild time => %s\nstart directory => %s\n%s\n", VERSION, BUILD_TIME, os.Args[0],GO_VERSION)
-
-	conf.VERSION = VERSION
 
 	commands.RegisterDataBase()
 	commands.RegisterModel()
@@ -36,8 +32,10 @@ func main() {
 
 	beego.SetStaticPath("uploads","uploads")
 
-	beego.ErrorController(&controllers.ErrorController{})
 
+
+
+	beego.ErrorController(&controllers.ErrorController{})
 	beego.Run()
 }
 

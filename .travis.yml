@@ -21,10 +21,11 @@ before_deploy:
   - GOARCH=amd64 GOOS=linux go build -o godoc_linux_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
   - GOARCH=amd64 GOOS=darwin go build -o godoc_darwin_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
   - GOARCH=amd64 GOOS=windows go build -o godoc_windows_amd64.exe -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
-  - rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
-  - zip -r godoc_linux_amd64.zip conf logs static uploads views godoc_linux_amd64
-  - zip -r godoc_darwin_amd64.zip conf logs static uploads views godoc_darwin_amd64
-  - zip -r godoc_windows_amd64.zip conf logs static uploads views godoc_windows_amd64.exe
+  - rm -rf commands controllers models modules data routers tasks vendor docs search utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
+  - cp conf/app.conf.example conf/app.conf
+  - zip -r godoc_linux_amd64.zip conf logs static uploads views lib godoc_linux_amd64
+  - zip -r godoc_darwin_amd64.zip conf logs static uploads views lib godoc_darwin_amd64
+  - zip -r godoc_windows_amd64.zip conf logs static uploads views lib godoc_windows_amd64.exe
 
 deploy:
   provider: releases

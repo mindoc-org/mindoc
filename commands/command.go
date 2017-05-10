@@ -12,8 +12,8 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/godoc/conf"
-
 	"github.com/lifei6671/gocaptcha"
+
 )
 
 // RegisterDataBase 注册数据库
@@ -31,7 +31,12 @@ func RegisterDataBase()  {
 
 	orm.RegisterDataBase("default", "mysql", dataSource)
 
-	orm.DefaultTimeLoc, _ = time.LoadLocation(timezone)
+	location , err := time.LoadLocation(timezone);
+	if err == nil {
+		orm.DefaultTimeLoc = location
+	}else{
+		fmt.Println(err)
+	}
 
 }
 

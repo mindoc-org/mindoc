@@ -214,17 +214,17 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 		return err
 	}
 	o.Begin()
-	sql1 := "DELETE FROM " + NewComment().TableNameWithPrefix() + " WHERE book_id = ?"
-
-	_,err := o.Raw(sql1,m.BookId).Exec()
-
-	if err != nil {
-		o.Rollback()
-		return err
-	}
+	//sql1 := "DELETE FROM " + NewComment().TableNameWithPrefix() + " WHERE book_id = ?"
+	//
+	//_,err := o.Raw(sql1,m.BookId).Exec()
+	//
+	//if err != nil {
+	//	o.Rollback()
+	//	return err
+	//}
 	sql2 := "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_,err = o.Raw(sql2,m.BookId).Exec()
+	_,err := o.Raw(sql2,m.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
