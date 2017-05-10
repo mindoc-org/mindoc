@@ -83,59 +83,59 @@
                                     </label>
                                 </div>
                             </div>
-							{{/*
+                            {{/*
                             <div class="form-group">
-                                <label>开启评论</label>
-                                <div class="radio">
-                                    <label class="radio-inline">
-                                        <input type="radio" {{if eq .Model.CommentStatus "open"}}checked{{end}} name="comment_status" value="open">允许所有人评论<span class="text"></span>
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" {{if eq .Model.CommentStatus "closed"}}checked{{end}} name="comment_status" value="closed">关闭评论<span class="text"></span>
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" {{if eq .Model.CommentStatus "group_only"}}checked{{end}} name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" {{if eq .Model.CommentStatus "registered_only"}}checked{{end}} name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>
-                                    </label>
-                                </div>
-                            </div>
-							*/}}
-                            {{if eq .Model.PrivatelyOwned 1}}
-                            <div class="form-group">
-                                <label>访问令牌</label>
-                                <div class="row">
-                                    <div class="col-sm-10">
-                                        <input type="text" name="token" id="token" class="form-control" placeholder="访问令牌" readonly value="{{.Model.PrivateToken}}">
-                                    </div>
-                                   <div class="col-sm-2">
-                                       <button type="button" class="btn btn-success btn-sm" id="createToken" data-loading-text="生成" data-action="create">生成</button>
-                                       <button type="button" class="btn btn-danger btn-sm" id="deleteToken" data-loading-text="删除" data-action="delete">删除</button>
-                                   </div>
-                                </div>
-                            </div>
-                            {{end}}
-                            <div class="form-group">
-                                <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
-                                <span id="form-error-message" class="error-message"></span>
-                            </div>
-                        </form>
+                            <label>开启评论</label>
+                            <div class="radio">
+                            <label class="radio-inline">
+                            <input type="radio" {{if eq .Model.CommentStatus "open"}}checked{{end}} name="comment_status" value="open">允许所有人评论<span class="text"></span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" {{if eq .Model.CommentStatus "closed"}}checked{{end}} name="comment_status" value="closed">关闭评论<span class="text"></span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" {{if eq .Model.CommentStatus "group_only"}}checked{{end}} name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" {{if eq .Model.CommentStatus "registered_only"}}checked{{end}} name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>
+                            </label>
                     </div>
-                    <div class="form-right">
-                        <label>
-                            <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
-                                <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.png'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
-                            </a>
-                        </label>
-                    </div>
-                    <div class="clearfix"></div>
-
                 </div>
+                */}}
+                {{if eq .Model.PrivatelyOwned 1}}
+                <div class="form-group">
+                    <label>访问令牌</label>
+                    <div class="row">
+                        <div class="col-sm-10">
+                            <input type="text" name="token" id="token" class="form-control" placeholder="访问令牌" readonly value="{{.Model.PrivateToken}}">
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" class="btn btn-success btn-sm" id="createToken" data-loading-text="生成" data-action="create">生成</button>
+                            <button type="button" class="btn btn-danger btn-sm" id="deleteToken" data-loading-text="删除" data-action="delete">删除</button>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
+                <div class="form-group">
+                    <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
+                    <span id="form-error-message" class="error-message"></span>
+                </div>
+                </form>
             </div>
+            <div class="form-right">
+                <label>
+                    <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
+                        <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.png'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
+                    </a>
+                </label>
+            </div>
+            <div class="clearfix"></div>
+
         </div>
     </div>
-    {{template "widgets/footer.tpl" .}}
+</div>
+</div>
+{{template "widgets/footer.tpl" .}}
 </div>
 <!-- Modal -->
 <div class="modal fade" id="changePrivatelyOwnedModal" tabindex="-1" role="dialog" aria-labelledby="changePrivatelyOwnedModalLabel">
@@ -143,34 +143,34 @@
         <form method="post" action="{{urlfor "BookController.PrivatelyOwned" }}" id="changePrivatelyOwnedForm">
             <input type="hidden" name="identify" value="{{.Model.Identify}}">
             <input type="hidden" name="status" value="{{if eq .Model.PrivatelyOwned 0}}close{{else}}open{{end}}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">
-                {{if eq .Model.PrivatelyOwned 0}}
-                    转为私有
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">
+                        {{if eq .Model.PrivatelyOwned 0}}
+                        转为私有
+                        {{else}}
+                        转为共有
+                        {{end}}
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    {{if eq .Model.PrivatelyOwned 0}}
+                    <span style="font-size: 14px;font-weight: 400;">确定将项目转为私有吗？</span>
+                    <p></p>
+                    <p class="text error-message">转为私有后需要通过阅读令牌才能访问该项目。</p>
                     {{else}}
-                    转为共有
+                    <span style="font-size: 14px;font-weight: 400;"> 确定将项目转为公有吗？</span>
+                    <p></p>
+                    <p class="text error-message">转为公有后所有人都可以访问该项目。</p>
                     {{end}}
-                </h4>
+                </div>
+                <div class="modal-footer">
+                    <span class="error-message" id="form-error-message1"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" data-loading-text="变更中..." id="btnChangePrivatelyOwned">确定</button>
+                </div>
             </div>
-            <div class="modal-body">
-                {{if eq .Model.PrivatelyOwned 0}}
-                <span style="font-size: 14px;font-weight: 400;">确定将项目转为私有吗？</span>
-                <p></p>
-                <p class="text error-message">转为私有后需要通过阅读令牌才能访问该项目。</p>
-                {{else}}
-                <span style="font-size: 14px;font-weight: 400;"> 确定将项目转为公有吗？</span>
-                <p></p>
-                <p class="text error-message">转为公有后所有人都可以访问该项目。</p>
-                {{end}}
-            </div>
-            <div class="modal-footer">
-                <span class="error-message" id="form-error-message1"></span>
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="submit" class="btn btn-primary">确定</button>
-            </div>
-        </div>
         </form>
     </div>
 </div>
@@ -216,22 +216,22 @@
     <div class="modal-dialog" role="document">
         <form method="post" id="deleteBookForm" action="{{urlfor "BookController.Delete"}}">
             <input type="hidden" name="identify" value="{{.Model.Identify}}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">删除项目</h4>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">删除项目</h4>
+                </div>
+                <div class="modal-body">
+                    <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
+                    <p></p>
+                    <p class="text error-message">删除项目后将无法找回。</p>
+                </div>
+                <div class="modal-footer">
+                    <span id="form-error-message2" class="error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
+                </div>
             </div>
-            <div class="modal-body">
-                <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
-                <p></p>
-                <p class="text error-message">删除项目后将无法找回。</p>
-            </div>
-            <div class="modal-footer">
-                <span id="form-error-message2" class="error-message"></span>
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="submit" id="btnDeleteBook" class="btn btn-primary">确定删除</button>
-            </div>
-        </div>
         </form>
     </div>
 </div>
@@ -240,25 +240,26 @@
     <div class="modal-dialog" role="document">
         <form action="{{urlfor "BookController.Transfer"}}" method="post" id="transferBookForm">
             <input type="hidden" name="identify" value="{{.Model.Identify}}">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">项目转让</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">接收账号</label>
-                    <div class="col-sm-10">
-                        <input type="text" name="account" class="form-control" placeholder="接收者账号" id="receiveAccount" maxlength="50">
-                    </div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">项目转让</h4>
                 </div>
-                <div class="clearfix"></div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">接收账号</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="account" class="form-control" placeholder="接收者账号" id="receiveAccount" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-footer">
+                    <span id="form-error-message3" class="error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" id="btnTransferBook" class="btn btn-primary">确定转让</button>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="submit" id="btnTransferBook" class="btn btn-primary">确定转让</button>
-            </div>
-        </div>
         </form>
     </div>
 </div>
@@ -277,93 +278,108 @@
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
         });
 
-       $("#changePrivatelyOwnedForm").ajaxForm({
+        $("#changePrivatelyOwnedForm").ajaxForm({
+            beforeSubmit :function () {
+                $("#btnChangePrivatelyOwned").button("loading");
+            },
             success :function (res) {
-
                 if(res.errcode === 0){
                     window.location = window.location.href;
+                    return;
                 }else{
-                    console.log(res.message)
                     showError(res.message,"#form-error-message1");
                 }
+                $("#btnChangePrivatelyOwned").button("reset");
+            },
+            error :function () {
+                showError("服务器异常","#form-error-message1");
+                $("#btnChangePrivatelyOwned").button("reset");
             }
-       });
-       $("#createToken,#deleteToken").on("click",function () {
-           var btn = $(this).button("loading");
-           var action = $(this).attr("data-action");
-          $.ajax({
-              url : "{{urlfor "BookController.CreateToken"}}",
-              type :"post",
-              data : { "identify" : {{.Model.Identify}} , "action" : action },
-              dataType : "json",
-              success : function (res) {
-                  if(res.errcode === 0){
-                      $("#token").val(res.data);
-                  }else{
-                      alert(res.message);
-                  }
-                  btn.button("reset");
-              },
-              error : function () {
-                  btn.button("reset");
-                  alert("服务器错误");
-              }
-          }) ;
-       });
-       $("#token").on("focus",function () {
-           $(this).select();
-       });
-       $("#bookEditForm").ajaxForm({
-           beforeSubmit : function () {
-               var bookName = $.trim($("#bookName").val());
-               if (bookName === "") {
-                   return showError("项目名称不能为空");
-               }
+        });
+
+        $("#createToken,#deleteToken").on("click",function () {
+            var btn = $(this).button("loading");
+            var action = $(this).attr("data-action");
+            $.ajax({
+                url : "{{urlfor "BookController.CreateToken"}}",
+                type :"post",
+                data : { "identify" : {{.Model.Identify}} , "action" : action },
+                dataType : "json",
+                success : function (res) {
+                    if(res.errcode === 0){
+                        $("#token").val(res.data);
+                    }else{
+                        alert(res.message);
+                    }
+                    btn.button("reset");
+                },
+                error : function () {
+                    btn.button("reset");
+                    alert("服务器错误");
+                }
+            }) ;
+        });
+        $("#token").on("focus",function () {
+            $(this).select();
+        });
+        $("#bookEditForm").ajaxForm({
+            beforeSubmit : function () {
+                var bookName = $.trim($("#bookName").val());
+                if (bookName === "") {
+                    return showError("项目名称不能为空");
+                }
                 $("#btnSaveBookInfo").button("loading");
-           },
-           success : function (res) {
+            },
+            success : function (res) {
                 if(res.errcode === 0){
                     showSuccess("保存成功")
                 }else{
                     showError("保存失败")
                 }
-               $("#btnSaveBookInfo").button("reset");
-           },
-           error : function () {
-               showError("服务错误");
-               $("#btnSaveBookInfo").button("reset");
-           }
-       });
-       $("#deleteBookForm").ajaxForm({
-           success : function (res) {
-               if(res.errcode === 0){
-                   window.location = "{{urlfor "BookController.Index"}}";
-               }else{
-                   console.log(res.message)
-                   showError(res.message,"#form-error-message2");
-               }
-           }
-       });
-       $("#transferBookForm").ajaxForm({
-           beforeSubmit : function () {
+                $("#btnSaveBookInfo").button("reset");
+            },
+            error : function () {
+                showError("服务错误");
+                $("#btnSaveBookInfo").button("reset");
+            }
+        });
+        $("#deleteBookForm").ajaxForm({
+            beforeSubmit : function () {
+                $("#btnDeleteBook").button("loading");
+            },
+            success : function (res) {
+                if(res.errcode === 0){
+                    window.location = "{{urlfor "BookController.Index"}}";
+                }else{
+                    showError(res.message,"#form-error-message2");
+                }
+                $("#btnDeleteBook").button("reset");
+            },
+            error : function () {
+                showError("服务器异常","#form-error-message2");
+                $("#btnDeleteBook").button("reset");
+            }
+        });
+        $("#transferBookForm").ajaxForm({
+            beforeSubmit : function () {
                 var account = $.trim($("#receiveAccount").val());
                 if (account === ""){
-                    return showError("接受者账号不能为空")
+                    return showError("接受者账号不能为空","#form-error-message3")
                 }
                 $("#btnTransferBook").button("loading");
-           },
-           success : function (res) {
+            },
+            success : function (res) {
                 if(res.errcode === 0){
                     window.location = window.location.href;
                 }else{
-                    showError(res.message);
+                    showError(res.message,"#form-error-message3");
                 }
-               $("#btnTransferBook").button("reset");
-           },
-           error : function () {
-               $("#btnTransferBook").button("reset");
-           }
-       });
+                $("#btnTransferBook").button("reset");
+            },
+            error : function () {
+                $("#btnTransferBook").button("reset");
+            }
+        });
 
         try {
             var uploader = WebUploader.create({
