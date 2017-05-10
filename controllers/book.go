@@ -523,7 +523,15 @@ func (c *BookController) Release() {
 		c.JsonResult(6003,"权限不足")
 	}
 
-	go models.NewDocument().ReleaseContent(book.BookId)
+	go func(identify string) {
+		models.NewDocument().ReleaseContent(book.BookId)
+		pdfpath := "cache/" + identify + ".pdf"
+
+		if _,err := os.Stat(pdfpath); os.IsExist(err){
+			os.Remove(pdfpath)
+		}
+
+	}(identify)
 
 	c.JsonResult(0,"发布任务已推送到任务队列，稍后将在后台执行。")
 }

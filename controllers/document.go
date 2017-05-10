@@ -593,6 +593,15 @@ func (c *DocumentController) Export() {
 	}
 
 	if output == "pdf" {
+
+		exe := beego.AppConfig.String("wkhtmltopdf")
+
+		if exe == "" {
+			c.TplName = "errors/error.tpl";
+			c.Data["ErrorMessage"] = "没有配置PDF导出程序"
+			c.Data["ErrorCode"] = 50010
+			return
+		}
 		dpath := "cache/" + book.Identify
 
 		os.MkdirAll(dpath, 0766)
@@ -606,22 +615,20 @@ func (c *DocumentController) Export() {
 		os.MkdirAll("./cache", 0766)
 		pdfpath := "cache/" + identify + ".pdf"
 
-		paths := make([]string, len(docs))
-		index := 0
-		for e := pathList.Front(); e != nil; e = e.Next() {
-			paths[index] = e.Value.(string)
-			index ++
+		if _,err := os.Stat(pdfpath); os.IsNotExist(err){
+			paths := make([]string, len(docs))
+			index := 0
+			for e := pathList.Front(); e != nil; e = e.Next() {
+				paths[index] = e.Value.(string)
+				index ++
+			}
+
+			beego.Info(paths)
+
+			utils.ConverterHtmlToPdf(paths, pdfpath)
 		}
 
-		beego.Info(paths)
-
-		utils.ConverterHtmlToPdf(paths, pdfpath)
-
-
-
 		c.Ctx.Output.Download(pdfpath, identify + ".pdf")
-
-		defer os.Remove(pdfpath)
 
 		c.StopRun()
 	}
