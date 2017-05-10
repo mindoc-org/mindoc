@@ -327,6 +327,8 @@ func (c *AccountController) ValidEmail() {
 func (c *AccountController) Logout(){
 	c.SetMember(models.Member{});
 
+	c.SetSecureCookie(conf.GetAppKey(),"login","",-3600)
+
 	c.Redirect(beego.URLFor("AccountController.Login"),302)
 }
 
