@@ -78,6 +78,7 @@ func (c *AccountController) Login()  {
 	}
 }
 
+//用户注册.
 func (c *AccountController) Register()  {
 	c.TplName = "account/register.tpl"
 
@@ -329,6 +330,7 @@ func (c *AccountController) Logout(){
 	c.Redirect(beego.URLFor("AccountController.Login"),302)
 }
 
+//验证码.
 func (c *AccountController) Captcha()  {
 	c.Prepare()
 

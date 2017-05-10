@@ -126,6 +126,7 @@
 <script src="/static/jstree/3.3.4/jstree.min.js" type="text/javascript"></script>
 <script src="/static/wangEditor/js/wangEditor.min.js" type="text/javascript"></script>
 <script src="/static/wangEditor/plugins/save-menu.js" type="text/javascript"></script>
+<script src="/static/wangEditor/plugins/release-menu.js" type="text/javascript"></script>
 <script type="text/javascript" src="/static/layer/layer.js"></script>
 <script src="/static/to-markdown/dist/to-markdown.js" type="text/javascript"></script>
 <script src="/static/js/jquery.form.js" type="text/javascript"></script>

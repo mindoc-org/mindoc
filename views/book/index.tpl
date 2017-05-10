@@ -58,9 +58,9 @@
                                     </a>
                                 </div>
                                 <div class="pull-right">
-                                    <a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip"><i class="fa fa-eye"></i> 查看文档</a>
+                                    <a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>
                                     <template v-if="item.role_id != 3">
-                                        <a :href="'/api/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
+                                        <a :href="'/api/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
                                     </template>
                                 </div>
                                 <div class="clearfix"></div>

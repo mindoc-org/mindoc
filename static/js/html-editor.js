@@ -10,6 +10,24 @@ $(function () {
     };
     wangEditor.config.menus.splice(0,0,"|");
     wangEditor.config.menus.splice(0,0,"save");
+    wangEditor.config.menus.splice(0,0,"release");
+
+    //移除地图、背景色
+    editor.config.menus = $.map(wangEditor.config.menus, function(item, key) {
+        if (item === 'bgcolor') {
+            return null;
+        }
+        if (item === 'fullscreen') {
+            return null;
+        }
+        if (item === "undo"){
+            return null;
+        }
+        if (item === "redo"){
+            return null;
+        }
+        return item;
+    });
 
     window.editor.ready(function () {
         if(window.documentCategory.length > 0){
@@ -251,4 +269,24 @@ $(function () {
     }).on("move_node.jstree", jstree_save);
 
     window.saveDocument = saveDocument;
+
+    window.releaseBook = function () {
+        if(Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0){
+            $.ajax({
+                url : window.releaseURL,
+                data :{"identify" : window.book.identify },
+                type : "post",
+                dataType : "json",
+                success : function (res) {
+                    if(res.errcode === 0){
+                        layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
+                    }else{
+                        layer.msg(res.message);
+                    }
+                }
+            });
+        }else{
+            layer.msg("没有需要发布的文档")
+        }
+    };
 });
