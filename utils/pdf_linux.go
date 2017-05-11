@@ -24,8 +24,8 @@ func ConverterHtmlToPdf(uri []string,path string) (error) {
 	params = append(params,uri...)
 	params = append(params,path)
 
-	beego.Info(params...)
-	
+	beego.Info(params)
+
 	cmd := exec.Command("/bin/bash",params...)
 
 	stdout, err := cmd.StdoutPipe()
