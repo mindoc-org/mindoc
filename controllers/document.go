@@ -623,7 +623,7 @@ func (c *DocumentController) Export() {
 				index ++
 			}
 
-			beego.Info(paths)
+			beego.Info(paths,pdfpath)
 
 			utils.ConverterHtmlToPdf(paths, pdfpath)
 		}
