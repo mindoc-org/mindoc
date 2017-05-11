@@ -658,6 +658,7 @@ func RecursiveFun(parent_id int,prefix,dpath  string,c *DocumentController,book 
 				beego.Error(err)
 				c.Abort("500")
 			}
+			beego.Info(fpath,html)
 			f.WriteString(html)
 			f.Close()
 
