@@ -645,7 +645,7 @@ func RecursiveFun(parent_id int,prefix,dpath  string,c *DocumentController,book 
 			paths.PushBack(fpath)
 
 
-			f, err := os.OpenFile(fpath, os.O_CREATE, 0777)
+			f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0777)
 
 			if err != nil {
 				beego.Error(err)
