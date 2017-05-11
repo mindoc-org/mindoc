@@ -610,7 +610,7 @@ func (c *DocumentController) Export() {
 
 		RecursiveFun(0, "", dpath, c, book, docs, pathList)
 
-		defer os.RemoveAll(dpath)
+		//defer os.RemoveAll(dpath)
 
 		os.MkdirAll("./cache", 0766)
 		pdfpath := "cache/" + identify + ".pdf"
