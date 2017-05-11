@@ -1,16 +1,21 @@
 package commands
 
 import (
-	"os"
-	"net/http"
-	"github.com/astaxie/beego"
 	"encoding/json"
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+
+	"github.com/astaxie/beego"
+	"github.com/lifei6671/godoc/conf"
 )
 
-func Update()  {
-	if len(os.Args) > 2 && os.Args[1] == "update" {
+//系统升级.
+func Update() {
+	if len(os.Args) >= 2 && os.Args[1] == "update" {
+
+		fmt.Println("update successed.")
 
 		os.Exit(0)
 	}
@@ -45,8 +50,8 @@ func CheckUpdate() {
 			beego.Error("CheckUpdate => ", err)
 			os.Exit(1)
 		}
-
-		fmt.Println("MinDoc last version => ",result[0].Name)
+		fmt.Println("MinDoc current version => ", conf.VERSION)
+		fmt.Println("MinDoc last version => ", result[0].Name)
 		os.Exit(0)
 	}
 }

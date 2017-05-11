@@ -161,6 +161,7 @@ func (c *BookController) SaveBook()  {
 	c.JsonResult(0,"ok",bookResult)
 }
 
+//设置项目私有状态.
 func (c *BookController) PrivatelyOwned()  {
 
 	status := c.GetString("status")
@@ -184,7 +185,6 @@ func (c *BookController) PrivatelyOwned()  {
 	if bookResult.RoleId != conf.BookFounder {
 		c.JsonResult(6002,"权限不足")
 	}
-	fmt.Printf("%+v",bookResult)
 
 	book,err := models.NewBook().Find(bookResult.BookId)
 
@@ -192,8 +192,6 @@ func (c *BookController) PrivatelyOwned()  {
 		c.JsonResult(6005,"项目不存在")
 	}
 	book.PrivatelyOwned = state
-
-	logs.Info("",state,status)
 
 	err = book.Update()
 

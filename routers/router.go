@@ -25,6 +25,8 @@ func init()  {
 	beego.Router("/manager/comments", &controllers.ManagerController{},"*:Comments")
 	beego.Router("/manager/books/token", &controllers.ManagerController{},"post:CreateToken")
 	beego.Router("/manager/setting",&controllers.ManagerController{},"*:Setting")
+	beego.Router("/manager/books/transfer", &controllers.ManagerController{},"post:Transfer")
+	beego.Router("/manager/books/open", &controllers.ManagerController{},"post:PrivatelyOwned")
 
 	beego.Router("/setting", &controllers.SettingController{},"*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{},"*:Password")

@@ -36,6 +36,7 @@ func (c *SettingController) Index()  {
 		if err := member.Update(); err != nil {
 			c.JsonResult(602, err.Error())
 		}
+		c.SetMember(*member)
 		c.JsonResult(0, "ok")
 	}
 }

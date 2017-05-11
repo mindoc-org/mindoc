@@ -24,7 +24,7 @@ func init()  {
 	beego.InsertFilter("/api/*",beego.BeforeRouter,FilterUser)
 
 	var FinishRouter = func(ctx *context.Context) {
-		ctx.ResponseWriter.Header().Add("MinDoc-Version",conf.Version())
+		ctx.ResponseWriter.Header().Add("MinDoc-Version",conf.VERSION)
 		ctx.ResponseWriter.Header().Add("MinDoc-Site","http://www.iminho.me")
 	}
 

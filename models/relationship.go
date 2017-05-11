@@ -47,6 +47,15 @@ func (m *Relationship) Find(id int) (*Relationship,error) {
 	return m,err
 }
 
+//查询指定项目的创始人.
+func (m *Relationship) FindFounder(book_id int) (*Relationship,error) {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",book_id).Filter("role_id",0).One(m)
+
+	return m,err
+}
+
 func (m *Relationship) UpdateRoleId(book_id,member_id, role_id int) (*Relationship,error) {
 	o := orm.NewOrm()
 	book := NewBook()

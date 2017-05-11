@@ -170,7 +170,7 @@
                 <div class="modal-footer">
                     <span id="form-error-message"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success">保存</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddMember">保存</button>
                 </div>
             </div>
         </form>
@@ -207,6 +207,7 @@
                 if (email === "") {
                     return showError("邮箱不能为空");
                 }
+                $("#btnAddMember").button("loading");
                 return true;
             },
             success : function (res) {
@@ -216,6 +217,11 @@
                 }else{
                     showError(res.message);
                 }
+                $("#btnAddMember").button("reset");
+            },
+            error : function () {
+                showError("服务器异常");
+                $("#btnAddMember").button("reset");
             }
         });
 

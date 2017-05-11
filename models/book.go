@@ -160,9 +160,9 @@ func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []*BookResu
 
 	qb2.Select("book.*,rel.member_id","rel.role_id","m.account as create_name").
 		From(m.TableNameWithPrefix() + " AS book").
-		LeftJoin(relationship.TableNameWithPrefix() + " AS rel").
-		On("book.book_id=rel.book_id").
-		LeftJoin(NewMember().TableNameWithPrefix() + " AS m").On("rel.member_id=m.member_id AND rel.role_id=0").
+		LeftJoin(relationship.TableNameWithPrefix() + " AS rel").On("book.book_id=rel.book_id").
+		LeftJoin(relationship.TableNameWithPrefix() + " AS rel1").On("book.book_id=rel1.book_id  AND rel.role_id=0").
+		LeftJoin(NewMember().TableNameWithPrefix() + " AS m").On("rel1.member_id=m.member_id").
 		Where("rel.member_id=?").
 		OrderBy("book.order_index DESC ","book.book_id").Desc().
 		Limit(pageSize).

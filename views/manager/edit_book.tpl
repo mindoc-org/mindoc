@@ -38,6 +38,12 @@
                 <div class="m-box">
                     <div class="box-head">
                         <strong class="box-title"> 项目设置</strong>
+                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#transferBookModal">转让项目</button>
+                        {{if eq .Model.PrivatelyOwned 1}}
+                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#changePrivatelyOwnedModal" style="margin-right: 5px;">转为公有</button>
+                        {{else}}
+                        <button type="button"  class="btn btn-danger btn-sm pull-right" data-toggle="modal" data-target="#changePrivatelyOwnedModal" style="margin-right: 5px;">转为私有</button>
+                        {{end}}
                         <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;" data-toggle="modal" data-target="#deleteBookModal">删除项目</button>
                     </div>
                 </div>
@@ -119,6 +125,43 @@
     </div>
     {{template "widgets/footer.tpl" .}}
 </div>
+<div class="modal fade" id="changePrivatelyOwnedModal" tabindex="-1" role="dialog" aria-labelledby="changePrivatelyOwnedModalLabel">
+    <div class="modal-dialog" role="document">
+        <form method="post" action="{{urlfor "ManagerController.PrivatelyOwned" }}" id="changePrivatelyOwnedForm">
+            <input type="hidden" name="identify" value="{{.Model.Identify}}">
+            <input type="hidden" name="status" value="{{if eq .Model.PrivatelyOwned 0}}close{{else}}open{{end}}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">
+                        {{if eq .Model.PrivatelyOwned 0}}
+                        转为私有
+                        {{else}}
+                        转为共有
+                        {{end}}
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    {{if eq .Model.PrivatelyOwned 0}}
+                    <span style="font-size: 14px;font-weight: 400;">确定将项目转为私有吗？</span>
+                    <p></p>
+                    <p class="text error-message">转为私有后需要通过阅读令牌才能访问该项目。</p>
+                    {{else}}
+                    <span style="font-size: 14px;font-weight: 400;"> 确定将项目转为公有吗？</span>
+                    <p></p>
+                    <p class="text error-message">转为公有后所有人都可以访问该项目。</p>
+                    {{end}}
+                </div>
+                <div class="modal-footer">
+                    <span class="error-message" id="form-error-message1"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" data-loading-text="变更中..." id="btnChangePrivatelyOwned">确定</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Delete Book Modal -->
 <div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel">
     <div class="modal-dialog" role="document">
@@ -143,7 +186,33 @@
         </form>
     </div>
 </div>
-
+<div class="modal fade" id="transferBookModal" tabindex="-1" role="dialog" aria-labelledby="transferBookModalLabel">
+    <div class="modal-dialog" role="document">
+        <form action="{{urlfor "ManagerController.Transfer"}}" method="post" id="transferBookForm">
+            <input type="hidden" name="identify" value="{{.Model.Identify}}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">项目转让</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">接收账号</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="account" class="form-control" placeholder="接收者账号" id="receiveAccount" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-footer">
+                    <span id="form-error-message3" class="error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" id="btnTransferBook" class="btn btn-primary">确定转让</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 <script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
 <script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 <script src="/static/webuploader/webuploader.min.js" type="text/javascript"></script>
@@ -213,7 +282,46 @@
                 }
             }
         });
+        $("#transferBookForm").ajaxForm({
+            beforeSubmit : function () {
+                var account = $.trim($("#receiveAccount").val());
+                if (account === ""){
+                    return showError("接受者账号不能为空","#form-error-message3")
+                }
+                $("#btnTransferBook").button("loading");
+            },
+            success : function (res) {
+                if(res.errcode === 0){
+                    window.location = window.location.href;
+                }else{
+                    showError(res.message,"#form-error-message3");
+                }
+                $("#btnTransferBook").button("reset");
+            },
+            error : function () {
+                $("#btnTransferBook").button("reset");
+            }
+        });
+        $("#changePrivatelyOwnedForm").ajaxForm({
+            beforeSubmit :function () {
+                $("#btnChangePrivatelyOwned").button("loading");
+            },
+            success :function (res) {
+                if(res.errcode === 0){
+                    window.location = window.location.href;
+                    return;
+                }else{
+                    showError(res.message,"#form-error-message1");
+                }
+                $("#btnChangePrivatelyOwned").button("reset");
+            },
+            error :function () {
+                showError("服务器异常","#form-error-message1");
+                $("#btnChangePrivatelyOwned").button("reset");
+            }
+        });
     });
+
 </script>
 </body>
 </html>
