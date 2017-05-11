@@ -19,14 +19,14 @@ func ConverterHtmlToPdf(uri []string,path string) (error) {
 	if exe == "" {
 		return errors.New("wkhtmltopdf not exist.")
 	}
-	params := []string{"-c",exe,"--margin-bottom","25"}
+	params := []string{"--margin-bottom","25"}
 
 	params = append(params,uri...)
 	params = append(params,path)
 
 	beego.Info(params)
 
-	cmd := exec.Command("/bin/bash",params...)
+	cmd := exec.Command(exe,params...)
 
 	stdout, err := cmd.StdoutPipe()
 
