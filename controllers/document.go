@@ -121,6 +121,7 @@ func (c *DocumentController) Index()  {
 	c.Data["Title"] = "概要"
 	c.Data["Content"] = bookResult.Description
 }
+
 //阅读文档.
 func (c *DocumentController) Read() {
 	c.Prepare()
@@ -197,6 +198,7 @@ func (c *DocumentController) Edit()  {
 	}
 
 	bookResult := models.NewBookResult()
+	var err error
 	//如果是超级管理者，则不判断权限
 	if c.Member.Role == conf.MemberSuperRole {
 		book,err := models.NewBook().FindByFieldFirst("identify",identify)
@@ -206,7 +208,7 @@ func (c *DocumentController) Edit()  {
 		bookResult = book.ToBookResult()
 
 	}else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err = models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
 		if err != nil {
 			beego.Error("DocumentController.Edit => ", err)
@@ -227,6 +229,7 @@ func (c *DocumentController) Edit()  {
 	}else{
 		c.TplName = "document/" + bookResult.Editor + "_edit_template.tpl"
 	}
+	beego.Info(bookResult)
 
 	c.Data["Model"] = bookResult
 

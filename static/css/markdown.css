@@ -49,6 +49,13 @@ body{
 }
 .manual-category .manual-tree{
     margin-top: 10px;
+    width: 280px;
+    position: absolute;
+    top: 30px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
 }
 .manual-category .manual-nav .nav-item{
     font-size: 14px;
