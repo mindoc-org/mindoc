@@ -1,16 +1,17 @@
 $(function () {
-
+    wangEditor.config.mapAk = window.baiduMapKey;
     window.addDocumentModalFormHtml = $(this).find("form").html();
     wangEditor.config.printLog = false;
     window.editor = new wangEditor('htmlEditor');
     editor.config.uploadImgUrl = window.imageUploadURL;
-    editor.config.uploadImgFileName = "editormd-file-file";
+    editor.config.uploadImgFileName = "editormd-image-file";
     editor.config.uploadParams = {
         "editor" : "wangEditor"
     };
     wangEditor.config.menus.splice(0,0,"|");
     wangEditor.config.menus.splice(0,0,"save");
     wangEditor.config.menus.splice(0,0,"release");
+    wangEditor.config.menus.splice(29,0,"attach")
 
     //移除地图、背景色
     editor.config.menus = $.map(wangEditor.config.menus, function(item, key) {
@@ -80,6 +81,8 @@ $(function () {
                 var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
                 pushDocumentCategory(node);
                 window.selectNode = node;
+
+                pushVueLists(res.data.attach);
 
             }else{
                 layer.msg("文档加载失败");

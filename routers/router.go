@@ -51,6 +51,7 @@ func init()  {
 	beego.Router("/book/setting/token", &controllers.BookController{},"post:CreateToken")
 	beego.Router("/book/setting/delete", &controllers.BookController{},"post:Delete")
 
+	beego.Router("/api/attach/remove/", &controllers.DocumentController{},"post:RemoveAttachment")
 	beego.Router("/api/:key/edit/?:id", &controllers.DocumentController{},"*:Edit")
 	beego.Router("/api/upload",&controllers.DocumentController{},"post:Upload")
 	beego.Router("/api/:key/create",&controllers.DocumentController{},"post:Create")

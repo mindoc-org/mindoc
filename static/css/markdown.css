@@ -195,8 +195,6 @@ body{
     font-style: normal;
 }
 
-
-
 .manual-editor-status{
     position: absolute;
     left: 0;
@@ -208,4 +206,100 @@ body{
     color: #555;
     background-color: #FAFAFA;
     z-index: 1000;
+    line-height: 30px;
 }
+.manual-editor-status .item{
+    display: inline-block;
+    margin-right: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+.attach-drop-panel{
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+.attach-drop-panel .webuploader-element-invisible{
+    width: 500px;
+    height: 100px;
+    position: absolute;
+    top: 0;
+
+}
+.attach-drop-panel .webuploader-pick{
+    color: #ccc;
+    text-align: center;
+    margin: 20px 20px 15px!important;
+    padding: 5px!important;
+    font-size: 65px;
+    cursor: pointer;
+    border: 2px dotted #999;
+    display: block!important;
+    background: #ffffff;
+}
+.attach-drop-panel .webuploader-pick:hover{
+    color: #333;
+    border-color: #333;
+}
+.attach-list{
+
+    background:#ffffff;
+    font-size: 12px;
+}
+.attach-list .attach-item{
+    padding: 8px 10px;
+    line-height: 36px;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-top-left-radius:3px;
+    border-top-right-radius:3px;
+}
+.attach-list .attach-item:last-child{
+    border-bottom: 1px solid #ddd;
+    border-bottom-left-radius:3px;
+    border-bottom-right-radius:3px;
+}
+.attach-list .attach-item .progress{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 10px;
+}
+.attach-list .attach-item .form-control{
+    width: 60%;
+    float: left;
+}
+
+.attach-list .attach-item .text{
+    display: inline-block;
+    padding: 0 15px;
+}
+.attach-list .attach-item .close{
+    float: right;
+    display: inline-block;
+    padding: 8px 0;
+    color: #586069;
+    background: #ffffff;
+    font-size: 16px;
+}
+.attach-list .attach-item .close:hover {
+    color: #333;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

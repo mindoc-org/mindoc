@@ -229,7 +229,6 @@ func (c *DocumentController) Edit()  {
 	}else{
 		c.TplName = "document/" + bookResult.Editor + "_edit_template.tpl"
 	}
-	beego.Info(bookResult)
 
 	c.Data["Model"] = bookResult
 
@@ -252,6 +251,8 @@ func (c *DocumentController) Edit()  {
 			c.Data["Result"] = template.JS("[]")
 		}
 	}
+	c.Data["BaiDuMapKey"] = beego.AppConfig.DefaultString("baidumapkey","")
+
 
 }
 
@@ -329,6 +330,7 @@ func (c *DocumentController) Upload()  {
 
 	identify := c.GetString("identify")
 	doc_id,_ := c.GetInt("doc_id")
+	is_attach := true
 
 	if identify == "" {
 		c.JsonResult(6001,"参数错误")
@@ -397,7 +399,7 @@ func (c *DocumentController) Upload()  {
 		}
 	}
 
-	fileName := "attachment_" +  strconv.FormatInt(time.Now().UnixNano(), 16)
+	fileName := "attach_" +  strconv.FormatInt(time.Now().UnixNano(), 16)
 
 	filePath := "uploads/" + time.Now().Format("200601") + "/" + fileName + ext
 
@@ -417,12 +419,18 @@ func (c *DocumentController) Upload()  {
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
 	attachment.FilePath = filePath
+	attachment.DocumentId = doc_id
+
+	if fileInfo, err := os.Stat(filePath); err == nil {
+		attachment.FileSize = float64(fileInfo.Size())
+	}
 	if doc_id > 0{
 		attachment.DocumentId = doc_id
 	}
 
 	if strings.EqualFold(ext,".jpg") || strings.EqualFold(ext,".jpeg") || strings.EqualFold(ext,"png") || strings.EqualFold(ext,"gif") {
-		attachment.HttpPath = c.BaseUrl() + "/" + filePath
+		attachment.HttpPath =  "/" + filePath
+		is_attach = false
 	}
 
 	err = attachment.Insert();
@@ -433,7 +441,7 @@ func (c *DocumentController) Upload()  {
 		c.JsonResult(6006,"文件保存失败")
 	}
 	if attachment.HttpPath == "" {
-		attachment.HttpPath = c.BaseUrl() + beego.URLFor("DocumentController.DownloadAttachment",":key", identify, ":attach_id", attachment.AttachmentId)
+		attachment.HttpPath =  beego.URLFor("DocumentController.DownloadAttachment",":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update();err != nil {
 			beego.Error("SaveToFile => ",err)
@@ -447,6 +455,8 @@ func (c *DocumentController) Upload()  {
 		"message" :"ok",
 		"url" : attachment.HttpPath,
 		"alt" : attachment.FileName,
+		"is_attach" : is_attach,
+		"attach" : attachment,
 	}
 
 	c.Data["json"] = result
@@ -509,6 +519,44 @@ func (c *DocumentController) DownloadAttachment()  {
 	c.StopRun()
 }
 
+//删除附件.
+func (c *DocumentController) RemoveAttachment()  {
+	c.Prepare()
+	attach_id ,_ := c.GetInt("attach_id")
+
+	if attach_id <= 0 {
+		c.JsonResult(6001,"参数错误")
+	}
+	attach,err := models.NewAttachment().Find(attach_id)
+
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(6002,"附件不存在")
+	}
+	document,err := models.NewDocument().Find(attach.DocumentId)
+
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(6003,"文档不存在")
+	}
+	if c.Member.Role != conf.MemberSuperRole {
+		rel,err := models.NewRelationship().FindByBookIdAndMemberId(document.BookId,c.Member.MemberId)
+		if err != nil {
+			beego.Error(err)
+			c.JsonResult(6004,"权限不足")
+		}
+		if rel.RoleId == conf.BookObserver {
+			c.JsonResult(6004,"权限不足")
+		}
+	}
+	err = attach.Delete()
+
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(6005,"删除失败")
+	}
+	c.JsonResult(0,"ok",attach)
+}
 //删除文档.
 func (c *DocumentController) Delete() {
 	c.Prepare()
@@ -627,6 +675,10 @@ func (c *DocumentController) Content()  {
 
 	if err != nil {
 		c.JsonResult(6003,"文档不存在")
+	}
+	attach,err := models.NewAttachment().FindListByDocumentId(doc.DocumentId)
+	if err == nil {
+		doc.AttachList = attach
 	}
 	c.JsonResult(0,"ok",doc)
 }

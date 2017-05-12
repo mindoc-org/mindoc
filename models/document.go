@@ -28,6 +28,7 @@ type Document struct {
 	ModifyTime time.Time	`orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	ModifyAt int		`orm:"column(modify_at);type(int)" json:"-"`
 	Version int64		`orm:"type(bigint);column(version)" json:"version"`
+	AttachList []*Attachment `orm:"-" json:"attach"`
 }
 
 

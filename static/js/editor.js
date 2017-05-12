@@ -140,6 +140,23 @@ function pushDocumentCategory($node) {
     }
     window.documentCategory.push($node);
 }
+/**
+ * 将数据重置到Vue列表中
+ * @param $lists
+ */
+function pushVueLists($lists) {
+    for(var i in window.vueApp.lists){
+        var item = window.vueApp.lists[i];
+        window.vueApp.lists.$remove(item);
+    }
+
+    for(var j in $lists){
+        var item = $lists[j];
+        window.vueApp.lists.push(item);
+    }
+    console.log(window.vueApp.lists)
+    $("#attachInfo").text(" " + window.vueApp.lists.length + " 个附件")
+}
 
 //实现小提示
 $("[data-toggle='tooltip']").hover(function () {

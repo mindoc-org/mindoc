@@ -8,8 +8,8 @@
     <title>配置管理 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="/static/css/main.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -77,10 +77,11 @@
                                 </label>
                             </div>
                         </div>
-                            <div class="form-group">
-                                <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
-                                <span id="form-error-message" class="error-message"></span>
-                            </div>
+
+                        <div class="form-group">
+                            <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
+                            <span id="form-error-message" class="error-message"></span>
+                        </div>
                         </form>
 
                     <div class="clearfix"></div>
@@ -93,9 +94,9 @@
 </div>
 
 
-<script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="/static/js/jquery.form.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="/static/js/main.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
