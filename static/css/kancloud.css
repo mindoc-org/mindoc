@@ -78,6 +78,7 @@ h6 {
 .m-manual.manual-reader .manual-head .slidebar {
     display: none
 }
+
 .m-manual .manual-head {
     min-width: 980px;
     height: 54px;
@@ -858,7 +859,6 @@ h6 {
         font-size:12px;
         min-width: initial
     }
-
 
     .m-manual.manual-reader .manual-head {
         min-width: initial

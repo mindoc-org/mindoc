@@ -8,10 +8,10 @@
     <title>概要 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
 
-    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/main.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -83,10 +83,11 @@
                             <span class="title">担任角色：</span>
                             <span class="body">{{.Model.RoleName}}</span>
                         </div>
-                       {{/* <div class="list">
+                       <!-- {{/* <div class="list">
                             <span class="title">评论数量：</span>
                             <span class="body">{{.Model.CommentCount}} 条</span>
                         </div>*/}}
+                        -->
                     <div class="list">
                         <span class="title">文档标签：</span>
                         <span class="body">{{.Model.Label}}</span>
@@ -100,9 +101,9 @@
     </div>
     {{template "widgets/footer.tpl" .}}
 </div>
-<script src="/static/jquery/1.12.4/jquery.min.js"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js"></script>
-<script src="/static/layer/layer.js"></script>
+<script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
+<script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
+<script src="{{cdnjs "/static/layer/layer.js"}}"></script>
 <script src="/static/js/main.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {

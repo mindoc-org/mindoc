@@ -650,9 +650,18 @@ func (c *DocumentController) Export() {
 		c.Redirect(beego.URLFor("AccountController.Login"),302)
 		return
 	}
-	book := isReadable(identify,token,c)
-
-	docs, err := models.NewDocument().FindListByBookId(book.BookId)
+	bookResult := models.NewBookResult()
+	if c.Member != nil && c.Member.Role == conf.MemberSuperRole {
+		book,err := models.NewBook().FindByIdentify(identify)
+		if err != nil {
+			beego.Error(err)
+			c.Abort("500")
+		}
+		bookResult = book.ToBookResult()
+	}else {
+		bookResult = isReadable(identify, token, c)
+	}
+	docs, err := models.NewDocument().FindListByBookId(bookResult.BookId)
 
 	if err != nil {
 		beego.Error(err)
@@ -669,18 +678,18 @@ func (c *DocumentController) Export() {
 			c.Data["ErrorCode"] = 50010
 			return
 		}
-		dpath := "cache/" + book.Identify
+		dpath := "cache/" + bookResult.Identify
 
 		os.MkdirAll(dpath, 0766)
 
 		pathList := list.New()
 
-		RecursiveFun(0, "", dpath, c, book, docs, pathList)
+		RecursiveFun(0, "", dpath, c, bookResult, docs, pathList)
 
-		//defer os.RemoveAll(dpath)
+		defer os.RemoveAll(dpath)
 
 		os.MkdirAll("./cache", 0766)
-		pdfpath := "cache/" + identify + ".pdf"
+		pdfpath := "cache/" + identify + "_" + c.CruSession.SessionID() + ".pdf"
 
 		if _,err := os.Stat(pdfpath); os.IsNotExist(err){
 			paths := make([]string, len(docs))
@@ -697,10 +706,12 @@ func (c *DocumentController) Export() {
 
 		c.Ctx.Output.Download(pdfpath, identify + ".pdf")
 
+		defer os.Remove(pdfpath)
+
 		c.StopRun()
 	}
 
-	c.StopRun()
+	c.Abort("404")
 }
 
 //递归生成文档序列数组.

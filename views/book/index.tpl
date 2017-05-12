@@ -140,6 +140,7 @@
                     </div>
                     <div class="clearfix"></div>
                 </div>
+                <!--
 				{{/*
                 <div class="form-group">
                     <div class="col-lg-3">
@@ -165,6 +166,7 @@
                     <div class="clearfix"></div>
                 </div>
 				*/}}
+				-->
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
@@ -181,7 +183,7 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
+<script src="/static/js/main.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#addBookDialogForm").ajaxForm({

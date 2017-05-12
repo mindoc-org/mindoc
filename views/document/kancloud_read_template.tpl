@@ -25,7 +25,7 @@
         <div class="container-fluid">
             <div class="navbar-header pull-left manual-title">
                 <span class="slidebar" id="slidebar"><i class="fa fa-align-justify"></i></span>
-                SmartWiki帮助手册
+
                 <span style="font-size: 12px;font-weight: 100;">v 0.1.1</span>
             </div>
             <div class="navbar-header pull-right manual-menu">
@@ -61,7 +61,7 @@
             </div>
             <div class="m-copyright">
                 <p>
-                    本文档使用 <a href="https://doc.iminho.me" target="_blank">MinDoc</a> 发布
+                    本文档使用 <a href="https://www.iminho.me" target="_blank">MinDoc</a> 发布
                 </p>
             </div>
         </div>

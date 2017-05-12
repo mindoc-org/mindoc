@@ -8,8 +8,8 @@
     <title>用户中心 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
 
     <link href="/static/css/main.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -55,13 +55,14 @@
                         <span class="fa-class">会员数量</span>
                         <span class="fa-class">{{.Model.MemberNumber}}</span>
                     </div>
+                    <!--
                     {{/*
                     <div class="dashboard-item">
                         <span class="fa fa-comments-o" aria-hidden="true"></span>
                         <span class="fa-class">评论数量</span>
                         <span class="fa-class">{{.Model.CommentNumber}}</span>
                     </div>
-                */}}
+                */}}-->
                     <div class="dashboard-item">
                         <span class="fa fa-cloud-download" aria-hidden="true"></span>
                         <span class="fa-class">附件数量</span>
@@ -72,7 +73,7 @@
         </div>
     </div>
 </div>
-<script src="/static/jquery/1.12.4/jquery.min.js"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+<script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
+<script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 </body>
 </html>

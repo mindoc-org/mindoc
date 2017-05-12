@@ -8,10 +8,10 @@
     <title>设置 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/static/webuploader/webuploader.css" rel="stylesheet">
-    <link href="/static/cropper/2.3.4/cropper.min.css" rel="stylesheet">
+    <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/cropper/2.3.4/cropper.min.css"}}" rel="stylesheet">
     <link href="/static/css/main.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -83,6 +83,7 @@
                                     </label>
                                 </div>
                             </div>
+                            <!--
                             {{/*
                             <div class="form-group">
                             <label>开启评论</label>
@@ -102,6 +103,7 @@
                     </div>
                 </div>
                 */}}
+                -->
                 {{if eq .Model.PrivatelyOwned 1}}
                 <div class="form-group">
                     <label>访问令牌</label>
@@ -264,11 +266,11 @@
     </div>
 </div>
 
-<script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="/static/webuploader/webuploader.min.js" type="text/javascript"></script>
-<script src="/static/cropper/2.3.4/cropper.min.js" type="text/javascript"></script>
-<script src="/static/js/jquery.form.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/cropper/2.3.4/cropper.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="/static/js/main.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {

@@ -121,15 +121,15 @@
         </form>
     </div>
 </div>
-<script src="/static/jquery/1.12.4/jquery.min.js"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js"></script>
-<script src="/static/jstree/3.3.4/jstree.min.js" type="text/javascript"></script>
-<script src="/static/wangEditor/js/wangEditor.min.js" type="text/javascript"></script>
-<script src="/static/wangEditor/plugins/save-menu.js" type="text/javascript"></script>
-<script src="/static/wangEditor/plugins/release-menu.js" type="text/javascript"></script>
-<script type="text/javascript" src="/static/layer/layer.js"></script>
-<script src="/static/to-markdown/dist/to-markdown.js" type="text/javascript"></script>
-<script src="/static/js/jquery.form.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
+<script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
+<script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/wangEditor/js/wangEditor.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/wangEditor/plugins/save-menu.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/wangEditor/plugins/release-menu.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
+<script src="{{cdnjs "/static/to-markdown/dist/to-markdown.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="/static/js/editor.js" type="text/javascript"></script>
 <script src="/static/js/html-editor.js" type="text/javascript"></script>
 </body>

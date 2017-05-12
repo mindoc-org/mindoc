@@ -16,29 +16,34 @@
                     </button>
                 </form>
             </div>
-            {{/*
+
             <div class="btn-group dropdown-menu-right pull-right slidebar visible-xs-inline-block visible-sm-inline-block">
                 <button class="btn btn-default dropdown-toggle hidden-lg" type="button" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
                 <ul class="dropdown-menu" role="menu">
-                    <li class="active"><a href="https://wiki.iminho.me/member/projects" class="item"><i class="fa fa-sitemap"></i> 我的项目</a> </li>
-                    <li><a href="https://wiki.iminho.me/member" class="item"><i class="fa fa-user"></i> 个人资料</a> </li>
-                    <li><a href="https://wiki.iminho.me/member/account" class="item"><i class="fa fa-lock"></i> 修改密码</a> </li>
-                    <li><a href="https://wiki.iminho.me/member/setting" class="item"><i class="fa fa-gear"></i> 开发配置</a> </li>
-                    <li><a href="https://wiki.iminho.me/setting/site" class="item"><i class="fa fa-cogs"></i> 网站设置</a> </li>
-                    <li><a href="https://wiki.iminho.me/member/users" class="item"><i class="fa fa-group"></i> 用户管理</a> </li>
+                    <li>
+                        <a href="{{urlfor "SettingController.Index"}}" title="个人中心"><i class="fa fa-user" aria-hidden="true"></i> 个人中心</a>
+                    </li>
+                    <li>
+                        <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
+                    </li>
+                    {{if eq .Member.Role 0 }}
+                    <li>
+                        <a href="{{urlfor "ManagerController.Index"}}" title="管理后台"><i class="fa fa-university" aria-hidden="true"></i> 管理后台</a>
+                    </li>
+                    {{end}}
                     <li>
                         <a href="{{urlfor "AccountController.Logout"}}" title="退出登录"><i class="fa fa-sign-out"></i> 退出登录</a>
                     </li>
                 </ul>
             </div>
-        */}}
+
         </div>
         <nav class="navbar-collapse hidden-xs hidden-sm" role="navigation">
             <ul class="nav navbar-nav navbar-right">
                 {{if gt .Member.MemberId 0}}
                 <li>
                     <div class="img user-info" data-toggle="dropdown">
-                        <img src="{{.Member.Avatar}}" class="img-circle userbar-avatar">
+                        <img src="{{cdnimg .Member.Avatar}}" class="img-circle userbar-avatar" alt="{{.Member.Account}}">
                         <div class="userbar-content">
                             <span>{{.Member.Account}}</span>
                             <div>{{.Member.RoleName}}</div>

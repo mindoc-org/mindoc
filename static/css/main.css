@@ -53,6 +53,9 @@ textarea{
     font-weight: 500;
     color: #563d7c
 }
+.manual-reader .slidebar {
+    margin: 5px 10px 0 0;
+}
 .user-info{
     border: 0;
     background-color: #ffffff;
@@ -108,6 +111,7 @@ textarea{
     background-color: #f5f5f5;
     border-right: 1px solid #eaeaea
 }
+
 .manual-body .page-left .menu {
     padding: 18px 0
 }
@@ -138,8 +142,10 @@ textarea{
 }
 .manual-body .page-right {
     padding: 15px 0 15px 24px;
-    margin-left: 200px
+    margin-left: 200px;
+    min-width: 400px;
 }
+
 .manual-body .page-right .box-head{
     border-bottom: 1px solid #DDDDD9;
 }
@@ -533,6 +539,23 @@ textarea{
 }
 .footer li a:hover {
     color: #2b85ae
+}
+@media screen and (max-width: 840px) {
+    .manual-body .page-left{
+        display: none;
+    }
+    .manual-body .page-right {
+        margin-left: 0;
+    }
+    .manual-body .page-right .box-body .form-right{
+        display: none;
+    }
+    .manual-body .page-right .box-body{
+        padding-right: 0 !important;
+    }
+    .footer .container .row{
+        margin-left: 0;
+    }
 }
 
 
