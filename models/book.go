@@ -134,6 +134,14 @@ func (m *Book) FindByFieldFirst(field string,value interface{})(*Book,error) {
 
 }
 
+func (m *Book) FindByIdentify(identify string) (*Book,error) {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("identify",identify).One(m)
+
+	return m,err
+}
+
 //分页查询指定用户的项目
 func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []*BookResult,totalCount int,err error){
 

@@ -13,6 +13,7 @@ import (
 	"github.com/lifei6671/gocaptcha"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
+	"strings"
 )
 
 // RegisterDataBase 注册数据库
@@ -86,6 +87,48 @@ func RegisterCommand() {
 
 func RegisterFunction() {
 	beego.AddFuncMap("config", models.GetOptionValue)
+
+	beego.AddFuncMap("cdn", func(p string) string {
+		cdn := beego.AppConfig.DefaultString("cdn","")
+		if strings.HasPrefix(p,"/") && strings.HasSuffix(cdn,"/"){
+			return cdn + string(p[1:])
+		}
+		if !strings.HasPrefix(p,"/") && !strings.HasSuffix(cdn,"/"){
+			return cdn + "/" + p
+		}
+		return cdn + p
+	});
+
+	beego.AddFuncMap("cdnjs", func(p string) string {
+		cdn := beego.AppConfig.DefaultString("cdnjs","")
+		if strings.HasPrefix(p,"/") && strings.HasSuffix(cdn,"/"){
+			return cdn + string(p[1:])
+		}
+		if !strings.HasPrefix(p,"/") && !strings.HasSuffix(cdn,"/"){
+			return cdn + "/" + p
+		}
+		return cdn + p
+	});
+	beego.AddFuncMap("cdncss", func(p  string) string {
+		cdn := beego.AppConfig.DefaultString("cdncss","")
+		if strings.HasPrefix(p,"/") && strings.HasSuffix(cdn,"/"){
+			return cdn + string(p[1:])
+		}
+		if !strings.HasPrefix(p,"/") && !strings.HasSuffix(cdn,"/"){
+			return cdn + "/" + p
+		}
+		return cdn + p
+	});
+	beego.AddFuncMap("cdnimg", func(p string) string {
+		cdn := beego.AppConfig.DefaultString("cdnimg","")
+		if strings.HasPrefix(p,"/") && strings.HasSuffix(cdn,"/"){
+			return cdn + string(p[1:])
+		}
+		if !strings.HasPrefix(p,"/") && !strings.HasSuffix(cdn,"/"){
+			return cdn + "/" + p
+		}
+		return cdn + p
+	});
 }
 
 func init() {

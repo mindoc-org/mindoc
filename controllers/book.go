@@ -505,24 +505,35 @@ func (c *BookController) Release() {
 	c.Prepare()
 
 	identify := c.GetString("identify")
-	book ,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
 
-	if err != nil {
-		if err == models.ErrPermissionDenied {
-			c.JsonResult(6001,"权限不足")
-		}
-		if err == orm.ErrNoRows {
-			c.JsonResult(6002,"项目不存在")
-		}
-		beego.Error(err)
-		c.JsonResult(6003,"未知错误")
-	}
-	if book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder && book.RoleId != conf.BookEditor{
-		c.JsonResult(6003,"权限不足")
-	}
+	book_id := 0
 
+	if c.Member.Role == conf.MemberSuperRole {
+		book,err := models.NewBook().FindByFieldFirst("identify",identify)
+		if err != nil {
+
+		}
+		book_id = book.BookId
+	}else {
+		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+		if err != nil {
+			if err == models.ErrPermissionDenied {
+				c.JsonResult(6001, "权限不足")
+			}
+			if err == orm.ErrNoRows {
+				c.JsonResult(6002, "项目不存在")
+			}
+			beego.Error(err)
+			c.JsonResult(6003, "未知错误")
+		}
+		if book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder && book.RoleId != conf.BookEditor {
+			c.JsonResult(6003, "权限不足")
+		}
+		book_id = book.BookId
+	}
 	go func(identify string) {
-		models.NewDocument().ReleaseContent(book.BookId)
+		models.NewDocument().ReleaseContent(book_id)
 		pdfpath := "cache/" + identify + ".pdf"
 
 		if _,err := os.Stat(pdfpath); os.IsExist(err){

@@ -340,7 +340,11 @@ h6 {
     margin-left: auto!important;
     margin-right: auto!important
 }
-
+@media screen and (max-width: 840px) {
+    .manual-article .article-content{
+        min-width: inherit;
+    }
+}
 .manual-article .article-content .article-body{
     min-height: 90px;
     padding: 5px;

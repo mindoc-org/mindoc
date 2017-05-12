@@ -32,6 +32,10 @@ func isReadable (identify,token string,c *DocumentController) *models.BookResult
 		beego.Error(err)
 		c.Abort("500")
 	}
+	if c.Member != nil && c.Member.Role == conf.MemberSuperRole {
+		bookResult := book.ToBookResult()
+		return bookResult
+	}
 	//如果文档是私有的
 	if book.PrivatelyOwned == 1 {
 
@@ -61,6 +65,7 @@ func isReadable (identify,token string,c *DocumentController) *models.BookResult
 	bookResult := book.ToBookResult()
 
 	if c.Member != nil {
+
 		rel, err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId, c.Member.MemberId)
 
 		if err == nil {
@@ -191,16 +196,27 @@ func (c *DocumentController) Edit()  {
 		c.Abort("404")
 	}
 
-	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+	bookResult := models.NewBookResult()
+	//如果是超级管理者，则不判断权限
+	if c.Member.Role == conf.MemberSuperRole {
+		book,err := models.NewBook().FindByFieldFirst("identify",identify)
+		if err != nil {
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		bookResult = book.ToBookResult()
 
-	if err != nil {
-		beego.Error("DocumentController.Edit => ",err)
+	}else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
-		c.Abort("403")
-	}
-	if bookResult.RoleId == conf.BookObserver {
+		if err != nil {
+			beego.Error("DocumentController.Edit => ", err)
 
-		c.JsonResult(6002,"项目不存在或权限不足")
+			c.Abort("403")
+		}
+		if bookResult.RoleId == conf.BookObserver {
+
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
 	}
 
 	//根据不同编辑器类型加载编辑器
@@ -260,16 +276,27 @@ func (c *DocumentController) Create() {
 			c.JsonResult(6006,"文档标识已被使用")
 		}
 	}
+	book_id := 0
+	//如果是超级管理员则不判断权限
+	if c.Member.Role == conf.MemberSuperRole {
+		book,err := models.NewBook().FindByFieldFirst("identify",identify)
+		if err != nil {
+			beego.Error(err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = book.BookId
+	}else{
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
-	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
-
-	if err != nil || bookResult.RoleId == conf.BookObserver {
-		beego.Error("FindByIdentify => ",err)
-		c.JsonResult(6002,"项目不存在或权限不足")
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = bookResult.BookId
 	}
 	if parent_id > 0 {
 		doc,err := models.NewDocument().Find(parent_id)
-		if err != nil || doc.BookId != bookResult.BookId{
+		if err != nil || doc.BookId != book_id {
 			c.JsonResult(6003,"父分类不存在")
 		}
 	}
@@ -277,7 +304,7 @@ func (c *DocumentController) Create() {
 	document,_ := models.NewDocument().Find(doc_id)
 
 	document.MemberId = c.Member.MemberId
-	document.BookId = bookResult.BookId
+	document.BookId = book_id
 	if doc_identify != ""{
 		document.Identify = doc_identify
 	}
@@ -330,26 +357,39 @@ func (c *DocumentController) Upload()  {
 	if !conf.IsAllowUploadFileExt(ext) {
 		c.JsonResult(6004,"不允许的文件类型")
 	}
+	book_id := 0
+	//如果是超级管理员，则不判断权限
+	if c.Member.Role == conf.MemberSuperRole {
+		book,err := models.NewBook().FindByFieldFirst("identify",identify)
 
-	book,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
-
-	if err != nil {
-		beego.Error("DocumentController.Edit => ",err)
-		if err == orm.ErrNoRows {
-			c.JsonResult(6006,"权限不足")
+		if err != nil {
+			c.JsonResult(6006, "文档不存在或权限不足")
 		}
-		c.JsonResult(6001,err.Error())
+		book_id = book.BookId
+
+	}else{
+		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+		if err != nil {
+			beego.Error("DocumentController.Edit => ", err)
+			if err == orm.ErrNoRows {
+				c.JsonResult(6006, "权限不足")
+			}
+			c.JsonResult(6001, err.Error())
+		}
+		//如果没有编辑权限
+		if book.RoleId != conf.BookEditor && book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder {
+			c.JsonResult(6006, "权限不足")
+		}
+		book_id = book.BookId
 	}
-	//如果没有编辑权限
-	if book.RoleId != conf.BookEditor && book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder {
-		c.JsonResult(6006,"权限不足")
-	}
+
 	if doc_id > 0 {
 		doc,err := models.NewDocument().Find(doc_id);
 		if err != nil {
 			c.JsonResult(6007,"文档不存在")
 		}
-		if doc.BookId != book.BookId {
+		if doc.BookId != book_id {
 			c.JsonResult(6008,"文档不属于指定的项目")
 		}
 	}
@@ -369,7 +409,7 @@ func (c *DocumentController) Upload()  {
 		c.JsonResult(6005,"保存文件失败")
 	}
 	attachment := models.NewAttachment()
-	attachment.BookId = book.BookId
+	attachment.BookId = book_id
 	attachment.FileName = moreFile.Filename
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
@@ -431,19 +471,23 @@ func (c *DocumentController) DownloadAttachment()  {
 
 	if err != nil {
 		//判断项目公开状态
-		book,err := models.NewBook().FindByFieldFirst("identify",identify)
+		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			c.Abort("404")
 		}
-		//如果项目是私有的，并且token不正确
-		if (book.PrivatelyOwned == 1 && token == "" ) || ( book.PrivatelyOwned == 1 && book.PrivateToken != token ){
-			c.Abort("403")
+		//如果不是超级管理员则判断权限
+		if c.Member == nil || c.Member.Role != conf.MemberSuperRole {
+			//如果项目是私有的，并且token不正确
+			if (book.PrivatelyOwned == 1 && token == "" ) || ( book.PrivatelyOwned == 1 && book.PrivateToken != token ) {
+				c.Abort("403")
+			}
 		}
+
 		book_id = book.BookId
 	}else{
 		book_id = bookResult.BookId
 	}
-
+	//查找附件
 	attachment,err := models.NewAttachment().Find(attach_id)
 
 	if err != nil {
@@ -469,11 +513,23 @@ func (c *DocumentController) Delete() {
 	identify := c.GetString("identify")
 	doc_id,err := c.GetInt("doc_id",0)
 
-	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+	book_id := 0
+	//如果是超级管理员则忽略权限判断
+	if c.Member.Role == conf.MemberSuperRole {
+		book,err := models.NewBook().FindByFieldFirst("identify",identify)
+		if err != nil {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = book.BookId
+	}else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
-	if err != nil || bookResult.RoleId == conf.BookObserver {
-		beego.Error("FindByIdentify => ",err)
-		c.JsonResult(6002,"项目不存在或权限不足")
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = bookResult.BookId
 	}
 
 	if doc_id <= 0 {
@@ -486,9 +542,11 @@ func (c *DocumentController) Delete() {
 		beego.Error("Delete => ",err)
 		c.JsonResult(6003,"删除失败")
 	}
-	if doc.BookId != bookResult.BookId {
+	//如果文档所属项目错误
+	if doc.BookId != book_id {
 		c.JsonResult(6004,"参数错误")
 	}
+	//递归删除项目下的文档以及子文档
 	err = doc.RecursiveDocument(doc.DocumentId)
 	if err != nil {
 		c.JsonResult(6005,"删除失败")
@@ -508,12 +566,22 @@ func (c *DocumentController) Content()  {
 	if err != nil {
 		doc_id,_ = strconv.Atoi(c.Ctx.Input.Param(":id"))
 	}
+	book_id := 0
+	//如果是超级管理员，则忽略权限
+	if c.Member.Role == conf.MemberSuperRole {
+		book ,err := models.NewBook().FindByFieldFirst("identify",identify)
+		if err != nil {
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = book.BookId
+	}else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
-	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
-
-	if err != nil || bookResult.RoleId == conf.BookObserver {
-		beego.Error("FindByIdentify => ",err)
-		c.JsonResult(6002,"项目不存在或权限不足")
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = bookResult.BookId
 	}
 
 	if doc_id <= 0 {
@@ -531,7 +599,7 @@ func (c *DocumentController) Content()  {
 		if err != nil {
 			c.JsonResult(6003,"读取文档错误")
 		}
-		if doc.BookId != bookResult.BookId {
+		if doc.BookId != book_id {
 			c.JsonResult(6004,"保存的文档不属于指定项目")
 		}
 		if doc.Version != version && !strings.EqualFold(is_cover,"yes"){
@@ -580,10 +648,6 @@ func (c *DocumentController) Export() {
 		return
 	}
 	book := isReadable(identify,token,c)
-
-	if book.PrivatelyOwned == 1 {
-
-	}
 
 	docs, err := models.NewDocument().FindListByBookId(book.BookId)
 

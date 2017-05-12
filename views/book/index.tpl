@@ -5,13 +5,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>我的文档 - Powered by MinDoc</title>
+    <title>我的项目 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">
+    <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet" type="text/css">
 
-    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/main.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -70,7 +70,7 @@
                                         &nbsp;
                                     </template>
                                     <template v-else="">
-                                        <a :href="'/book/' + item.identify + '/dashboard'" title="项目概要" style="font-size: 12px;" target="_blank">
+                                        <a :href="'/book/' + item.identify + '/dashboard'" title="项目概要" style="font-size: 12px;">
                                         ${item.description}
                                         </a>
                                     </template>
@@ -177,11 +177,11 @@
     </div>
 </div><!--END Modal-->
 
-<script src="/static/jquery/1.12.4/jquery.min.js"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js"></script>
-<script src="/static/vuejs/vue.min.js" type="text/javascript"></script>
-<script src="/static/js/jquery.form.js" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#addBookDialogForm").ajaxForm({
