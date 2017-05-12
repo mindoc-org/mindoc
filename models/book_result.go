@@ -119,7 +119,13 @@ func (m *BookResult) FindToPager(pageIndex, pageSize int) (books []*BookResult,t
 	}
 	totalCount = int(count)
 
-	sql := "SELECT book.*,rel.relationship_id,rel.role_id,m.account AS create_name FROM md_books AS book LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0 LEFT JOIN md_members AS m ON rel.member_id = m.member_id ORDER BY book.order_index DESC ,book.book_id DESC  LIMIT ?,?"
+	sql := `SELECT
+			book.*,rel.relationship_id,rel.role_id,m.account AS create_name
+		FROM md_books AS book
+			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
+			LEFT JOIN md_members AS m ON rel.member_id = m.member_id
+		ORDER BY book.order_index DESC ,book.book_id DESC  LIMIT ?,?`
+
 	offset := (pageIndex -1 )* pageSize
 
 	_,err = o.Raw(sql,offset,pageSize).QueryRows(&books)
