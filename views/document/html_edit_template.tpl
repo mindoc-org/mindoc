@@ -144,7 +144,7 @@
                     </div>
                     <div class="attach-list" id="attachList">
                         <template v-for="item in lists">
-                            <div class="attach-item" :id="item.id">
+                            <div class="attach-item" :id="item.attachment_id">
                                 <template v-if="item.state == 'wait'">
                                     <div class="progress">
                                         <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
