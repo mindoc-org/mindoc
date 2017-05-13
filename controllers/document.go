@@ -760,9 +760,8 @@ func (c *DocumentController) Export() {
 		pdfpath := "cache/" + identify + "_" + c.CruSession.SessionID() + ".pdf"
 
 		if _,err := os.Stat(pdfpath); os.IsNotExist(err){
-			paths := make([]string, len(docs))
-			index := 0
 
+			wkhtmltopdf.SetPath(beego.AppConfig.String("wkhtmltopdf"))
 			pdfg, err := wkhtmltopdf.NewPDFGenerator()
 
 			if err != nil {
@@ -771,7 +770,9 @@ func (c *DocumentController) Export() {
 			}
 
 			for e := pathList.Front(); e != nil; e = e.Next() {
-				pdfg.AddPage(wkhtmltopdf.NewPage(paths[index]))
+				if page,ok := e.Value.(string); ok {
+					pdfg.AddPage(wkhtmltopdf.NewPage(page))
+				}
 			}
 			err = pdfg.Create()
 			if err != nil {
