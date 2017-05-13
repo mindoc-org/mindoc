@@ -822,6 +822,9 @@ func (c *DocumentController) QrCode() {
 		c.Abort("500")
 	}
 	c.Ctx.ResponseWriter.Header().Set("Content-Type", "image/png")
+
+	//imgpath := filepath.Join("cache","qrcode",identify + ".png")
+
 	err = png.Encode(c.Ctx.ResponseWriter, code)
 	if err != nil {
 		beego.Error(err)

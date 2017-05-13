@@ -62,7 +62,7 @@ func init()  {
 	beego.Router("/docs/:key", &controllers.DocumentController{},"*:Index")
 	beego.Router("/docs/:key/:id", &controllers.DocumentController{},"*:Read")
 	beego.Router("/export/:key", &controllers.DocumentController{},"*:Export")
-	beego.Router("/qrcode/:key",&controllers.DocumentController{},"get:QrCode")
+	beego.Router("/qrcode/:key.png",&controllers.DocumentController{},"get:QrCode")
 
 	beego.Router("/attach_files/:key/:attach_id",&controllers.DocumentController{},"get:DownloadAttachment")
 
