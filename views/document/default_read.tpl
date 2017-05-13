@@ -28,12 +28,12 @@
     <![endif]-->
 </head>
 <body>
-<div class="m-manual manual-reader">
+<div class="m-manual manual-mode-view manual-reader">
     <header class="navbar navbar-static-top manual-head" role="banner">
         <div class="container-fluid">
             <div class="navbar-header pull-left manual-title">
                 <span class="slidebar" id="slidebar"><i class="fa fa-align-justify"></i></span>
-                {{.Model.BookName}}
+                <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" title="{{.Model.BookName}}" class="book-title">{{.Model.BookName}}</a>
                 <span style="font-size: 12px;font-weight: 100;"></span>
             </div>
             <div class="navbar-header pull-right manual-menu">
@@ -67,6 +67,7 @@
             <div class="manual-tab">
                 <div class="tab-navg">
                     <span data-mode="view" class="navg-item active"><i class="fa fa-align-justify"></i><b class="text">目录</b></span>
+                    <span data-mode="search" class="navg-item"><i class="fa fa-search"></i><b class="text">搜索</b></span>
                 </div>
                 <div class="tab-util">
                     <span class="manual-fullscreen-switch">
@@ -80,6 +81,25 @@
                         {{.Result}}
                         </div>
 
+                    </div>
+                    <div class="tab-item manual-search">
+                        <div class="search-container">
+                            <div class="search-form">
+                                <form id="searchForm" action="{{urlfor "DocumentController.Search" ":key" .Model.Identify}}" method="post">
+                                    <div class="form-group">
+                                        <input type="search" placeholder="请输入搜索关键字" class="form-control" name="keyword">
+                                        <button type="submit" class="btn btn-default btn-search">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="search-result">
+                                <ul class="search-list">
+                                    <li data-id="256300"><span class="text">下载及安装</span></li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -195,6 +215,7 @@
 </div>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
+<script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script type="text/javascript" src="{{cdnjs "/static/nprogress/nprogress.js"}}"></script>
 <script type="text/javascript" src="{{cdnjs "/static/highlight/highlight.js"}}"></script>
@@ -310,6 +331,24 @@
             }
             initHighlighting();
 
+        });
+
+        $(".navg-item[data-mode]").on("click",function () {
+            var mode = $(this).data('mode');
+            $(this).siblings().removeClass('active').end().addClass('active');
+           $(".m-manual").removeClass("manual-mode-view manual-mode-collect manual-mode-search").addClass("manual-mode-" + mode);
+        });
+        
+        $("#searchForm").ajaxForm({ 
+            beforeSubmit : function () {
+                var keyword = $.trim($("#searchForm").find("input[name='keyword']").val());
+                if(keyword === ""){
+                    return false;
+                }
+            },
+            success :function () {
+
+            }
         });
     });
 </script>

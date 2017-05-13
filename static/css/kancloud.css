@@ -138,9 +138,6 @@ h6 {
 .m-manual .manual-tab .tab-navg {
     zoom:1;border-bottom: 1px solid #ddd
 }
-.m-manual .manual-tab .tab-navg {
-    zoom:1;border-bottom: 1px solid #ddd
-}
 
 .m-manual .manual-tab .tab-util {
     position: absolute;
@@ -244,16 +241,14 @@ h6 {
 .m-manual .manual-tab .tab-navg .navg-item.active .icon,.m-manual .manual-tab .tab-navg .navg-item.active:hover .icon,.m-manual .manual-tab .tab-navg .navg-item:hover .icon {
     color: #333
 }
-.m-manual .manual-catalog {
-    display: block !important;
-}
 .m-manual .manual-tab .tab-navg .navg-item.active {
     border-bottom: 1px solid #fafafa;
     margin-bottom: -1px;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
     padding-left: 8px;
-    padding-right: 8px
+    padding-right: 8px;
+    height: 31px;
 }
 .m-manual .manual-tab .tab-item {
     display: none;
@@ -269,6 +264,24 @@ h6 {
 
 .m-manual .manual-tab .tab-item.active {
     display: block
+}
+.m-manual.manual-mode-search .manual-search {
+    display: block
+}
+.m-manual.manual-mode-view .manual-catalog {
+    display: block
+}
+.m-manual .manual-search .search-form{
+    margin: 5px ;
+    position: relative;
+}
+.m-manual .manual-search .btn-search{
+    background-color: #ffffff;
+    border: 0;
+    padding: 5px;
+    position: absolute;
+    top: 2px;
+    right: 5px;
 }
 .m-manual .manual-left .m-copyright {
     border-top: 0;
@@ -321,6 +334,13 @@ h6 {
 .manual-article .article-head {
     position: relative;
     zoom:1;padding: 10px 20px
+}
+.manual-reader .book-title{
+    color: #333333;
+}
+.manual-reader .book-title:hover{
+    text-decoration: none;
+    color: #333333;
 }
 
 .manual-article .article-head h1 {

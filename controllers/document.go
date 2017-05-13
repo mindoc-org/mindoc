@@ -832,6 +832,12 @@ func (c *DocumentController) QrCode() {
 	}
 }
 
+func (c *DocumentController) Search()  {
+	c.Prepare()
+	
+	c.JsonResult(0,"ok")
+}
+
 //递归生成文档序列数组.
 func RecursiveFun(parent_id int, prefix, dpath string, c *DocumentController, book *models.BookResult, docs []*models.Document, paths *list.List) {
 	for _, item := range docs {
