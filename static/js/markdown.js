@@ -52,8 +52,6 @@ $(function () {
             resetEditorChanged(true);
         }
     });
-    editormd.loadPlugin("/static/editor.md/plugins/file-dialog/file-dialog");
-
 
     /**
      * 实现标题栏操作
@@ -61,7 +59,7 @@ $(function () {
     $("#editormd-tools").on("click","a[class!='disabled']",function () {
        var name = $(this).find("i").attr("name");
        if(name === "attachment"){
-            window.editor.fileDialog();
+           $("#uploadAttachModal").modal("show");
        }else if(name === "history"){
 
        }else if(name === "save"){
@@ -145,7 +143,7 @@ $(function () {
                 var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
                 pushDocumentCategory(node);
                 window.selectNode = node;
-
+                pushVueLists(res.data.attach);
             }else{
                 layer.msg("文档加载失败");
             }

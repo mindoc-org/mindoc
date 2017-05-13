@@ -259,6 +259,7 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 
 }
 
+//分页查找系统首页数据.
 func (m *Book) FindForHomeToPager(pageIndex, pageSize ,member_id int) (books []*BookResult,totalCount int,err error) {
 	o := orm.NewOrm()
 

@@ -84,7 +84,7 @@
                 <div id="htmlEditor" class="manual-editormd-active" style="height: 100%"></div>
             </div>
             <div class="manual-editor-status">
-                <div id="attachInfo" class="item"></div>
+                <div id="attachInfo" class="item">0 个附件</div>
             </div>
         </div>
 
@@ -153,13 +153,13 @@
                                     </div>
                                 </template>
                                 <template v-else-if="item.state == 'error'">
-                                    <div class="error-message text">
-                                        上传失败
-                                    </div>
+                                    <span class="error-message">${item.message}</span>
+                                    <button type="button" class="btn btn-sm close" @click="removeAttach(item.attachment_id)">
+                                        <i class="fa fa-remove" aria-hidden="true"></i>
+                                    </button>
                                 </template>
                                 <template v-else>
-                                    <input type="hidden" name="attach_id[0]" :value="item.attach_id">
-                                    <input type="text" class="form-control" placeholder="附件名称" :value="item.file_name">
+                                    <a :href="item.http_path" target="_blank" :title="item.file_name">${item.file_name}</a>
                                     <span class="text">(${(item.file_size/1024/1024).toFixed(4)}MB)</span>
                                     <span class="error-message">${item.message}</span>
                                     <button type="button" class="btn btn-sm close" @click="removeAttach(item.attachment_id)">
@@ -174,7 +174,7 @@
                 <div class="modal-footer">
                     <span id="add-error-message" class="error-message"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile">确定</button>
+                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile" data-dismiss="modal">确定</button>
                 </div>
             </div>
         </form>
@@ -202,8 +202,17 @@
         delimiters : ['${','}'],
         methods : {
             removeAttach : function ($attach_id) {
-                console.log($attach_id);
                 var $this = this;
+                var item = $this.lists.filter(function ($item) {
+                   return $item.attachment_id == $attach_id;
+                });
+
+                if(item && item[0].hasOwnProperty("state")){
+                   $this.lists = $this.lists.filter(function ($item) {
+                       return $item.attachment_id != $attach_id;
+                   });
+                   return;
+                }
                 $.ajax({
                     url : "{{urlfor "DocumentController.RemoveAttachment"}}",
                     type : "post",
@@ -211,21 +220,23 @@
                     success : function (res) {
                         console.log(res);
                         if(res.errcode === 0){
-                            for(var i in $this.lists){
-                                var item = $this.lists[i];
-                                if (item.attachment_id == res.data.attachment_id){
-                                    $this.lists.$remove(item);
-                                    break;
-                                }
-                            }
+                            $this.lists = $this.lists.filter(function ($item) {
+                                return $item.attachment_id != $attach_id;
+                            });
                         }else{
                             layer.msg(res.message);
                         }
                     }
                 });
             }
+        },
+        watch : {
+            lists : function ($lists) {
+                $("#attachInfo").text(" " + $lists.length + " 个附件")
+            }
         }
     });
+
 </script>
 <script src="/static/js/editor.js" type="text/javascript"></script>
 <script src="/static/js/html-editor.js" type="text/javascript"></script>
@@ -267,16 +278,22 @@
                            var item = window.vueApp.lists[i];
                            if(item.attachment_id == file.id){
                                item.state = "error";
+                               item.message = "上传失败";
+                               break;
                            }
                        }
 
                     }).on("uploadSuccess",function (file, res) {
-                        console.log(file);
 
                         for(var index in window.vueApp.lists){
                             var item = window.vueApp.lists[index];
-                            if(item.id === file.id){
-                                window.vueApp.lists.splice(index,1,res.attach);
+                            if(item.attachment_id === file.id){
+                                if(res.errcode === 0) {
+                                    window.vueApp.lists.splice(index, 1, res.attach);
+                                }else{
+                                    item.message = res.message;
+                                    item.state = "error";
+                                }
                                 break;
                             }
                         }

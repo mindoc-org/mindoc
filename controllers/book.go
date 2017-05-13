@@ -534,11 +534,7 @@ func (c *BookController) Release() {
 	}
 	go func(identify string) {
 		models.NewDocument().ReleaseContent(book_id)
-		pdfpath := "cache/" + identify + ".pdf"
 
-		if _,err := os.Stat(pdfpath); os.IsExist(err){
-			os.Remove(pdfpath)
-		}
 
 	}(identify)
 

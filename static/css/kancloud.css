@@ -332,7 +332,7 @@ h6 {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #7e888b
+    color: #444
 }
 .manual-article .article-content{
     min-width: 980px;
@@ -349,6 +349,11 @@ h6 {
 .manual-article .article-content .article-body{
     min-height: 90px;
     padding: 5px;
+}
+.manual-article .article-content .article-body .attach-list{
+    list-style: none;
+    border-top: 1px solid #DDDDDD;
+    padding-top: 15px;
 }
 .m-manual .manual-progress {
     position: fixed;

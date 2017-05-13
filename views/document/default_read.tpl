@@ -53,7 +53,7 @@
                         {{if eq .Model.PrivatelyOwned 0}}
                         <li><a href="javascript:" data-toggle="modal" data-target="#shareProject">项目分享</a> </li>
                         <li role="presentation" class="divider"></li>
-                        {{/*<li><a href="https://wiki.iminho.me/export/1" target="_blank">项目导出</a> </li>*/}}
+                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">项目导出PDF</a> </li>
                         {{end}}
 
                         <li><a href="{{urlfor "HomeController.Index"}}" title="返回首页">返回首页</a> </li>
@@ -77,7 +77,7 @@
                 <div class="tab-wrap">
                     <div class="tab-item manual-catalog">
                         <div class="catalog-list read-book-preview" id="sidebar">
-{{.Result}}
+                        {{.Result}}
                         </div>
 
                     </div>
@@ -104,12 +104,12 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <div class="article-content">
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
                     </div>
+                    <!--
                     {{/*
                     {{if .Model.IsDisplayComment}}
                     <div id="articleComment" class="m-comment">
@@ -155,7 +155,7 @@
                         </div>
                     </div>
                     {{end}}
-*/}}
+*/}}-->
                 </div>
 
             </div>

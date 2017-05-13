@@ -145,17 +145,12 @@ function pushDocumentCategory($node) {
  * @param $lists
  */
 function pushVueLists($lists) {
-    for(var i in window.vueApp.lists){
-        var item = window.vueApp.lists[i];
-        window.vueApp.lists.$remove(item);
-    }
 
+    window.vueApp.lists = [];
     for(var j in $lists){
         var item = $lists[j];
         window.vueApp.lists.push(item);
     }
-    console.log(window.vueApp.lists)
-    $("#attachInfo").text(" " + window.vueApp.lists.length + " 个附件")
 }
 
 //实现小提示

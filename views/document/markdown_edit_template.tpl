@@ -25,7 +25,8 @@
     <link href="{{cdncss "/static/editor.md/css/editormd.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
+    <link href="/static/css/markdown.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -111,7 +112,7 @@
                 <div id="docEditor" class="manual-editormd-active"></div>
             </div>
             <div class="manual-editor-status">
-
+                <div id="attachInfo" class="item">0 个附件</div>
             </div>
         </div>
 
@@ -154,13 +155,186 @@
         </form>
     </div>
 </div>
+<div class="modal fade" id="uploadAttachModal" tabindex="-1" role="dialog" aria-labelledby="uploadAttachModalLabel">
+    <div class="modal-dialog" role="document">
+        <form method="post" id="uploadAttachModalForm" class="form-horizontal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">上传附件</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="attach-drop-panel">
+                        <div class="upload-container" id="filePicker"><i class="fa fa-upload" aria-hidden="true"></i></div>
+                    </div>
+                    <div class="attach-list" id="attachList">
+                        <template v-for="item in lists">
+                            <div class="attach-item" :id="item.attachment_id">
+                                <template v-if="item.state == 'wait'">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
+                                            <span class="sr-only">0% Complete (success)</span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template v-else-if="item.state == 'error'">
+                                    <span class="error-message">${item.message}</span>
+                                    <button type="button" class="btn btn-sm close" @click="removeAttach(item.attachment_id)">
+                                        <i class="fa fa-remove" aria-hidden="true"></i>
+                                    </button>
+                                </template>
+                                <template v-else>
+                                    <a :href="item.http_path" target="_blank" :title="item.file_name">${item.file_name}</a>
+                                    <span class="text">(${(item.file_size/1024/1024).toFixed(4)}MB)</span>
+                                    <span class="error-message">${item.message}</span>
+                                    <button type="button" class="btn btn-sm close" @click="removeAttach(item.attachment_id)">
+                                        <i class="fa fa-remove" aria-hidden="true"></i>
+                                    </button>
+                                    <div class="clearfix"></div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span id="add-error-message" class="error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile" data-dismiss="modal">确定</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
+<script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
+<script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/editormd.js"}}" type="text/javascript"></script>
 <script type="text/javascript" src="{{cdnjs "/static/layer/layer.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/markdown.js"}}" type="text/javascript"></script>
+<script type="text/javascript">
+    window.vueApp = new Vue({
+        el : "#attachList",
+        data : {
+            lists : []
+        },
+        delimiters : ['${','}'],
+        methods : {
+            removeAttach : function ($attach_id) {
+                var $this = this;
+                var item = $this.lists.filter(function ($item) {
+                    return $item.attachment_id == $attach_id;
+                });
+
+                if(item && item[0].hasOwnProperty("state")){
+                    $this.lists = $this.lists.filter(function ($item) {
+                        return $item.attachment_id != $attach_id;
+                    });
+                    return;
+                }
+                $.ajax({
+                    url : "{{urlfor "DocumentController.RemoveAttachment"}}",
+                    type : "post",
+                    data : { "attach_id" : $attach_id},
+                    success : function (res) {
+                        console.log(res);
+                        if(res.errcode === 0){
+                            $this.lists = $this.lists.filter(function ($item) {
+                                return $item.attachment_id != $attach_id;
+                            });
+                        }else{
+                            layer.msg(res.message);
+                        }
+                    }
+                });
+            }
+        },
+        watch : {
+            lists : function ($lists) {
+                $("#attachInfo").text(" " + $lists.length + " 个附件")
+            }
+        }
+    });
+
+</script>
+<script src="/static/js/editor.js" type="text/javascript"></script>
+<script src="/static/js/markdown.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        $("#attachInfo").on("click",function () {
+            $("#uploadAttachModal").modal("show");
+        });
+        window.uploader = null;
+
+        $("#uploadAttachModal").on("shown.bs.modal",function () {
+            if(window.uploader === null){
+                try {
+                    window.uploader = WebUploader.create({
+                        auto: true,
+                        dnd : true,
+                        swf: '/static/webuploader/Uploader.swf',
+                        server: '{{urlfor "DocumentController.Upload"}}',
+                        formData : { "identify" : {{.Model.Identify}},"doc_id" :  window.selectNode.id },
+                        pick: "#filePicker",
+                        fileVal : "editormd-file-file",
+                        fileNumLimit : 1,
+                        compress : false
+                    }).on("beforeFileQueued",function (file) {
+                        uploader.reset();
+                    }).on( 'fileQueued', function( file ) {
+                        var item = {
+                            state : "wait",
+                            attachment_id : file.id,
+                            file_size : file.size,
+                            file_name : file.name,
+                            message : "正在上传"
+                        };
+                        window.vueApp.lists.splice(0,0,item);
+
+                    }).on("uploadError",function (file,reason) {
+                        for(var i in window.vueApp.lists){
+                            var item = window.vueApp.lists[i];
+                            if(item.attachment_id == file.id){
+                                item.state = "error";
+                                item.message = "上传失败";
+                                break;
+                            }
+                        }
+
+                    }).on("uploadSuccess",function (file, res) {
+
+                        for(var index in window.vueApp.lists){
+                            var item = window.vueApp.lists[index];
+                            if(item.attachment_id === file.id){
+                                if(res.errcode === 0) {
+                                    window.vueApp.lists.splice(index, 1, res.attach);
+
+                                }else{
+                                    item.message = res.message;
+                                    item.state = "error";
+                                }
+                                break;
+                            }
+                        }
+
+                    }).on("beforeFileQueued",function (file) {
+
+                    }).on("uploadComplete",function () {
+
+                    }).on("uploadProgress",function (file, percentage) {
+                        var $li = $( '#'+file.id ),
+                            $percent = $li.find('.progress .progress-bar');
+
+                        $percent.css( 'width', percentage * 100 + '%' );
+                    });
+                }catch(e){
+                    console.log(e);
+                }
+            }
+        });
+    });
+</script>
 </body>
 </html>

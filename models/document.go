@@ -6,6 +6,8 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego"
+	"bytes"
+	"fmt"
 )
 
 // Document struct.
@@ -121,12 +123,31 @@ func (m *Document) ReleaseContent(book_id int)  {
 
 	o := orm.NewOrm()
 
-	_,err := o.Raw("UPDATE md_documents SET `release` = content WHERE book_id =?",book_id).Exec()
+	var docs []*Document
+	_,err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",book_id).All(&docs,"document_id","content")
 
 	if err != nil {
-		beego.Error(err)
+		beego.Error("发布失败 => ",err)
+		return
 	}
+	for _, item := range docs {
+		item.Release = item.Content
+		attach_list ,err := NewAttachment().FindListByDocumentId(item.DocumentId)
+		if err == nil && len(attach_list) > 0 {
+			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
+			for _,attach := range attach_list {
+				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>",attach.HttpPath,attach.FileName,attach.FileName)
 
+				content.WriteString(li)
+			}
+			content.WriteString("</ul></div>")
+			item.Release +=  content.String()
+		}
+		_,err = o.Update(item,"release")
+		if err != nil {
+			beego.Error(fmt.Sprintf("发布失败 => %+v",item),err)
+		}
+	}
 }
 
 func (m *Document)  FindListByBookId(book_id int) (docs []*Document,err error) {

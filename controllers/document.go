@@ -16,7 +16,7 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/godoc/utils"
+	"github.com/lifei6671/godoc/utils/wkhtmltopdf"
 )
 
 //DocumentController struct.
@@ -162,11 +162,16 @@ func (c *DocumentController) Read() {
 	if doc.BookId != bookResult.BookId {
 		c.Abort("403")
 	}
+	attach,err := models.NewAttachment().FindListByDocumentId(doc.DocumentId)
+	if err == nil {
+		doc.AttachList = attach
+	}
+
 	if c.IsAjax() {
 		var data struct{
 			DocTitle string `json:"doc_title"`
 			Body string	`json:"body"`
-			Title string `json:"title"`
+			Title string 	`json:"title"`
 		}
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
@@ -459,8 +464,19 @@ func (c *DocumentController) Upload()  {
 		"attach" : attachment,
 	}
 
-	c.Data["json"] = result
-	c.ServeJSON(true)
+	//c.Data["json"] = result
+	//c.ServeJSON(true)
+	//c.StopRun()
+	//
+	//returnJSON, err := json.Marshal(result)
+	//
+	//if err != nil {
+	//	beego.Error(err)
+	//}
+	//
+	//c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
+	//fmt.Fprint(c.Ctx.ResponseWriter,string(returnJSON))
+	c.Ctx.Output.JSON(result,true,false)
 	c.StopRun()
 }
 
@@ -746,14 +762,27 @@ func (c *DocumentController) Export() {
 		if _,err := os.Stat(pdfpath); os.IsNotExist(err){
 			paths := make([]string, len(docs))
 			index := 0
-			for e := pathList.Front(); e != nil; e = e.Next() {
-				paths[index] = e.Value.(string)
-				index ++
+
+			pdfg, err := wkhtmltopdf.NewPDFGenerator()
+
+			if err != nil {
+				beego.Error(err)
+				c.Abort("500")
 			}
 
-			beego.Info(paths,pdfpath)
+			for e := pathList.Front(); e != nil; e = e.Next() {
+				pdfg.AddPage(wkhtmltopdf.NewPage(paths[index]))
+			}
+			err = pdfg.Create()
+			if err != nil {
+				beego.Error(err)
+				c.Abort("500")
+			}
 
-			utils.ConverterHtmlToPdf(paths, pdfpath)
+			err = pdfg.WriteFile(pdfpath)
+			if err != nil {
+				beego.Error(err)
+			}
 		}
 
 		c.Ctx.Output.Download(pdfpath, identify + ".pdf")
@@ -788,7 +817,7 @@ func RecursiveFun(parent_id int,prefix,dpath  string,c *DocumentController,book 
 				beego.Error(err)
 				c.Abort("500")
 			}
-			beego.Info(fpath,html)
+			//beego.Info(fpath,html)
 			f.WriteString(html)
 			f.Close()
 

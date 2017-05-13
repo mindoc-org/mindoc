@@ -33,11 +33,12 @@ body{
     width: 280px;
     position: fixed;
     border-top: 1px solid #DDDDDD;
-    bottom: 15px;
+    bottom: 0px;
     top: 40px;
     background-color: #FAFAFA;
     left: 0;
     right: 0;
+    padding-bottom: 15px;
     overflow-y:auto;
 }
 .manual-category .manual-nav {
