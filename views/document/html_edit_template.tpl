@@ -204,7 +204,7 @@
                     type : "post",
                     data : { "attach_id" : $attach_id},
                     success : function (res) {
-                        console.log(res)
+                        console.log(res);
                         if(res.errcode === 0){
                             for(var i in $this.lists){
                                 var item = $this.lists[i];
@@ -250,7 +250,7 @@
                     }).on( 'fileQueued', function( file ) {
                        var item = {
                            state : 0,
-                           attachment_id : file.id(),
+                           attachment_id : file.id,
                            file_size : file.size,
                            file_name : file.name,
                            message : "正在上传"
