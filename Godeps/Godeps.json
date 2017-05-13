@@ -64,6 +64,18 @@
 			"Rev": "323a1c4214101331a4b71922c23d19b7409ac71f"
 		},
 		{
+			"ImportPath": "github.com/boombuler/barcode",
+			"Rev": "059b33dac2e9f716cf906bc5071ebb42e607228f"
+		},
+		{
+			"ImportPath": "github.com/boombuler/barcode/qr",
+			"Rev": "059b33dac2e9f716cf906bc5071ebb42e607228f"
+		},
+		{
+			"ImportPath": "github.com/boombuler/barcode/utils",
+			"Rev": "059b33dac2e9f716cf906bc5071ebb42e607228f"
+		},
+		{
 			"ImportPath": "github.com/bradfitz/gomemcache/memcache",
 			"Comment": "release.r60-46-g1952afa",
 			"Rev": "1952afaa557dc08e8e0d89eafab110fb501c1a2b"

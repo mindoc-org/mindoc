@@ -174,6 +174,11 @@
                 <h4 class="modal-title" id="myModalLabel">项目分享</h4>
             </div>
             <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 text-center" style="padding-bottom: 15px;">
+                        <img src="{{urlfor "DocumentController.QrCode" ":key" .Model.Identify}}" alt="扫一扫手机阅读" />
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="password" class="col-sm-2 control-label">项目地址</label>
                     <div class="col-sm-10">

@@ -611,6 +611,7 @@ func (c *BookController) SaveSort() {
 	c.JsonResult(0,"ok")
 }
 
+
 func (c *BookController) IsPermission() (*models.BookResult,error) {
 	identify := c.GetString("identify")
 	book ,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
