@@ -144,12 +144,17 @@
                     </div>
                     <div class="attach-list" id="attachList">
                         <template v-for="item in lists">
-                            <div class="attach-item">
-                                <template v-if="item.state == 0">
+                            <div class="attach-item" :id="item.id">
+                                <template v-if="item.state == 'wait'">
                                     <div class="progress">
                                         <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100">
                                             <span class="sr-only">0% Complete (success)</span>
                                         </div>
+                                    </div>
+                                </template>
+                                <template v-else-if="item.state == 'error'">
+                                    <div class="error-message text">
+                                        上传失败
                                     </div>
                                 </template>
                                 <template v-else>
@@ -249,7 +254,7 @@
                         uploader.reset();
                     }).on( 'fileQueued', function( file ) {
                        var item = {
-                           state : 0,
+                           state : "wait",
                            attachment_id : file.id,
                            file_size : file.size,
                            file_name : file.name,
@@ -258,14 +263,19 @@
                        window.vueApp.lists.splice(0,0,item);
 
                     }).on("uploadError",function (file,reason) {
-                        $("#error-message").text("上传失败:" + reason);
+                       for(var i in window.vueApp.lists){
+                           var item = window.vueApp.lists[i];
+                           if(item.attachment_id == file.id){
+                               item.state = "error";
+                           }
+                       }
 
                     }).on("uploadSuccess",function (file, res) {
                         console.log(file);
 
                         for(var index in window.vueApp.lists){
                             var item = window.vueApp.lists[index];
-                            if(item.id === file.id()){
+                            if(item.id === file.id){
                                 window.vueApp.lists.splice(index,1,res.attach);
                                 break;
                             }
