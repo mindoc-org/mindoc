@@ -90,7 +90,7 @@ func (c *ManagerController) CreateMember() {
 	if  ok,err := regexp.MatchString(conf.RegexpEmail,email); !ok || err != nil || email == "" {
 		c.JsonResult(6004,"邮箱格式不正确")
 	}
-	if role != 0 && role != 1 {
+	if role != 0 && role != 1 && role != 2 && role != 3 {
 		role = 1
 	}
 	if status != 0 && status != 1 {
@@ -163,7 +163,7 @@ func (c *ManagerController) ChangeMemberRole()  {
 	if member_id <= 0 {
 		c.JsonResult(6001,"参数错误")
 	}
-	if role != conf.MemberAdminRole && role != conf.MemberGeneralRole {
+	if role != conf.MemberAdminRole && role != conf.MemberGeneralRole && role != conf.MemberObserverRole {
 		c.JsonResult(6001,"用户权限不正确")
 	}
 	member := models.NewMember()

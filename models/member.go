@@ -20,7 +20,7 @@ type Member struct {
 	Email string 		`orm:"size(100);column(email);unique" json:"email"`
 	Phone string 		`orm:"size(255);column(phone);null;default(null)" json:"phone"`
 	Avatar string 		`orm:"size(1000);column(avatar)" json:"avatar"`
-	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户 .
+	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户/ 3 观察者 .
 	Role int		`orm:"column(role);type(int);default(1);index" json:"role"`
 	RoleName string 	`orm:"-" json:"role_name"`
 	Status int 		`orm:"column(status);type(int);default(0)" json:"status"`	//用户状态：0 正常/1 禁用
@@ -138,6 +138,8 @@ func (m *Member) ResolveRoleName (){
 		m.RoleName = "管理员"
 	}else if m.Role == conf.MemberGeneralRole {
 		m.RoleName = "普通用户"
+	}else if m.Role == conf.MemberObserverRole {
+		m.RoleName = "观察者"
 	}
 }
 

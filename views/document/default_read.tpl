@@ -47,7 +47,9 @@
                         {{if eq .Model.RoleId 0 1 2}}
                         <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">返回编辑</a> </li>
                         {{end}}
+                        {{if eq .Member.Role 0 1 2}}
                         <li><a href="{{urlfor "BookController.Index"}}">我的项目</a> </li>
+                        {{end}}
                         <li role="presentation" class="divider"></li>
                         {{end}}
                         {{if eq .Model.PrivatelyOwned 0}}
