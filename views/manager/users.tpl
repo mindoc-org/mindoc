@@ -77,6 +77,7 @@
                                             <ul class="dropdown-menu">
                                                 <li><a href="javascript:;" @click="setMemberRole(item.member_id,1)">管理员</a> </li>
                                                 <li><a href="javascript:;" @click="setMemberRole(item.member_id,2)">普通用户</a> </li>
+                                                <li><a href="javascript:;" @click="setMemberRole(item.member_id,3)">观察者</a> </li>
                                             </ul>
                                             </div>
                                         </template>
@@ -159,6 +160,7 @@
                             <select name="role" class="form-control">
                                 <option value="1">管理员</option>
                                 <option value="2">普通用户</option>
+                                <option value="3">观察者</option>
                             </select>
                         </div>
                     </div>
