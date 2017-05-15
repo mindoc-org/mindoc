@@ -88,15 +88,18 @@
                                 <form id="searchForm" action="{{urlfor "DocumentController.Search" ":key" .Model.Identify}}" method="post">
                                     <div class="form-group">
                                         <input type="search" placeholder="请输入搜索关键字" class="form-control" name="keyword">
-                                        <button type="submit" class="btn btn-default btn-search">
+                                        <button type="submit" class="btn btn-default btn-search" id="btnSearch">
                                             <i class="fa fa-search"></i>
                                         </button>
                                     </div>
                                 </form>
                             </div>
                             <div class="search-result">
-                                <ul class="search-list">
-                                    <li data-id="256300"><span class="text">下载及安装</span></li>
+                                <div class="search-empty">
+                                    <i class="fa fa-search-plus" aria-hidden="true"></i>
+                                    <b class="text">暂无相关搜索结果！</b>
+                                </div>
+                                <ul class="search-list" id="searchList">
                                 </ul>
                             </div>
                         </div>
@@ -230,6 +233,52 @@
 
         hljs.initLineNumbersOnLoad();
     }
+    function loadDocument($url,$id) {
+        $.ajax({
+            url : $url,
+            type : "GET",
+            beforeSend :function (xhr) {
+                var body = events.data('body_' + $id);
+                var title = events.data('title_' + $id);
+                var doc_title = events.data('doc_title_' + $id);
+
+                if(body && title && doc_title){
+
+                    $("#page-content").html(body);
+                    $("title").text(title);
+                    $("#article-title").text(doc_title);
+
+                    events.trigger('article.open',$url,true);
+
+                    return false;
+                }
+                NProgress.start();
+            },
+            success : function (res) {
+                if(res.errcode === 0){
+                    var body = res.data.body;
+                    var doc_title = res.data.doc_title;
+                    var title = res.data.title;
+
+                    $("#page-content").html(body);
+                    $("title").text(title);
+                    $("#article-title").text(doc_title);
+
+                    events.data('body_' + $id,body);
+                    events.data('title_' + $id,title);
+                    events.data('doc_title_' + $id,doc_title);
+
+                    events.trigger('article.open',$url,false);
+
+                }else{
+                    layer.msg("加载失败");
+                }
+            },
+            complete : function () {
+                NProgress.done();
+            }
+        });
+    }
 
     $(function () {
         window.isFullScreen = false;
@@ -255,50 +304,8 @@
             if(url === window.location.href){
                 return false;
             }
-            $.ajax({
-                url : url,
-                type : "GET",
-                beforeSend :function (xhr) {
-                    var body = events.data('body_' + selected.node.id);
-                    var title = events.data('title_' + selected.node.id);
-                    var doc_title = events.data('doc_title_' + selected.node.id);
+            loadDocument(url,selected.node.id);
 
-                    if(body && title && doc_title){
-
-                        $("#page-content").html(body);
-                        $("title").text(title);
-                        $("#article-title").text(doc_title);
-
-                        events.trigger('article.open',url,true);
-
-                        return false;
-                    }
-                    NProgress.start();
-                },
-                success : function (res) {
-                    if(res.errcode === 0){
-                        var body = res.data.body;
-                        var doc_title = res.data.doc_title;
-                        var title = res.data.title;
-
-                        $("#page-content").html(body);
-                        $("title").text(title);
-                        $("#article-title").text(doc_title);
-
-                        events.data('body_' + selected.node.id,body);
-                        events.data('title_' + selected.node.id,title);
-                        events.data('doc_title_' + selected.node.id,doc_title);
-
-                        events.trigger('article.open',url,false);
-
-                    }else{
-                        layer.msg("加载失败");
-                    }
-                },
-                complete : function () {
-                    NProgress.done();
-                }
-            });
         });
 
         $("#slidebar").on("click",function () {
@@ -338,17 +345,46 @@
             $(this).siblings().removeClass('active').end().addClass('active');
            $(".m-manual").removeClass("manual-mode-view manual-mode-collect manual-mode-search").addClass("manual-mode-" + mode);
         });
-        
+
+        /**
+         * 项目内搜索
+         */
         $("#searchForm").ajaxForm({ 
             beforeSubmit : function () {
                 var keyword = $.trim($("#searchForm").find("input[name='keyword']").val());
                 if(keyword === ""){
+                    $(".search-empty").show();
+                    $("#searchList").html("");
                     return false;
                 }
+                $("#btnSearch").attr("disabled","disabled").find("i").removeClass("fa-search").addClass("loading");
             },
-            success :function () {
-
+            success :function (res) {
+                var html = "";
+                if(res.errcode === 0){
+                    for(var i in res.data){
+                        var item = res.data[i];
+                        html += '<li><a href="javascript:;" title="'+ item.doc_name +'" data-id="'+ item.doc_id+'"> '+ item.doc_name +' </a></li>';
+                    }
+                }
+                if(html !== ""){
+                    $(".search-empty").hide();
+                }else{
+                    $(".search-empty").show();
+                }
+                $("#searchList").html(html);
+            },
+            complete : function () {
+                $("#btnSearch").removeAttr("disabled").find("i").removeClass("loading").addClass("fa-search");
             }
+        });
+
+        $("#searchList").on("click","a",function () {
+           var id = $(this).attr("data-id");
+           var url = "{{urlfor "DocumentController.Read" ":key" .Model.Identify ":id" ""}}/" + id;
+           $(this).parent("li").siblings().find("a").removeClass("active");
+           $(this).addClass("active");
+           loadDocument(url,id);
         });
     });
 </script>
