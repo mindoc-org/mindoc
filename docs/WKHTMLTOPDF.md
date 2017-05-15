@@ -22,3 +22,5 @@ apt-get install -y libxext-dev
 ## 配置
 
 请将 wkhtmltopdf 可执行文件所在目录配置到 MinDoc 根目录下 conf/app.conf 的 wkhtmltopdf 节点。
+
+配置完后请重启程序。
