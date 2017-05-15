@@ -40,7 +40,7 @@ if [ ! -z $CDNCSS ]; then
 fi
 
 if [ ! -z $CDN ]; then
-    sed -i "s#^cdn.*#cdn=$CDN#g" conf/app.conf
+    sed -i "s#^cdn=.*#cdn=$CDN#g" conf/app.conf
 fi
 
 sed -i 's/^runmode.*/runmode=prod/g' conf/app.conf
