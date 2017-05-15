@@ -832,10 +832,40 @@ func (c *DocumentController) QrCode() {
 	}
 }
 
+//项目内搜索.
 func (c *DocumentController) Search()  {
 	c.Prepare()
-	
-	c.JsonResult(0,"ok")
+
+	identify := c.Ctx.Input.Param(":key")
+	token := c.GetString("token")
+	keyword := strings.TrimSpace(c.GetString("keyword"))
+
+	if identify == ""{
+		c.JsonResult(6001,"参数错误")
+	}
+	if !c.EnableAnonymous && c.Member == nil {
+		c.Redirect(beego.URLFor("AccountController.Login"), 302)
+		return
+	}
+	bookResult := isReadable(identify,token,c)
+
+	docs,err := models.NewDocumentSearchResult().SearchDocument(keyword,bookResult.BookId)
+
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(6002,"搜索结果错误")
+	}
+	if len(docs) < 0 {
+		c.JsonResult(404,"没有数据库")
+	}
+	for _,doc := range docs {
+		doc.BookId = bookResult.BookId
+		doc.BookName = bookResult.BookName
+		doc.Description = bookResult.Description
+		doc.BookIdentify = bookResult.Identify
+	}
+
+	c.JsonResult(0,"ok",docs)
 }
 
 //递归生成文档序列数组.

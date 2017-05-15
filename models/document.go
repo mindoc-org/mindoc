@@ -53,6 +53,7 @@ func NewDocument() *Document  {
 	}
 }
 
+//根据文档ID查询指定文档.
 func (m *Document) Find(id int) (*Document,error) {
 	if id <= 0 {
 		return m,ErrInvalidParameter
@@ -150,13 +151,17 @@ func (m *Document) ReleaseContent(book_id int)  {
 	}
 }
 
-func (m *Document)  FindListByBookId(book_id int) (docs []*Document,err error) {
+//根据项目ID查询文档列表.
+func (m *Document) FindListByBookId(book_id int) (docs []*Document,err error) {
 	o := orm.NewOrm()
 
 	_,err = o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",book_id).All(&docs)
 
 	return
 }
+
+
+
 
 
 

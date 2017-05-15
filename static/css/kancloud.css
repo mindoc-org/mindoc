@@ -271,10 +271,18 @@ h6 {
 .m-manual.manual-mode-view .manual-catalog {
     display: block
 }
+.m-manual.manual-mode-search .manual-search .search-container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
 .m-manual .manual-search .search-form{
-    margin: 5px ;
+    margin: 5px 5px 10px 5px;
     position: relative;
 }
+
 .m-manual .manual-search .btn-search{
     background-color: #ffffff;
     border: 0;
@@ -282,6 +290,75 @@ h6 {
     position: absolute;
     top: 2px;
     right: 5px;
+}
+.m-manual .manual-search .btn-search .fa{
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+.m-manual .manual-search .btn-search .loading{
+    background-image: url("../images/loading.gif");
+}
+
+.m-manual .manual-search .search-result{
+    position: absolute;
+    top: 45px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 275px;
+    overflow-y: auto;
+    border-top: 1px solid #eee;
+}
+.m-manual .manual-search .search-result .search-empty{
+    position: absolute;
+    top: 45%;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+.m-manual .manual-search .search-result .search-empty i{
+    font-size: 50px;
+    display: block;
+    color: #999;
+    font-weight: 200;
+}
+.m-manual .manual-search .search-result .search-empty .text{
+    font-size: 16px;
+    font-weight: 200;
+    color: #999;
+    line-height: 40px;
+}
+.m-manual .manual-search .search-list{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    min-width: 100%;
+}
+.m-manual .manual-search .search-list a{
+    display: block;
+    border-bottom: 0;
+    height: 30px;
+    line-height: 24px;
+    padding: 3px 10px 3px 20px;
+    color: #666;
+    text-decoration: none;
+    white-space:nowrap;
+    overflow: hidden;
+}
+.m-manual .manual-search .search-list a:hover{
+    text-shadow: none;
+    background: #116cd6;
+    box-shadow: none;
+    color: #fff;
+    text-decoration: none;
+    white-space:nowrap;
+}
+.m-manual .manual-search .search-list a.active{
+    background: #10af88;
+    background: -webkit-linear-gradient(top, #beebff 0%, #a8e4ff 100%);
+    background: linear-gradient(to bottom, #10af88 0%, #10af88 100%);
+    color: #ffffff;
 }
 .m-manual .manual-left .m-copyright {
     border-top: 0;
