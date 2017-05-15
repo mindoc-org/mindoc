@@ -33,4 +33,6 @@ fi
 
 sed -i 's/^runmode.*/runmode=prod/g' conf/app.conf
 
+/go/src/github.com/lifei6671/godoc/godoc_linux_amd64 install
+
 /go/src/github.com/lifei6671/godoc/godoc_linux_amd64
