@@ -32,15 +32,18 @@ if [ ! -z $HTTP_PORT ] ; then
 fi
 
 if [ ! -z $CDNJS ]; then
-    sed -i "s/^cdnjs.*/cdnjs=${CDNJS/\/\//\\/\\/}/g" conf/app.conf
+    cdnjs=${CDNJS/\/\//\\/\\/}
+    sed -i "s/^cdnjs.*/cdnjs=$cdnjs/g" conf/app.conf
 fi
 
 if [ ! -z $CDNCSS ]; then
-    sed -i "s/^cdncss.*/cdncss=${CDNCSS/\/\//\\/\\/}/g" conf/app.conf
+    cdncss=${CDNCSS/\/\//\\/\\/}
+    sed -i "s/^cdncss.*/cdncss=$cdnjs/g" conf/app.conf
 fi
 
 if [ ! -z $CDN ]; then
-    sed -i "s/^cdn.*/cdn=${CDN/\/\//\\/\\/}/g" conf/app.conf
+    cdn=${CDN/\/\//\\/\\/}
+    sed -i "s/^cdn.*/cdn=$cdn/g" conf/app.conf
 fi
 
 sed -i 's/^runmode.*/runmode=prod/g' conf/app.conf
