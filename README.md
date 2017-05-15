@@ -203,4 +203,4 @@ docker run -p 8181:8181 -e MYSQL_PORT_3306_TCP_ADDR=127.0.0.1 -e MYSQL_PORT_3306
 
 # 关于作者
 
-一个不纯粹的PHPer，一个不自由的 golanger 。
+一个不纯粹的PHPer，一个不自由的 gopher 。
