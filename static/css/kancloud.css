@@ -452,6 +452,48 @@ h6 {
     border-top: 1px solid #DDDDDD;
     padding-top: 15px;
 }
+.manual-article .jump-top .view-backtop{
+    position: fixed;
+    bottom: -30px;
+    right: 30px;
+    font-size: 18px;
+    line-height: 30px;
+    text-align: center;
+    color: #fff;
+    z-index: 9999;
+    font-weight: 200;
+    width: 30px;
+    height: 30px;
+    background-color: #999;
+    border-radius: 4px;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    transition-property: all;
+    transition-duration: .2s;
+    transition-timing-function: linear;
+    transition-delay: 0s;
+    -moz-transition-property: all;
+    -moz-transition-duration: .2s;
+    -moz-transition-timing-function: linear;
+    -moz-transition-delay: 0s;
+    -webkit-transition-property: all;
+    -webkit-transition-duration: .2s;
+    -webkit-transition-timing-function: linear;
+    -webkit-transition-delay: 0s;
+    -o-transition-property: all;
+    -o-transition-duration: .2s;
+    -o-transition-timing-function: linear;
+    -o-transition-delay: 0s;
+}
+
+.manual-article .jump-top .view-backtop.active{
+    opacity: 0.5;
+    bottom: 30px;
+}
+.manual-article .jump-top .view-backtop.active:hover{
+    background-color: #449D44;
+    opacity: 1;
+}
 .m-manual .manual-progress {
     position: fixed;
     top: 54px;

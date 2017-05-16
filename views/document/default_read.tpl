@@ -179,6 +179,9 @@
                     </div>
                     {{end}}
 */}}-->
+                    <div class="jump-top">
+                        <a href="javascript:;" class="view-backtop"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
+                    </div>
                 </div>
 
             </div>
@@ -281,6 +284,18 @@
     }
 
     $(function () {
+        $(".view-backtop").on("click", function () {
+            console.log("a")
+            $('.manual-right').animate({ scrollTop: '0px' }, 200);
+        });
+        $(".manual-right").scroll(function () {
+            var top = $(".manual-right").scrollTop();
+            if(top > 100){
+                $(".view-backtop").addClass("active");
+            }else{
+                $(".view-backtop").removeClass("active");
+            }
+        });
         window.isFullScreen = false;
 
         initHighlighting();

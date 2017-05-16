@@ -23,7 +23,6 @@ func main() {
 	commands.RegisterCommand()
 	commands.RegisterFunction()
 
-	
 	beego.SetStaticPath("uploads", "uploads")
 
 	beego.ErrorController(&controllers.ErrorController{})
