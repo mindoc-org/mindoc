@@ -1,3 +1,4 @@
+//数据库模型.
 package models
 
 import (
