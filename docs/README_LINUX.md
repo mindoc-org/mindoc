@@ -53,7 +53,7 @@ db_password=123456
 在 MinDoc 根目录下使用命令行执行如下命令，用于初始化数据库：
 
 ```bash
-godoc_windows_amd64.exe install
+godoc_linux_amd64 install
 ```
 
 
