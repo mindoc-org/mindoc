@@ -52,6 +52,7 @@ func RegisterModel() {
 		new(models.Logger),
 		//new(models.CommentVote),
 		new(models.MemberToken),
+		new(models.DocumentHistory),
 	)
 
 }
