@@ -108,7 +108,7 @@
             </div>
             <div class="m-copyright">
                 <p>
-                    本文档使用 <a href="https://doc.iminho.me" target="_blank">MinDoc</a> 发布
+                    本文档使用 <a href="https://www.iminho.me" target="_blank">MinDoc</a> 发布
                 </p>
             </div>
         </div>
@@ -236,7 +236,7 @@
 
         hljs.initLineNumbersOnLoad();
     }
-    function loadDocument($url,$id) {
+    function loadDocument($url,$id,$callback) {
         $.ajax({
             url : $url,
             type : "GET",
@@ -247,6 +247,9 @@
 
                 if(body && title && doc_title){
 
+                    if (typeof $callback === "function") {
+                        body = $callback(body);
+                    }
                     $("#page-content").html(body);
                     $("title").text(title);
                     $("#article-title").text(doc_title);
@@ -263,7 +266,11 @@
                     var doc_title = res.data.doc_title;
                     var title = res.data.title;
 
-                    $("#page-content").html(body);
+                    $body = body;
+                    if (typeof $callback === "function" ){
+                        $body = $callback(body);
+                    }
+                    $("#page-content").html($body);
                     $("title").text(title);
                     $("#article-title").text(doc_title);
 
@@ -285,7 +292,6 @@
 
     $(function () {
         $(".view-backtop").on("click", function () {
-            console.log("a")
             $('.manual-right').animate({ scrollTop: '0px' }, 200);
         });
         $(".manual-right").scroll(function () {
@@ -373,6 +379,7 @@
                     return false;
                 }
                 $("#btnSearch").attr("disabled","disabled").find("i").removeClass("fa-search").addClass("loading");
+                window.keyword = keyword;
             },
             success :function (res) {
                 var html = "";
@@ -399,7 +406,14 @@
            var url = "{{urlfor "DocumentController.Read" ":key" .Model.Identify ":id" ""}}/" + id;
            $(this).parent("li").siblings().find("a").removeClass("active");
            $(this).addClass("active");
-           loadDocument(url,id);
+           loadDocument(url,id,function (body) {
+               if(body !== ""){
+                   console.log(window.keyword);
+
+                   body = body.replace(new RegExp(window.keyword,"g"),'<em class="search-highlight">' + window.keyword + '</em>');
+               }
+               return body;
+           });
         });
     });
 </script>

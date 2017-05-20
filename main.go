@@ -13,6 +13,7 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/controllers"
 	_ "github.com/lifei6671/godoc/routers"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {

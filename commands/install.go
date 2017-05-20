@@ -32,25 +32,26 @@ func initialization() {
 
 	o := orm.NewOrm()
 
-	_, err := o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '是否启用注册','ENABLED_REGISTER','false' FROM dual WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLED_REGISTER');`).Exec()
+
+	_, err := o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '是否启用注册','ENABLED_REGISTER','false' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLED_REGISTER');`).Exec()
 
 	if err != nil {
 		panic("ENABLED_REGISTER => " + err.Error())
 		os.Exit(1)
 	}
-	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '是否启用验证码','ENABLED_CAPTCHA','false' FROM dual WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLED_CAPTCHA');`).Exec()
+	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '是否启用验证码','ENABLED_CAPTCHA','false' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLED_CAPTCHA');`).Exec()
 
 	if err != nil {
 		panic("ENABLED_CAPTCHA => " + err.Error())
 		os.Exit(1)
 	}
-	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '启用匿名访问','ENABLE_ANONYMOUS','true' FROM dual WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLE_ANONYMOUS');`).Exec()
+	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '启用匿名访问','ENABLE_ANONYMOUS','true' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLE_ANONYMOUS');`).Exec()
 
 	if err != nil {
 		panic("ENABLE_ANONYMOUS => " + err.Error())
 		os.Exit(1)
 	}
-	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '站点名称','SITE_NAME','MinDoc' FROM dual WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'SITE_NAME');`).Exec()
+	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '站点名称','SITE_NAME','MinDoc' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'SITE_NAME');`).Exec()
 
 	if err != nil {
 		panic("SITE_NAME => " + err.Error())

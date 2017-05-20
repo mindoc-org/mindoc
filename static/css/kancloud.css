@@ -360,6 +360,10 @@ h6 {
     background: linear-gradient(to bottom, #10af88 0%, #10af88 100%);
     color: #ffffff;
 }
+.m-manual .markdown-body .search-highlight{
+    background-color: #FFFF00 !important;
+    font-style: normal;
+}
 .m-manual .manual-left .m-copyright {
     border-top: 0;
     background: #fafafa;

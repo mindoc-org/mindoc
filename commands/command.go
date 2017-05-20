@@ -18,25 +18,32 @@ import (
 
 // RegisterDataBase 注册数据库
 func RegisterDataBase() {
-	host := beego.AppConfig.String("db_host")
-	database := beego.AppConfig.String("db_database")
-	username := beego.AppConfig.String("db_username")
-	password := beego.AppConfig.String("db_password")
-	timezone := beego.AppConfig.String("timezone")
+	adapter := beego.AppConfig.String("db_adapter")
 
-	port := beego.AppConfig.String("db_port")
+	if adapter == "mysql" {
+		host := beego.AppConfig.String("db_host")
+		database := beego.AppConfig.String("db_database")
+		username := beego.AppConfig.String("db_username")
+		password := beego.AppConfig.String("db_password")
+		timezone := beego.AppConfig.String("timezone")
 
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
+		port := beego.AppConfig.String("db_port")
 
-	orm.RegisterDataBase("default", "mysql", dataSource)
+		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
 
-	location, err := time.LoadLocation(timezone)
-	if err == nil {
-		orm.DefaultTimeLoc = location
-	} else {
-		fmt.Println(err)
+		orm.RegisterDataBase("default", "mysql", dataSource)
+
+		location, err := time.LoadLocation(timezone)
+		if err == nil {
+			orm.DefaultTimeLoc = location
+		} else {
+			fmt.Println(err)
+		}
+	}else if adapter == "sqlite3" {
+		database := beego.AppConfig.String("db_database")
+
+		orm.RegisterDataBase("default", "sqlite3", database)
 	}
-
 }
 
 // RegisterModel 注册Model

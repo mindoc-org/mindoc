@@ -38,7 +38,7 @@ WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE
 
 		sql2 := `SELECT doc.document_id,doc.modify_time,doc.create_time,doc.document_name,doc.identify,doc.release as description,doc.modify_time,book.identify as book_identify,book.book_name,rel.member_id,member.account AS author FROM md_documents AS doc
   LEFT JOIN md_books as book ON doc.book_id = book.book_id
-  LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND role_id = 0
+  LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.role_id = 0
   LEFT JOIN md_members as member ON rel.member_id = member.member_id
 WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE ?)
  ORDER BY doc.document_id DESC LIMIT ?,? `
@@ -54,13 +54,13 @@ WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE
 	} else {
 		sql1 := `SELECT count(doc.document_id) as total_count FROM md_documents AS doc
   LEFT JOIN md_books as book ON doc.book_id = book.book_id
-  LEFT JOIN md_relationship AS rel ON doc.book_id = rel.book_id AND role_id = 0
+  LEFT JOIN md_relationship AS rel ON doc.book_id = rel.book_id AND rel.role_id = 0
   LEFT JOIN md_relationship AS rel1 ON doc.book_id = rel1.book_id AND rel1.member_id = ?
 WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0)  AND (doc.document_name LIKE ? OR doc.release LIKE ?) `
 
 		sql2 := `SELECT doc.document_id,doc.modify_time,doc.create_time,doc.document_name,doc.identify,doc.release as description,doc.modify_time,book.identify as book_identify,book.book_name,rel.member_id,member.account AS author FROM md_documents AS doc
   LEFT JOIN md_books as book ON doc.book_id = book.book_id
-  LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND role_id = 0
+  LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.role_id = 0
   LEFT JOIN md_members as member ON rel.member_id = member.member_id
   LEFT JOIN md_relationship AS rel1 ON doc.book_id = rel1.book_id AND rel1.member_id = ?
 WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0)  AND (doc.document_name LIKE ? OR doc.release LIKE ?)
