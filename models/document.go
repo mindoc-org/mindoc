@@ -98,6 +98,7 @@ func (m *Document) RecursiveDocument(doc_id int) error {
 
 	if doc, err := m.Find(doc_id); err == nil {
 		o.Delete(doc)
+		NewDocumentHistory().Clear(doc.DocumentId)
 	}
 
 	var docs []*Document

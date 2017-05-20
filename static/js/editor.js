@@ -199,3 +199,31 @@ function showSuccess($msg,$id) {
     $($id).addClass("success-message").removeClass("error-message").text($msg);
     return true;
 }
+
+$(function () {
+    $("#documentHistoryModal").on("shown.bs.modal",function () {
+        var historyVue = new Vue({
+            el : "#documentHistoryModal",
+            data : {
+                lists : []
+            },
+            delimiters : ['${','}'],
+            methods : {
+
+            }
+        });
+
+        $.ajax({
+            url : window.historyURL,
+            data : { "identify" : window.book.identify,"doc_id" : window.selectNode.id },
+            dataType :"json",
+            success : function (res) {
+                if(res.errcode === 0){
+                    historyVue.lists = res.data.lists;
+                }else{
+                    alert(res.message);
+                }
+            }
+        });
+    });
+});

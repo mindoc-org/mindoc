@@ -18,6 +18,7 @@ type BaseController struct {
 	Member *models.Member
 	Option map[string]string
 	EnableAnonymous bool
+	EnableDocumentHistory bool
 }
 
 // Prepare 预处理.
@@ -25,7 +26,7 @@ func (c *BaseController) Prepare (){
 	c.Data["SiteName"] = "MinDoc"
 	c.Data["Member"] = models.Member{}
 	c.EnableAnonymous = false
-
+	c.EnableDocumentHistory = false
 
 	if member,ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0{
 		c.Member = &member
@@ -44,6 +45,9 @@ func (c *BaseController) Prepare (){
 			c.Option[item.OptionName] = item.OptionValue
 			if strings.EqualFold(item.OptionName,"ENABLE_ANONYMOUS") && item.OptionValue == "true" {
 				c.EnableAnonymous = true
+			}
+			if strings.EqualFold(item.OptionName,"ENABLE_DOCUMENT_HISTORY") && item.OptionValue == "true" {
+				c.EnableDocumentHistory = true
 			}
 		}
 	}

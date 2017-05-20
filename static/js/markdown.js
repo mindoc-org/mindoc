@@ -61,7 +61,7 @@ $(function () {
        if(name === "attachment"){
            $("#uploadAttachModal").modal("show");
        }else if(name === "history"){
-
+            $("#documentHistoryModal").modal("show");
        }else if(name === "save"){
             saveDocument(false);
 

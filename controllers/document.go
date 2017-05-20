@@ -21,6 +21,7 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/utils/wkhtmltopdf"
+	"github.com/lifei6671/godoc/utils"
 )
 
 //DocumentController struct.
@@ -674,6 +675,18 @@ func (c *DocumentController) Content() {
 			beego.Info("%d|", version, doc.Version)
 			c.JsonResult(6005, "文档已被修改确定要覆盖吗？")
 		}
+		history := models.NewDocumentHistory()
+		history.DocumentId = doc_id
+		history.Content = doc.Content
+		history.Markdown = doc.Markdown
+		history.DocumentName = doc.DocumentName
+		history.ModifyAt = c.Member.MemberId
+		history.MemberId = doc.MemberId
+		history.ParentId = doc.ParentId
+		history.Version = time.Now().Unix()
+		history.Action = "modify"
+		history.ActionName = "修改文档"
+
 		if markdown == "" && content != "" {
 			doc.Markdown = content
 		} else {
@@ -684,6 +697,13 @@ func (c *DocumentController) Content() {
 		if err := doc.InsertOrUpdate(); err != nil {
 			beego.Error("InsertOrUpdate => ", err)
 			c.JsonResult(6006, "保存失败")
+		}
+		//如果启用了文档历史，则添加历史文档
+		if c.EnableDocumentHistory {
+			_,err = history.InsertOrUpdate()
+			if err != nil {
+				beego.Error("DocumentHistory InsertOrUpdate => ",err)
+			}
 		}
 
 		c.JsonResult(0, "ok", doc)
@@ -866,6 +886,69 @@ func (c *DocumentController) Search()  {
 	}
 
 	c.JsonResult(0,"ok",docs)
+}
+
+//文档历史列表.
+func (c *DocumentController) History() {
+	c.Prepare()
+
+	identify := c.GetString("identify")
+	doc_id, err := c.GetInt("doc_id", 0)
+	pageIndex, _ := c.GetInt("page", 1)
+
+	book_id := 0
+	//如果是超级管理员则忽略权限判断
+	if c.Member.Role == conf.MemberSuperRole {
+		book, err := models.NewBook().FindByFieldFirst("identify", identify)
+		if err != nil {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = book.BookId
+	} else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = bookResult.BookId
+	}
+
+	if doc_id <= 0 {
+		c.JsonResult(6001, "参数错误")
+	}
+
+	doc, err := models.NewDocument().Find(doc_id)
+
+	if err != nil {
+		beego.Error("Delete => ", err)
+		c.JsonResult(6003, "获取历史失败")
+	}
+	//如果文档所属项目错误
+	if doc.BookId != book_id {
+		c.JsonResult(6004, "参数错误")
+	}
+
+	historis,totalCount,err := models.NewDocumentHistory().FindToPager(doc_id,pageIndex,conf.PageSize)
+
+	if err != nil {
+		c.JsonResult(6005,"获取历史失败")
+	}
+	var data struct {
+		PageHtml string `json:"page_html"`
+		List []*models.DocumentHistorySimpleResult `json:"lists"`
+	}
+	data.List = historis
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
+
+		data.PageHtml = string(html)
+	}else {
+		data.PageHtml = ""
+	}
+
+	c.JsonResult(0,"ok",data)
 }
 
 //递归生成文档序列数组.

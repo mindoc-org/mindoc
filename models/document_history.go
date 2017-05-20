@@ -2,12 +2,15 @@ package models
 
 import (
 	"time"
-	"github.com/lifei6671/godoc/conf"
+
 	"github.com/astaxie/beego/orm"
+	"github.com/lifei6671/godoc/conf"
 )
 
 type DocumentHistory struct {
 	HistoryId    int       `orm:"column(history_id);pk;auto;unique" json:"history_id"`
+	Action       string    `orm:"column(action);size(255)" json:"action"`
+	ActionName   string    `orm:"column(action_name);size(255)" json:"action_name"`
 	DocumentId   int       `orm:"column(document_id);type(int);index" json:"doc_id"`
 	DocumentName string    `orm:"column(document_name);size(500)" json:"doc_name"`
 	ParentId     int       `orm:"column(parent_id);type(int);index;default(0)" json:"parent_id"`
@@ -17,6 +20,17 @@ type DocumentHistory struct {
 	ModifyTime   time.Time `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	ModifyAt     int       `orm:"column(modify_at);type(int)" json:"-"`
 	Version      int64     `orm:"type(bigint);column(version)" json:"version"`
+}
+
+type DocumentHistorySimpleResult struct {
+	HistoryId    int                `json:"history_id"`
+	ActionName   string             `json:"action_name"`
+	MemberId     int 		`json:"member_id"`
+	Account      string 		`json:"account"`
+	ModifyAt     int 		`json:"modify_at"`
+	ModifyName   string 		`json:"modify_name"`
+	ModifyTime   time.Time 		`json:"modify_time"`
+	Version      int64 		`json:"version"`
 }
 
 // TableName 获取对应数据库表名.
@@ -33,21 +47,83 @@ func (m *DocumentHistory) TableNameWithPrefix() string {
 	return conf.GetDatabasePrefix() + m.TableName()
 }
 
+func NewDocumentHistory() *DocumentHistory {
+	return &DocumentHistory{}
+}
+//清空指定文档的历史.
+func (m *DocumentHistory) Clear(doc_id int) error {
+	o := orm.NewOrm()
 
-func (m *DocumentHistory) FindToPager(doc_id,page_index,page_size int) (docs []*DocumentHistory,totalCount int,err error) {
+	_, err := o.Raw("DELETE md_document_history WHERE document_id = ?", doc_id).Exec()
+
+	return err
+}
+
+//删除历史.
+func (m *DocumentHistory) Delete(history_id int) error {
+	o := orm.NewOrm()
+
+	_, err := o.Raw("DELETE md_document_history WHERE history_id = ?", history_id).Exec()
+	return err
+}
+
+//恢复指定历史的文档.
+func (m *DocumentHistory) Restore(history_id int) error {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("history_id", history_id).One(m)
+
+	if err != nil {
+		return err
+	}
+	doc, err := NewDocument().Find(m.DocumentId)
+
+	if err != nil {
+		return err
+	}
+	doc.DocumentName = m.DocumentName
+	doc.Content = m.Content
+	doc.Markdown = m.Markdown
+	doc.Release = m.Content
+
+	_, err = o.Update(doc)
+
+	return err
+}
+
+func (m *DocumentHistory) InsertOrUpdate() (history *DocumentHistory,err error)  {
+	o := orm.NewOrm()
+	history = m
+
+	if m.HistoryId > 0 {
+		_,err = o.Update(m)
+	}else{
+		_,err = o.Insert(m)
+	}
+	return
+}
+//分页查询指定文档的历史.
+func (m *DocumentHistory) FindToPager(doc_id, page_index, page_size int) (docs []*DocumentHistorySimpleResult, totalCount int, err error) {
 
 	o := orm.NewOrm()
 
 	offset := (page_index - 1) * page_size
 
 	totalCount = 0
-	_,err = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id",doc_id).Offset(offset).Limit(page_size).All(docs)
+
+	sql := `SELECT history.*,m1.account,m2.account as ModifyName
+FROM md_document_history AS history
+LEFT JOIN md_members AS m1 ON history.member_id = m1.member_id
+LEFT JOIN md_members AS m2 ON history.member_id = m2.member_id
+WHERE history.document_id = ? ORDER BY history.history_id DESC LIMIT ?,?;`
+
+	_, err = o.Raw(sql,doc_id,offset,page_size).QueryRows(&docs)
 
 	if err != nil {
 		return
 	}
 	var count int64
-	count,err = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id",doc_id).Count()
+	count, err = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).Count()
 
 	if err != nil {
 		return
