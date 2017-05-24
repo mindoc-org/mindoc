@@ -32,7 +32,6 @@ func initialization() {
 
 	o := orm.NewOrm()
 
-
 	_, err := o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '是否启用注册','ENABLED_REGISTER','false' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLED_REGISTER');`).Exec()
 
 	if err != nil {
@@ -64,6 +63,7 @@ func initialization() {
 		member.Account = "admin"
 		member.Avatar = "/static/images/headimgurl.jpg"
 		member.Password = "123456"
+		member.AuthMethod = "local"
 		member.Role = 0
 		member.Email = "admin@iminho.me"
 

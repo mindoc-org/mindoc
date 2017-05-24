@@ -77,11 +77,23 @@ cdnimg=
 ################百度地图密钥#################
 baidumapkey=
 
-
-
-
-
-
+################Active Directory/LDAP################
+#是否启用ldap
+ldap_enable=false
+#ldap主机名
+ldap_host=ad.example.com
+#ldap端口
+ldap_port=3268
+#ldap内哪个属性作为用户名
+ldap_attribute=sAMAccountName
+#搜索范围
+ldap_base=DC=example,DC=com
+#第一次绑定ldap用户dn
+ldap_user=CN=ldap helper,OU=example.com,DC=example,DC=com
+#第一次绑定ldap用户密码
+ldap_password=superSecret
+#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户 
+ldap_user_role=2
 
 
 
