@@ -117,12 +117,14 @@
                 if (title === ""){
                     return showError("网站标题不能为空");
                 }
+                $("#btnSaveBookInfo").button("loading");
             },success : function (res) {
                 if(res.errcode === 0) {
                     showSuccess("保存成功")
                 }else{
                     showError(res.message);
                 }
+                $("#btnSaveBookInfo").button("reset");
             }
         });
     });
