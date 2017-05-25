@@ -115,6 +115,11 @@
 			"Rev": "b244e66362327cfd7d47c1a75eb1ca3845ffc52a"
 		},
 		{
+			"ImportPath": "github.com/mattn/go-sqlite3",
+			"Comment": "v1.1.0-62-g467f50b",
+			"Rev": "467f50b0c026317ad28fc2c0a08aab6f755cfc7a"
+		},
+		{
 			"ImportPath": "github.com/nfnt/resize",
 			"Rev": "891127d8d1b52734debe1b3c3d7e747502b6c366"
 		},
@@ -125,6 +130,16 @@
 		{
 			"ImportPath": "golang.org/x/image/math/fixed",
 			"Rev": "69afd001f792d732a78bd7225793315a8deb09ea"
+		},
+		{
+			"ImportPath": "gopkg.in/asn1-ber.v1",
+			"Comment": "v1.2",
+			"Rev": "379148ca0225df7a432012b8df0355c2a2063ac0"
+		},
+		{
+			"ImportPath": "gopkg.in/ldap.v2",
+			"Comment": "v2.5.0",
+			"Rev": "8168ee085ee43257585e50c6441aadf54ecb2c9f"
 		}
 	]
 }
