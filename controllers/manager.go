@@ -152,6 +152,9 @@ func (c *ManagerController) UpdateMemberStatus() {
 	if member.MemberId == c.Member.MemberId {
 		c.JsonResult(6004,"不能变更自己的状态")
 	}
+	if member.Role == conf.MemberSuperRole {
+		c.JsonResult(6005,"不能变更超级管理员的状态")
+	}
 	member.Status = status
 
 	if err := member.Update(); err != nil {
@@ -184,6 +187,9 @@ func (c *ManagerController) ChangeMemberRole() {
 	}
 	if member.MemberId == c.Member.MemberId {
 		c.JsonResult(6004,"不能变更自己的权限")
+	}
+	if member.Role == conf.MemberSuperRole {
+		c.JsonResult(6005,"不能变更超级管理员的权限")
 	}
 	member.Role = role
 
