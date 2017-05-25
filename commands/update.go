@@ -107,7 +107,7 @@ func sqliteUpdate()  {
 
 	err := o.Raw("select * from sqlite_master where name='md_members' and sql like '%auth_method%' limit 1").QueryRow(&sqlite_master)
 	//查询是否已经存在 auth_method 列
-	if err == nil && sqlite_master.Name == ""{
+	if err == orm.ErrNoRows{
 		_,err = o.Raw("ALTER TABLE md_members ADD auth_method VARCHAR(50) DEFAULT 'local' NULL;").Exec()
 		if err != nil {
 			panic(fmt.Sprintf("error : 6001 => %s",err.Error()))
