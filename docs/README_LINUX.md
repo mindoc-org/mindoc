@@ -4,7 +4,7 @@
 
 **第一步 下载可执行文件**
 
-请从 [https://github.com/lifei6671/godoc/releases](https://github.com/lifei6671/godoc/releases)  下载最新版的可执行文件，一般文件名为 godoc_linux_amd.tar.gz .
+请从 [https://github.com/lifei6671/godoc/releases](https://github.com/lifei6671/godoc/releases)  下载最新版的可执行文件，一般文件名为 godoc_linux_amd.tar.gz 或 godoc_linux_amd64.zip 。
 
 **第二步 解压压缩包**
 
@@ -12,6 +12,8 @@
 
 ```bash
 tar -xzvf godoc_linux_amd64.tar.gz
+或
+unzip godoc_linux_amd64.zip
 ```
 
 **第三步 创建数据库**
@@ -53,7 +55,7 @@ db_password=123456
 在 MinDoc 根目录下使用命令行执行如下命令，用于初始化数据库：
 
 ```bash
-godoc_windows_amd64.exe install
+./godoc_linux_amd64 install
 ```
 
 
