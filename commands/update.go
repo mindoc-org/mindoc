@@ -23,6 +23,14 @@ func Update() {
 		}else if adapter == "sqlite3" {
 			sqliteUpdate()
 		}
+		o := orm.NewOrm()
+
+		b,err := ioutil.ReadFile("./data/data.sql")
+
+		if err != nil {
+			panic(err.Error())
+			os.Exit(1)
+		}
 		fmt.Println("update successed.")
 
 		os.Exit(0)
@@ -98,6 +106,4 @@ func sqliteUpdate()  {
 			os.Exit(1)
 		}
 	}
-
-	os.Exit(1)
 }
