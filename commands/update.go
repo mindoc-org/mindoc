@@ -23,12 +23,20 @@ func Update() {
 		}else if adapter == "sqlite3" {
 			sqliteUpdate()
 		}
+
 		o := orm.NewOrm()
 
 		b,err := ioutil.ReadFile("./data/data.sql")
 
 		if err != nil {
 			panic(err.Error())
+			os.Exit(1)
+		}
+		sql := string(b)
+
+		_,err = o.Raw(sql).Exec()
+		if err != nil {
+			panic("SITE_NAME => " + err.Error())
 			os.Exit(1)
 		}
 		fmt.Println("update successed.")
