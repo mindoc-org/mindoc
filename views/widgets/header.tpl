@@ -62,7 +62,7 @@
                         <li>
                             <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
                         </li>
-                        {{if eq .Member.Role 0 }}
+                        {{if eq .Member.Role 0  1}}
                         <li>
                             <a href="{{urlfor "ManagerController.Index"}}" title="管理后台"><i class="fa fa-university" aria-hidden="true"></i> 管理后台</a>
                         </li>

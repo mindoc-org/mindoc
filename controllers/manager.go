@@ -18,6 +18,14 @@ type ManagerController struct {
 	BaseController
 }
 
+func (c *ManagerController) Prepare (){
+	c.BaseController.Prepare()
+
+	if !c.Member.IsAdministrator() {
+		c.Abort("403")
+	}
+}
+
 func (c *ManagerController) Index() {
 	c.TplName = "manager/index.tpl"
 	if !c.Member.IsAdministrator() {
@@ -141,6 +149,9 @@ func (c *ManagerController) UpdateMemberStatus() {
 	if _, err := member.Find(member_id); err != nil {
 		c.JsonResult(6002, "用户不存在")
 	}
+	if member.MemberId == c.Member.MemberId {
+		c.JsonResult(6004,"不能变更自己的状态")
+	}
 	member.Status = status
 
 	if err := member.Update(); err != nil {
@@ -171,6 +182,9 @@ func (c *ManagerController) ChangeMemberRole() {
 	if _, err := member.Find(member_id); err != nil {
 		c.JsonResult(6002, "用户不存在")
 	}
+	if member.MemberId == c.Member.MemberId {
+		c.JsonResult(6004,"不能变更自己的权限")
+	}
 	member.Role = role
 
 	if err := member.Update(); err != nil {
@@ -179,6 +193,60 @@ func (c *ManagerController) ChangeMemberRole() {
 	}
 	member.ResolveRoleName()
 	c.JsonResult(0, "ok", member)
+}
+
+func (c *ManagerController) EditMember() {
+	c.Prepare()
+	c.TplName = "manager/edit_users.tpl"
+	if !c.Member.IsAdministrator() {
+		c.Abort("403")
+	}
+	member_id,_ := c.GetInt(":id",0)
+
+	if member_id <= 0 {
+		c.Abort("404")
+	}
+
+	member ,err := models.NewMember().Find(member_id)
+
+	if err != nil {
+		beego.Error(err)
+		c.Abort("404")
+	}
+	if c.Ctx.Input.IsPost() {
+		password1 := c.GetString("password1")
+		password2 := c.GetString("password2")
+		email := c.GetString("email")
+		phone := c.GetString("phone")
+		description := c.GetString("description")
+		member.Email = email
+		member.Phone = phone
+		member.Description = description
+		if password1 != "" && password2 != password1 {
+			c.JsonResult(6001,"确认密码不正确")
+		}
+		if password1 != "" {
+			member.Password = password1
+		}
+		if err := member.Valid(password1 == "");err != nil {
+			c.JsonResult(6002,err.Error())
+		}
+		if password1 != "" {
+			password,err := utils.PasswordHash(password1)
+			if err != nil {
+				beego.Error(err)
+				c.JsonResult(6003,"对用户密码加密时出错")
+			}
+			member.Password = password
+		}
+		if err := member.Update();err != nil {
+			beego.Error(err)
+			c.JsonResult(6004,"保存失败")
+		}
+		c.JsonResult(0,"ok")
+	}
+
+	c.Data["Model"] = member
 }
 
 func (c *ManagerController) Books() {
@@ -207,6 +275,9 @@ func (c *ManagerController) Books() {
 //编辑项目
 func (c *ManagerController) EditBook() {
 	c.TplName = "manager/edit_book.tpl"
+	if !c.Member.IsAdministrator() {
+		c.Abort("403")
+	}
 	identify := c.GetString(":key")
 
 	if identify == "" {

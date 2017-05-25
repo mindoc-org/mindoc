@@ -56,6 +56,7 @@
                                     <th width="80">头像</th>
                                     <th>账号</th>
                                     <th>角色</th>
+                                    <th>类型</th>
                                     <th>状态</th>
                                     <th>操作</th>
                                 </tr>
@@ -68,6 +69,9 @@
                                     <td>
                                         <template v-if="item.role == 0">
                                             超级管理员
+                                        </template>
+                                        <template v-else-if="item.member_id == {{.Member.MemberId}}">
+                                            ${item.role_name}
                                         </template>
                                         <template v-else>
                                             <div class="btn-group">
@@ -82,6 +86,9 @@
                                         </template>
                                     </td>
                                     <td>
+                                        ${item.auth_method}
+                                    </td>
+                                    <td>
                                         <template v-if="item.status == 0">
                                             <span class="label label-success">正常</span>
                                         </template>
@@ -89,8 +96,15 @@
                                             <span class="label label-danger">禁用</span>
                                         </template>
                                     </td>
+
                                     <td>
-                                        <template v-if="item.role != 0">
+                                        <template v-if="item.member_id == {{.Member.MemberId}}">
+
+                                        </template>
+                                        <template v-else-if="item.role != 0">
+                                            <a :href="'{{urlfor "ManagerController.EditMember" ":id" ""}}' + item.member_id" class="btn btn-sm btn-default" @click="editMember(item.member_id)">
+                                                编辑
+                                            </a>
                                             <template v-if="item.status == 0">
                                                 <button type="button" class="btn btn-danger btn-sm" @click="setMemberStatus(item.member_id,1,$event)" data-loading-text="启用中...">禁用</button>
                                             </template>

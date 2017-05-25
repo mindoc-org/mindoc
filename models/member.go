@@ -22,7 +22,7 @@ type Member struct {
 	Account  string `orm:"size(100);unique;column(account)" json:"account"`
 	Password string `orm:"size(1000);column(password)" json:"-"`
 	//认证方式: local 本地数据库 /ldap LDAP
-	AuthMethod  string `orm:"column(auth_method);default(local);size(50);" json:"auth_method)"`
+	AuthMethod  string `orm:"column(auth_method);default(local);size(50);" json:"auth_method"`
 	Description string `orm:"column(description);size(2000)" json:"description"`
 	Email       string `orm:"size(100);column(email);unique" json:"email"`
 	Phone       string `orm:"size(255);column(phone);null;default(null)" json:"phone"`
@@ -73,6 +73,7 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 	}
 
 	switch member.AuthMethod {
+	case "":
 	case "local":
 		ok, err := utils.PasswordVerify(member.Password, password)
 		if ok && err == nil {
@@ -169,7 +170,9 @@ func (m *Member) Add() error {
 	}
 
 	m.Password = hash
-
+	if m.AuthMethod == "" {
+		m.AuthMethod = "local"
+	}
 	_, err = o.Insert(m)
 
 	if err != nil {
@@ -263,3 +266,66 @@ func (m *Member) FindByFieldFirst(field string, value interface{}) (*Member, err
 
 	return m, err
 }
+
+func (m *Member) Valid(is_hash_password bool) error {
+
+	//邮箱不能为空
+	if m.Email == "" {
+		return ErrMemberEmailEmpty
+	}
+	//用户描述必须小于500字
+	if strings.Count(m.Description,"") > 500 {
+		return ErrMemberDescriptionTooLong
+	}
+	//邮箱格式校验
+	if  ok,err := regexp.MatchString(conf.RegexpEmail,m.Email); !ok || err != nil || m.Email == "" {
+		return ErrMemberEmailFormatError
+	}
+	//如果是未加密密码，需要校验密码格式
+	if !is_hash_password {
+		if  l := strings.Count(m.Password,"") ; m.Password == "" || l > 50 || l < 6{
+			return ErrMemberPasswordFormatError
+		}
+	}
+	//校验邮箱是否呗使用
+	if member,err := NewMember().FindByFieldFirst("email",m.Account); err == nil && member.MemberId > 0 {
+		if m.MemberId > 0 && m.MemberId != member.MemberId {
+			return ErrMemberEmailExist
+		}
+		if m.MemberId <= 0{
+			return  ErrMemberEmailExist
+		}
+	}
+	if m.MemberId > 0{
+		//校验用户是否存在
+		if _,err := NewMember().Find(m.MemberId);err != nil {
+			return err
+		}
+	}else{
+		//校验账号格式是否正确
+		if ok,err := regexp.MatchString(conf.RegexpAccount,m.Account); m.Account == "" || !ok || err != nil {
+			return ErrMemberAccountFormatError
+		}
+		//校验账号是否被使用
+		if member,err := NewMember().FindByAccount(m.Account); err == nil && member.MemberId > 0 {
+			return ErrMemberExist
+		}
+	}
+
+	return nil
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

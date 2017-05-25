@@ -17,6 +17,7 @@ func init()  {
 
 	beego.Router("/manager", &controllers.ManagerController{},"*:Index")
 	beego.Router("/manager/users", &controllers.ManagerController{},"*:Users")
+	beego.Router("/manager/users/edit/:id", &controllers.ManagerController{},"*:EditMember")
 	beego.Router("/manager/member/create", &controllers.ManagerController{},"post:CreateMember")
 	beego.Router("/manager/member/update-member-status",&controllers.ManagerController{},"post:UpdateMemberStatus")
 	beego.Router("/manager/member/change-member-role", &controllers.ManagerController{},"post:ChangeMemberRole")

@@ -57,6 +57,9 @@ func (c *AccountController) Login()  {
 
 		//如果没有数据
 		if err == nil {
+			member.LastLoginTime = time.Now()
+			member.Update()
+
 			c.SetMember(*member)
 			if strings.EqualFold(is_remember,"yes") {
 				remember.MemberId = member.MemberId
@@ -68,6 +71,7 @@ func (c *AccountController) Login()  {
 				}
 
 			}
+
 			c.JsonResult(0,"ok")
 		}else{
 			logs.Error("用户登录 =>",err)
