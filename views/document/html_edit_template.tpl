@@ -19,7 +19,8 @@
         window.releaseURL = "{{urlfor "BookController.Release" ":key" .Model.Identify}}";
         window.sortURL = "{{urlfor "BookController.SaveSort" ":key" .Model.Identify}}";
         window.baiduMapKey = "{{.BaiDuMapKey}}";
-
+        window.historyURL = "{{urlfor "DocumentController.History"}}";
+        window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
         window.vueApp = null;
     </script>
     <!-- Bootstrap -->
@@ -190,54 +191,10 @@
 <script src="{{cdnjs "/static/wangEditor/plugins/save-menu.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/wangEditor/plugins/release-menu.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/wangEditor/plugins/attach-menu.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/wangEditor/plugins/history-menu.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/to-markdown/dist/to-markdown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script type="text/javascript">
-    window.vueApp = new Vue({
-        el : "#attachList",
-        data : {
-            lists : []
-        },
-        delimiters : ['${','}'],
-        methods : {
-            removeAttach : function ($attach_id) {
-                var $this = this;
-                var item = $this.lists.filter(function ($item) {
-                   return $item.attachment_id == $attach_id;
-                });
-
-                if(item && item[0].hasOwnProperty("state")){
-                   $this.lists = $this.lists.filter(function ($item) {
-                       return $item.attachment_id != $attach_id;
-                   });
-                   return;
-                }
-                $.ajax({
-                    url : "{{urlfor "DocumentController.RemoveAttachment"}}",
-                    type : "post",
-                    data : { "attach_id" : $attach_id},
-                    success : function (res) {
-                        console.log(res);
-                        if(res.errcode === 0){
-                            $this.lists = $this.lists.filter(function ($item) {
-                                return $item.attachment_id != $attach_id;
-                            });
-                        }else{
-                            layer.msg(res.message);
-                        }
-                    }
-                });
-            }
-        },
-        watch : {
-            lists : function ($lists) {
-                $("#attachInfo").text(" " + $lists.length + " 个附件")
-            }
-        }
-    });
-
-</script>
 <script src="/static/js/editor.js" type="text/javascript"></script>
 <script src="/static/js/html-editor.js" type="text/javascript"></script>
 <script type="text/javascript">

@@ -200,30 +200,68 @@ function showSuccess($msg,$id) {
     return true;
 }
 
-$(function () {
-    $("#documentHistoryModal").on("shown.bs.modal",function () {
-        var historyVue = new Vue({
-            el : "#documentHistoryModal",
-            data : {
-                lists : []
-            },
-            delimiters : ['${','}'],
-            methods : {
-
+window.documentHistory = function() {
+    layer.open({
+        type: 2,
+        title: '历史版本',
+        shadeClose: true,
+        shade: 0.8,
+        area: ['700px','80%'],
+        content: window.historyURL + "?identify=" + window.book.identify + "&doc_id=" + window.selectNode.id,
+        end : function () {
+            if(window.SelectedId){
+                var selected = {node:{
+                    id : window.SelectedId
+                }};
+                window.loadDocument(selected);
+                window.SelectedId = null;
             }
-        });
-
-        $.ajax({
-            url : window.historyURL,
-            data : { "identify" : window.book.identify,"doc_id" : window.selectNode.id },
-            dataType :"json",
-            success : function (res) {
-                if(res.errcode === 0){
-                    historyVue.lists = res.data.lists;
-                }else{
-                    alert(res.message);
-                }
-            }
-        });
+        }
     });
+};
+
+$(function () {
+    window.vueApp = new Vue({
+        el : "#attachList",
+        data : {
+            lists : []
+        },
+        delimiters : ['${','}'],
+        methods : {
+            removeAttach : function ($attach_id) {
+                var $this = this;
+                var item = $this.lists.filter(function ($item) {
+                    return $item.attachment_id == $attach_id;
+                });
+
+                if(item && item[0].hasOwnProperty("state")){
+                    $this.lists = $this.lists.filter(function ($item) {
+                        return $item.attachment_id != $attach_id;
+                    });
+                    return;
+                }
+                $.ajax({
+                    url : window.removeAttachURL,
+                    type : "post",
+                    data : { "attach_id" : $attach_id},
+                    success : function (res) {
+                        console.log(res);
+                        if(res.errcode === 0){
+                            $this.lists = $this.lists.filter(function ($item) {
+                                return $item.attachment_id != $attach_id;
+                            });
+                        }else{
+                            layer.msg(res.message);
+                        }
+                    }
+                });
+            }
+        },
+        watch : {
+            lists : function ($lists) {
+                $("#attachInfo").text(" " + $lists.length + " 个附件")
+            }
+        }
+    });
+
 });

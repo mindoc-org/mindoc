@@ -50,6 +50,9 @@ func (m *DocumentHistory) TableNameWithPrefix() string {
 func NewDocumentHistory() *DocumentHistory {
 	return &DocumentHistory{}
 }
+func (m *DocumentHistory) Find()  {
+
+}
 //清空指定文档的历史.
 func (m *DocumentHistory) Clear(doc_id int) error {
 	o := orm.NewOrm()
@@ -60,18 +63,19 @@ func (m *DocumentHistory) Clear(doc_id int) error {
 }
 
 //删除历史.
-func (m *DocumentHistory) Delete(history_id int) error {
+func (m *DocumentHistory) Delete(history_id,doc_id int) error {
 	o := orm.NewOrm()
 
-	_, err := o.Raw("DELETE md_document_history WHERE history_id = ?", history_id).Exec()
+	_, err := o.QueryTable(m.TableNameWithPrefix()).Filter("history_id",history_id).Filter("document_id",doc_id).Delete()
+
 	return err
 }
 
 //恢复指定历史的文档.
-func (m *DocumentHistory) Restore(history_id int) error {
+func (m *DocumentHistory) Restore(history_id,doc_id,uid int) error {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("history_id", history_id).One(m)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("history_id", history_id).Filter("document_id",doc_id).One(m)
 
 	if err != nil {
 		return err
@@ -81,10 +85,25 @@ func (m *DocumentHistory) Restore(history_id int) error {
 	if err != nil {
 		return err
 	}
+	history := NewDocumentHistory()
+	history.DocumentId = doc_id
+	history.Content = doc.Content
+	history.Markdown = doc.Markdown
+	history.DocumentName = doc.DocumentName
+	history.ModifyAt = uid
+	history.MemberId = doc.MemberId
+	history.ParentId = doc.ParentId
+	history.Version = time.Now().Unix()
+	history.Action = "restore"
+	history.ActionName = "恢复文档"
+
+	history.InsertOrUpdate()
+
 	doc.DocumentName = m.DocumentName
 	doc.Content = m.Content
 	doc.Markdown = m.Markdown
 	doc.Release = m.Content
+	doc.Version = time.Now().Unix()
 
 	_, err = o.Update(doc)
 
@@ -111,10 +130,10 @@ func (m *DocumentHistory) FindToPager(doc_id, page_index, page_size int) (docs [
 
 	totalCount = 0
 
-	sql := `SELECT history.*,m1.account,m2.account as ModifyName
+	sql := `SELECT history.*,m1.account,m2.account as modify_name
 FROM md_document_history AS history
 LEFT JOIN md_members AS m1 ON history.member_id = m1.member_id
-LEFT JOIN md_members AS m2 ON history.member_id = m2.member_id
+LEFT JOIN md_members AS m2 ON history.modify_at = m2.member_id
 WHERE history.document_id = ? ORDER BY history.history_id DESC LIMIT ?,?;`
 
 	_, err = o.Raw(sql,doc_id,offset,page_size).QueryRows(&docs)

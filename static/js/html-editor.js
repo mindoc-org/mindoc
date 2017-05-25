@@ -9,24 +9,18 @@ $(function () {
         "editor" : "wangEditor"
     };
     wangEditor.config.menus.splice(0,0,"|");
+    wangEditor.config.menus.splice(0,0,"history");
     wangEditor.config.menus.splice(0,0,"save");
     wangEditor.config.menus.splice(0,0,"release");
     wangEditor.config.menus.splice(29,0,"attach")
 
     //移除地图、背景色
     editor.config.menus = $.map(wangEditor.config.menus, function(item, key) {
-        if (item === 'bgcolor') {
-            return null;
-        }
+
         if (item === 'fullscreen') {
             return null;
         }
-        if (item === "undo"){
-            return null;
-        }
-        if (item === "redo"){
-            return null;
-        }
+
         return item;
     });
 

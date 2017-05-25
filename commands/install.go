@@ -8,6 +8,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
+	"io/ioutil"
 )
 
 //系统安装.
@@ -32,26 +33,15 @@ func initialization() {
 
 	o := orm.NewOrm()
 
-	_, err := o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '是否启用注册','ENABLED_REGISTER','false' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLED_REGISTER');`).Exec()
+	b,err := ioutil.ReadFile("./data/data.sql")
 
 	if err != nil {
-		panic("ENABLED_REGISTER => " + err.Error())
+		panic(err.Error())
 		os.Exit(1)
 	}
-	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '是否启用验证码','ENABLED_CAPTCHA','false' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLED_CAPTCHA');`).Exec()
+	sql := string(b)
 
-	if err != nil {
-		panic("ENABLED_CAPTCHA => " + err.Error())
-		os.Exit(1)
-	}
-	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '启用匿名访问','ENABLE_ANONYMOUS','true' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'ENABLE_ANONYMOUS');`).Exec()
-
-	if err != nil {
-		panic("ENABLE_ANONYMOUS => " + err.Error())
-		os.Exit(1)
-	}
-	_, err = o.Raw(`INSERT INTO md_options (option_title, option_name, option_value) SELECT '站点名称','SITE_NAME','MinDoc' WHERE NOT exists(SELECT * FROM md_options WHERE option_name = 'SITE_NAME');`).Exec()
-
+	_,err = o.Raw(sql).Exec()
 	if err != nil {
 		panic("SITE_NAME => " + err.Error())
 		os.Exit(1)

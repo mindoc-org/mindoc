@@ -77,7 +77,17 @@
                                 </label>
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label>启用文档历史</label>
+                            <div class="radio">
+                                <label class="radio-inline">
+                                    <input type="radio" {{if eq .ENABLE_DOCUMENT_HISTORY.OptionValue "true"}}checked{{end}} name="ENABLE_DOCUMENT_HISTORY" value="true">开启<span class="text"></span>
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" {{if eq .ENABLE_DOCUMENT_HISTORY.OptionValue "false"}}checked{{end}} name="ENABLE_DOCUMENT_HISTORY" value="false">关闭<span class="text"></span>
+                                </label>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
                             <span id="form-error-message" class="error-message"></span>

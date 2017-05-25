@@ -176,7 +176,6 @@ func (m *Book) FindToPager(pageIndex, pageSize ,memberId int) (books []*BookResu
 		Limit(pageSize).
 		Offset(offset)
 
-	logs.Info("",qb2.String())
 	_,err = o.Raw(qb2.String(),memberId).QueryRows(&books)
 	if err != nil {
 		logs.Error("分页查询项目列表 => ",err)

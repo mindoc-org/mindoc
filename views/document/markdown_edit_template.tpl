@@ -18,6 +18,7 @@
         window.releaseURL = "{{urlfor "BookController.Release" ":key" .Model.Identify}}";
         window.sortURL = "{{urlfor "BookController.SaveSort" ":key" .Model.Identify}}";
         window.historyURL = "{{urlfor "DocumentController.History"}}";
+        window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -214,31 +215,8 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">文档历史记录</h4>
             </div>
-            <div class="modal-body text-center">
-                <template v-if="lists.length <= 0">
-                    暂无数据
-                </template>
-                <template v-else>
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>#</th><th>名称</th><th>修改时间</th><th>修改人</th><th>版本</th><th>操作</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <template v-for="item in lists">
-                        <tr>
-                            <td>${item.history_id}</td>
-                            <td>${item.action_name}</td>
-                            <td>${item.modify_time}</td>
-                            <td>${item.modify_name}</td>
-                            <td>${item.version}</td>
-                            <td></td>
-                        </tr>
-                        </template>
-                        </tbody>
-                    </table>
-                </template>
+            <div class="modal-body text-center" id="historyList">
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
@@ -256,48 +234,7 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
-    window.vueApp = new Vue({
-        el : "#attachList",
-        data : {
-            lists : []
-        },
-        delimiters : ['${','}'],
-        methods : {
-            removeAttach : function ($attach_id) {
-                var $this = this;
-                var item = $this.lists.filter(function ($item) {
-                    return $item.attachment_id == $attach_id;
-                });
 
-                if(item && item[0].hasOwnProperty("state")){
-                    $this.lists = $this.lists.filter(function ($item) {
-                        return $item.attachment_id != $attach_id;
-                    });
-                    return;
-                }
-                $.ajax({
-                    url : "{{urlfor "DocumentController.RemoveAttachment"}}",
-                    type : "post",
-                    data : { "attach_id" : $attach_id},
-                    success : function (res) {
-                        console.log(res);
-                        if(res.errcode === 0){
-                            $this.lists = $this.lists.filter(function ($item) {
-                                return $item.attachment_id != $attach_id;
-                            });
-                        }else{
-                            layer.msg(res.message);
-                        }
-                    }
-                });
-            }
-        },
-        watch : {
-            lists : function ($lists) {
-                $("#attachInfo").text(" " + $lists.length + " 个附件")
-            }
-        }
-    });
 
 </script>
 <script src="/static/js/editor.js" type="text/javascript"></script>

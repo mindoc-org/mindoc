@@ -891,11 +891,83 @@ func (c *DocumentController) Search()  {
 //文档历史列表.
 func (c *DocumentController) History() {
 	c.Prepare()
+	c.TplName = "document/history.tpl"
 
 	identify := c.GetString("identify")
 	doc_id, err := c.GetInt("doc_id", 0)
 	pageIndex, _ := c.GetInt("page", 1)
 
+	book_id := 0
+	//如果是超级管理员则忽略权限判断
+	if c.Member.Role == conf.MemberSuperRole {
+		book, err := models.NewBook().FindByFieldFirst("identify", identify)
+		if err != nil {
+			beego.Error("FindByIdentify => ", err)
+			c.Data["ErrorMessage"] = "项目不存在或权限不足"
+			return
+		}
+		book_id = book.BookId
+		c.Data["Model"] = book
+	} else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.Data["ErrorMessage"] = "项目不存在或权限不足"
+			return
+		}
+		book_id = bookResult.BookId
+		c.Data["Model"] = bookResult
+	}
+
+	if doc_id <= 0 {
+		c.Data["ErrorMessage"] = "参数错误"
+		return
+	}
+
+	doc, err := models.NewDocument().Find(doc_id)
+
+	if err != nil {
+		beego.Error("Delete => ", err)
+		c.Data["ErrorMessage"] = "获取历史失败"
+		return
+	}
+	//如果文档所属项目错误
+	if doc.BookId != book_id {
+		c.Data["ErrorMessage"] = "参数错误"
+		return
+	}
+
+	historis,totalCount,err := models.NewDocumentHistory().FindToPager(doc_id,pageIndex,conf.PageSize)
+
+	if err != nil {
+		beego.Error("FindToPager => ",err)
+		c.Data["ErrorMessage"] = "获取历史失败"
+		return
+	}
+
+	c.Data["List"] = historis
+	c.Data["PageHtml"] = ""
+	c.Data["Document"] = doc
+
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
+
+		c.Data["PageHtml"] =html
+	}
+}
+
+func (c *DocumentController) DeleteHistory() {
+	c.Prepare()
+	c.TplName = "document/history.tpl"
+
+	identify := c.GetString("identify")
+	doc_id, err := c.GetInt("doc_id", 0)
+	history_id,_ := c.GetInt("history_id",0)
+
+	if history_id <= 0 {
+		c.JsonResult(6001,"参数错误")
+	}
 	book_id := 0
 	//如果是超级管理员则忽略权限判断
 	if c.Member.Role == conf.MemberSuperRole {
@@ -916,39 +988,77 @@ func (c *DocumentController) History() {
 	}
 
 	if doc_id <= 0 {
-		c.JsonResult(6001, "参数错误")
+		c.JsonResult(6001,"参数错误")
 	}
 
 	doc, err := models.NewDocument().Find(doc_id)
 
 	if err != nil {
 		beego.Error("Delete => ", err)
-		c.JsonResult(6003, "获取历史失败")
+		c.JsonResult(6001,"获取历史失败")
 	}
 	//如果文档所属项目错误
 	if doc.BookId != book_id {
-		c.JsonResult(6004, "参数错误")
+		c.JsonResult(6001,"参数错误")
+	}
+	err = models.NewDocumentHistory().Delete(history_id,doc_id)
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(6002,"删除失败")
+	}
+	c.JsonResult(0,"ok")
+}
+
+func (c *DocumentController) RestoreHistory()  {
+	c.Prepare()
+	c.TplName = "document/history.tpl"
+
+	identify := c.GetString("identify")
+	doc_id, err := c.GetInt("doc_id", 0)
+	history_id,_ := c.GetInt("history_id",0)
+
+	if history_id <= 0 {
+		c.JsonResult(6001,"参数错误")
+	}
+	book_id := 0
+	//如果是超级管理员则忽略权限判断
+	if c.Member.Role == conf.MemberSuperRole {
+		book, err := models.NewBook().FindByFieldFirst("identify", identify)
+		if err != nil {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = book.BookId
+	} else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		book_id = bookResult.BookId
 	}
 
-	historis,totalCount,err := models.NewDocumentHistory().FindToPager(doc_id,pageIndex,conf.PageSize)
+	if doc_id <= 0 {
+		c.JsonResult(6001,"参数错误")
+	}
+
+	doc, err := models.NewDocument().Find(doc_id)
 
 	if err != nil {
-		c.JsonResult(6005,"获取历史失败")
+		beego.Error("Delete => ", err)
+		c.JsonResult(6001,"获取历史失败")
 	}
-	var data struct {
-		PageHtml string `json:"page_html"`
-		List []*models.DocumentHistorySimpleResult `json:"lists"`
+	//如果文档所属项目错误
+	if doc.BookId != book_id {
+		c.JsonResult(6001,"参数错误")
 	}
-	data.List = historis
-	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
-
-		data.PageHtml = string(html)
-	}else {
-		data.PageHtml = ""
+	err = models.NewDocumentHistory().Restore(history_id,doc_id,c.Member.MemberId)
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(6002,"删除失败")
 	}
-
-	c.JsonResult(0,"ok",data)
+	c.JsonResult(0,"ok",doc)
 }
 
 //递归生成文档序列数组.

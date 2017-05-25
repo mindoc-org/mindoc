@@ -61,7 +61,7 @@ $(function () {
        if(name === "attachment"){
            $("#uploadAttachModal").modal("show");
        }else if(name === "history"){
-            $("#documentHistoryModal").modal("show");
+           window.documentHistory();
        }else if(name === "save"){
             saveDocument(false);
 
@@ -126,7 +126,7 @@ $(function () {
      * 加载指定的文档到编辑器中
      * @param $node
      */
-    function loadDocument($node) {
+    window.loadDocument = function($node) {
         var index = layer.load(1, {
             shade: [0.1,'#fff'] //0.1透明度的白色背景
         });
@@ -175,7 +175,6 @@ $(function () {
 
             if(item.id === doc_id){
                 version = item.version;
-                console.log(item)
                 break;
             }
         }

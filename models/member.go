@@ -22,7 +22,7 @@ type Member struct {
 	Account  string `orm:"size(100);unique;column(account)" json:"account"`
 	Password string `orm:"size(1000);column(password)" json:"-"`
 	//认证方式: local 本地数据库 /ldap LDAP
-	AuthMethod  string `orm:"size(10);column(auth_method);default(local)" json:"auth_method)"`
+	AuthMethod  string `orm:"column(auth_method);default(local);size(50);" json:"auth_method)"`
 	Description string `orm:"column(description);size(2000)" json:"description"`
 	Email       string `orm:"size(100);column(email);unique" json:"email"`
 	Phone       string `orm:"size(255);column(phone);null;default(null)" json:"phone"`
@@ -128,6 +128,8 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		m.AuthMethod = "ldap"
 		m.Avatar = "/static/images/headimgurl.jpg"
 		m.Role = beego.AppConfig.DefaultInt("ldap_user_role", 2)
+		m.CreateTime = time.Now()
+
 		err = m.Add()
 		if err != nil {
 			logs.Error("自动注册LDAP用户错误", err)
