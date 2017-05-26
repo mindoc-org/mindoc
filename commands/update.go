@@ -10,6 +10,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/astaxie/beego/orm"
+	"strings"
 )
 
 //系统升级.
@@ -32,13 +33,23 @@ func Update() {
 			panic(err.Error())
 			os.Exit(1)
 		}
-		sql := string(b)
+		sqls := string(b)
 
-		_,err = o.Raw(sql).Exec()
-		if err != nil {
-			panic("SITE_NAME => " + err.Error())
-			os.Exit(1)
+		if sqls != "" {
+			items := strings.Split(sqls,"\r\n")
+			for _,sql := range items {
+				if sql != "" {
+					_,err = o.Raw(sql).Exec()
+
+					if err != nil  && err != orm.ErrNoRows{
+						panic("SITE_NAME => " + err.Error())
+						os.Exit(1)
+					}
+				}
+
+			}
 		}
+
 		fmt.Println("update successed.")
 
 		os.Exit(0)
@@ -82,18 +93,19 @@ func CheckUpdate() {
 
 //MySQL 数据库更新表结构.
 func mysqlUpdate()  {
-	sql := `
-	IF NOT EXISTS (SELECT * FROM information_schema.columns WHERE table_schema=CurrentDatabase AND table_name = 'md_members' AND column_name = 'auth_method') THEN
-		ALTER TABLE md_members ADD auth_method VARCHAR(50) DEFAULT 'local' NULL;
-	END IF; `
+	db_name := beego.AppConfig.String("db_database")
+
 	o := orm.NewOrm()
 
-	_,err := o.Raw(sql).Exec()
+	var total_count int
+
+	err := o.Raw("SELECT COUNT(*) AS total_count FROM information_schema.columns WHERE table_schema= ? AND table_name = 'md_members' AND column_name = 'auth_method'",db_name).QueryRow(&total_count)
 
 	if err != nil {
 		panic(fmt.Sprintf("error : 6001 => %s",err.Error()))
 		os.Exit(1)
 	}
+	_,err = o.Raw("ALTER TABLE md_members ADD auth_method VARCHAR(50) DEFAULT 'local' NULL").Exec()
 }
 
 //sqlite 数据库更新表结构.
