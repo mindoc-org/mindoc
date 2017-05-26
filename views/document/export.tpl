@@ -17,15 +17,11 @@
     <link href="{{.BaseUrl}}/static/css/jstree.css" rel="stylesheet">
     {{if eq .Model.Editor "markdown"}}
     <link href="{{.BaseUrl}}/static/editor.md/css/editormd.preview.css" rel="stylesheet">
+    <link href="{{.BaseUrl}}/static/prettify/themes/atelier-estuary-dark.min.css" rel="stylesheet">
+    <link href="{{.BaseUrl}}/static/css/markdown.preview.css" rel="stylesheet">
     {{else}}
     <link href="{{.BaseUrl}}/static/highlight/styles/zenburn.css" rel="stylesheet">
     {{end}}
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="{{.BaseUrl}}/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="{{.BaseUrl}}/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
 </head>
 <body>
 <div class="m-manual manual-reader">

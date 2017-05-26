@@ -1083,6 +1083,8 @@ func RecursiveFun(parent_id int, prefix, dpath string, c *DocumentController, bo
 				c.Abort("500")
 			}
 			//beego.Info(fpath,html)
+			html = strings.Replace(html,"<img src=\"/uploads","<img src=\""+ c.BaseUrl() +"/uploads",-1)
+
 			f.WriteString(html)
 			f.Close()
 
