@@ -40,21 +40,21 @@
                     </div>
                 </div>
                 <div class="box-body manager">
-                    <div class="dashboard-item">
+                    <a href="{{urlfor "ManagerController.Books"}}" class="dashboard-item">
                         <span class="fa fa-book" aria-hidden="true"></span>
                         <span class="fa-class">项目数量</span>
                         <span class="fa-class">{{.Model.BookNumber}}</span>
-                    </div>
+                    </a>
                     <div class="dashboard-item">
                         <span class="fa fa-file-text-o" aria-hidden="true"></span>
                         <span class="fa-class">文章数量</span>
                         <span class="fa-class">{{.Model.DocumentNumber}}</span>
                     </div>
-                    <div class="dashboard-item">
-                        <span class="fa fa-users" aria-hidden="true"></span>
-                        <span class="fa-class">会员数量</span>
-                        <span class="fa-class">{{.Model.MemberNumber}}</span>
-                    </div>
+                    <a href="{{urlfor "ManagerController.Users"}}" class="dashboard-item">
+                            <span class="fa fa-users" aria-hidden="true"></span>
+                            <span class="fa-class">会员数量</span>
+                            <span class="fa-class">{{.Model.MemberNumber}}</span>
+                    </a>
                     <!--
                     {{/*
                     <div class="dashboard-item">

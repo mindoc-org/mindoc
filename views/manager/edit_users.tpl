@@ -47,7 +47,7 @@
                         <div class="form-group">
                             <label>用户密码</label>
                             <input type="password" class="form-control" name="password1" placeholder="用户密码" maxlength="50">
-                            <p style="color: #999;font-size: 12px;">不修改密码请留空</p>
+                            <p style="color: #999;font-size: 12px;">不修改密码请留空,只支持本地用户修改密码</p>
                         </div>
                         <div class="form-group">
                             <label>确认密码</label>

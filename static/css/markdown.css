@@ -215,6 +215,7 @@ body{
     margin-left: 10px;
     cursor: pointer;
 }
+/***************附件管理的样式*******************/
 .attach-drop-panel{
     display: block;
     position: relative;
@@ -286,20 +287,80 @@ body{
 .attach-list .attach-item .close:hover {
     color: #333;
 }
+/***********选择模板时的样式**************/
+.template-list .container{
+    margin-top: 60px;
+    margin-bottom: 40px;
+    padding: 0 15px;
+    box-sizing: border-box;
+}
+.template-list .container .section{
+    position: relative;
+    margin: 0 15px;
+    padding-top: 60px;
+    float: left;
+    width: 150px;
+    height: 236px;
+    background: #fdfefe;
+    border: 1px solid #ddddd9;
+    text-align: center
+}
+.template-list .container .section>h3 a{
+    font-size: 20px;
+    font-weight: 200;
+    text-decoration: none;
+    color: #5d606b
+}
+.template-list .container .section>a {
+    display: inline-block;
+    position: absolute;
+    left: 50%;
+    top: -28px;
+    width: 56px;
+    height: 56px;
+    margin-left: -28px
+}
+.template-list .container .section>a .fa {
+    display: inline-block;
+    width: 56px;
+    height: 56px;
+    background-color: #fbfefe;
+    border: 1px solid #ddddd9;
+    border-radius: 50%;
+    line-height: 54px;
+    font-size: 24px;
+    color: #ddddd9
+}
+.template-list .container .section:hover {
+    border-color: #44b035
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+.template-list .container .section:hover>a {
+    background-color: #44b035;
+    padding: 5px;
+    border-radius: 50%;
+    width: 66px;
+    height: 66px;
+    margin-left: -33px;
+    top: -33px
+}
+.template-list .container .section:hover>a .fa {
+    background-color: #78c56d;
+    color: #fff;
+    border: 0;
+    line-height: 54px
+}
+.template-list .container .section ul {
+    margin-top: 35px;
+    padding-left: 0;
+    list-style: none
+}
+.template-list .container .section ul li {
+    margin-bottom: 10px;
+    padding: 0 10px;
+    line-height: 1.2;
+    color: #8e8d8d
+}
 
 
 

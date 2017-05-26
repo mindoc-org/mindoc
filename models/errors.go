@@ -14,6 +14,7 @@ var (
 	ErrMemberEmailFormatError = errors.New("邮箱格式不正确")
 	ErrMemberPasswordFormatError = errors.New("密码必须在6-50个字符之间")
 	ErrMemberAccountFormatError = errors.New("账号只能由英文字母数字组成，且在3-50个字符")
+	ErrMemberRoleError = errors.New("用户权限不正确")
 	// ErrorMemberPasswordError 密码错误.
 	ErrorMemberPasswordError = errors.New("用户密码错误")
 	//ErrorMemberAuthMethodInvalid 不支持此认证方式

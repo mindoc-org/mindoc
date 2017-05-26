@@ -508,7 +508,7 @@ func (c *BookController) Release() {
 
 	book_id := 0
 
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator() {
 		book,err := models.NewBook().FindByFieldFirst("identify",identify)
 		if err != nil {
 
@@ -550,21 +550,32 @@ func (c *BookController) SaveSort() {
 		c.Abort("404")
 	}
 
-	bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+	book_id := 0
+	if c.Member.IsAdministrator() {
+		book,err := models.NewBook().FindByFieldFirst("identify",identify)
+		if err != nil {
 
-	if err != nil {
-		beego.Error("DocumentController.Edit => ",err)
+		}
+		book_id = book.BookId
+	}else{
+		bookResult,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
+		if err != nil {
+			beego.Error("DocumentController.Edit => ",err)
 
-		c.Abort("403")
+			c.Abort("403")
+		}
+		if bookResult.RoleId == conf.BookObserver {
+			c.JsonResult(6002,"项目不存在或权限不足")
+		}
+		book_id = bookResult.BookId
 	}
-	if bookResult.RoleId == conf.BookObserver {
-		c.JsonResult(6002,"项目不存在或权限不足")
-	}
+
+
 	content := c.Ctx.Input.RequestBody
 
 	var docs []map[string]interface{}
 
-	err = json.Unmarshal(content,&docs)
+	err := json.Unmarshal(content,&docs)
 
 	if err != nil {
 		beego.Error(err)
@@ -578,7 +589,7 @@ func (c *BookController) SaveSort() {
 				beego.Error(err)
 				continue;
 			}
-			if doc.BookId != bookResult.BookId {
+			if doc.BookId != book_id {
 				logs.Info("%s","权限错误")
 				continue;
 			}
@@ -593,7 +604,7 @@ func (c *BookController) SaveSort() {
 				continue
 			}
 			if parent_id > 0 {
-				if parent,err := models.NewDocument().Find(int(parent_id)); err != nil || parent.BookId != bookResult.BookId {
+				if parent,err := models.NewDocument().Find(int(parent_id)); err != nil || parent.BookId != book_id {
 					continue
 				}
 			}

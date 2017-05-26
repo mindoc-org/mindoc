@@ -1,0 +1,33 @@
+/*************表格样式****************/
+
+.editormd-preview-container table thead tr{
+    background-color: #0088CC;
+    color: #ffffff;
+}
+.editormd-preview-container table tr:nth-child(2n) {
+    background-color: #f8f8f8
+}
+.editormd-preview-container-body blockquote,.editormd-preview-container blockquote p {
+    font-size: 14px;
+    color: #999
+}
+/***********代码样式*****************/
+.markdown-body .highlight pre, .markdown-body pre{
+    padding: 0;
+    font-size: 12px;
+    border-radius:0;
+    line-height: 1.4em;
+}
+.editormd-preview-container pre.prettyprint, .editormd-html-preview pre.prettyprint{
+    padding: 0;
+}
+.editormd-preview-container ol.linenums, .editormd-html-preview ol.linenums{
+    color: #999;
+}
+.editormd-preview-container ol.linenums>li:first-child,.editormd-html-preview ol.linenums>li:first-child{
+    padding-top: 10px;
+}
+.editormd-preview-container ol.linenums>li:last-child ,.editormd-html-preview ol.linenums>li:last-child{
+    padding-bottom: 10px;
+}
+

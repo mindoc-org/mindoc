@@ -12,6 +12,7 @@ import (
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/utils"
 	"github.com/lifei6671/godoc/graphics"
+	"github.com/lifei6671/godoc/conf"
 )
 
 type SettingController struct {
@@ -45,6 +46,9 @@ func (c *SettingController) Password()  {
 	c.TplName = "setting/password.tpl"
 
 	if c.Ctx.Input.IsPost() {
+		if c.Member.AuthMethod == conf.AuthMethodLDAP {
+			c.JsonResult(6009,"当前用户不支持修改密码")
+		}
 		password1 := c.GetString("password1")
 		password2 := c.GetString("password2")
 		password3 := c.GetString("password3")

@@ -64,7 +64,8 @@ $(function () {
            window.documentHistory();
        }else if(name === "save"){
             saveDocument(false);
-
+       }else if(name === "template"){
+           $("#documentTemplateModal").modal("show");
        }else if(name === "sidebar"){
             $("#manualCategory").toggle(0,"swing",function () {
 
@@ -151,7 +152,7 @@ $(function () {
             layer.close(index);
             layer.msg("文档加载失败");
         });
-    }
+    };
 
     /**
      * 保存文档到服务器
@@ -341,4 +342,17 @@ $(function () {
         loadDocument(selected);
 
     }).on("move_node.jstree",jstree_save);
+
+    $("#documentTemplateModal").on("click",".section>a[data-type]",function () {
+        var $this = $(this).attr("data-type");
+        var body = $("#template-" + $this).html();
+        if (body) {
+            window.isLoad = true;
+            window.editor.clear();
+            window.editor.insertValue(body);
+            window.editor.setCursor({line: 0, ch: 0});
+            resetEditorChanged(true);
+        }
+        $("#documentTemplateModal").modal('hide');
+    });
 });

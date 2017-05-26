@@ -37,7 +37,7 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 		beego.Error(err)
 		c.Abort("500")
 	}
-	if c.Member != nil && c.Member.Role == conf.MemberSuperRole {
+	if c.Member != nil && c.Member.IsAdministrator(){
 		bookResult := book.ToBookResult()
 		return bookResult
 	}
@@ -208,7 +208,7 @@ func (c *DocumentController) Edit() {
 	bookResult := models.NewBookResult()
 	var err error
 	//如果是超级管理者，则不判断权限
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator(){
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			c.JsonResult(6002, "项目不存在或权限不足")
@@ -289,7 +289,7 @@ func (c *DocumentController) Create() {
 	}
 	book_id := 0
 	//如果是超级管理员则不判断权限
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator(){
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			beego.Error(err)
@@ -370,7 +370,7 @@ func (c *DocumentController) Upload() {
 	}
 	book_id := 0
 	//如果是超级管理员，则不判断权限
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator(){
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 
 		if err != nil {
@@ -584,7 +584,7 @@ func (c *DocumentController) Delete() {
 
 	book_id := 0
 	//如果是超级管理员则忽略权限判断
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator(){
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			beego.Error("FindByIdentify => ", err)
@@ -637,7 +637,7 @@ func (c *DocumentController) Content() {
 	}
 	book_id := 0
 	//如果是超级管理员，则忽略权限
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			c.JsonResult(6002, "项目不存在或权限不足")
@@ -740,7 +740,7 @@ func (c *DocumentController) Export() {
 		return
 	}
 	bookResult := models.NewBookResult()
-	if c.Member != nil && c.Member.Role == conf.MemberSuperRole {
+	if c.Member != nil && c.Member.IsAdministrator(){
 		book, err := models.NewBook().FindByIdentify(identify)
 		if err != nil {
 			beego.Error(err)
@@ -899,7 +899,7 @@ func (c *DocumentController) History() {
 
 	book_id := 0
 	//如果是超级管理员则忽略权限判断
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator(){
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			beego.Error("FindByIdentify => ", err)
@@ -970,7 +970,7 @@ func (c *DocumentController) DeleteHistory() {
 	}
 	book_id := 0
 	//如果是超级管理员则忽略权限判断
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator(){
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			beego.Error("FindByIdentify => ", err)
@@ -1022,7 +1022,7 @@ func (c *DocumentController) RestoreHistory()  {
 	}
 	book_id := 0
 	//如果是超级管理员则忽略权限判断
-	if c.Member.Role == conf.MemberSuperRole {
+	if c.Member.IsAdministrator(){
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			beego.Error("FindByIdentify => ", err)

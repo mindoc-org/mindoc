@@ -277,6 +277,12 @@ func (m *Member) Valid(is_hash_password bool) error {
 	if strings.Count(m.Description,"") > 500 {
 		return ErrMemberDescriptionTooLong
 	}
+	if m.Role != conf.MemberGeneralRole && m.Role != conf.MemberSuperRole && m.Role != conf.MemberAdminRole {
+		return ErrMemberRoleError
+	}
+	if m.Status != 0 && m.Status != 1 {
+		m.Status = 0
+	}
 	//邮箱格式校验
 	if  ok,err := regexp.MatchString(conf.RegexpEmail,m.Email); !ok || err != nil || m.Email == "" {
 		return ErrMemberEmailFormatError
@@ -296,6 +302,7 @@ func (m *Member) Valid(is_hash_password bool) error {
 			return  ErrMemberEmailExist
 		}
 	}
+
 	if m.MemberId > 0{
 		//校验用户是否存在
 		if _,err := NewMember().Find(m.MemberId);err != nil {
@@ -311,6 +318,7 @@ func (m *Member) Valid(is_hash_password bool) error {
 			return ErrMemberExist
 		}
 	}
+
 
 	return nil
 }

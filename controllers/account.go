@@ -172,7 +172,9 @@ func (c *AccountController) FindPassword()  {
 		if member.Status != 0 {
 			c.JsonResult(6007,"账号已被禁用")
 		}
-
+		if member.AuthMethod == conf.AuthMethodLDAP {
+			c.JsonResult(6011,"当前用户不支持找回密码")
+		}
 
 		count,err := models.NewMemberToken().FindSendCount(email,time.Now().Add(-1*time.Hour),time.Now())
 

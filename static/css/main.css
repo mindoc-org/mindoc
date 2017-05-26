@@ -492,6 +492,7 @@ textarea{
     background-color: #f9f9f9;
     border: 1px solid #fff;
     cursor: pointer;
+    color: #333;
 }
 .manager .dashboard-item:hover{
     background-color: #563D7C;

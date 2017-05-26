@@ -28,9 +28,6 @@ func (c *ManagerController) Prepare (){
 
 func (c *ManagerController) Index() {
 	c.TplName = "manager/index.tpl"
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
 
 	c.Data["Model"] = models.NewDashboard().Query()
 }
@@ -39,10 +36,6 @@ func (c *ManagerController) Index() {
 func (c *ManagerController) Users() {
 	c.Prepare()
 	c.TplName = "manager/users.tpl"
-
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
 
 	pageIndex, _ := c.GetInt("page", 0)
 
@@ -73,9 +66,6 @@ func (c *ManagerController) Users() {
 // 添加用户.
 func (c *ManagerController) CreateMember() {
 	c.Prepare()
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
 
 	account := strings.TrimSpace(c.GetString("account"))
 	password1 := strings.TrimSpace(c.GetString("password1"))
@@ -131,10 +121,6 @@ func (c *ManagerController) CreateMember() {
 func (c *ManagerController) UpdateMemberStatus() {
 	c.Prepare()
 
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
-
 	member_id, _ := c.GetInt("member_id", 0)
 	status, _ := c.GetInt("status", 0)
 
@@ -168,10 +154,6 @@ func (c *ManagerController) UpdateMemberStatus() {
 func (c *ManagerController) ChangeMemberRole() {
 	c.Prepare()
 
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
-
 	member_id, _ := c.GetInt("member_id", 0)
 	role, _ := c.GetInt("role", 0)
 	if member_id <= 0 {
@@ -204,9 +186,7 @@ func (c *ManagerController) ChangeMemberRole() {
 func (c *ManagerController) EditMember() {
 	c.Prepare()
 	c.TplName = "manager/edit_users.tpl"
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
+
 	member_id,_ := c.GetInt(":id",0)
 
 	if member_id <= 0 {
@@ -231,7 +211,7 @@ func (c *ManagerController) EditMember() {
 		if password1 != "" && password2 != password1 {
 			c.JsonResult(6001,"确认密码不正确")
 		}
-		if password1 != "" {
+		if password1 != "" && member.AuthMethod != conf.AuthMethodLDAP{
 			member.Password = password1
 		}
 		if err := member.Valid(password1 == "");err != nil {
@@ -280,10 +260,10 @@ func (c *ManagerController) Books() {
 
 //编辑项目
 func (c *ManagerController) EditBook() {
+	c.Prepare()
+
 	c.TplName = "manager/edit_book.tpl"
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
+
 	identify := c.GetString(":key")
 
 	if identify == "" {
@@ -334,9 +314,6 @@ func (c *ManagerController) EditBook() {
 // 删除项目.
 func (c *ManagerController) DeleteBook() {
 	c.Prepare()
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
 
 	book_id, _ := c.GetInt("book_id", 0)
 
@@ -359,7 +336,7 @@ func (c *ManagerController) DeleteBook() {
 
 // CreateToken 创建访问来令牌.
 func (c *ManagerController) CreateToken() {
-
+	c.Prepare()
 	action := c.GetString("action")
 
 	identify := c.GetString("identify")
@@ -395,10 +372,6 @@ func (c *ManagerController) CreateToken() {
 func (c *ManagerController) Setting() {
 	c.Prepare()
 	c.TplName = "manager/setting.tpl"
-
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
 
 	options, err := models.NewOption().All()
 
@@ -480,9 +453,7 @@ func (c *ManagerController) Comments() {
 //DeleteComment 标记评论为已删除
 func (c *ManagerController) DeleteComment() {
 	c.Prepare()
-	if !c.Member.IsAdministrator() {
-		c.Abort("403")
-	}
+
 	comment_id, _ := c.GetInt("comment_id", 0)
 
 	if comment_id <= 0 {
@@ -505,7 +476,7 @@ func (c *ManagerController) DeleteComment() {
 
 //设置项目私有状态.
 func (c *ManagerController) PrivatelyOwned() {
-
+	c.Prepare()
 	status := c.GetString("status")
 	identify := c.GetString("identify")
 

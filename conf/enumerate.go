@@ -40,6 +40,12 @@ const (
 	BookObserver = 3
 )
 
+const (
+	//本地账户校验
+	AuthMethodLocal = "local"
+	//LDAP用户校验
+	AuthMethodLDAP	= "ldap"
+)
 var (
 	VERSION    string
 	BUILD_TIME string

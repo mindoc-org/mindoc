@@ -29,6 +29,8 @@
     <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="/static/css/markdown.css" rel="stylesheet">
+    <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
+    <link href="/static/css/markdown.preview.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -77,7 +79,9 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="添加表格"><i class="fa fa-table item" name="table" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="引用"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="GFM 任务列表"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="附件"><i class="fa fa-paperclip last" aria-hidden="true" name="attachment"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="附件"><i class="fa fa-paperclip item" aria-hidden="true" name="attachment"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="模板"><i class="fa fa-tachometer last" name="template"></i></a>
+
         </div>
 
         <div class="editormd-group pull-right">
@@ -225,6 +229,57 @@
     </div>
 </div>
 
+<div class="modal fade" id="documentTemplateModal" tabindex="-1" role="dialog" aria-labelledby="请选择模板类型" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="modal-title">请选择模板类型</h4>
+            </div>
+            <div class="modal-body template-list">
+                <div class="container">
+                    <div class="section">
+                        <a data-type="normal" href="javascript:;"><i class="fa fa-file-o"></i></a>
+                        <h3><a data-type="normal" href="javascript:;">普通文档</a></h3>
+                        <ul>
+                            <li>默认类型</li>
+                            <li>简单的文本文档</li>
+                        </ul>
+                    </div>
+                    <div class="section">
+                        <a data-type="api" href="javascript:;"><i class="fa fa-file-code-o"></i></a>
+                        <h3><a data-type="api" href="javascript:;">API文档</a></h3>
+                        <ul>
+                            <li>用于API文档速写</li>
+                            <li>支持代码高亮</li>
+                        </ul>
+                    </div>
+                    <div class="section">
+                        <a data-type="code" href="javascript:;"><i class="fa fa-book"></i></a>
+
+                        <h3><a data-type="code" href="javascript:;">数据字典</a></h3>
+                        <ul>
+                            <li>用于数据字典显示</li>
+                            <li>表格支持</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+<template id="template-normal">
+{{template "document/template_normal.tpl"}}
+</template>
+<template id="template-api">
+{{template "document/template_api.tpl"}}
+</template>
+<template id="template-code">
+{{template "document/template_code.tpl"}}
+</template>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
@@ -233,10 +288,6 @@
 <script src="{{cdnjs "/static/editor.md/editormd.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script type="text/javascript">
-
-
-</script>
 <script src="/static/js/editor.js" type="text/javascript"></script>
 <script src="/static/js/markdown.js" type="text/javascript"></script>
 <script type="text/javascript">
