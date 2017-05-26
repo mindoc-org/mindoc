@@ -1,5 +1,3 @@
-
-
 $(function () {
     window.addDocumentModalFormHtml = $(this).find("form").html();
     window.editor = editormd("docEditor", {
@@ -52,7 +50,6 @@ $(function () {
             resetEditorChanged(true);
         }
     });
-
 
     /**
      * 实现标题栏操作
