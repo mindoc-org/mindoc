@@ -109,9 +109,7 @@
                 <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="创建目录" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
                 <div class="clearfix"></div>
             </div>
-            <div class="manual-tree" id="sidebar">
-
-            </div>
+            <div class="manual-tree" id="sidebar"> </div>
         </div>
         <div class="manual-editor-container" id="manualEditorContainer">
             <div class="manual-editormd">
