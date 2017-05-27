@@ -14,7 +14,9 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
 	"strings"
+	"github.com/lifei6671/godoc/commands/migrate"
 )
+
 
 // RegisterDataBase 注册数据库
 func RegisterDataBase() {
@@ -52,16 +54,15 @@ func RegisterModel() {
 		new(models.Member),
 		new(models.Book),
 		new(models.Relationship),
-		//new(models.Comment),
 		new(models.Option),
 		new(models.Document),
 		new(models.Attachment),
 		new(models.Logger),
-		//new(models.CommentVote),
 		new(models.MemberToken),
 		new(models.DocumentHistory),
+		new(models.Migration),
 	)
-
+	migrate.RegisterMigration()
 }
 
 // RegisterLogger 注册日志
@@ -91,6 +92,7 @@ func RegisterCommand() {
 	Install()
 	Update()
 	CheckUpdate()
+	migrate.RunMigration()
 }
 
 func RegisterFunction() {

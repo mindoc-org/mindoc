@@ -13,7 +13,7 @@ const (
 
 // Logger struct .
 type Logger struct {
-	LoggerId int64		`orm:"pk;auto;unique;column(logger_id)" json:"logger_id"`
+	LoggerId int64		`orm:"pk;auto;unique;column(log_id)" json:"log_id"`
 	MemberId int		`orm:"column(member_id);type(int)" json:"member_id"`
 	// 日志类别：operate 操作日志/ system 系统日志/ exception 异常日志
 	Category string		`orm:"column(category);size(255);default(operate)" json:"category"`
