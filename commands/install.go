@@ -28,6 +28,13 @@ func Install() {
 	}
 }
 
+func Version()  {
+	if len(os.Args) >= 2 && os.Args[1] == "version" {
+		fmt.Println(conf.VERSION)
+		os.Exit(0)
+	}
+}
+
 //初始化数据
 func initialization() {
 
