@@ -24,13 +24,13 @@ install:
 
   - ps: if($env:tbs_tools -eq 'mingw' -and $env:tbs_arch -eq 'x64')
         {
-            Start-FileDownload "http://libgd.blob.core.windows.net/mingw/x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z";
-            7z x -oC:\ x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z | out-null;
+            Start-FileDownload "http://libgd.blob.core.windows.net/mingw/x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z" -FileName mingw_x86_64.7z;
+            7z x -oC:\ mingw_x86_64.7z | out-null;
         }
   - ps: if($env:tbs_tools -eq 'mingw' -and $env:tbs_arch -eq 'x86')
         {
-            Start-FileDownload "http://libgd.blob.core.windows.net/mingw/i686-4.9.1-release-posix-dwarf-rt_v3-rev1.7z";
-            7z x -oC:\ x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z | out-null;
+            Start-FileDownload "http://libgd.blob.core.windows.net/mingw/i686-4.9.1-release-posix-dwarf-rt_v3-rev1.7z" -FileName mingw_x86.7z;
+            7z x -oC:\ mingw_x86.7z | out-null;
         }
   - set GO_ENABLED=1
   - echo %PATH%
