@@ -1,0 +1,27 @@
+version: "{build}"
+skip_tags: true
+clone_folder: c:\gopath\src\github.com\lifei6671\godoc
+clone_depth: 1
+
+environment:
+  GOPATH: c:\gopath
+  GOVERSION: 1.8
+
+build: false
+deploy: true
+
+install:
+  - echo %PATH%
+  - echo %GOPATH%
+  - go version
+  - go env
+  - go get -d ./...
+
+test_script:
+  - GO_ENABLED=1 go build -x -v -tags "pam" -ldflags "-w"
+
+notifications:
+  - provider: Email
+    to:
+      - lifei6671@163.com
+    on_build_success: false
