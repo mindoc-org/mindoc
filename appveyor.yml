@@ -14,6 +14,7 @@ deploy: true
 install:
   - ps: Start-FileDownload "http://libgd.blob.core.windows.net/mingw/x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z"
   - ps: 7z x -oC:\ x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z | out-null
+  - ps: dir c:\
   - set %PATH%;c:\mingw64\bin
   - echo %PATH%
   - echo %GOPATH%
