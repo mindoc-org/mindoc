@@ -18,7 +18,8 @@ install:
   - go get -d ./...
 
 test_script:
-  - GO_ENABLED=1 go build -x -v -tags "pam" -ldflags "-w"
+  - set GO_ENABLED=1 
+  - go build -x -v -tags "pam" -ldflags "-w"
 
 notifications:
   - provider: Email
