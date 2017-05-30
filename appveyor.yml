@@ -17,9 +17,6 @@ environment:
       tbs_static_runtime: 1
       GOARCH: amd64
 
-build: false
-deploy: true
-
 install:
 
   - ps: if($env:tbs_tools -eq 'mingw' -and $env:tbs_arch -eq 'x64')
@@ -61,7 +58,7 @@ deploy:
     auth_token:
         secure:
     draft: false
-    artifact:
+    artifact:  godoc_windows_%GOARCH%.7z
     on:
       branch: master
       appveyor_repo_tag: true
