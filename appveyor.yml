@@ -7,10 +7,21 @@ environment:
   GOPATH: c:\gopath
   GOVERSION: 1.8
 
+
 build: false
 deploy: true
 
 install:
+  - ps: if(true)
+        {
+          curl -outfile mw64.7z "http://libgd.blob.core.windows.net/mingw/x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z";
+          if((Get-FileHash mw64.7z -Algorithm SHA1).Hash -ne "91A35AE296C1A71802AB0C7228EE57F9AAC5D7C7")
+          {
+            echo "Invalid file hash";
+            exit 1;
+          };
+          7z x -oC:\ mw64.7z | out-null;
+        }
   - echo %PATH%
   - echo %GOPATH%
   - go version
@@ -18,7 +29,7 @@ install:
   - go get -d ./...
 
 test_script:
-  - set GO_ENABLED=1 
+  - set GO_ENABLED=1
   - go build -x -v -tags "pam" -ldflags "-w"
 
 notifications:
