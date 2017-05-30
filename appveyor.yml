@@ -22,6 +22,7 @@ install:
           };
           7z x -oC:\ mw64.7z | out-null;
         }
+  - set GCC=C:\mingw64
   - echo %PATH%
   - echo %GOPATH%
   - go version
