@@ -14,7 +14,7 @@ before_install:
 
 script:
   - go get -t -v ./...
-  - go build -v -tags "pam" && go install
+  - GO_ENABLED=1 go build -v -x -tags "pam" && go install
 
 before_deploy:
   - sudo apt-get -qq update
