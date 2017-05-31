@@ -8,7 +8,6 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
-	"io/ioutil"
 )
 
 //系统安装.
@@ -28,7 +27,7 @@ func Install() {
 	}
 }
 
-func Version()  {
+func Version() {
 	if len(os.Args) >= 2 && os.Args[1] == "version" {
 		fmt.Println(conf.VERSION)
 		os.Exit(0)
@@ -38,19 +37,10 @@ func Version()  {
 //初始化数据
 func initialization() {
 
-	o := orm.NewOrm()
-
-	b,err := ioutil.ReadFile("./database/data.sql")
+	err := models.NewOption().Init()
 
 	if err != nil {
 		panic(err.Error())
-		os.Exit(1)
-	}
-	sql := string(b)
-
-	_,err = o.Raw(sql).Exec()
-	if err != nil {
-		panic("Error => " + err.Error())
 		os.Exit(1)
 	}
 

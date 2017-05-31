@@ -67,7 +67,9 @@ func (p *Option) InsertOrUpdate() error  {
 	o := orm.NewOrm()
 
 	var err error
-	if p.OptionId > 0 {
+
+
+	if p.OptionId > 0 || o.QueryTable(p.TableNameWithPrefix()).Filter("option_name",p.OptionName).Exist() {
 		_,err = o.Update(p)
 	}else{
 		_,err = o.Insert(p)
@@ -93,4 +95,57 @@ func (p *Option) All() ([]*Option,error)  {
 		return options,err
 	}
 	return options,nil
+}
+
+func (m *Option) Init() error {
+
+	o := orm.NewOrm()
+
+	if !o.QueryTable(m.TableNameWithPrefix()).Filter("option_name","ENABLED_REGISTER").Exist() {
+		option := NewOption()
+		option.OptionValue = "false"
+		option.OptionName = "ENABLED_REGISTER"
+		option.OptionTitle = "是否启用注册"
+		if _,err := o.Insert(option);err != nil {
+			return err
+		}
+	}
+	if !o.QueryTable(m.TableNameWithPrefix()).Filter("option_name","ENABLE_DOCUMENT_HISTORY").Exist() {
+		option := NewOption()
+		option.OptionValue = "true"
+		option.OptionName = "ENABLE_DOCUMENT_HISTORY"
+		option.OptionTitle = "是否启用文档历史"
+		if _,err := o.Insert(option);err != nil {
+			return err
+		}
+	}
+	if !o.QueryTable(m.TableNameWithPrefix()).Filter("option_name","ENABLED_CAPTCHA").Exist() {
+		option := NewOption()
+		option.OptionValue = "true"
+		option.OptionName = "ENABLED_CAPTCHA"
+		option.OptionTitle = "是否启用验证码"
+		if _,err := o.Insert(option);err != nil {
+			return err
+		}
+	}
+	if !o.QueryTable(m.TableNameWithPrefix()).Filter("option_name","ENABLE_ANONYMOUS").Exist() {
+		option := NewOption()
+		option.OptionValue = "false"
+		option.OptionName = "ENABLE_ANONYMOUS"
+		option.OptionTitle = "启用匿名访问"
+		if _,err := o.Insert(option);err != nil {
+			return err
+		}
+	}
+	if !o.QueryTable(m.TableNameWithPrefix()).Filter("option_name","SITE_NAME").Exist() {
+		option := NewOption()
+		option.OptionValue = "MinDoc"
+		option.OptionName = "SITE_NAME"
+		option.OptionTitle = "站点名称"
+		if _,err := o.Insert(option);err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
