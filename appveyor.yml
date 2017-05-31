@@ -8,7 +8,7 @@ environment:
     - tbs_arch: "x86"
       tbs_tools: "mingw"
       tbs_static_runtime: 1
-      GOARCH: i386
+      GOARCH: 386
 
     - tbs_arch: "x64"
       tbs_tools: "mingw"
