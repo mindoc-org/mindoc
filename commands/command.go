@@ -90,7 +90,6 @@ func RegisterLogger() {
 func RegisterCommand() {
 
 	Install()
-	Update()
 	CheckUpdate()
 	migrate.RunMigration()
 }
