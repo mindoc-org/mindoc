@@ -1,7 +1,5 @@
 version: "{build}"
-skip_tags: true
 clone_folder: c:\gopath\src\github.com\lifei6671\godoc
-clone_depth: 1
 
 environment:
   GOPATH: c:\gopath

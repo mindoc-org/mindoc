@@ -1,7 +1,6 @@
 # MinDoc 简介
 
 [![Build Status](https://travis-ci.org/lifei6671/godoc.svg?branch=master)](https://travis-ci.org/lifei6671/godoc)
-
 [![Build status](https://ci.appveyor.com/api/projects/status/ik70whjrioyvfy18/branch/master?svg=true)](https://ci.appveyor.com/project/lifei6671/godoc/branch/master)
 
 MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。 
