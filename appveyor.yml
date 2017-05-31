@@ -57,5 +57,4 @@ deploy:
     prerelease: false
     artifact:  godoc_windows_%GOARCH%.7z
     on:
-      branch: master
       appveyor_repo_tag: true
