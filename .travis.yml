@@ -19,7 +19,6 @@ script:
 before_deploy:
   - sudo apt-get -qq update
   - CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go build -o godoc_linux_amd64 -ldflags="-w -X github.com/lifei6671/godoc/conf.VERSION=$TRAVIS_TAG -X 'github.com/lifei6671/godoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`github.com/lifei6671/godoc/go version`'"
-  - CGO_ENABLED=1 GOARCH=386 GOOS=linux go build -o godoc_linux_i386 -ldflags="-w -X github.com/lifei6671/godoc/conf.VERSION=$TRAVIS_TAG -X 'github.com/lifei6671/godoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`github.com/lifei6671/godoc/go version`'"
   - rm -rf commands controllers models modules data routers tasks vendor docs search utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
   - cp conf/app.conf.example conf/app.conf
   - zip -r godoc_linux_amd64.zip conf logs static uploads views lib godoc_linux_amd64
