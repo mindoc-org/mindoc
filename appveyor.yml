@@ -53,10 +53,10 @@ notifications:
 
 deploy:
   - provider: GitHub
-    name: production
     auth_token:
-        secure:
+        secure: "Qkhxloft5lBKti7O+vVS+Vrxh7CBAUVhlfdZ9ptBXjFtjt6jHXnaBA2uv2OYbISB"
     draft: false
+    prerelease: false
     artifact:  godoc_windows_%GOARCH%.7z
     on:
       branch: master

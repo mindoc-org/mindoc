@@ -49,6 +49,12 @@
                 {{end}}
                 <div class="clearfix"></div>
             </div>
+            <nav class="pagination-container">
+                {{if gt .TotalPages 1}}
+                {{.PageHtml}}
+                {{end}}
+                <div class="clearfix"></div>
+            </nav>
         </div>
     </div>
     {{template "widgets/footer.tpl" .}}

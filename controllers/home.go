@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/utils"
+	"math"
 )
 
 type HomeController struct {
@@ -38,6 +39,7 @@ func (c *HomeController) Index() {
 	}else {
 		c.Data["PageHtml"] = ""
 	}
+	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(pageSize)))
 
 	c.Data["Lists"] = books
 
