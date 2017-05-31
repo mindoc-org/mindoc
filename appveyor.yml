@@ -49,6 +49,10 @@ notifications:
       - lifei6671@163.com
     on_build_success: false
 
+artifacts:
+  - path: godoc_windows_%GOARCH%.7z
+    name: Releases
+
 deploy:
   - provider: GitHub
     auth_token:
