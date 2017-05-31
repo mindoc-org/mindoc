@@ -40,7 +40,7 @@ func initialization() {
 
 	o := orm.NewOrm()
 
-	b,err := ioutil.ReadFile("./data/data.sql")
+	b,err := ioutil.ReadFile("./database/data.sql")
 
 	if err != nil {
 		panic(err.Error())
