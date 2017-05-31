@@ -29,7 +29,7 @@ install:
             Start-FileDownload "http://libgd.blob.core.windows.net/mingw/i686-4.9.1-release-posix-dwarf-rt_v3-rev1.7z" -FileName mingw_x86.7z;
             7z x -oC:\ mingw_x86.7z | out-null;
         }
-  - set GO_ENABLED=1
+  - set CGO_ENABLED=1
   - echo %PATH%
   - echo %GOPATH%
   - go version
