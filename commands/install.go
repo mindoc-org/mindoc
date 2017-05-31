@@ -50,7 +50,7 @@ func initialization() {
 
 	_,err = o.Raw(sql).Exec()
 	if err != nil {
-		panic("SITE_NAME => " + err.Error())
+		panic("Error => " + err.Error())
 		os.Exit(1)
 	}
 
