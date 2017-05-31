@@ -9,8 +9,6 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/godoc/conf"
-	"github.com/astaxie/beego/orm"
-	"strings"
 )
 
 //检查最新版本.
