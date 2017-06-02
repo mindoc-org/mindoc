@@ -29,7 +29,7 @@ install:
         }
   - ps:  Start-FileDownload  https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-windows-amd64.zip;
          7z x -oC:\ glide-v0.12.3-windows-amd64.zip | out-null;
-         copy C:\windows-amd64\glide.exe %GOPATH%\bin\;
+         copy C:\windows-amd64\glide.exe c:\go\bin\ ;
   - set PATH=%GOBIN%;%PATH%
   - echo %PATH%
   - echo %GOPATH%
