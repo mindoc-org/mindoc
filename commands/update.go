@@ -33,12 +33,12 @@ func CheckUpdate() {
 	}
 
 	err = json.Unmarshal(body, &result)
-
+	fmt.Println("MinDoc current version => ", conf.VERSION)
 	if err != nil {
 		beego.Error("CheckUpdate => ", err)
-		os.Exit(1)
+		os.Exit(0)
 	}
-	fmt.Println("MinDoc current version => ", conf.VERSION)
+
 	fmt.Println("MinDoc last version => ", result[0].Name)
 	os.Exit(0)
 
