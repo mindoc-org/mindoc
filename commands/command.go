@@ -15,6 +15,7 @@ import (
 	"github.com/lifei6671/godoc/models"
 	"strings"
 	"github.com/lifei6671/godoc/commands/migrate"
+	"path/filepath"
 )
 
 
@@ -43,6 +44,8 @@ func RegisterDataBase() {
 		}
 	}else if adapter == "sqlite3" {
 		database := beego.AppConfig.String("db_database")
+		dbPath := filepath.Dir(database)
+		os.MkdirAll(dbPath,0777)
 
 		orm.RegisterDataBase("default", "sqlite3", database)
 	}

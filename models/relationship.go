@@ -79,7 +79,11 @@ func (m *Relationship) UpdateRoleId(book_id,member_id, role_id int) (*Relationsh
 	}
 	m.RoleId = role_id
 
-	_,err = o.InsertOrUpdate(m)
+	if m.RelationshipId > 0 {
+		_,err = o.Update(m)
+	}else{
+		_,err = o.Insert(m)
+	}
 
 	return m,err
 
@@ -176,10 +180,18 @@ func (m *Relationship) Transfer(book_id,founder_id,receive_id int) error {
 		o.Rollback()
 		return err
 	}
-	if _,err := o.InsertOrUpdate(receive);err != nil {
-		o.Rollback()
-		return err
+	if receive.RelationshipId > 0 {
+		if _,err := o.Update(receive);err != nil {
+			o.Rollback()
+			return err
+		}
+	}else{
+		if _,err := o.Insert(receive);err != nil {
+			o.Rollback()
+			return err
+		}
 	}
+
 	return o.Commit()
 }
 
