@@ -27,11 +27,9 @@ install:
             Start-FileDownload "http://libgd.blob.core.windows.net/mingw/i686-4.9.1-release-posix-dwarf-rt_v3-rev1.7z" -FileName mingw_x86.7z;
             7z x -oC:\ mingw_x86.7z | out-null;
         }
-  - ps: {
-            Start-FileDownload  https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-windows-amd64.zip;
-            7z x -oC:\ glide-v0.12.3-windows-amd64.zip | out-null;
-            copy C:\windows-amd64\glide.exe %GOPATH%\bin\;
-        }
+  - ps:  Start-FileDownload  https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-windows-amd64.zip;
+         7z x -oC:\ glide-v0.12.3-windows-amd64.zip | out-null;
+         copy C:\windows-amd64\glide.exe %GOPATH%\bin\;
   - set PATH=%GOBIN%;%PATH%
   - echo %PATH%
   - echo %GOPATH%
