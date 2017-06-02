@@ -197,10 +197,13 @@ $(function () {
             console.log($param);
         }
     };
-
-     var $node = window.jsTree.jstree().get_selected();
-    if(typeof $node === "object") {
-        $node = window.jsTree.jstree().get_node({ id : $node[0] });
-        events.trigger('article.open',{ $url : $node.a_attr.href , $init : true, $id : $node.a_attr.id });
+    try {
+        var $node = window.jsTree.jstree().get_selected();
+        if (typeof $node === "object") {
+            $node = window.jsTree.jstree().get_node({id: $node[0]});
+            events.trigger('article.open', {$url: $node.a_attr.href, $init: true, $id: $node.a_attr.id});
+        }
+    }catch (e){
+        console.log(e);
     }
 });

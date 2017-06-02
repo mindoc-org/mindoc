@@ -12,19 +12,19 @@ import (
 
 //系统安装.
 func Install() {
-	if len(os.Args) >= 2 && os.Args[1] == "install" {
-		fmt.Println("Initializing...")
 
-		err := orm.RunSyncdb("default", false, true)
-		if err == nil {
-			initialization()
-		} else {
-			panic(err.Error())
-			os.Exit(1)
-		}
-		fmt.Println("Install Successfully!")
-		os.Exit(0)
+	fmt.Println("Initializing...")
+
+	err := orm.RunSyncdb("default", false, true)
+	if err == nil {
+		initialization()
+	} else {
+		panic(err.Error())
+		os.Exit(1)
 	}
+	fmt.Println("Install Successfully!")
+	os.Exit(0)
+
 }
 
 func Version() {

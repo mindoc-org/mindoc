@@ -7,17 +7,26 @@ import (
 	"os"
 	"time"
 
+	"flag"
+	"path/filepath"
+	"strings"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/gocaptcha"
+	"github.com/lifei6671/godoc/commands/migrate"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
-	"strings"
-	"github.com/lifei6671/godoc/commands/migrate"
-	"path/filepath"
+	"github.com/lifei6671/godoc/utils"
+	"log"
 )
 
+var (
+	ConfigurationFile = "./conf/app.conf"
+	WorkingDirectory  = "./"
+	LogFile           = "./logs"
+)
 
 // RegisterDataBase 注册数据库
 func RegisterDataBase() {
@@ -40,12 +49,12 @@ func RegisterDataBase() {
 		if err == nil {
 			orm.DefaultTimeLoc = location
 		} else {
-			fmt.Println(err)
+			log.Fatalln(err)
 		}
-	}else if adapter == "sqlite3" {
+	} else if adapter == "sqlite3" {
 		database := beego.AppConfig.String("db_database")
 		dbPath := filepath.Dir(database)
-		os.MkdirAll(dbPath,0777)
+		os.MkdirAll(dbPath, 0777)
 
 		orm.RegisterDataBase("default", "sqlite3", database)
 	}
@@ -69,19 +78,22 @@ func RegisterModel() {
 }
 
 // RegisterLogger 注册日志
-func RegisterLogger() {
+func RegisterLogger(log string) {
 
 	logs.SetLogFuncCall(true)
 	logs.SetLogger("console")
 	logs.EnableFuncCallDepth(true)
 	logs.Async()
 
-	if _, err := os.Stat("logs/log.log"); os.IsNotExist(err) {
-		os.MkdirAll("./logs", 0777)
+	logPath := filepath.Join(log, "log.log")
 
-		if f, err := os.Create("logs/log.log"); err == nil {
+	if _, err := os.Stat(logPath); os.IsNotExist(err) {
+
+		os.MkdirAll(log, 0777)
+
+		if f, err := os.Create(logPath); err == nil {
 			f.Close()
-			beego.SetLogger("file", `{"filename":"logs/log.log"}`)
+			beego.SetLogger("file", fmt.Sprintf(`{"filename":"%s"}`, logPath))
 		}
 	}
 
@@ -92,58 +104,121 @@ func RegisterLogger() {
 // RunCommand 注册orm命令行工具
 func RegisterCommand() {
 
-	Install()
-	CheckUpdate()
-	migrate.RunMigration()
+	if len(os.Args) >= 2 && os.Args[1] == "install" {
+		ResolveCommand(os.Args[2:])
+		Install()
+	} else if len(os.Args) >= 2 && os.Args[1] == "version" {
+		ResolveCommand(os.Args[2:])
+		CheckUpdate()
+	} else if len(os.Args) >= 2 && os.Args[1] == "migrate" {
+		ResolveCommand(os.Args[2:])
+		migrate.RunMigration()
+	}
 }
 
 func RegisterFunction() {
 	beego.AddFuncMap("config", models.GetOptionValue)
 
 	beego.AddFuncMap("cdn", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdn","")
-		if strings.HasPrefix(p,"/") && strings.HasSuffix(cdn,"/"){
+		cdn := beego.AppConfig.DefaultString("cdn", "")
+		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
-		if !strings.HasPrefix(p,"/") && !strings.HasSuffix(cdn,"/"){
+		if !strings.HasPrefix(p, "/") && !strings.HasSuffix(cdn, "/") {
 			return cdn + "/" + p
 		}
 		return cdn + p
-	});
+	})
 
 	beego.AddFuncMap("cdnjs", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdnjs","")
-		if strings.HasPrefix(p,"/") && strings.HasSuffix(cdn,"/"){
+		cdn := beego.AppConfig.DefaultString("cdnjs", "")
+		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
-		if !strings.HasPrefix(p,"/") && !strings.HasSuffix(cdn,"/"){
+		if !strings.HasPrefix(p, "/") && !strings.HasSuffix(cdn, "/") {
 			return cdn + "/" + p
 		}
 		return cdn + p
-	});
-	beego.AddFuncMap("cdncss", func(p  string) string {
-		cdn := beego.AppConfig.DefaultString("cdncss","")
-		if strings.HasPrefix(p,"/") && strings.HasSuffix(cdn,"/"){
+	})
+	beego.AddFuncMap("cdncss", func(p string) string {
+		cdn := beego.AppConfig.DefaultString("cdncss", "")
+		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
-		if !strings.HasPrefix(p,"/") && !strings.HasSuffix(cdn,"/"){
+		if !strings.HasPrefix(p, "/") && !strings.HasSuffix(cdn, "/") {
 			return cdn + "/" + p
 		}
 		return cdn + p
-	});
+	})
 	beego.AddFuncMap("cdnimg", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdnimg","")
-		if strings.HasPrefix(p,"/") && strings.HasSuffix(cdn,"/"){
+		cdn := beego.AppConfig.DefaultString("cdnimg", "")
+		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
-		if !strings.HasPrefix(p,"/") && !strings.HasSuffix(cdn,"/"){
+		if !strings.HasPrefix(p, "/") && !strings.HasSuffix(cdn, "/") {
 			return cdn + "/" + p
 		}
 		return cdn + p
-	});
+	})
+}
+
+func ResolveCommand(args []string) {
+	flagSet := flag.NewFlagSet("MinDoc command: ", flag.ExitOnError)
+	flagSet.StringVar(&ConfigurationFile, "config", "", "MinDoc configuration file.")
+	flagSet.StringVar(&WorkingDirectory, "dir", "", "MinDoc working directory.")
+	flagSet.StringVar(&LogFile, "log", "", "MinDoc log file path.")
+
+	flagSet.Parse(args)
+
+
+	if WorkingDirectory == "" {
+		if p, err := filepath.Abs(os.Args[0]); err == nil {
+			WorkingDirectory = filepath.Dir(p)
+		}
+	}
+	if LogFile == "" {
+		LogFile = filepath.Join(WorkingDirectory,"logs")
+	}
+	if ConfigurationFile == "" {
+		ConfigurationFile = filepath.Join(WorkingDirectory,"conf","app.conf")
+		config :=  filepath.Join(WorkingDirectory,"conf","app.conf.example")
+		if !utils.FileExists(ConfigurationFile) && utils.FileExists(config){
+			utils.CopyFile(config,ConfigurationFile)
+		}
+	}
+
+	err := beego.LoadAppConfig("ini", ConfigurationFile)
+
+	if err != nil {
+		log.Println("An error occurred:", err)
+		os.Exit(1)
+	}
+	uploads := filepath.Join(WorkingDirectory, "uploads")
+
+	os.MkdirAll(uploads,0666)
+
+	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(WorkingDirectory, "static")
+	beego.BConfig.WebConfig.StaticDir["/uploads"] = uploads
+	beego.BConfig.WebConfig.ViewsPath = filepath.Join(WorkingDirectory, "views")
+
+	fonts := filepath.Join(WorkingDirectory, "static", "fonts")
+
+	if !utils.FileExists(fonts) {
+		log.Fatal("Font path not exist.")
+	}
+	gocaptcha.ReadFonts(filepath.Join(WorkingDirectory, "static", "fonts"), ".ttf")
+
+	RegisterDataBase()
+	RegisterModel()
+	RegisterLogger(LogFile)
 }
 
 func init() {
+
 	gocaptcha.ReadFonts("./static/fonts", ".ttf")
 	gob.Register(models.Member{})
+
+	if p,err := filepath.Abs(os.Args[0]);err == nil{
+		WorkingDirectory = filepath.Dir(p)
+	}
 }

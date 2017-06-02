@@ -4,31 +4,38 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/astaxie/beego"
 	_ "github.com/astaxie/beego/session/memcache"
 	_ "github.com/astaxie/beego/session/mysql"
 	_ "github.com/astaxie/beego/session/redis"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kardianos/service"
 	"github.com/lifei6671/godoc/commands"
-	"github.com/lifei6671/godoc/conf"
-	"github.com/lifei6671/godoc/controllers"
+	"github.com/lifei6671/godoc/commands/daemon"
 	_ "github.com/lifei6671/godoc/routers"
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
 
-	commands.RegisterDataBase()
-	commands.RegisterModel()
-	commands.RegisterLogger()
+	if len(os.Args) >= 3 && os.Args[1] == "service" {
+		if os.Args[2] == "install" {
+			daemon.Install()
+		} else if os.Args[2] == "remove" {
+			daemon.Uninstall()
+		} else if os.Args[2] == "restart" {
+			daemon.Restart()
+		}
+	}
 	commands.RegisterCommand()
-	commands.RegisterFunction()
 
-	beego.SetStaticPath("uploads", "uploads")
+	d := daemon.NewDaemon()
 
-	beego.ErrorController(&controllers.ErrorController{})
+	s, err := service.New(d, d.Config())
 
-	fmt.Printf("MinDoc version => %s\nbuild time => %s\nstart directory => %s\n%s\n", conf.VERSION, conf.BUILD_TIME, os.Args[0], conf.GO_VERSION)
+	if err != nil {
+		fmt.Println("Create service error => ", err)
+		os.Exit(1)
+	}
 
-	beego.Run()
+	s.Run()
 }
