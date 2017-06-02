@@ -40,8 +40,7 @@ build_script:
   - go build -v -o "godoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/lifei6671/godoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/lifei6671/godoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`github.com/lifei6671/godoc/go version`'"
   - 7z a -t7z -r godoc_windows_%GOARCH%.7z conf/*.conf* static/* godoc_windows_%GOARCH%.exe views/* uploads/*
 test_script:
-  - if [%tbs_arch%]==[x86] godoc_windows_386.exe version
-  - if [%tbs_arch%]==[x64] godoc_windows_amd64.exe version
+  - godoc_windows_%GOARCH%.exe version
 
 notifications:
   - provider: Email
