@@ -183,7 +183,7 @@ func ResolveCommand(args []string) {
 		ConfigurationFile = filepath.Join(WorkingDirectory,"conf","app.conf")
 		config :=  filepath.Join(WorkingDirectory,"conf","app.conf.example")
 		if !utils.FileExists(ConfigurationFile) && utils.FileExists(config){
-			utils.CopyFile(config,ConfigurationFile)
+			utils.CopyFile(ConfigurationFile,config)
 		}
 	}
 
