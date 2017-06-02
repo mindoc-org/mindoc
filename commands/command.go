@@ -90,6 +90,7 @@ func RegisterLogger(log string) {
 	if _, err := os.Stat(logPath); os.IsNotExist(err) {
 
 		os.MkdirAll(log, 0777)
+		logPath = strings.Replace(logPath,"\\","/","")
 
 		if f, err := os.Create(logPath); err == nil {
 			f.Close()
