@@ -32,7 +32,7 @@ install:
   - echo %GOPATH%
   - go version
   - go env
-  - go get github.com/Masterminds/glide;
+  - go get github.com/Masterminds/glide
 
 build_script:
   - if [%tbs_tools%]==[mingw] if [%tbs_arch%]==[x86] SET PATH=C:\mingw32\bin;%PATH%
