@@ -20,6 +20,7 @@ import (
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/utils"
 	"log"
+	"encoding/json"
 )
 
 var (
@@ -90,11 +91,16 @@ func RegisterLogger(log string) {
 	if _, err := os.Stat(logPath); os.IsNotExist(err) {
 
 		os.MkdirAll(log, 0777)
-		logPath = strings.Replace(logPath,"\\","/","")
 
 		if f, err := os.Create(logPath); err == nil {
 			f.Close()
-			beego.SetLogger("file", fmt.Sprintf(`{"filename":"%s"}`, logPath))
+			config := make(map[string]interface{},1)
+
+			config["filename"] = logPath
+
+			b,_ := json.Marshal(config)
+
+			beego.SetLogger("file", string(b))
 		}
 	}
 
