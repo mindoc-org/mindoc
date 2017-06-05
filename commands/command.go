@@ -193,6 +193,7 @@ func ResolveCommand(args []string) {
 			utils.CopyFile(ConfigurationFile,config)
 		}
 	}
+	gocaptcha.ReadFonts(filepath.Join(WorkingDirectory,"static","fonts"), ".ttf")
 
 	err := beego.LoadAppConfig("ini", ConfigurationFile)
 
