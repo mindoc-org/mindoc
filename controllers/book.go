@@ -278,7 +278,7 @@ func (c *BookController) UploadCover()  {
 
 	fileName := "cover_" +  strconv.FormatInt(time.Now().UnixNano(), 16)
 
-	filePath := "uploads/" + time.Now().Format("200601") + "/" + fileName + ext
+	filePath := filepath.Join("uploads",time.Now().Format("200601"),fileName  + ext)
 
 	path := filepath.Dir(filePath)
 
@@ -290,6 +290,9 @@ func (c *BookController) UploadCover()  {
 		logs.Error("",err)
 		c.JsonResult(500,"图片保存失败")
 	}
+	defer func(filePath string) {
+		os.Remove(filePath)
+	}(filePath)
 
 	//剪切图片
 	subImg,err := graphics.ImageCopyFromFile(filePath,x,y,width,height)
@@ -298,6 +301,9 @@ func (c *BookController) UploadCover()  {
 		logs.Error("graphics.ImageCopyFromFile => ",err)
 		c.JsonResult(500,"图片剪切")
 	}
+
+	filePath = filepath.Join("uploads",time.Now().Format("200601"),fileName + "_small" + ext)
+
 	//生成缩略图并保存到磁盘
 	err = graphics.ImageResizeSaveFile(subImg,175,230,filePath)
 
@@ -306,7 +312,7 @@ func (c *BookController) UploadCover()  {
 		c.JsonResult(500,"保存图片失败")
 	}
 
-	url := "/" + filePath
+	url := "/" +  strings.Replace(filePath,"\\","/",-1)
 
 	old_cover := book.Cover
 
