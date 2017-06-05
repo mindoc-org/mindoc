@@ -30,12 +30,12 @@
                 <div class="list-item">
                     <dl class="manual-item-standard">
                         <dt>
-                            <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="{{$item.BookName}}-{{$item.CreateName}}">
+                            <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="{{$item.BookName}}-{{$item.CreateName}}" target="_blank">
                                 <img src="{{$item.Cover}}" class="cover" alt="{{$item.BookName}}-{{$item.CreateName}}">
                             </a>
                         </dt>
                         <dd>
-                            <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" class="name" title="{{$item.BookName}}-{{$item.CreateName}}">{{$item.BookName}}</a>
+                            <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" class="name" title="{{$item.BookName}}-{{$item.CreateName}}" target="_blank">{{$item.BookName}}</a>
                         </dd>
                         <dd>
                             <span class="author">
