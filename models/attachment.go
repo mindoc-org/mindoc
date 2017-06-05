@@ -8,6 +8,7 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"os"
 	"github.com/astaxie/beego"
+	"strings"
 )
 
 // Attachment struct .

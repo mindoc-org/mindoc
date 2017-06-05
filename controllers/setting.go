@@ -13,6 +13,7 @@ import (
 	"github.com/lifei6671/godoc/utils"
 	"github.com/lifei6671/godoc/graphics"
 	"github.com/lifei6671/godoc/conf"
+	"github.com/lifei6671/godoc/commands"
 )
 
 type SettingController struct {
@@ -115,7 +116,7 @@ func (c *SettingController) Upload() {
 
 	fileName := "avatar_" +  strconv.FormatInt(time.Now().UnixNano(), 16)
 
-	filePath := "uploads/" + time.Now().Format("200601") + "/" + fileName + ext
+	filePath := filepath.Join(commands.WorkingDirectory,"uploads" , time.Now().Format("200601") , fileName + ext)
 
 	path := filepath.Dir(filePath)
 
@@ -144,7 +145,10 @@ func (c *SettingController) Upload() {
 		c.JsonResult(500,"保存文件失败")
 	}
 
-	url := "/" + filePath
+	url := "/" + strings.Replace(strings.TrimPrefix(filePath,commands.WorkingDirectory),"\\","/",-1)
+	if strings.HasPrefix(url,"//") {
+		url = string(url[1:])
+	}
 
 	if member,err := models.NewMember().Find(c.Member.MemberId);err == nil {
 		member.Avatar = url

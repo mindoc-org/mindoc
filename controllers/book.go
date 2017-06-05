@@ -19,6 +19,7 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/graphics"
+	"github.com/lifei6671/godoc/commands"
 )
 
 type BookController struct {
@@ -302,7 +303,7 @@ func (c *BookController) UploadCover()  {
 		c.JsonResult(500,"图片剪切")
 	}
 
-	filePath = filepath.Join("uploads",time.Now().Format("200601"),fileName + "_small" + ext)
+	filePath = filepath.Join(commands.WorkingDirectory,"uploads",time.Now().Format("200601"),fileName + "_small" + ext)
 
 	//生成缩略图并保存到磁盘
 	err = graphics.ImageResizeSaveFile(subImg,175,230,filePath)
@@ -312,7 +313,11 @@ func (c *BookController) UploadCover()  {
 		c.JsonResult(500,"保存图片失败")
 	}
 
-	url := "/" +  strings.Replace(filePath,"\\","/",-1)
+	url := "/" +  strings.Replace(strings.TrimPrefix(filePath,commands.WorkingDirectory),"\\","/",-1)
+
+	if strings.HasPrefix(url,"//") {
+		url = string(url[1:])
+	}
 
 	old_cover := book.Cover
 
