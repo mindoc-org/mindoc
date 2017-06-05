@@ -57,6 +57,7 @@ func RegisterDataBase() {
 		if strings.HasPrefix(database,"./") {
 			database = filepath.Join(WorkingDirectory,string(database[1:]))
 		}
+
 		dbPath := filepath.Dir(database)
 		os.MkdirAll(dbPath, 0777)
 

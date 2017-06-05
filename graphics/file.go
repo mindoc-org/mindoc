@@ -13,6 +13,8 @@ import (
 // 将图片保存到指定的路径
 func SaveImage(p string, src image.Image) error {
 
+	os.MkdirAll(filepath.Dir(p),0666)
+
 	f, err := os.OpenFile(p, os.O_SYNC|os.O_RDWR|os.O_CREATE, 0666)
 
 	if err != nil {
