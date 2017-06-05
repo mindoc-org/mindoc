@@ -21,11 +21,11 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
+	"github.com/lifei6671/godoc/commands"
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/utils"
 	"github.com/lifei6671/godoc/utils/wkhtmltopdf"
-	"github.com/lifei6671/godoc/commands"
 )
 
 //DocumentController struct.
@@ -431,7 +431,7 @@ func (c *DocumentController) Upload() {
 
 	fileName := "attach_" + strconv.FormatInt(time.Now().UnixNano(), 16)
 
-	filePath := filepath.Join(commands.WorkingDirectory,"uploads", time.Now().Format("200601"), fileName+ext)
+	filePath := filepath.Join(commands.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+ext)
 
 	path := filepath.Dir(filePath)
 
@@ -448,7 +448,7 @@ func (c *DocumentController) Upload() {
 	attachment.FileName = moreFile.Filename
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
-	attachment.FilePath = strings.TrimPrefix(filePath,commands.WorkingDirectory)
+	attachment.FilePath = strings.TrimPrefix(filePath, commands.WorkingDirectory)
 	attachment.DocumentId = doc_id
 
 	if fileInfo, err := os.Stat(filePath); err == nil {
@@ -460,8 +460,8 @@ func (c *DocumentController) Upload() {
 
 	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, "png") || strings.EqualFold(ext, "gif") {
 
-		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath,commands.WorkingDirectory), "\\", "/", -1)
-		if strings.HasPrefix(attachment.HttpPath,"//") {
+		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, commands.WorkingDirectory), "\\", "/", -1)
+		if strings.HasPrefix(attachment.HttpPath, "//") {
 			attachment.HttpPath = string(attachment.HttpPath[1:])
 		}
 		is_attach = false
@@ -546,7 +546,7 @@ func (c *DocumentController) DownloadAttachment() {
 	if attachment.BookId != book_id {
 		c.Abort("404")
 	}
-	c.Ctx.Output.Download(strings.Join(commands.WorkingDirectory,attachment.FilePath), attachment.FileName)
+	c.Ctx.Output.Download(filepath.Join(commands.WorkingDirectory, attachment.FilePath), attachment.FileName)
 
 	c.StopRun()
 }
@@ -587,7 +587,7 @@ func (c *DocumentController) RemoveAttachment() {
 		beego.Error(err)
 		c.JsonResult(6005, "删除失败")
 	}
-	os.Remove(strings.Join(commands.WorkingDirectory,attach.FilePath))
+	os.Remove(filepath.Join(commands.WorkingDirectory, attach.FilePath))
 
 	c.JsonResult(0, "ok", attach)
 }
