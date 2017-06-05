@@ -137,6 +137,10 @@ func (c *SettingController) Upload() {
 		logs.Error("ImageCopyFromFile => ",err)
 		c.JsonResult(6001,"头像剪切失败")
 	}
+	os.Remove(filePath)
+
+	filePath = filepath.Join(commands.WorkingDirectory,"uploads" , time.Now().Format("200601") , fileName + "_small" + ext)
+
 	err = graphics.ImageResizeSaveFile(subImg,120,120,filePath)
 	//err = graphics.SaveImage(filePath,subImg)
 
@@ -151,9 +155,18 @@ func (c *SettingController) Upload() {
 	}
 
 	if member,err := models.NewMember().Find(c.Member.MemberId);err == nil {
+		avater := member.Avatar
+
 		member.Avatar = url
-		member.Update()
-		c.SetMember(*member)
+		err := member.Update();
+		if err == nil {
+			if strings.HasPrefix(avater,"/uploads/") {
+				os.Remove(filepath.Join(commands.WorkingDirectory,avater))
+			}
+			c.SetMember(*member)
+		}else{
+			c.JsonResult(60001,"保存头像失败")
+		}
 	}
 
 	c.JsonResult(0,"ok",url)
