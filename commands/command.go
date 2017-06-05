@@ -54,6 +54,9 @@ func RegisterDataBase() {
 		}
 	} else if adapter == "sqlite3" {
 		database := beego.AppConfig.String("db_database")
+		if strings.HasPrefix(database,"./") {
+			database = filepath.Join(WorkingDirectory,string(database[1:]))
+		}
 		dbPath := filepath.Dir(database)
 		os.MkdirAll(dbPath, 0777)
 
