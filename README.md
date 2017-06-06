@@ -30,6 +30,9 @@ go get -d ./...
 
 go build -ldflags "-w"
 
+$./godoc install #初始化安装
+$./godoc 
+
 ```
 
 MinDoc 使用MySQL储存数据，且编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 conf/app.conf 中。
