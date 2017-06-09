@@ -636,6 +636,7 @@ func (c *BookController) SaveSort() {
 
 func (c *BookController) IsPermission() (*models.BookResult,error) {
 	identify := c.GetString("identify")
+
 	book ,err := models.NewBookResult().FindByIdentify(identify,c.Member.MemberId)
 
 	if err != nil {

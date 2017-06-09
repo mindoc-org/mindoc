@@ -23,6 +23,7 @@ func init()  {
 	beego.Router("/manager/member/change-member-role", &controllers.ManagerController{},"post:ChangeMemberRole")
 	beego.Router("/manager/books", &controllers.ManagerController{},"*:Books")
 	beego.Router("/manager/books/edit/:key", &controllers.ManagerController{},"*:EditBook")
+	beego.Router("/manager/books/delete", &controllers.ManagerController{},"*:DeleteBook")
 	beego.Router("/manager/comments", &controllers.ManagerController{},"*:Comments")
 	beego.Router("/manager/books/token", &controllers.ManagerController{},"post:CreateToken")
 	beego.Router("/manager/setting",&controllers.ManagerController{},"*:Setting")
