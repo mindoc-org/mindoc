@@ -38,3 +38,11 @@ Date.prototype.format = function(fmt) {
     }
     return fmt;
 };
+
+function formatBytes($size) {
+    var $units = [" B", " KB", " MB", " GB", " TB"];
+
+    for ($i = 0; $size >= 1024 && $i < 4; $i++) $size /= 1024;
+
+    return $size.toFixed(2) + $units[$i];
+}

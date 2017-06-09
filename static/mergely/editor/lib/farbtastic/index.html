@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Papermashup.com | jQuery  Color picker</title>
+<link href="../style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.0/jquery.min.js"></script>
+ <script type="text/javascript" src="farbtastic.js"></script>
+ <link rel="stylesheet" href="farbtastic.css" type="text/css" />
+ 
+	 <script type="text/javascript" charset="utf-8">
+  $(document).ready(function() {
+    var f = $.farbtastic('#picker');
+    var p = $('#picker').css('opacity', 0.25);
+    var selected;
+    $('.colorwell')
+      .each(function () { f.linkTo(this); $(this).css('opacity', 0.75); })
+      .focus(function() {
+        if (selected) {
+          $(selected).css('opacity', 0.75).removeClass('colorwell-selected');
+        }
+        f.linkTo(this);
+        p.css('opacity', 1);
+        $(selected = this).css('opacity', 1).addClass('colorwell-selected');
+      });
+  });
+ </script>
+    
+    
+    
+<style>
+body{
+font-family:Verdana, Geneva, sans-serif;
+font-size:14px;
+margin:0px;
+padding:0px;}
+
+.colorwell{
+	padding:5px;
+	font-size:18px;
+	color:#333;
+	font-family:Verdana, Geneva, sans-serif;
+	border:1px #CCC solid;}
+
+</style>
+
+</head>
+
+<body>
+<div id="header"><a href="http://www.papermashup.com/"><img src="../images/logo.png" width="348" height="63" border="0" /></a></div>
+<div id="container">
+
+	
+    <h1>jQuery 'Farbtastic' Color Picker</h1>
+
+
+<form action="" style="width: 500px;">
+  <div id="picker" style="float: right;"></div>
+  <div class="form-item"><label for="color1">Color 1:</label><input type="text" id="color1" name="color1" class="colorwell" value="#edfa00" /></div>
+  <div class="form-item"><label for="color2">Color 2:</label><input type="text" id="color2" name="color2" class="colorwell" value="#ff9505" /></div>
+  <div class="form-item"><label for="color3">Color 3:</label><input type="text" id="color3" name="color3" class="colorwell" value="#f86c2a" /></div>
+  
+</form>
+
+    
+    <div class="clear"></div>
+
+</div>
+<div id="footer"><a href="http://www.papermashup.com">papermashup.com</a> | <a href="http://papermashup.com/jquery-farbtastic-colour-picker/">Back to tutorial</a></div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-7025232-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+</body>
+</html>

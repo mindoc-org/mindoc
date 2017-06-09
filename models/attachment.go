@@ -9,6 +9,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/godoc/conf"
+	"github.com/lifei6671/godoc/utils"
+	"strings"
 )
 
 // Attachment struct .
@@ -84,5 +86,51 @@ func (m *Attachment) FindListByDocumentId(doc_id int) (attaches []*Attachment, e
 	o := orm.NewOrm()
 
 	_, err = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).OrderBy("-attachment_id").All(&attaches)
+	return
+}
+
+//分页查询附件
+func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*AttachmentResult, totalCount int64, err error) {
+	o := orm.NewOrm()
+
+	totalCount, err = o.QueryTable(m.TableNameWithPrefix()).Count()
+
+	if err != nil {
+		return
+	}
+	offset := (pageIndex - 1) * pageSize
+
+	var list []*Attachment
+
+	_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-attachment_id").Offset(offset).Limit(pageSize).All(&list)
+
+	if err != nil {
+		return
+	}
+
+	for _, item := range list {
+		attach := &AttachmentResult{}
+		attach.Attachment = *item
+		attach.FileShortSize = utils.FormatBytes(int64(attach.FileSize))
+
+		book := NewBook()
+
+		if e := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", item.BookId).One(book, "book_name"); e == nil {
+			attach.BookName = book.BookName
+		} else {
+			attach.BookName = "[不存在]"
+		}
+		doc := NewDocument()
+
+		if e := o.QueryTable(doc.TableNameWithPrefix()).Filter("document_id", item.DocumentId).One(doc, "document_name"); e == nil {
+			attach.DocumentName = doc.DocumentName
+		} else {
+			attach.DocumentName = "[不存在]"
+		}
+		attach.LocalHttpPath = strings.Replace(item.FilePath,"\\","/",-1)
+
+		attachList = append(attachList, attach)
+	}
+
 	return
 }

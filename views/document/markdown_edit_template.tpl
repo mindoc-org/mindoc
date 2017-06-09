@@ -189,7 +189,7 @@
                                 </template>
                                 <template v-else>
                                     <a :href="item.http_path" target="_blank" :title="item.file_name">${item.file_name}</a>
-                                    <span class="text">(${(item.file_size/1024/1024).toFixed(4)}MB)</span>
+                                    <span class="text">(${ formatBytes(item.file_size) })</span>
                                     <span class="error-message">${item.message}</span>
                                     <button type="button" class="btn btn-sm close" @click="removeAttach(item.attachment_id)">
                                         <i class="fa fa-remove" aria-hidden="true"></i>

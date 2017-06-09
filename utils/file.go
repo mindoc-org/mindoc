@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"io"
+	"math"
 )
 
 func AbsolutePath(p string) (string,error) {
@@ -49,4 +50,59 @@ func CopyFile(dstName, srcName string) (written int64, err error) {
 	defer dst.Close()
 	return io.Copy(dst, src)
 }
+
+func FormatBytes(size int64) string {
+	units := []string{" B", " KB", " MB", " GB", " TB"}
+
+	s := float64(size)
+
+	i := 0
+
+	for ; s >= 1024 && i < 4 ; i ++ {
+		s /= 1024
+	}
+
+
+	return fmt.Sprintf("%.2f%s",s,units[i])
+}
+
+
+
+
+
+func Round(val float64, places int) float64 {
+	var t float64
+	f := math.Pow10(places)
+	x := val * f
+	if math.IsInf(x, 0) || math.IsNaN(x) {
+		return val
+	}
+	if x >= 0.0 {
+		t = math.Ceil(x)
+		if (t - x) > 0.50000000001 {
+			t -= 1.0
+		}
+	} else {
+		t = math.Ceil(-x)
+		if (t + x) > 0.50000000001 {
+			t -= 1.0
+		}
+		t = -t
+	}
+	x = t / f
+
+	if !math.IsInf(x, 0) {
+		return x
+	}
+
+	return t
+}
+
+
+
+
+
+
+
+
 

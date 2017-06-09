@@ -1,0 +1,85 @@
+body { margin: 0; }
+#banner { background: transparent url(images/banner.png); width: 33px; height: 30px; position: absolute; left: 3px; top: 3px; }
+.wicked-menu { font-family: 'Noto Sans', sans-serif; margin: 2px 0 2px 40px; }
+.wicked-menu a.link { margin-left: 10px; }
+.ui-widget { font-size:13px; }
+
+/* color dialog */
+#dialog-colors { }
+#dialog-colors label { width: 85px; display: inline-block; font-weight: bold; padding: 5px; }
+#dialog-colors input[type=text] { width: 70px; border: 1px solid #444; float:right; }
+#dialog-colors fieldset { -webkit-border-radius: 2px; -moz-border-radius: 2px; border-radius: 2px; border: 1px solid #ccc; width: 222px; padding-right: 15px; }
+
+/* import dialog */
+#dialog-upload label { font-weight: bold; display: inline-block; width: 80px; line-height: 1.5em; }
+.no-title .ui-dialog-titlebar { display:none; }
+.no-title .ui-dialog-content { padding: 0; }
+#file-lhs-progress,
+#file-rhs-progress { height: 22px; width: 240px; vertical-align: middle; line-height: 1.5em; display: none; }
+.progress-label { float: left; width: 100%; color: #fff; font-weight: bold; font-size: .8em; padding-left: 10px; }
+
+/* icons */        
+.icon-undo { background-image: url(images/undo.png); }
+.icon-redo { background-image: url(images/redo.png); }
+.icon-save { background-image: url(images/download.png); }
+.icon-check { background-image: url(images/check.png); }
+.icon-import { background-image: url(images/upload.png); }
+.icon-swap { background-image: url(images/swap.png); }
+.icon-arrow-right { background-image: url(images/arrow-right.png); }
+.icon-arrow-right-v { background-image: url(images/arrow-right-v.png); }
+.icon-arrow-right-vv { background-image: url(images/arrow-right-vv.png); }
+.icon-arrow-left-v { background-image: url(images/arrow-left-v.png); }
+.icon-arrow-left-vv { background-image: url(images/arrow-left-vv.png); }
+.icon-arrow-up { background-image: url(images/arrow-up-v.png); }
+.icon-arrow-down { background-image: url(images/arrow-down-v.png); }
+.icon-x-mark { background-image: url(images/x-mark.png); }
+.icon-share { background-image: url(images/share.png); }
+
+
+.tipsy-inner {
+	padding: 8px;
+	text-align: center;
+	max-width: 250px;
+	font-family: arial, sans-serif;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.find {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	z-index: 4;
+	padding: 10px 20px 10px 10px;
+	background-color: #f5f5f5;
+	float: right;
+	border-left: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-bottom-left-radius: 10px;
+	max-height: 26px;
+	-webkit-box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+	-moz-box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+	box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+	display: none;
+}
+.find > button {
+	padding: 3px 0px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	height: 25px;
+	width: 26px;
+	vertical-align: top;
+	cursor: pointer;
+}
+.find > button:hover {
+	background-color: #f5f5f5;
+	border: 1px solid #aaa;
+}
+
+.find > button > span.icon {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	text-align: center;
+	background-position: center center;
+}

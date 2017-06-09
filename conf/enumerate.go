@@ -41,6 +41,12 @@ const (
 )
 
 const (
+	LoggerOperate = "operate"
+	LoggerSystem = "system"
+	LoggerException = "exception"
+	LoggerDocument = "document"
+)
+const (
 	//本地账户校验
 	AuthMethodLocal = "local"
 	//LDAP用户校验

@@ -1,0 +1,152 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2013 jamie.peabody@gmail.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
+/* menu configurable options */
+.wicked-menu { z-index: 7; }									/* cm uses index <= 6 */
+.wicked-menu { font-size: 13px; }
+.wicked-menu, .wicked-menu ul, .wicked-menu li > a.menu-item { 
+	color: #333; 											/* text color */
+}
+.wicked-menu li > a { color: #000; text-decoration:none;}							/* regular link color */
+.wicked-menu li > a:hover { text-decoration:underline; }		/* regular link:hover */
+.wicked-menu > li.hover > a.menu-item,
+.wicked-menu, .wicked-menu ul {
+	background-color: #fff; 								/* background color */
+}
+.wicked-menu > li.hover,
+.wicked-menu ul li:hover > ul,
+.wicked-menu ul {
+	border: 1px solid #cbcbcb;								/* menu border color */
+}
+.wicked-menu li:hover { background: #efefef; }				/* hover menu background color */
+.wicked-menu ul,
+.wicked-menu > li.hover,
+.wicked-menu ul li:hover > ul {									/* drop shadow */
+	-webkit-box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+	-moz-box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+	box-shadow: rgba(0, 0, 0, .2) 0 2px 4px 0;
+}
+/* -- global settings -- */
+.wicked-menu { margin: 0px; padding: 0px; }
+.wicked-menu, .wicked-menu ul { margin: 0; padding: 0; }
+.wicked-menu li { display: inline-block; list-style-type: none; cursor:pointer; }
+.wicked-menu li > a.menu-item { text-decoration: none; }
+.wicked-menu ul { display: none; }
+.wicked-menu ul li { width: 100%; position: relative; }
+.wicked-menu ul li > a.menu-item > span { padding-left: 10px; }
+
+/* top menu */
+.wicked-menu > li > a > *, .wicked-menu > li { display: inline-block; }
+.wicked-menu li > ul > li > * { padding: 5px; display: inline-block; } /* padding other menu-item */
+.wicked-menu > li > a.menu-item > * { padding: 7px 7px; }
+.wicked-menu > li { position: relative; border: 1px solid transparent; }
+.wicked-menu > li.hover > a.menu-item > * { padding: 7px 7px 3px 7px; }
+.wicked-menu > li.hover > a.menu-item  {
+	/* lose the top-level focus indicator on hover */
+	outline: none;
+	position: relative;
+	display: inline-block;
+	z-index: 8;
+}
+
+/* menu items */
+.wicked-menu li.hover > ul,
+.wicked-menu ul li:hover > ul { display: block; position: absolute; }
+.wicked-menu ul li:hover > ul { margin-top: 5px; }
+/* drop menu */
+.wicked-menu ul { z-index: 7; min-width: 210px; top: 2.1em; left: -1px; }
+
+.wicked-menu > li.hover {
+	/* for the top-level menu, after hovering do not show background */
+	background: transparent; position: relative; 
+}
+
+.wicked-menu ul > li > a.menu-item { line-height: 2.35em; display:inline-block; width:100%; padding: 0; }
+
+/* menu layout for icons and hotkeys */
+.wicked-menu span.hotkey { float: right; margin-right: 10px; }
+.wicked-menu ul > li > a.menu-item > span.icon { 
+padding-left: 31px; 
+	background-position: 7px center;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+
+.wicked-menu ul li:hover > ul { min-width: 210px; top: 0px; left: 100%; }
+
+.wicked-menu li.separator { border-top: 1px solid #e5e5e5; height: 3px; display: block; line-height: 3em; margin-top: 3px; }
+.wicked-menu li.separator:hover { background: transparent; cursor:default; }
+
+/* -------------------------------------------------------------------------- */
+
+/* toolbar configurable options */
+.wicked-toolbar {
+	background-color: #f5f5f5;
+	height: 30px;
+	border: 1px solid #e5e5e5;
+	border-right: 0;
+	border-left: 0;
+	margin: 0;
+}
+.wicked-toolbar li span {
+	width: 1px;
+	color: transparent;
+	display: inline-block;
+}
+.wicked-toolbar li {
+	height: 22px;
+	width: 28px;
+	margin: 3px;
+	vertical-align: middle;
+	display: inline-block;
+	text-align: center;
+	border: 1px solid transparent;
+}
+.wicked-toolbar li.separator {
+	border-right:1px solid #e5e5e5;
+	width: 1px;
+}
+.wicked-toolbar li.hover {
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	box-shadow: rgba(0, 0, 0, .1) 0 1px 3px 0;
+    -webkit-transition: all 0.25s ease;
+    -moz-transition: all 0.25s ease;
+    -o-transition: all 0.25s ease;
+    transition: all 0.25s ease;	
+}
+.wicked-toolbar .icon {
+	width: 16px;
+	height: 16px;
+	background-position: center center;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	vertical-align: middle;
+}
+.wicked-toolbar a {
+	display: block;
+	vertical-align: middle;
+	height: 100%;
+	text-decoration: none;
+}

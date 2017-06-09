@@ -48,6 +48,9 @@ h6 {
     font-size: .8em;
     font-weight: 200
 }
+table>tbody>tr:hover{
+    background-color: #F5F5F5;
+}
 .m-manual:not(.manual-mobile) ::-webkit-scrollbar {
     height: 10px;
     width: 7px;

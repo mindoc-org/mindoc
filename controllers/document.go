@@ -458,7 +458,7 @@ func (c *DocumentController) Upload() {
 		attachment.DocumentId = doc_id
 	}
 
-	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, "png") || strings.EqualFold(ext, "gif") {
+	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
 
 		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, commands.WorkingDirectory), "\\", "/", -1)
 		if strings.HasPrefix(attachment.HttpPath, "//") {
@@ -1076,6 +1076,11 @@ func (c *DocumentController) RestoreHistory() {
 		c.JsonResult(6002, "删除失败")
 	}
 	c.JsonResult(0, "ok", doc)
+}
+
+func (c *DocumentController) Compare()  {
+	c.Prepare()
+	c.TplName = "document/compare.tpl"
 }
 
 //递归生成文档序列数组.

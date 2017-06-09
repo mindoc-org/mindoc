@@ -25,6 +25,12 @@ textarea{
     color: green;
     font-size: 12px;
 }
+.input-readonly{
+    border: 1px solid rgba(34,36,38,.15);
+    background-color: #fff !important;
+    -webkit-box-shadow : none;
+    box-shadow: none;
+}
 
 ::-webkit-scrollbar , body  .scrollbar-track-color{
     height: 9px;
@@ -51,7 +57,10 @@ textarea{
 }
 .manual-header  .navbar-brand,.manual-header a {
     font-weight: 500;
-    color: #563d7c
+    color: #563d7c;
+    max-width: 300px;
+    white-space:nowrap;
+    overflow: hidden;
 }
 .manual-reader .slidebar {
     margin: 5px 10px 0 0;

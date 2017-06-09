@@ -12,6 +12,9 @@ import (
 	"github.com/lifei6671/godoc/conf"
 	"github.com/lifei6671/godoc/models"
 	"github.com/lifei6671/godoc/utils"
+	"path/filepath"
+	"github.com/lifei6671/godoc/commands"
+	"strconv"
 )
 
 type ManagerController struct {
@@ -511,3 +514,105 @@ func (c *ManagerController) PrivatelyOwned() {
 	}
 	c.JsonResult(0, "ok")
 }
+
+//附件列表.
+func (c *ManagerController) AttachList() {
+	c.Prepare()
+	c.TplName = "manager/attach_list.tpl"
+
+	pageIndex, _ := c.GetInt("page", 1)
+
+	attachList, totalCount, err := models.NewAttachment().FindToPager(pageIndex, conf.PageSize)
+
+	if err != nil {
+		c.Abort("500")
+	}
+
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, int(totalCount))
+
+		c.Data["PageHtml"] = html
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+
+	for _,item := range attachList {
+
+		p := filepath.Join(commands.WorkingDirectory,item.FilePath)
+
+		item.IsExist = utils.FileExists(p)
+
+	}
+	c.Data["Lists"] = attachList
+}
+
+//附件详情.
+func (c *ManagerController) AttachDetailed()  {
+	c.Prepare()
+	c.TplName = "manager/attach_detailed.tpl"
+	attach_id,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+
+	if attach_id <= 0 {
+		c.Abort("404")
+	}
+
+	attach,err := models.NewAttachmentResult().Find(attach_id)
+
+	if err != nil {
+		beego.Error("AttachDetailed => ",err)
+		if err == orm.ErrNoRows {
+			c.Abort("404")
+		}else{
+			c.Abort("500")
+		}
+	}
+
+	attach.FilePath = filepath.Join(commands.WorkingDirectory,attach.FilePath)
+	attach.HttpPath = c.BaseUrl() + attach.HttpPath
+
+	attach.IsExist = utils.FileExists(attach.FilePath)
+
+	c.Data["Model"] = attach
+}
+
+//删除附件.
+func (c *ManagerController) AttachDelete()  {
+	c.Prepare()
+	attach_id,_ := c.GetInt("attach_id")
+
+	if attach_id <= 0 {
+		c.Abort("404")
+	}
+	attach,err := models.NewAttachment().Find(attach_id)
+
+	if err != nil {
+		beego.Error("AttachDelete => ",err)
+		c.JsonResult(6001,err.Error())
+	}
+	if err := attach.Delete();err != nil {
+		beego.Error("AttachDelete => ",err)
+		c.JsonResult(6002,err.Error())
+	}
+	c.JsonResult(0,"ok")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
