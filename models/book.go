@@ -37,7 +37,7 @@ type Book struct {
 	//封面地址
 	Cover string 		`orm:"column(cover);size(1000)" json:"cover"`
 	//主题风格
-	Theme string 		`orm:"columen(theme);size(255);default(default)" json:"theme"`
+	Theme string 		`orm:"column(theme);size(255);default(default)" json:"theme"`
 	// CreateTime 创建时间 .
 	CreateTime time.Time	`orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
 	MemberId int		`orm:"column(member_id);size(100)" json:"member_id"`
