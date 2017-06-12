@@ -110,3 +110,11 @@ func (c *BaseController) ExecuteViewPathTemplate(tplName string,data interface{}
 func (c *BaseController) BaseUrl() string {
 	return c.Ctx.Input.Scheme() + "://" + c.Ctx.Request.Host
 }
+
+//显示错误信息页面.
+func (c *BaseController) ShowErrorPage(errCode int,errMsg string)  {
+	c.TplName = "errors/error.tpl"
+	c.Data["ErrorMessage"] = errMsg
+	c.Data["ErrorCode"] = errCode
+	c.StopRun()
+}

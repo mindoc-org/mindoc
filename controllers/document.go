@@ -1081,6 +1081,60 @@ func (c *DocumentController) RestoreHistory() {
 func (c *DocumentController) Compare()  {
 	c.Prepare()
 	c.TplName = "document/compare.tpl"
+	history_id ,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	identify := c.Ctx.Input.Param(":key")
+
+	book_id := 0
+	editor := "markdown"
+
+	//如果是超级管理员则忽略权限判断
+	if c.Member.IsAdministrator() {
+		book, err := models.NewBook().FindByFieldFirst("identify", identify)
+		if err != nil {
+			beego.Error("DocumentController.Compare => ", err)
+			c.Abort("403")
+			return
+		}
+		book_id = book.BookId
+		c.Data["Model"] = book
+		editor = book.Editor
+	} else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.Abort("403")
+			return
+		}
+		book_id = bookResult.BookId
+		c.Data["Model"] = bookResult
+		editor = bookResult.Editor
+	}
+
+	if history_id <= 0 {
+		c.ShowErrorPage(60002,"参数错误")
+	}
+
+	history,err := models.NewDocumentHistory().Find(history_id)
+	if err != nil {
+		beego.Error("DocumentController.Compare => ",err)
+		c.ShowErrorPage(60003,err.Error())
+	}
+	doc,err := models.NewDocument().Find(history.DocumentId)
+
+	if doc.BookId != book_id {
+		c.ShowErrorPage(60002,"参数错误")
+	}
+	c.Data["HistoryId"] = history_id
+	c.Data["DocumentId"] = doc.DocumentId
+
+	if editor == "markdown" {
+		c.Data["HistoryContent"] = history.Markdown
+		c.Data["Content"] = doc.Markdown
+	}else{
+		c.Data["HistoryContent"] = template.HTML(history.Content)
+		c.Data["Content"] = template.HTML(doc.Content)
+	}
 }
 
 //递归生成文档序列数组.

@@ -97,17 +97,20 @@ $(document).ready(function() {
 		height: 'auto',
 		cmsettings: {
 			lineNumbers: true,
-			readOnly: isSample
+			readOnly: false
 		}
 	});
-	if (parameters.get('lhs', null)) {
-		var url = parameters.get('lhs');
-		crossdomainGET(ed, 'lhs', url);
-	}
-	if (parameters.get('rhs', null)) {
-		var url = parameters.get('rhs');
-		crossdomainGET(ed, 'rhs', url);
-	}
+
+    ed.mergely("lhs", $("#historyContent").html());
+    ed.mergely("rhs", $("#documentContent").html());
+	// if (parameters.get('lhs', null)) {
+	// 	var url = parameters.get('lhs');
+	// 	crossdomainGET(ed, 'lhs', url);
+	// }
+	// if (parameters.get('rhs', null)) {
+	// 	var url = parameters.get('rhs');
+	// 	crossdomainGET(ed, 'rhs', url);
+	// }
 
 	// set query string options
 	var urloptions = {};
@@ -161,7 +164,7 @@ $(document).ready(function() {
 	});
 	
 	// Load
-	if (key.length == 8) {
+	if (key.length === 8) {
 		$.when(
 			$.ajax({
 				type: 'GET', async: true, dataType: 'text',
@@ -301,29 +304,22 @@ $(document).ready(function() {
 		if (id == 'file-new') {
 			window.location = '/editor';
 		}
-		else if (id == 'file-save') {
-			// download directly from browser
-			var text = ed.mergely('diff');
-			if (navigator.userAgent.toLowerCase().indexOf('msie') === -1) {
-				if (key == '') key = ''.random(8);
-				var link = jQuery('<a />', {
-					href: 'data:application/stream;base64,' + window.btoa(unescape(encodeURIComponent(text))),
-					target: '_blank',
-					text: 'clickme',
-					id: key
-				});
-				link.attr('download', key + '.diff');
-				jQuery('body').append(link);
-				var a = $('a#' + key);
-				a[0].click();
-				a.remove();
+		else if (id === 'file-save') {
+			var rhs = ed.mergely('get', 'rhs');
+
+			if(window.top.hasOwnProperty("editor")){
+                if(window.top.editor.hasOwnProperty("$txt")){
+                    window.top.editor.$txt.html(rhs);
+				}else{
+
+                    window.top.editor.clear();
+                    window.top.editor.insertValue(rhs);
+				}
+
+                window.top.layer.closeAll();
 			}
-			else {
-				var blob = new Blob([text]);
-				window.navigator.msSaveOrOpenBlob(blob, key + '.diff');
-			}
-		}
-		else if (id == 'file-share') {
+
+		}else if (id == 'file-share') {
 			handleShare(ed);
 		}
 		else if (id == 'file-import') {

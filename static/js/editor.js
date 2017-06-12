@@ -232,12 +232,14 @@ function formatBytes($size) {
 function uploadImage($id,$callback) {
     /** 粘贴上传图片 **/
     document.getElementById($id).addEventListener('paste', function(e) {
-        e.preventDefault();
+
         var clipboard = e.clipboardData;
         for (var i = 0, len = clipboard.items.length; i < len; i++) {
             if (clipboard.items[i].kind === 'file' || clipboard.items[i].type.indexOf('image') > -1) {
+
                 var imageFile = clipboard.items[i].getAsFile();
 
+                console.log(imageFile)
                 var fileName = Date.parse(new Date());
 
                 switch (imageFile.type){
@@ -277,6 +279,7 @@ function uploadImage($id,$callback) {
 
                     }
                 });
+                e.preventDefault();
             }
         }
     });

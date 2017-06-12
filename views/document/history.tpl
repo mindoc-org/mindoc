@@ -52,6 +52,11 @@
                     <button class="btn btn-success btn-sm restore-btn" data-id="{{$item.HistoryId}}" data-loading-text="恢复中...">
                         恢复
                     </button>
+                    {{if eq $.Model.Editor "markdown"}}
+                    <button class="btn btn-success btn-sm compare-btn" data-id="{{$item.HistoryId}}">
+                        合并
+                    </button>
+                    {{end}}
                 </td>
             </tr>
             {{else}}
@@ -127,6 +132,18 @@
                     }
                 })
             }
+        });
+        $(".compare-btn").on("click",function () {
+            var historyId = $(this).attr("data-id");
+
+            window.compareIndex = window.top.layer.open({
+                type: 2,
+                title: '文档比较【左侧为历史文档，右侧为当前文档，请将文档合并到右侧】',
+                shade: 0.8,
+                area: ['380px', '90%'],
+                content: "{{urlfor "DocumentController.Compare" ":key" .Model.Identify ":id" ""}}" + historyId
+            });
+            window.top.layer.full(window.compareIndex);
         });
     });
 </script>
