@@ -107,13 +107,13 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">文档名称 <span class="error-message">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text" name="doc_name" id="documentName" placeholder="目录名称" class="form-control"  maxlength="50">
+                            <input type="text" name="doc_name" id="documentName" placeholder="文档名称" class="form-control"  maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">文档标识</label>
                         <div class="col-sm-10">
-                            <input type="text" name="doc_identify" id="documentIdentify" placeholder="目录唯一标识" class="form-control" maxlength="50">
+                            <input type="text" name="doc_identify" id="documentIdentify" placeholder="文档唯一标识" class="form-control" maxlength="50">
                             <p style="color: #999;font-size: 12px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
                         </div>
 
