@@ -107,7 +107,8 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	searchRequest := ldap.NewSearchRequest(
 		beego.AppConfig.String("ldap_base"),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		fmt.Sprintf("(&(objectClass=User)(%s=%s))", beego.AppConfig.String("ldap_attribute"), account),
+		//修改objectClass通过配置文件获取值
+		fmt.Sprintf("(&(%s)(%s=%s))",beego.AppConfig.String("ldap_filter"), beego.AppConfig.String("ldap_attribute"), account),
 		[]string{"dn", "mail"},
 		nil,
 	)

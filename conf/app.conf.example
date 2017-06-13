@@ -94,6 +94,8 @@ ldap_user=CN=ldap helper,OU=example.com,DC=example,DC=com
 ldap_password=superSecret
 #自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户 
 ldap_user_role=2
+#ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
+ldap_filter=objectClass=posixAccount
 
 
 
