@@ -167,7 +167,7 @@
 <div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel">
     <div class="modal-dialog" role="document">
         <form method="post" id="deleteBookForm" action="{{urlfor "ManagerController.DeleteBook"}}">
-            <input type="hidden" name="book_id" value="{{.Model.Bookid}}">
+            <input type="hidden" name="book_id" value="{{.Model.BookId}}">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
