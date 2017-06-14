@@ -8,13 +8,13 @@ import (
 	"os"
 
 	"github.com/astaxie/beego"
-	"github.com/lifei6671/godoc/conf"
+	"github.com/lifei6671/mindoc/conf"
 )
 
 //检查最新版本.
 func CheckUpdate() {
 
-	resp, err := http.Get("https://api.github.com/repos/lifei6671/godoc/tags")
+	resp, err := http.Get("https://api.github.com/repos/lifei6671/mindoc/tags")
 
 	if err != nil {
 		beego.Error("CheckUpdate => ", err)
@@ -39,7 +39,10 @@ func CheckUpdate() {
 		os.Exit(0)
 	}
 
-	fmt.Println("MinDoc last version => ", result[0].Name)
+	if len(result) > 0 {
+		fmt.Println("MinDoc last version => ", result[0].Name)
+	}
+
 	os.Exit(0)
 
 }

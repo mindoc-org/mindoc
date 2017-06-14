@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/lifei6671/godoc/models"
-	"github.com/lifei6671/godoc/utils"
+	"github.com/lifei6671/mindoc/models"
+	"github.com/lifei6671/mindoc/utils"
 	"math"
 )
 

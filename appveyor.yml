@@ -1,5 +1,5 @@
 version: "{build}"
-clone_folder: c:\gopath\src\github.com\lifei6671\godoc
+clone_folder: c:\gopath\src\github.com\lifei6671\mindoc
 
 environment:
   GOPATH: c:\gopath
@@ -42,10 +42,10 @@ build_script:
   - set CGO_ENABLED=1
   - glide update
   - for /f "delims=" %%i in ('go version') do (set GO_VERSION=%%i)
-  - go build -v -o "godoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/lifei6671/godoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/lifei6671/godoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
-  - 7z a -t7z -r godoc_windows_%GOARCH%.7z conf/*.conf* static/* godoc_windows_%GOARCH%.exe views/* uploads/*
+  - go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
+  - 7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
 test_script:
-  - godoc_windows_%GOARCH%.exe version
+  - mindoc_windows_%GOARCH%.exe version
 
 notifications:
   - provider: Email
@@ -54,7 +54,7 @@ notifications:
     on_build_success: false
 
 artifacts:
-  - path: godoc_windows_%GOARCH%.7z
+  - path: mindoc_windows_%GOARCH%.7z
     name: Releases
 
 deploy:
@@ -63,6 +63,6 @@ deploy:
         secure: "Qkhxloft5lBKti7O+vVS+Vrxh7CBAUVhlfdZ9ptBXjFtjt6jHXnaBA2uv2OYbISB"
     draft: false
     prerelease: false
-    artifact:  godoc_windows_%GOARCH%.7z
+    artifact:  mindoc_windows_%GOARCH%.7z
     on:
       appveyor_repo_tag: true

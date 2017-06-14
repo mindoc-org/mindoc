@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/lifei6671/godoc/conf"
+	"github.com/lifei6671/mindoc/conf"
 	"github.com/astaxie/beego/orm"
 	"errors"
 	"github.com/astaxie/beego/logs"

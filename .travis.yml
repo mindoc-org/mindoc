@@ -18,13 +18,13 @@ script:
 
 before_deploy:
   - sudo apt-get -qq update
-  - CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go build -o godoc_linux_amd64 -ldflags="-w -X github.com/lifei6671/godoc/conf.VERSION=$TRAVIS_TAG -X 'github.com/lifei6671/godoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`github.com/lifei6671/godoc/go version`'"
+  - CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go build -o mindoc_linux_amd64 -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=$TRAVIS_TAG -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`github.com/lifei6671/mindoc/go version`'"
   - rm -rf commands controllers models modules data routers tasks vendor docs search utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
   - cp conf/app.conf.example conf/app.conf
-  - zip -r godoc_linux_amd64.zip conf logs static uploads views lib godoc_linux_amd64
-  - zip -r godoc_darwin_amd64.zip conf logs static uploads views lib godoc_darwin_amd64
-  - zip -r godoc_windows_amd64.zip conf logs static uploads views lib godoc_windows_amd64.exe
-  - zip -r godoc_windows_i386.zip conf logs static uploads views lib godoc_windows_i386.exe
+  - zip -r mindoc_linux_amd64.zip conf logs static uploads views lib mindoc_linux_amd64
+  - zip -r mindoc_darwin_amd64.zip conf logs static uploads views lib mindoc_darwin_amd64
+  - zip -r mindoc_windows_amd64.zip conf logs static uploads views lib mindoc_windows_amd64.exe
+  - zip -r mindoc_windows_i386.zip conf logs static uploads views lib mindoc_windows_i386.exe
 
 
 deploy:
@@ -32,7 +32,7 @@ deploy:
   api_key: $CI_USER_TOKEN
   skip_cleanup: true
   file:
-    - godoc_linux_amd64.zip
+    - mindoc_linux_amd64.zip
   on:
     overwrite: true
     tags: true
