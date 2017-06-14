@@ -39,7 +39,10 @@ func CheckUpdate() {
 		os.Exit(0)
 	}
 
-	fmt.Println("MinDoc last version => ", result[0].Name)
+	if len(result) > 0 {
+		fmt.Println("MinDoc last version => ", result[0].Name)
+	}
+
 	os.Exit(0)
 
 }
