@@ -14,7 +14,9 @@ const CaptchaSessionName = "__captcha__"
 
 const RegexpEmail = `^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$`
 
-const RegexpAccount = `^[a-zA-Z][a-zA-z0-9]{2,50}$`
+//允许用户名中出现点号
+
+const RegexpAccount = `^[a-zA-Z][a-zA-z0-9\.]{2,50}$`
 
 // PageSize 默认分页条数.
 const PageSize = 15
