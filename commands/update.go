@@ -14,7 +14,7 @@ import (
 //检查最新版本.
 func CheckUpdate() {
 
-	resp, err := http.Get("https://api.github.com/repos/lifei6671/godoc/tags")
+	resp, err := http.Get("https://api.github.com/repos/lifei6671/mindoc/tags")
 
 	if err != nil {
 		beego.Error("CheckUpdate => ", err)
