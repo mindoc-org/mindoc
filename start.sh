@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-cd /go/src/github.com/lifei6671/godoc/
+cd /go/src/github.com/lifei6671/mindoc/
 
 if [ ! -f "conf/app.conf" ] ; then
     cp conf/app.conf.example conf/app.conf
@@ -45,6 +45,6 @@ fi
 
 sed -i 's/^runmode.*/runmode=prod/g' conf/app.conf
 
-/go/src/github.com/lifei6671/godoc/godoc_linux_amd64 install
+/go/src/github.com/lifei6671/mindoc/mindoc_linux_amd64 install
 
-/go/src/github.com/lifei6671/godoc/godoc_linux_amd64
+/go/src/github.com/lifei6671/mindoc/mindoc_linux_amd64

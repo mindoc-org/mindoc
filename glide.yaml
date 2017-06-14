@@ -1,4 +1,4 @@
-package: github.com/lifei6671/godoc
+package: github.com/lifei6671/mindoc
 import:
 - package: github.com/astaxie/beego
   version: ^1.8.3
