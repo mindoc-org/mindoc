@@ -25,14 +25,18 @@ sessionproviderconfig=./logs
 #时区设置
 timezone = Asia/Shanghai
 
-####################数据库配置###########################
+####################MySQL 数据库配置###########################
 #支持MySQL和sqlite3两种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
-db_adapter=mysql|sqlite3
+db_adapter=mysql
 db_host=127.0.0.1
 db_port=3306
-db_database=mindoc_db|./database/mindoc.db
+db_database=mindoc_db
 db_username=root
 db_password=123456
+
+####################sqlite3 数据库配置###########################
+#db_adapter=sqlite3
+#db_database=./database/mindoc.db
 
 #项目默认封面
 cover=/static/images/book.jpg
