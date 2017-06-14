@@ -4,8 +4,8 @@ import (
 
 	"bytes"
 
-	"github.com/lifei6671/godoc/models"
-	"github.com/lifei6671/godoc/conf"
+	"github.com/lifei6671/mindoc/models"
+	"github.com/lifei6671/mindoc/conf"
 	"github.com/astaxie/beego"
 	"strings"
 	"encoding/json"

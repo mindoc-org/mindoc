@@ -2,7 +2,7 @@ package models
 
 import (
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/godoc/utils"
+	"github.com/lifei6671/mindoc/utils"
 	"strings"
 )
 

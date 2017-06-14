@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/godoc/conf"
+	"github.com/lifei6671/mindoc/conf"
 )
 
 type DocumentHistory struct {
