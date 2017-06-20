@@ -32,6 +32,7 @@
                     {{if ne .Member.AuthMethod "ldap"}}
                     <li><a href="{{urlfor "SettingController.Password"}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 修改密码</a> </li>
                     {{end}}
+                    <li><a href="{{urlfor "BookController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> 我的项目</a> </li>
                 </ul>
             </div>
             <div class="page-right">

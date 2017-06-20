@@ -35,7 +35,7 @@
         <div class="container-fluid">
             <div class="navbar-header pull-left manual-title">
                 <span class="slidebar" id="slidebar"><i class="fa fa-align-justify"></i></span>
-                <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" title="{{.Model.BookName}}" class="book-title">{{.Model.BookName}}</a>
+                <a href="/" title="{{.Model.BookName}}" class="book-title">{{.Model.BookName}}</a>
                 <span style="font-size: 12px;font-weight: 100;"></span>
             </div>
             <div class="navbar-header pull-right manual-menu">
@@ -47,17 +47,17 @@
                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dLabel">
                         {{if gt .Member.MemberId 0}}
                         {{if eq .Model.RoleId 0 1 2}}
-                        <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">返回编辑</a> </li>
+                        <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">进入编辑</a> </li>
                         {{end}}
-                        <li><a href="{{urlfor "BookController.Index"}}">我的项目</a> </li>
-                        <li role="presentation" class="divider"></li>
                         {{end}}
                         {{if eq .Model.PrivatelyOwned 0}}
+                        <li role="presentation" class="divider"></li>
                         <li><a href="javascript:" data-toggle="modal" data-target="#shareProject">项目分享</a> </li>
                         <li role="presentation" class="divider"></li>
                         <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">项目导出PDF</a> </li>
                         {{end}}
 
+                        <li role="presentation" class="divider"></li>
                         <li><a href="{{urlfor "HomeController.Index"}}" title="返回首页">返回首页</a> </li>
                     </ul>
                 </div>

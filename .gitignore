@@ -24,3 +24,7 @@ _testmain.go
 *.prof
 .idea
 /conf/app.conf
+
+logs
+uploads
+

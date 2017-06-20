@@ -41,6 +41,13 @@ function jstree_save(node, parent) {
     })
 }
 
+function guid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+}
+
 /**
  * 创建文档
  */
@@ -48,11 +55,14 @@ function openCreateCatalogDialog($node) {
     var $then =  $("#addDocumentModal");
 
     var doc_id = $node ? $node.id : 0;
+    var doc_identify = "d"+guid();
 
     $then.find("input[name='parent_id']").val(doc_id);
+    $then.find("input[name='doc_identify']").val(doc_identify);
 
     $then.modal("show");
 }
+
 
 /**
  * 处理排序
@@ -176,7 +186,8 @@ $("[data-toggle='tooltip']").hover(function () {
 });
 //弹出创建文档的遮罩层
 $("#btnAddDocument").on("click",function () {
-    $("#addDocumentModal").modal("show");
+    //$("#addDocumentModal").modal("show");
+    openCreateCatalogDialog(null);
 });
 //用于还原创建文档的遮罩层
 $("#addDocumentModal").on("hidden.bs.modal",function () {

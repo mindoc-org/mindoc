@@ -93,7 +93,6 @@
                                     {*</label>*}
                                 {*</div>*}
                             {*</div>*} */}}
-                            {{if eq .Model.PrivatelyOwned 1}}
                             <div class="form-group">
                                 <label>访问令牌</label>
                                 <div class="row">
@@ -106,7 +105,6 @@
                                     </div>
                                 </div>
                             </div>
-                            {{end}}
                             <div class="form-group">
                                 <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
                                 <span id="form-error-message" class="error-message"></span>

@@ -19,7 +19,7 @@ const RegexpEmail = `^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$`
 const RegexpAccount = `^[a-zA-Z][a-zA-z0-9\.]{2,50}$`
 
 // PageSize 默认分页条数.
-const PageSize = 15
+const PageSize = 10
 
 // 用户权限
 const (
@@ -43,17 +43,18 @@ const (
 )
 
 const (
-	LoggerOperate = "operate"
-	LoggerSystem = "system"
+	LoggerOperate   = "operate"
+	LoggerSystem    = "system"
 	LoggerException = "exception"
-	LoggerDocument = "document"
+	LoggerDocument  = "document"
 )
 const (
 	//本地账户校验
 	AuthMethodLocal = "local"
 	//LDAP用户校验
-	AuthMethodLDAP	= "ldap"
+	AuthMethodLDAP = "ldap"
 )
+
 var (
 	VERSION    string
 	BUILD_TIME string

@@ -43,7 +43,7 @@
 <div class="m-manual manual-editor">
     <div class="manual-head" id="editormd-tools">
         <div class="editormd-group">
-            <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+            <a href="/" data-toggle="tooltip" data-title="首页"><i class="fa fa-home" aria-hidden="true"></i></a>
         </div>
         <div class="editormd-group">
             <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
@@ -129,6 +129,7 @@
             <input type="hidden" name="identify" value="{{.Model.Identify}}">
             <input type="hidden" name="doc_id" value="0">
             <input type="hidden" name="parent_id" value="0">
+            <input type="hidden" name="doc_identify" value="d">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -140,14 +141,6 @@
                     <div class="col-sm-10">
                         <input type="text" name="doc_name" id="documentName" placeholder="文档名称" class="form-control"  maxlength="50">
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">文档标识</label>
-                    <div class="col-sm-10">
-                        <input type="text" name="doc_identify" id="documentIdentify" placeholder="文档唯一标识" class="form-control" maxlength="50">
-                        <p style="color: #999;font-size: 12px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
-                    </div>
-
                 </div>
             </div>
             <div class="modal-footer">

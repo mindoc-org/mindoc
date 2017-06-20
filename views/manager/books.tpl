@@ -47,7 +47,7 @@
                         <div class="list-item">
                                 <div class="book-title">
                                     <div class="pull-left">
-                                        <a href="{{urlfor "ManagerController.EditBook" ":key" $item.Identify}}" title="编辑项目" data-toggle="tooltip">
+                                        <a href="{{urlfor "ManagerController.BookDashboard" ":key" $item.Identify}}" title="编辑项目" data-toggle="tooltip">
                                             {{if eq $item.PrivatelyOwned 0}}
                                             <i class="fa fa-unlock" aria-hidden="true"></i>
                                             {{else}}
@@ -66,7 +66,7 @@
                                     {{if eq $item.Description ""}}
                                     &nbsp;
                                     {{else}}
-                                        <a href="{{urlfor "ManagerController.EditBook" ":key" $item.Identify}}" title="编辑项目" style="font-size: 12px;" target="_blank">
+                                        <a href="{{urlfor "ManagerController.BookDashboard" ":key" $item.Identify}}" title="编辑项目" style="font-size: 12px;" target="_blank">
                                             {{$item.Description}}
                                         </a>
                                     {{end}}
