@@ -21,6 +21,13 @@ const RegexpAccount = `^[a-zA-Z][a-zA-z0-9\.]{2,50}$`
 // PageSize 默认分页条数.
 const PageSize = 10
 
+const HomePageSize = 12
+
+const UserPageSize = 10
+
+const BookPageSize = 10
+const BookUserPageSize = 10
+
 // 用户权限
 const (
 	// 超级管理员.

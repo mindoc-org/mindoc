@@ -147,6 +147,12 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label" for="nickname">昵称<span class="error-message">*</span></label>
+                        <div class="col-sm-10">
+                            <input type="text" name="nickname" class="form-control" placeholder="用户昵称" id="nickname" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label" for="password1">密码<span class="error-message">*</span></label>
                         <div class="col-sm-10">
                             <input type="password" class="form-control" placeholder="用户密码" name="password1" id="password1" maxlength="50">
@@ -210,6 +216,10 @@
                 var account = $.trim($("#account").val());
                 if(account === ""){
                     return showError("账号不能为空");
+                }
+                var nickname = $.trim($("#nickname").val());
+                if(nickname === ""){
+                    return showError("昵称不能为空");
                 }
                 var password1 = $.trim($("#password1").val());
                 var password2 = $("#password2").val();

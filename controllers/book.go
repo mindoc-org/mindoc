@@ -32,7 +32,7 @@ func (c *BookController) Index() {
 
 	pageIndex, _ := c.GetInt("page", 1)
 
-	books, totalCount, err := models.NewBook().FindToPager(pageIndex, conf.PageSize, c.Member.MemberId)
+	books, totalCount, err := models.NewBook().FindToPager(pageIndex, conf.BookPageSize, c.Member.MemberId)
 
 	if err != nil {
 		logs.Error("BookController.Index => ", err)
@@ -40,7 +40,7 @@ func (c *BookController) Index() {
 	}
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.BookPageSize, totalCount)
 
 		c.Data["PageHtml"] = html
 	} else {
@@ -360,7 +360,7 @@ func (c *BookController) Users() {
 	_, err = orm.NewOrm().QueryTable("md_members").Filter("status", 0).All(&allmembers)
 	c.Data["AllUsers"] = allmembers
 
-	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, 10)
+	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, conf.BookUserPageSize)
 
 	if totalCount > 0 {
 		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, totalCount)

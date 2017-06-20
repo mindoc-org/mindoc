@@ -43,7 +43,7 @@ func (c *ManagerController) Users() {
 
 	pageIndex, _ := c.GetInt("page", 0)
 
-	members, totalCount, err := models.NewMember().FindToPager(pageIndex, 10)
+	members, totalCount, err := models.NewMember().FindToPager(pageIndex, conf.UserPageSize)
 
 	if err != nil {
 		c.Data["ErrorMessage"] = err.Error()
@@ -51,7 +51,7 @@ func (c *ManagerController) Users() {
 	}
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, int(totalCount))
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.UserPageSize, int(totalCount))
 
 		c.Data["PageHtml"] = html
 	} else {
@@ -76,6 +76,7 @@ func (c *ManagerController) CreateMember() {
 	password2 := strings.TrimSpace(c.GetString("password2"))
 	email := strings.TrimSpace(c.GetString("email"))
 	phone := strings.TrimSpace(c.GetString("phone"))
+	nickname := strings.TrimSpace(c.GetString("nickname"))
 	role, _ := c.GetInt("role", 1)
 	status, _ := c.GetInt("status", 0)
 
@@ -105,6 +106,7 @@ func (c *ManagerController) CreateMember() {
 	}
 
 	member.Account = account
+	member.Nickname = nickname
 	member.Password = password1
 	member.Role = role
 	member.Avatar = conf.GetDefaultAvatar()
@@ -245,14 +247,14 @@ func (c *ManagerController) Books() {
 
 	pageIndex, _ := c.GetInt("page", 1)
 
-	books, totalCount, err := models.NewBookResult().FindToPager(pageIndex, conf.PageSize)
+	books, totalCount, err := models.NewBookResult().FindToPager(pageIndex, conf.BookPageSize)
 
 	if err != nil {
 		c.Abort("500")
 	}
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.BookPageSize, totalCount)
 
 		c.Data["PageHtml"] = html
 	} else {
@@ -675,10 +677,10 @@ func (c *ManagerController) BookUsers() {
 	c.Data["Model"] = *book
 
 	var allmembers []models.Member
-	_, err = orm.NewOrm().QueryTable("md_members").Filter("status",0).All(&allmembers)
+	_, err = orm.NewOrm().QueryTable("md_members").Filter("status", 0).All(&allmembers)
 	c.Data["AllUsers"] = allmembers
 
-	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, 10)
+	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, conf.BookUserPageSize)
 
 	if totalCount > 0 {
 		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, totalCount)
