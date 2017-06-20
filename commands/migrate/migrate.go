@@ -16,18 +16,18 @@ package migrate
 import (
 	"os"
 
-	"log"
-	"github.com/lifei6671/mindoc/models"
 	"container/list"
 	"fmt"
+	"log"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
+	"github.com/lifei6671/mindoc/models"
 )
 
 var (
-	migrationList = &migrationCache{ }
+	migrationList = &migrationCache{}
 )
-
 
 type MigrationDatabase interface {
 	//获取当前的版本
@@ -58,7 +58,7 @@ func RunMigration() {
 
 	if len(os.Args) >= 2 && os.Args[1] == "migrate" {
 
-		migrate,err := models.NewMigration().FindFirst()
+		migrate, err := models.NewMigration().FindFirst()
 
 		if err != nil {
 			//log.Fatalf("migrations table %s", err)
@@ -66,10 +66,10 @@ func RunMigration() {
 		}
 		fmt.Println("Start migration databae... ")
 
-		for el := migrationList.items.Front(); el != nil ; el = el.Next() {
+		for el := migrationList.items.Front(); el != nil; el = el.Next() {
 
 			//如果存在比当前版本大的版本，则依次升级
-			if item,ok := el.Value.(MigrationDatabase); ok && item.Version() > migrate.Version {
+			if item, ok := el.Value.(MigrationDatabase); ok && item.Version() > migrate.Version {
 				err := item.ValidUpdate(migrate.Version)
 				if err != nil {
 					log.Fatal(err)
@@ -112,51 +112,54 @@ func RunMigration() {
 }
 
 //导出数据库的表结构
-func ExportDatabaseTable()  ([]string,error) {
+func ExportDatabaseTable() ([]string, error) {
 	db_adapter := beego.AppConfig.String("db_adapter")
 	db_database := beego.AppConfig.String("db_database")
-	tables := make([]string,0)
+	tables := make([]string, 0)
 
 	o := orm.NewOrm()
 	switch db_adapter {
-	case "mysql":{
-		var lists []orm.Params
+	case "mysql":
+		{
+			var lists []orm.Params
 
-		_,err := o.Raw(fmt.Sprintf("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s'",db_database)).Values(&lists)
-		if err != nil {
-			return tables,err
-		}
-		for _,table := range lists {
-			var results []orm.Params
-
-			_,err = o.Raw(fmt.Sprintf("show create table %s",table["TABLE_NAME"])).Values(&results)
+			_, err := o.Raw(fmt.Sprintf("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s'", db_database)).Values(&lists)
 			if err != nil {
-				return tables,err
+				return tables, err
 			}
-			tables = append(tables,results[0]["Create Table"].(string))
-		}
-		break;
-	}
-	case "sqlite3": {
-		var results []orm.Params
-		_,err := o.Raw("SELECT sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY rootpage ASC").Values(&results)
-		if err != nil {
-			return tables,err
-		}
-		for _,item := range results {
-			if sql,ok := item["sql"]; ok {
-				tables = append(tables,sql.(string))
+			for _, table := range lists {
+				var results []orm.Params
+
+				_, err = o.Raw(fmt.Sprintf("show create table %s", table["TABLE_NAME"])).Values(&results)
+				if err != nil {
+					return tables, err
+				}
+				tables = append(tables, results[0]["Create Table"].(string))
 			}
+			break
 		}
-		break
-	}
+	case "sqlite3":
+		{
+			var results []orm.Params
+			_, err := o.Raw("SELECT sql FROM sqlite_master WHERE sql IS NOT NULL ORDER BY rootpage ASC").Values(&results)
+			if err != nil {
+				return tables, err
+			}
+			for _, item := range results {
+				if sql, ok := item["sql"]; ok {
+					tables = append(tables, sql.(string))
+				}
+			}
+			break
+		}
 
 	}
-	return tables,nil
+	return tables, nil
 }
 
-func RegisterMigration()  {
+func RegisterMigration() {
 	migrationList.items = list.New()
 
-	 migrationList.items.PushBack(NewMigrationVersion03())
+	migrationList.items.PushBack(NewMigrationVersion03())
+	migrationList.items.PushBack(NewMigrationVersion04())
 }

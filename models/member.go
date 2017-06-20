@@ -20,6 +20,7 @@ import (
 type Member struct {
 	MemberId int    `orm:"pk;auto;unique;column(member_id)" json:"member_id"`
 	Account  string `orm:"size(100);unique;column(account)" json:"account"`
+	Nickname string `orm:"size(100);column(nickname)" json:"nickname"`
 	Password string `orm:"size(1000);column(password)" json:"-"`
 	//认证方式: local 本地数据库 /ldap LDAP
 	AuthMethod  string `orm:"column(auth_method);default(local);size(50);" json:"auth_method"`
@@ -108,7 +109,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		beego.AppConfig.String("ldap_base"),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		//修改objectClass通过配置文件获取值
-		fmt.Sprintf("(&(%s)(%s=%s))",beego.AppConfig.String("ldap_filter"), beego.AppConfig.String("ldap_attribute"), account),
+		fmt.Sprintf("(&(%s)(%s=%s))", beego.AppConfig.String("ldap_filter"), beego.AppConfig.String("ldap_attribute"), account),
 		[]string{"dn", "mail"},
 		nil,
 	)
@@ -174,6 +175,10 @@ func (m *Member) Add() error {
 	if m.AuthMethod == "" {
 		m.AuthMethod = "local"
 	}
+	if m.Nickname == "" {
+		m.Nickname = m.Account
+	}
+
 	_, err = o.Insert(m)
 
 	if err != nil {
@@ -275,7 +280,7 @@ func (m *Member) Valid(is_hash_password bool) error {
 		return ErrMemberEmailEmpty
 	}
 	//用户描述必须小于500字
-	if strings.Count(m.Description,"") > 500 {
+	if strings.Count(m.Description, "") > 500 {
 		return ErrMemberDescriptionTooLong
 	}
 	if m.Role != conf.MemberGeneralRole && m.Role != conf.MemberSuperRole && m.Role != conf.MemberAdminRole {
@@ -285,56 +290,40 @@ func (m *Member) Valid(is_hash_password bool) error {
 		m.Status = 0
 	}
 	//邮箱格式校验
-	if  ok,err := regexp.MatchString(conf.RegexpEmail,m.Email); !ok || err != nil || m.Email == "" {
+	if ok, err := regexp.MatchString(conf.RegexpEmail, m.Email); !ok || err != nil || m.Email == "" {
 		return ErrMemberEmailFormatError
 	}
 	//如果是未加密密码，需要校验密码格式
 	if !is_hash_password {
-		if  l := strings.Count(m.Password,"") ; m.Password == "" || l > 50 || l < 6{
+		if l := strings.Count(m.Password, ""); m.Password == "" || l > 50 || l < 6 {
 			return ErrMemberPasswordFormatError
 		}
 	}
 	//校验邮箱是否呗使用
-	if member,err := NewMember().FindByFieldFirst("email",m.Account); err == nil && member.MemberId > 0 {
+	if member, err := NewMember().FindByFieldFirst("email", m.Account); err == nil && member.MemberId > 0 {
 		if m.MemberId > 0 && m.MemberId != member.MemberId {
 			return ErrMemberEmailExist
 		}
-		if m.MemberId <= 0{
-			return  ErrMemberEmailExist
+		if m.MemberId <= 0 {
+			return ErrMemberEmailExist
 		}
 	}
 
-	if m.MemberId > 0{
+	if m.MemberId > 0 {
 		//校验用户是否存在
-		if _,err := NewMember().Find(m.MemberId);err != nil {
+		if _, err := NewMember().Find(m.MemberId); err != nil {
 			return err
 		}
-	}else{
+	} else {
 		//校验账号格式是否正确
-		if ok,err := regexp.MatchString(conf.RegexpAccount,m.Account); m.Account == "" || !ok || err != nil {
+		if ok, err := regexp.MatchString(conf.RegexpAccount, m.Account); m.Account == "" || !ok || err != nil {
 			return ErrMemberAccountFormatError
 		}
 		//校验账号是否被使用
-		if member,err := NewMember().FindByAccount(m.Account); err == nil && member.MemberId > 0 {
+		if member, err := NewMember().FindByAccount(m.Account); err == nil && member.MemberId > 0 {
 			return ErrMemberExist
 		}
 	}
 
-
 	return nil
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

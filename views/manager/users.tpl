@@ -56,7 +56,7 @@
                                     <th width="80">ID</th>
                                     <th width="80">头像</th>
                                     <th>账号</th>
-                                    <th>描述</th>
+                                    <th>昵称</th>
                                     <th>角色</th>
                                     <th>类型</th>
                                     <th>状态</th>
@@ -68,7 +68,7 @@
                                     <td>${item.member_id}</td>
                                     <td><img :src="item.avatar" onerror="this.src='/static/images/middle.gif'" class="img-circle" width="34" height="34"></td>
                                     <td>${item.account}</td>
-                                    <td>${item.description}</td>
+                                    <td>${item.nickname}</td>
                                     <td>
                                         <template v-if="item.role == 0">
                                             超级管理员

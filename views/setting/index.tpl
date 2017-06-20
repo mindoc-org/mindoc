@@ -45,15 +45,19 @@
                     <div class="form-left">
                         <form role="form" method="post" id="memberInfoForm">
                             <div class="form-group">
-                                <label>用户名</label>
+                                <label>用户账号</label>
                                 <input type="text" class="form-control disabled" value="{{.Member.Account}}" disabled>
                             </div>
                             <div class="form-group">
-                                <label for="user-email">邮箱<strong class="text-danger">*</strong></label>
-                                <input type="email" class="form-control" value="{{.Member.Email}}" id="userEmail" name="email" max="100" placeholder="邮箱">
+                                <label>用户昵称</label>
+                                <input type="text" class="form-control disabled" value="{{.Member.Nickname}}" id="nickname" name="nickname" max="100" placeholder="用户昵称">
                             </div>
                             <div class="form-group">
-                                <label>手机号</label>
+                                <label for="user-email">用户邮箱<strong class="text-danger">*</strong></label>
+                                <input type="email" class="form-control" value="{{.Member.Email}}" id="userEmail" name="email" max="100" placeholder="用户邮箱">
+                            </div>
+                            <div class="form-group">
+                                <label>手机号码</label>
                                 <input type="text" class="form-control" id="userPhone" name="phone" maxlength="20" title="手机号码" placeholder="手机号码" value="{{.Member.Phone}}">
                             </div>
                             <div class="form-group">

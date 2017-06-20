@@ -43,7 +43,7 @@ func (c *ManagerController) Users() {
 
 	pageIndex, _ := c.GetInt("page", 0)
 
-	members, totalCount, err := models.NewMember().FindToPager(pageIndex, 15)
+	members, totalCount, err := models.NewMember().FindToPager(pageIndex, 10)
 
 	if err != nil {
 		c.Data["ErrorMessage"] = err.Error()
@@ -678,7 +678,7 @@ func (c *ManagerController) BookUsers() {
 	_, err = orm.NewOrm().QueryTable("md_members").Filter("status",0).All(&allmembers)
 	c.Data["AllUsers"] = allmembers
 
-	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, 15)
+	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, 10)
 
 	if totalCount > 0 {
 		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, totalCount)

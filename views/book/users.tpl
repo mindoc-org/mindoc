@@ -58,7 +58,7 @@
                             <div class="list-item" v-for="item in lists">
                                 <img :src="item.avatar" onerror="this.src='/static/images/middle.gif'" class="img-circle" width="34" height="34">
                                 <span>账号 : ${item.account}</span>&nbsp;&nbsp;&nbsp;&nbsp;
-                                <span>描述 : ${item.description}</span>
+                                <span>昵称 : ${item.nickname}</span>
                                 <div class="operate">
                                     <template v-if="item.role_id == 0">
                                         创始人
@@ -116,7 +116,7 @@
                            {{/*<input type="text" name="account" class="form-control" placeholder="用户账号" id="account" maxlength="50">*/}}
                             <select name="account" class="form-control" id="account" >
                                 {{range $index,$item := .AllUsers}}
-                                <option value="{{$item.Account}}">{{$item.Account}} - {{$item.Description}}</option>
+                                <option value="{{$item.Account}}">{{$item.Account}} - {{$item.Nickname}}</option>
                                 {{end}}
                             </select>
                        </div>

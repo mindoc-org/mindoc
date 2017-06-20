@@ -54,7 +54,7 @@
                     </div>
                     <a href="{{urlfor "ManagerController.Users"}}" class="dashboard-item">
                             <span class="fa fa-users" aria-hidden="true"></span>
-                            <span class="fa-class">会员数量</span>
+                            <span class="fa-class">用户数量</span>
                             <span class="fa-class">{{.Model.MemberNumber}}</span>
                     </a>
                     <!--

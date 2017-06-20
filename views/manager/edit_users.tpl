@@ -46,6 +46,11 @@
                             <input type="text" class="form-control" name="account" disabled placeholder="用户账号" value="{{.Model.Account}}">
                         </div>
                         <div class="form-group">
+                            <label>用户昵称</label>
+                            <input type="text" class="form-control" name="nickname" placeholder="用户账号" value="{{.Model.Nickname}}">
+                        </div>
+                        {{if ne .Member.AuthMethod "ldap"}}
+                        <div class="form-group">
                             <label>用户密码</label>
                             <input type="password" class="form-control" name="password1" placeholder="用户密码" maxlength="50">
                             <p style="color: #999;font-size: 12px;">不修改密码请留空,只支持本地用户修改密码</p>
@@ -54,6 +59,7 @@
                             <label>确认密码</label>
                             <input type="password" class="form-control" name="password2" placeholder="确认密码" maxlength="50">
                         </div>
+                        {{end}}
                         <div class="form-group">
                             <label>用户邮箱 <strong class="text-danger">*</strong></label>
                             <input type="email" class="form-control" name="email" placeholder="用户邮箱" value="{{.Model.Email}}" maxlength="50">

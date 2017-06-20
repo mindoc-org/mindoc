@@ -45,9 +45,9 @@
                 {{if gt .Member.MemberId 0}}
                 <li>
                     <div class="img user-info" data-toggle="dropdown">
-                        <img src="{{cdnimg .Member.Avatar}}" class="img-circle userbar-avatar" alt="{{.Member.Account}}">
+                        <img src="{{cdnimg .Member.Avatar}}" class="img-circle userbar-avatar" alt="{{.Member.Nickname}}">
                         <div class="userbar-content">
-                            <span>{{.Member.Account}}</span>
+                            <span>{{.Member.Nickname}}</span>
                             <div>{{.Member.RoleName}}</div>
                         </div>
                         <i class="fa fa-chevron-down" aria-hidden="true"></i>
