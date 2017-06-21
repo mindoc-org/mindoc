@@ -13,7 +13,6 @@ RUN chmod +x start.sh
 RUN go get -d ./... && \
     go get github.com/mitchellh/gox
 RUN ls
-RUN gox -build-toolchain
-RUN gox
+RUN go build
     
 CMD ["./start.sh"]
