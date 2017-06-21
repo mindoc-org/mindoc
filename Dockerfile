@@ -12,7 +12,8 @@ RUN chmod +x start.sh
 
 RUN go get -d ./... && \
     go get github.com/mitchellh/gox
-RUN gox -h
-RUN gox -os "windows linux darwin" -arch amd64
+RUN ls
+RUN gox -build-toolchain
+RUN gox
     
 CMD ["./start.sh"]
