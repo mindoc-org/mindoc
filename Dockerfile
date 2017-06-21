@@ -12,7 +12,7 @@ RUN chmod +x start.sh
 
 RUN go get -d ./... && \
     go get github.com/mitchellh/gox
-RUN ls
-RUN go build
+RUN glide update
+RUN go build -ldflags "-w"
     
 CMD ["./start.sh"]
