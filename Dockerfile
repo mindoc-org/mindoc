@@ -1,7 +1,7 @@
 FROM golang:1.8.3-alpine3.6
 
 
-RUN apk add --update bash git make gcc
+RUN apk add --update bash git make gcc g++
 
 ADD . /go/src/github.com/lifei6671/mindoc
 
