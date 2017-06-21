@@ -13,6 +13,7 @@ RUN chmod +x start.sh
 RUN go get -d ./... && \
     go get github.com/mitchellh/gox
 RUN brew install glide
+RUN glide install
 RUN go build -ldflags "-w"
     
 CMD ["./start.sh"]
