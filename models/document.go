@@ -1,10 +1,12 @@
 package models
 
 import (
+	"html/template"
 	"time"
 
 	"bytes"
 	"fmt"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
@@ -158,4 +160,60 @@ func (m *Document) FindListByBookId(book_id int) (docs []*Document, err error) {
 	_, err = o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).All(&docs)
 
 	return
+}
+
+// GetLinkBookDocuments ...
+func (m *Document) GetLinkBookDocuments(book_id int) (doclinks string, doclist string, err error) {
+
+	book, err := NewBook().Find(book_id)
+	if err != nil {
+		return "", "", err
+	}
+
+	rdoc, err := m.FindByFieldFirst("book_id", book_id)
+	if err != nil {
+		return "", "", err
+	}
+	doclinks = rdoc.Markdown
+
+	buf := bytes.NewBufferString("")
+
+	GetLinkBookDocumentsInternal(doclinks, book.LinkId, 0, buf)
+
+	doclist = buf.String()
+	return doclinks, doclist, nil
+}
+
+// GetLinkBookDocumentsInternal ...
+func GetLinkBookDocumentsInternal(doclinks string, book_id, parent_id int, buf *bytes.Buffer) {
+	var docs []*Document
+	o := orm.NewOrm()
+	sql2 := `SELECT document_id,document_name,FIND_IN_SET(document_id,?) AS modify_at
+		FROM md_documents  
+		WHERE book_id = ? AND parent_id= ?  
+		ORDER BY order_sort DESC ,document_id DESC `
+	count, _ := o.Raw(sql2, doclinks, book_id, parent_id).QueryRows(&docs)
+	if count > 0 {
+		buf.WriteString("<ul>\r\n")
+		for _, item := range docs {
+			buf.WriteString("<li><input type=\"checkbox\" id=\"")
+			buf.WriteString(fmt.Sprintf("%d", item.DocumentId))
+			buf.WriteString("\"  checked=\"checked\" ")
+			buf.WriteString("/><label><input type=\"checkbox\" ")
+			if item.ModifyAt > 0 {
+				buf.WriteString(" checked=\"checked\" ")
+			}
+			buf.WriteString("/><span></span></label><label for=\"")
+			buf.WriteString(fmt.Sprintf("%d", item.DocumentId))
+			buf.WriteString("\">")
+			buf.WriteString(template.HTMLEscapeString(item.DocumentName))
+			buf.WriteString("--")
+			buf.WriteString(fmt.Sprintf("%d", item.DocumentId))
+			buf.WriteString("</label>")
+			GetLinkBookDocumentsInternal(doclinks, book_id, item.DocumentId, buf)
+			buf.WriteString("</li>\r\n")
+		}
+		buf.WriteString("</ul>\r\n")
+	}
+
 }

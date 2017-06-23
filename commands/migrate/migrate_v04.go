@@ -75,6 +75,10 @@ func (m *MigrationVersion04) MigrationNewTableData() error {
 	if err != nil {
 		return err
 	}
+	_, err = o.Raw("UPDATE md_books SET link_id = 0 WHERE link_id IS NULL ").Exec()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -108,6 +112,10 @@ func (m *MigrationVersion04) RollbackMigration() error {
 	}
 	o := orm.NewOrm()
 	_, err := o.Raw("ALTER TABLE md_members DROP COLUMN nickname").Exec()
+	if err != nil {
+		return err
+	}
+	_, err = o.Raw("ALTER TABLE md_books DROP COLUMN link_id").Exec()
 	if err != nil {
 		return err
 	}

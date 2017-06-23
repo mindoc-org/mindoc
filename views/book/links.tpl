@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>我的项目 - Powered by MinDoc</title>
+    <title>链接 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">
@@ -41,13 +41,25 @@
                         <li><a href="{{urlfor "ManagerController.Setting" }}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-cogs" aria-hidden="true"></i> 配置管理</a> </li>
                         <li><a href="{{urlfor "ManagerController.AttachList" }}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-cloud-upload" aria-hidden="true"></i> 附件管理</a> </li>
                     {{end}}
+                    <li class="active"><a href="###" class="item"><i class="fa fa-book" aria-hidden="true"></i> {{.Model.BookName}}</a> </li>
+                    <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
+                    {{if eq .Model.LinkId 0}}
+                        <li class="active"><a href="{{urlfor "BookController.Links" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-book" aria-hidden="true"></i> 链接</a> </li>
+                    {{end}}
+                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
+                    {{if eq .Model.RoleId 0 1}}
+                        <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                    {{end}}
+                    {{if gt .Model.LinkId 0}}
+                        <li><a href="{{urlfor "BookController.EditLink" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-book" aria-hidden="true"></i> 文档</a> </li>
+                    {{end}}
                 </ul>
             </div>
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">项目列表</strong>
-                        <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">添加项目</button>
+                        <strong class="box-title">链接列表</strong>
+                        <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">添加链接</button>
                     </div>
                 </div>
                 <div class="box-body" id="bookList">
@@ -73,11 +85,6 @@
                                 </div>
                                 <div class="pull-right">
                                     <a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>
-                                    <template v-if="item.role_id != 3">
-                                    <template v-if="item.link_id == 0">
-                                        <a :href="'/api/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
-                                    </template>
-                                    </template>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
@@ -122,23 +129,23 @@
 <div class="modal fade" id="addBookDialogModal" tabindex="-1" role="dialog" aria-labelledby="addBookDialogModalLabel">
     <div class="modal-dialog" role="document" style="width: 655px">
         <form method="post" autocomplete="off" action="{{urlfor "BookController.Create"}}" id="addBookDialogForm">
-        <input type="hidden" name="link_id" value="0">
+        <input type="hidden" name="link_id" value="{{.Model.BookId}}">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">添加项目</h4>
+                <h4 class="modal-title" id="myModalLabel">添加链接</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName">
+                    <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName" value="{{.Model.BookName}} copy" >
                 </div>
                 <div class="form-group">
                     <div class="pull-left" style="padding: 7px 5px 6px 0">
                         {{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" ""}}
                     </div>
-                    <input type="text" class="form-control pull-left" style="width: 220px;vertical-align: middle" placeholder="项目唯一标识(不能超过50字)" name="identify" id="identify">
+                    <input type="text" class="form-control pull-left" style="width: 220px;vertical-align: middle" placeholder="项目唯一标识(不能超过50字)" name="identify" id="identify" value="{{.Model.Identify}}-1"｝>
                     <div class="clearfix"></div>
-                    <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
+                    <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">项目标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
 
                 </div>
                 <div class="form-group">

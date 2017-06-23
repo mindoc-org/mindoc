@@ -1,48 +1,62 @@
 package models
 
 import (
-	"github.com/astaxie/beego/orm"
 	"bytes"
-	"strconv"
-	"github.com/astaxie/beego"
 	"html/template"
+	"strconv"
+
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 )
 
 type DocumentTree struct {
-	DocumentId int               	`json:"id"`
-	DocumentName string 		`json:"text"`
-	ParentId interface{}            `json:"parent"`
-	Identify string 		`json:"identify"`
-	BookIdentify string 		`json:"-"`
-	Version int64			`json:"version"`
-	State *DocumentSelected         `json:"state,omitempty"`
+	DocumentId   int               `json:"id"`
+	DocumentName string            `json:"text"`
+	ParentId     interface{}       `json:"parent"`
+	Identify     string            `json:"identify"`
+	BookIdentify string            `json:"-"`
+	Version      int64             `json:"version"`
+	State        *DocumentSelected `json:"state,omitempty"`
 }
 type DocumentSelected struct {
-	Selected bool        	`json:"selected"`
-	Opened bool        	`json:"opened"`
+	Selected bool `json:"selected"`
+	Opened   bool `json:"opened"`
 }
 
 //获取项目的文档树状结构
-func (m *Document) FindDocumentTree(book_id int) ([]*DocumentTree,error){
+func (m *Document) FindDocumentTree(book_id int) ([]*DocumentTree, error) {
 	o := orm.NewOrm()
 
-	trees := make([]*DocumentTree,0)
+	book, _ := NewBook().Find(book_id)
+
+	trees := make([]*DocumentTree, 0)
 
 	var docs []*Document
+	var count int64
 
-	count ,err := o.QueryTable(m).Filter("book_id",book_id).OrderBy("order_sort","document_id").All(&docs,"document_id","version","document_name","parent_id","identify")
-
-	if err != nil {
-		return trees,err
+	if book.LinkId > 0 {
+		rdoc, _ := NewDocument().FindByFieldFirst("book_id", book_id)
+		doclinks := rdoc.Markdown
+		sql := "SELECT * FROM md_documents WHERE book_id = ? AND FIND_IN_SET(document_id,?)>0 ORDER BY order_sort,document_id "
+		count1, err := o.Raw(sql, book.LinkId, doclinks).QueryRows(&docs)
+		if err != nil {
+			return trees, err
+		}
+		count = count1
+	} else {
+		count1, err := o.QueryTable(m).Filter("book_id", book_id).OrderBy("order_sort", "document_id").All(&docs, "document_id", "version", "document_name", "parent_id", "identify")
+		if err != nil {
+			return trees, err
+		}
+		count = count1
 	}
-	book,_ := NewBook().Find(book_id)
 
-	trees = make([]*DocumentTree,count)
+	trees = make([]*DocumentTree, count)
 
-	for index,item := range docs {
+	for index, item := range docs {
 		tree := &DocumentTree{}
-		if index == 0{
-			tree.State = &DocumentSelected{ Selected: true, Opened: true }
+		if index == 0 {
+			tree.State = &DocumentSelected{Selected: true, Opened: true}
 		}
 		tree.DocumentId = item.DocumentId
 		tree.Identify = item.Identify
@@ -50,7 +64,7 @@ func (m *Document) FindDocumentTree(book_id int) ([]*DocumentTree,error){
 		tree.BookIdentify = book.Identify
 		if item.ParentId > 0 {
 			tree.ParentId = item.ParentId
-		}else{
+		} else {
 			tree.ParentId = "#"
 		}
 
@@ -59,41 +73,41 @@ func (m *Document) FindDocumentTree(book_id int) ([]*DocumentTree,error){
 		trees[index] = tree
 	}
 
-	return trees,nil
+	return trees, nil
 }
 
-func (m *Document) CreateDocumentTreeForHtml(book_id, selected_id int) (string,error) {
-	trees,err := m.FindDocumentTree(book_id)
+func (m *Document) CreateDocumentTreeForHtml(book_id, selected_id int) (string, error) {
+	trees, err := m.FindDocumentTree(book_id)
 	if err != nil {
-		return "",err
+		return "", err
 	}
-	parent_id := getSelectedNode(trees,selected_id)
+	parent_id := getSelectedNode(trees, selected_id)
 
 	buf := bytes.NewBufferString("")
 
-	getDocumentTree(trees,0,selected_id,parent_id,buf)
+	getDocumentTree(trees, 0, selected_id, parent_id, buf)
 
-	return buf.String(),nil
-	
+	return buf.String(), nil
+
 }
 
 //使用递归的方式获取指定ID的顶级ID
 func getSelectedNode(array []*DocumentTree, parent_id int) int {
 
-	for _,item := range array {
-		if _,ok := item.ParentId.(string); ok && item.DocumentId == parent_id  {
+	for _, item := range array {
+		if _, ok := item.ParentId.(string); ok && item.DocumentId == parent_id {
 			return item.DocumentId
-		}else if pid,ok := item.ParentId.(int); ok  && item.DocumentId == parent_id{
-			return getSelectedNode(array,pid)
+		} else if pid, ok := item.ParentId.(int); ok && item.DocumentId == parent_id {
+			return getSelectedNode(array, pid)
 		}
 	}
-	return  0
+	return 0
 }
 
-func getDocumentTree(array []*DocumentTree,parent_id int,selected_id int,selected_parent_id int,buf *bytes.Buffer)   {
+func getDocumentTree(array []*DocumentTree, parent_id int, selected_id int, selected_parent_id int, buf *bytes.Buffer) {
 	buf.WriteString("<ul>")
 
-	for _,item := range array {
+	for _, item := range array {
 		pid := 0
 
 		if p, ok := item.ParentId.(int); ok {
@@ -138,14 +152,3 @@ func getDocumentTree(array []*DocumentTree,parent_id int,selected_id int,selecte
 	}
 	buf.WriteString("</ul>")
 }
-
-
-
-
-
-
-
-
-
-
-

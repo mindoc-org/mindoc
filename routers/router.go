@@ -32,9 +32,6 @@ func init() {
 	beego.Router("/manager/attach/list", &controllers.ManagerController{}, "*:AttachList")
 	beego.Router("/manager/attach/detailed/:id", &controllers.ManagerController{}, "*:AttachDetailed")
 	beego.Router("/manager/attach/delete", &controllers.ManagerController{}, "post:AttachDelete")
-	beego.Router("/manager/book/:key/dashboard", &controllers.ManagerController{}, "*:BookDashboard")
-	beego.Router("/manager/book/:key/setting", &controllers.ManagerController{}, "*:BookSetting")
-	beego.Router("/manager/book/:key/users", &controllers.ManagerController{}, "*:BookUsers")
 
 	beego.Router("/setting", &controllers.SettingController{}, "*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{}, "*:Password")
@@ -46,6 +43,8 @@ func init() {
 	beego.Router("/book/:key/users", &controllers.BookController{}, "*:Users")
 	beego.Router("/book/:key/release", &controllers.BookController{}, "post:Release")
 	beego.Router("/book/:key/sort", &controllers.BookController{}, "post:SaveSort")
+	beego.Router("/book/:key/links", &controllers.BookController{}, "*:Links")
+	beego.Router("/book/:key/editlink", &controllers.BookController{}, "*:EditLink")
 
 	beego.Router("/book/create", &controllers.BookController{}, "*:Create")
 	beego.Router("/book/users/create", &controllers.BookMemberController{}, "post:AddMember")

@@ -1,8 +1,10 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -82,10 +84,24 @@ WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0)  AND (doc.document_
 func (m *DocumentSearchResult) SearchDocument(keyword string, book_id int) (docs []*DocumentSearchResult, err error) {
 	o := orm.NewOrm()
 
-	sql := "SELECT * FROM md_documents WHERE book_id = ? AND (document_name LIKE ? OR `release` LIKE ?) "
-	keyword = "%" + keyword + "%"
-
-	_, err = o.Raw(sql, book_id, keyword, keyword).QueryRows(&docs)
-
+	book, err := NewBook().FindByFieldFirst("book_id", book_id)
+	if err != nil {
+		return nil, err
+	}
+	if book.LinkId > 0 {
+		rdoc, err := NewDocument().FindByFieldFirst("book_id", book_id)
+		if err != nil {
+			return nil, err
+		}
+		doclinks := rdoc.Markdown
+		beego.Info(fmt.Sprintf("%d", book.LinkId) + " --- " + keyword + " --- " + doclinks)
+		sql := "SELECT * FROM md_documents WHERE book_id = ? AND (document_name LIKE ? OR `release` LIKE ?) AND FIND_IN_SET(document_id,?)>0 "
+		keyword = "%" + keyword + "%"
+		_, err = o.Raw(sql, book.LinkId, keyword, keyword, doclinks).QueryRows(&docs)
+	} else {
+		sql := "SELECT * FROM md_documents WHERE book_id = ? AND (document_name LIKE ? OR `release` LIKE ?) "
+		keyword = "%" + keyword + "%"
+		_, err = o.Raw(sql, book_id, keyword, keyword).QueryRows(&docs)
+	}
 	return
 }

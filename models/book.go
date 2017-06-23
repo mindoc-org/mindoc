@@ -44,6 +44,7 @@ type Book struct {
 	MemberId   int       `orm:"column(member_id);size(100)" json:"member_id"`
 	ModifyTime time.Time `orm:"type(datetime);column(modify_time);null;auto_now" json:"modify_time"`
 	Version    int64     `orm:"type(bigint);column(version)" json:"version"`
+	LinkId     int       `orm:"column(link_id);type(int);index" json:"link_id"`
 }
 
 // TableName 获取对应数据库表名.
@@ -323,6 +324,7 @@ func (book *Book) ToBookResult() *BookResult {
 	m.Status = book.Status
 	m.Editor = book.Editor
 	m.Theme = book.Theme
+	m.LinkId = book.LinkId
 
 	if book.Theme == "" {
 		m.Theme = "default"
@@ -343,4 +345,70 @@ func (m *Book) ResetDocumentNumber(book_id int) {
 	} else {
 		beego.Error(err)
 	}
+}
+
+//分页查询指定用户的项目
+func (m *Book) FindLinksToPager(pageIndex, pageSize, memberId int, linkId int) (books []*BookResult, totalCount int, err error) {
+
+	relationship := NewRelationship()
+
+	o := orm.NewOrm()
+
+	qb, _ := orm.NewQueryBuilder("mysql")
+
+	qb.Select("COUNT(book.book_id) AS total_count").
+		From(m.TableNameWithPrefix() + " AS book").
+		LeftJoin(relationship.TableNameWithPrefix() + " AS rel").
+		On("book.book_id=rel.book_id AND rel.member_id = ?").
+		Where("rel.relationship_id > 0 AND book.link_id = ? ")
+
+	err = o.Raw(qb.String(), memberId, linkId).QueryRow(&totalCount)
+
+	if err != nil {
+		return
+	}
+
+	offset := (pageIndex - 1) * pageSize
+	qb2, _ := orm.NewQueryBuilder("mysql")
+
+	qb2.Select("book.*,rel.member_id", "rel.role_id", "m.nickname as create_name").
+		From(m.TableNameWithPrefix()+" AS book").
+		LeftJoin(relationship.TableNameWithPrefix()+" AS rel").On("book.book_id=rel.book_id AND rel.member_id = ?").
+		LeftJoin(relationship.TableNameWithPrefix()+" AS rel1").On("book.book_id=rel1.book_id  AND rel1.role_id=0").
+		LeftJoin(NewMember().TableNameWithPrefix()+" AS m").On("rel1.member_id=m.member_id").
+		Where("rel.relationship_id > 0 AND book.link_id = ? ").
+		OrderBy("book.order_index DESC ", "book.book_id").Desc().
+		Limit(pageSize).
+		Offset(offset)
+
+	_, err = o.Raw(qb2.String(), memberId, linkId).QueryRows(&books)
+	if err != nil {
+		logs.Error("分页查询项目列表 => ", err)
+		return
+	}
+	sql := "SELECT m.account,doc.modify_time FROM md_documents AS doc LEFT JOIN md_members AS m ON doc.modify_at=m.member_id WHERE book_id = ? LIMIT 1 ORDER BY doc.modify_time DESC"
+
+	if err == nil && len(books) > 0 {
+		for index, book := range books {
+			var text struct {
+				Account    string
+				ModifyTime time.Time
+			}
+
+			err1 := o.Raw(sql, book.BookId).QueryRow(&text)
+			if err1 == nil {
+				books[index].LastModifyText = text.Account + " 于 " + text.ModifyTime.Format("2006-01-02 15:04:05")
+			}
+			if book.RoleId == 0 {
+				book.RoleName = "创始人"
+			} else if book.RoleId == 1 {
+				book.RoleName = "管理员"
+			} else if book.RoleId == 2 {
+				book.RoleName = "编辑者"
+			} else if book.RoleId == 3 {
+				book.RoleName = "观察者"
+			}
+		}
+	}
+	return
 }

@@ -387,6 +387,7 @@ func (c *BookController) Create() {
 		description := strings.TrimSpace(c.GetString("description", ""))
 		privately_owned, _ := strconv.Atoi(c.GetString("privately_owned"))
 		comment_status := c.GetString("comment_status")
+		link_id, _ := strconv.Atoi(c.GetString("link_id"))
 
 		if book_name == "" {
 			c.JsonResult(6001, "项目名称不能为空")
@@ -429,6 +430,7 @@ func (c *BookController) Create() {
 		book.Cover = conf.GetDefaultCover()
 		book.Editor = "markdown"
 		book.Theme = "default"
+		book.LinkId = link_id
 
 		err := book.Insert()
 
@@ -653,4 +655,85 @@ func (c *BookController) IsPermission() (*models.BookResult, error) {
 		return book, errors.New("权限不足")
 	}
 	return book, nil
+}
+
+func (c *BookController) Links() {
+	c.Prepare()
+	c.TplName = "book/links.tpl"
+
+	key := c.Ctx.Input.Param(":key")
+	pageIndex, _ := c.GetInt("page", 1)
+
+	if key == "" {
+		c.Abort("404")
+	}
+
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.Abort("403")
+		}
+		c.Abort("500")
+	}
+
+	c.Data["Model"] = *book
+
+	books, totalCount, err := models.NewBook().FindLinksToPager(pageIndex, conf.BookPageSize, c.Member.MemberId, book.BookId)
+
+	if err != nil {
+		logs.Error("BookController.Links => ", err)
+		c.Abort("500")
+	}
+
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.BookPageSize, totalCount)
+
+		c.Data["PageHtml"] = html
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+	b, err := json.Marshal(books)
+
+	if err != nil || len(books) <= 0 {
+		c.Data["Result"] = template.JS("[]")
+	} else {
+		c.Data["Result"] = template.JS(string(b))
+	}
+}
+
+func (c *BookController) EditLink() {
+	c.Prepare()
+	c.TplName = "book/edit-link.tpl"
+
+	key := c.Ctx.Input.Param(":key")
+
+	if key == "" {
+		c.Abort("404")
+	}
+
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.Abort("403")
+		}
+		c.Abort("500")
+	}
+
+	c.Data["Model"] = *book
+
+	if c.Ctx.Input.IsPost() {
+		link_docs := strings.TrimSpace(c.GetString("link_docs", ""))
+		rdoc, _ := models.NewDocument().FindByFieldFirst("book_id", book.BookId)
+		o := orm.NewOrm()
+		o.Raw("UPDATE md_documents SET markdown = ? WHERE document_id = ?", link_docs, rdoc.DocumentId).Exec()
+	}
+
+	doclinks, docs, err := models.NewDocument().GetLinkBookDocuments(book.BookId)
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
+	c.Data["LinkDocLinks"] = doclinks
+	c.Data["LinkDocResult"] = template.HTML(docs)
+
 }
