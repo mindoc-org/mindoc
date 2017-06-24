@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>附件管理 - Powered by MinDoc</title>
+    <title>附件 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">
@@ -41,7 +41,6 @@
                             <tr>
                                 <th>#</th>
                                 <th>附件名称</th>
-                                <th>项目名称</th>
                                 <th>文件大小</th>
                                 <th>是否存在</th>
                                 <th>操作</th>
@@ -52,12 +51,11 @@
                             <tr>
                                 <td>{{$item.AttachmentId}}</td>
                                 <td>{{$item.Description}}</td>
-                                <td>{{$item.BookName}}</td>
                                 <td>{{$item.FileShortSize}}</td>
                                 <td>{{ if $item.IsExist }} 是{{else}}否{{end}}</td>
                                 <td>
                                     <button type="button" data-method="delete" class="btn btn-danger btn-sm" data-id="{{$item.AttachmentId}}" data-loading-text="删除中...">删除</button>
-                                    <a href="{{urlfor "ManagerController.AttachDetailed" ":id" $item.AttachmentId}}" class="btn btn-success btn-sm">详情</a>
+                                    <a href="{{urlfor "BookController.EditAttach" ":key" $.Model.Identify ":id" $item.AttachmentId}}" class="btn btn-success btn-sm">详情</a>
 
                                 </td>
                             </tr>

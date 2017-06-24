@@ -79,6 +79,10 @@ func (m *MigrationVersion04) MigrationNewTableData() error {
 	if err != nil {
 		return err
 	}
+	_, err = o.Raw("UPDATE md_attachment SET description = file_name WHERE description IS NULL ").Exec()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -116,6 +120,10 @@ func (m *MigrationVersion04) RollbackMigration() error {
 		return err
 	}
 	_, err = o.Raw("ALTER TABLE md_books DROP COLUMN link_id").Exec()
+	if err != nil {
+		return err
+	}
+	_, err = o.Raw("ALTER TABLE md_attachment DROP COLUMN description").Exec()
 	if err != nil {
 		return err
 	}

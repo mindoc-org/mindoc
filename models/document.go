@@ -139,7 +139,7 @@ func (m *Document) ReleaseContent(book_id int) {
 		if err == nil && len(attach_list) > 0 {
 			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
 			for _, attach := range attach_list {
-				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
+				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.Description, attach.Description)
 
 				content.WriteString(li)
 			}

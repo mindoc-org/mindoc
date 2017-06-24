@@ -181,7 +181,7 @@
                                     </button>
                                 </template>
                                 <template v-else>
-                                    <a :href="item.http_path" target="_blank" :title="item.file_name">${item.file_name}</a>
+                                    <a :href="item.http_path" target="_blank" :title="item.description">${item.description}</a>
                                     <span class="text">(${ formatBytes(item.file_size) })</span>
                                     <span class="error-message">${item.message}</span>
                                     <button type="button" class="btn btn-sm close" @click="removeAttach(item.attachment_id)">

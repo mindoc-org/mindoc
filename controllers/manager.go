@@ -46,7 +46,7 @@ func (c *ManagerController) Users() {
 	c.Data["SIDEBAR_BOOK"] = 0
 
 	keyword := c.GetString("keyword")
-	
+
 	c.Data["Keyword"] = keyword
 
 	pageIndex, _ := c.GetInt("page", 0)
@@ -259,10 +259,10 @@ func (c *ManagerController) Books() {
 
 	pageIndex, _ := c.GetInt("page", 1)
 	keyword := c.GetString("keyword")
-	
+
 	c.Data["Keyword"] = keyword
 
-	books, totalCount, err := models.NewBookResult().FindToPager(pageIndex, conf.BookPageSize,keyword)
+	books, totalCount, err := models.NewBookResult().FindToPager(pageIndex, conf.BookPageSize, keyword)
 
 	if err != nil {
 		c.Abort("500")
@@ -284,6 +284,8 @@ func (c *ManagerController) EditBook() {
 	c.Prepare()
 
 	c.TplName = "manager/edit_book.tpl"
+	c.Data["SIDEBAR_ID"] = "books"
+	c.Data["SIDEBAR_BOOK"] = 1
 
 	identify := c.GetString(":key")
 
@@ -546,11 +548,10 @@ func (c *ManagerController) AttachList() {
 
 	pageIndex, _ := c.GetInt("page", 1)
 	keyword := c.GetString("keyword")
-	
+
 	c.Data["Keyword"] = keyword
 
-
-	attachList, totalCount, err := models.NewAttachment().FindToPager(pageIndex, conf.PageSize,keyword)
+	attachList, totalCount, err := models.NewAttachment().FindToPager(pageIndex, conf.PageSize, keyword, 0)
 
 	if err != nil {
 		c.Abort("500")
@@ -595,6 +596,18 @@ func (c *ManagerController) AttachDetailed() {
 		} else {
 			c.Abort("500")
 		}
+	}
+	if c.Ctx.Input.IsPost() {
+		description := c.GetString("description")
+		attach.Description = description
+		if description == "" {
+			attach.Description = attach.FileName
+		}
+		if err := attach.Update(); err != nil {
+			beego.Error(err)
+			c.JsonResult(6004, "保存失败")
+		}
+		c.JsonResult(0, "ok")
 	}
 
 	attach.FilePath = filepath.Join(commands.WorkingDirectory, attach.FilePath)

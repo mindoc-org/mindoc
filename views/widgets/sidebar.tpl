@@ -20,6 +20,7 @@
             <li class="{{if eq $.SIDEBAR_ID "bookdashboard"}}active{{end}}"><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
             {{if eq .Model.RoleId 0 1}}
                 {{if eq .Model.LinkId 0}}
+                    <li class="{{if eq $.SIDEBAR_ID "bookattach"}}active{{end}}"><a href="{{urlfor "BookController.Attach" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-cloud-upload" aria-hidden="true"></i> 附件</a> </li>
                     <li class="{{if eq $.SIDEBAR_ID "booklink"}}active{{end}}"><a href="{{urlfor "BookController.Links" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-book" aria-hidden="true"></i> 链接</a> </li>
                 {{end}}
                 <li class="{{if eq $.SIDEBAR_ID "bookuser"}}active{{end}}"><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>

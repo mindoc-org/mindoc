@@ -16,6 +16,8 @@ type HomeController struct {
 func (c *HomeController) Index() {
 	c.Prepare()
 	c.TplName = "home/index.tpl"
+	c.Data["SIDEBAR_ID"] = "home"
+	c.Data["SIDEBAR_BOOK"] = 0
 	//如果没有开启匿名访问，则跳转到登录页面
 	if !c.EnableAnonymous && c.Member == nil {
 		c.Redirect(beego.URLFor("AccountController.Login"), 302)

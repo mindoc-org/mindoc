@@ -446,6 +446,7 @@ func (c *DocumentController) Upload() {
 	attachment := models.NewAttachment()
 	attachment.BookId = book_id
 	attachment.FileName = moreFile.Filename
+	attachment.Description = attachment.FileName
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
 	attachment.FilePath = strings.TrimPrefix(filePath, commands.WorkingDirectory)

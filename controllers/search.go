@@ -18,6 +18,8 @@ type SearchController struct {
 func (c *SearchController) Index() {
 	c.Prepare()
 	c.TplName = "search/index.tpl"
+	c.Data["SIDEBAR_ID"] = "search"
+	c.Data["SIDEBAR_BOOK"] = 0
 
 	//如果没有开启你们访问则跳转到登录
 	if !c.EnableAnonymous && c.Member == nil {
@@ -32,25 +34,23 @@ func (c *SearchController) Index() {
 	if sidebar_id == "users" {
 		c.Redirect(beego.URLFor("ManagerController.Users", "keyword", keyword), 302)
 		return
-	}
-	if sidebar_id == "books" {
+	} else if sidebar_id == "books" {
 		c.Redirect(beego.URLFor("ManagerController.Books", "keyword", keyword), 302)
 		return
-	}
-	if sidebar_id == "attach" {
+	} else if sidebar_id == "attach" {
 		c.Redirect(beego.URLFor("ManagerController.AttachList", "keyword", keyword), 302)
 		return
-	}
-	if sidebar_id == "mybook" {
+	} else if sidebar_id == "mybook" {
 		c.Redirect(beego.URLFor("BookController.Index", "keyword", keyword), 302)
 		return
-	}
-	if sidebar_id == "bookuser" {
+	} else if sidebar_id == "bookuser" {
 		c.Redirect(beego.URLFor("BookController.Users", ":key", book_identify, "keyword", keyword), 302)
 		return
-	}
-	if sidebar_id == "booklink" {
+	} else if sidebar_id == "booklink" {
 		c.Redirect(beego.URLFor("BookController.Links", ":key", book_identify, "keyword", keyword), 302)
+		return
+	} else if sidebar_id == "bookattach" {
+		c.Redirect(beego.URLFor("BookController.Attach", ":key", book_identify, "keyword", keyword), 302)
 		return
 	}
 

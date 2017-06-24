@@ -758,3 +758,119 @@ func (c *BookController) EditLink() {
 	c.Data["LinkDocResult"] = template.HTML(docs)
 
 }
+
+
+//附件列表.
+func (c *BookController) Attach() {
+	c.Prepare()
+	c.TplName = "book/attach.tpl"
+	c.Data["SIDEBAR_ID"] = "bookattach"
+	c.Data["SIDEBAR_BOOK"] = 1
+
+	pageIndex, _ := c.GetInt("page", 1)
+	keyword := c.GetString("keyword")
+
+	c.Data["Keyword"] = keyword
+
+	key := c.Ctx.Input.Param(":key")
+
+	if key == "" {
+		c.Abort("404")
+	}
+
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.Abort("403")
+		}
+		c.Abort("500")
+	}
+
+	c.Data["Model"] = *book
+
+
+	attachList, totalCount, err := models.NewAttachment().FindToPager(pageIndex, conf.PageSize, keyword,book.BookId)
+
+	if err != nil {
+		c.Abort("500")
+	}
+
+	if totalCount > 0 {
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, int(totalCount))
+
+		c.Data["PageHtml"] = html
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+
+	for _, item := range attachList {
+
+		p := filepath.Join(commands.WorkingDirectory, item.FilePath)
+
+		item.IsExist = utils.FileExists(p)
+
+	}
+	c.Data["Lists"] = attachList
+}
+
+//附件详情.
+func (c *BookController)EditAttach() {
+	c.Prepare()
+	c.TplName = "book/edit-attach.tpl"
+	c.Data["SIDEBAR_ID"] = "bookattach"
+	c.Data["SIDEBAR_BOOK"] = 1
+
+	key := c.Ctx.Input.Param(":key")
+
+	if key == "" {
+		c.Abort("404")
+	}
+
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.Abort("403")
+		}
+		c.Abort("500")
+	}
+
+	c.Data["Model"] = *book
+
+
+
+	attach_id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+
+	if attach_id <= 0 {
+		c.Abort("404")
+	}
+
+	attach, err := models.NewAttachmentResult().Find(attach_id)
+
+	if err != nil {
+		beego.Error("AttachDetailed => ", err)
+		if err == orm.ErrNoRows {
+			c.Abort("404")
+		} else {
+			c.Abort("500")
+		}
+	}
+	if c.Ctx.Input.IsPost() {
+		description := c.GetString("description")
+		attach.Description = description
+		if description == "" {
+			attach.Description = attach.FileName
+		}
+		if err := attach.Update(); err != nil {
+			beego.Error(err)
+			c.JsonResult(6004, "保存失败")
+		}
+		c.JsonResult(0, "ok")
+	}
+
+	attach.FilePath = filepath.Join(commands.WorkingDirectory, attach.FilePath)
+	attach.HttpPath = c.BaseUrl() + attach.HttpPath
+
+	attach.IsExist = utils.FileExists(attach.FilePath)
+
+	c.Data["ModelAttach"] = attach
+}

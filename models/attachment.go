@@ -26,6 +26,7 @@ type Attachment struct {
 	FileExt      string    `orm:"column(file_ext);size(50)" json:"file_ext"`
 	CreateTime   time.Time `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
 	CreateAt     int       `orm:"column(create_at);type(int)" json:"create_at"`
+	Description  string    `orm:"column(description);size(2000)" json:"description"`
 }
 
 // TableName 获取对应数据库表名.
@@ -91,12 +92,17 @@ func (m *Attachment) FindListByDocumentId(doc_id int) (attaches []*Attachment, e
 }
 
 //分页查询附件
-func (m *Attachment) FindToPager(pageIndex, pageSize int, keyword string) (attachList []*AttachmentResult, totalCount int64, err error) {
+func (m *Attachment) FindToPager(pageIndex, pageSize int, keyword string, bookId int) (attachList []*AttachmentResult, totalCount int64, err error) {
 	o := orm.NewOrm()
 
 	qs := o.QueryTable(m.TableNameWithPrefix())
 	if keyword != "" {
-		qs = qs.Filter("file_name__icontains", keyword)
+		cond := orm.NewCondition()
+		cond1 := cond.Or("file_name__icontains", keyword).Or("description__icontains", keyword)
+		qs = qs.SetCond(cond1)
+	}
+	if bookId > 0 {
+		qs = qs.Filter("book_id", bookId)
 	}
 
 	totalCount, err = qs.Count()
