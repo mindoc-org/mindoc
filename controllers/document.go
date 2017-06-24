@@ -429,9 +429,9 @@ func (c *DocumentController) Upload() {
 		}
 	}
 
-	fileName := "attach_" + strconv.FormatInt(time.Now().UnixNano(), 16)
+	fileName := strconv.FormatInt(time.Now().UnixNano(), 16)
 
-	filePath := filepath.Join(commands.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+ext)
+	filePath := filepath.Join(commands.WorkingDirectory, "uploads", "attach", time.Now().Format("20060101"), fileName+ext)
 
 	path := filepath.Dir(filePath)
 

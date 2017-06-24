@@ -152,6 +152,7 @@
                 auto: false,
                 swf: '/static/webuploader/Uploader.swf',
                 server: '{{urlfor "SettingController.Upload"}}',
+                formData : { "member_id" : {{.Member.MemberId}} },
                 pick: "#filePicker",
                 fileVal : "image-file",
                 fileNumLimit : 1,

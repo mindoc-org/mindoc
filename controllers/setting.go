@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -117,9 +118,11 @@ func (c *SettingController) Upload() {
 
 	fmt.Println(x, x1, y, y1)
 
-	fileName := "avatar_" + strconv.FormatInt(time.Now().UnixNano(), 16)
+	rand.Seed(time.Now().UTC().UnixNano())
+	rn := 1 + rand.Intn(10000)
+	fileName := strconv.FormatInt(time.Now().UnixNano(), 16) + string(rn)
 
-	filePath := filepath.Join(commands.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+ext)
+	filePath := filepath.Join(commands.WorkingDirectory, "uploads", "avatar", fileName+ext)
 
 	path := filepath.Dir(filePath)
 
@@ -141,7 +144,7 @@ func (c *SettingController) Upload() {
 	}
 	os.Remove(filePath)
 
-	filePath = filepath.Join(commands.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+"_small"+ext)
+	filePath = filepath.Join(commands.WorkingDirectory, "uploads", "avatar", fileName+"_small"+ext)
 
 	err = graphics.ImageResizeSaveFile(subImg, 120, 120, filePath)
 	//err = graphics.SaveImage(filePath,subImg)
@@ -156,7 +159,9 @@ func (c *SettingController) Upload() {
 		url = string(url[1:])
 	}
 
-	if member, err := models.NewMember().Find(c.Member.MemberId); err == nil {
+	memberId, _ := c.GetInt("member_id")
+
+	if member, err := models.NewMember().Find(memberId); err == nil {
 		avater := member.Avatar
 
 		member.Avatar = url
@@ -165,7 +170,9 @@ func (c *SettingController) Upload() {
 			if strings.HasPrefix(avater, "/uploads/") {
 				os.Remove(filepath.Join(commands.WorkingDirectory, avater))
 			}
-			c.SetMember(*member)
+			if c.Member.MemberId == memberId {
+				c.SetMember(*member)
+			}
 		} else {
 			c.JsonResult(60001, "保存头像失败")
 		}

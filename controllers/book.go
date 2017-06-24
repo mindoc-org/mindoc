@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -286,9 +287,11 @@ func (c *BookController) UploadCover() {
 	width := int(w1)
 	height := int(h1)
 
-	fileName := "cover_" + strconv.FormatInt(time.Now().UnixNano(), 16)
+	rand.Seed(time.Now().UTC().UnixNano())
+	rn := 1 + rand.Intn(10000)
+	fileName := strconv.FormatInt(time.Now().UnixNano(), 16) + string(rn)
 
-	filePath := filepath.Join("uploads", time.Now().Format("200601"), fileName+ext)
+	filePath := filepath.Join(commands.WorkingDirectory, "uploads", "cover", fileName+ext)
 
 	path := filepath.Dir(filePath)
 
@@ -312,7 +315,7 @@ func (c *BookController) UploadCover() {
 		c.JsonResult(500, "图片剪切")
 	}
 
-	filePath = filepath.Join(commands.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+"_small"+ext)
+	filePath = filepath.Join(commands.WorkingDirectory, "uploads", "cover", fileName+"_small"+ext)
 
 	//生成缩略图并保存到磁盘
 	err = graphics.ImageResizeSaveFile(subImg, 175, 230, filePath)
@@ -374,7 +377,7 @@ func (c *BookController) Users() {
 	_, err = orm.NewOrm().QueryTable("md_members").Filter("status", 0).All(&allmembers)
 	c.Data["AllUsers"] = allmembers
 
-	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, conf.BookUserPageSize,keyword)
+	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, conf.BookUserPageSize, keyword)
 
 	if totalCount > 0 {
 		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, totalCount)
@@ -759,7 +762,6 @@ func (c *BookController) EditLink() {
 
 }
 
-
 //附件列表.
 func (c *BookController) Attach() {
 	c.Prepare()
@@ -788,8 +790,7 @@ func (c *BookController) Attach() {
 
 	c.Data["Model"] = *book
 
-
-	attachList, totalCount, err := models.NewAttachment().FindToPager(pageIndex, conf.PageSize, keyword,book.BookId)
+	attachList, totalCount, err := models.NewAttachment().FindToPager(pageIndex, conf.PageSize, keyword, book.BookId)
 
 	if err != nil {
 		c.Abort("500")
@@ -814,7 +815,7 @@ func (c *BookController) Attach() {
 }
 
 //附件详情.
-func (c *BookController)EditAttach() {
+func (c *BookController) EditAttach() {
 	c.Prepare()
 	c.TplName = "book/edit-attach.tpl"
 	c.Data["SIDEBAR_ID"] = "bookattach"
@@ -835,8 +836,6 @@ func (c *BookController)EditAttach() {
 	}
 
 	c.Data["Model"] = *book
-
-
 
 	attach_id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 

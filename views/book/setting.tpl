@@ -168,12 +168,12 @@
     </div>
 </div>
 <!-- Start Modal -->
-<div class="modal fade" id="upload-logo-panel" tabindex="-1" role="dialog" aria-labelledby="修改头像" aria-hidden="true">
+<div class="modal fade" id="upload-logo-panel" tabindex="-1" role="dialog" aria-labelledby="修改封面" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">修改头像</h4>
+                <h4 class="modal-title">修改封面</h4>
             </div>
             <div class="modal-body">
                 <div class="wraper">
