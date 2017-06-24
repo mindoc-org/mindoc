@@ -83,6 +83,14 @@ func (m *MigrationVersion04) MigrationNewTableData() error {
 	if err != nil {
 		return err
 	}
+	_, err = o.Raw("UPDATE md_members SET sex = 0 WHERE sex IS NULL ").Exec()
+	if err != nil {
+		return err
+	}
+	_, err = o.Raw("UPDATE md_members SET avatar = '/static/images/middle.gif' WHERE avatar = '/static/images/headimgurl.jpg' ").Exec()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -124,6 +132,10 @@ func (m *MigrationVersion04) RollbackMigration() error {
 		return err
 	}
 	_, err = o.Raw("ALTER TABLE md_attachment DROP COLUMN description").Exec()
+	if err != nil {
+		return err
+	}
+	_, err = o.Raw("ALTER TABLE md_members DROP COLUMN sex").Exec()
 	if err != nil {
 		return err
 	}

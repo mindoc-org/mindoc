@@ -164,6 +164,16 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label" for="sex">性别</label>
+                        <div class="col-sm-10">
+                            <div class="form-control">
+                                <label><input type="radio" name="sex" value="0" checked> 保密 </label>
+                                <label><input type="radio" name="sex" value="1" > 男孩 </label>
+                                <label><input type="radio" name="sex" value="2" > 女孩 </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label">手机号</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" placeholder="手机号" name="phone" maxlength="50">

@@ -79,7 +79,7 @@ func GetDatabasePrefix() string {
 
 //获取默认头像
 func GetDefaultAvatar() string {
-	return beego.AppConfig.DefaultString("avatar", "/static/images/headimgurl.jpg")
+	return beego.AppConfig.DefaultString("avatar", "/static/images/middle.gif")
 }
 
 //获取阅读令牌长度.

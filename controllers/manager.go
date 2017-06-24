@@ -87,6 +87,7 @@ func (c *ManagerController) CreateMember() {
 	nickname := strings.TrimSpace(c.GetString("nickname"))
 	role, _ := c.GetInt("role", 1)
 	status, _ := c.GetInt("status", 0)
+	sex, _ := c.GetInt("sex", 0)
 
 	if ok, err := regexp.MatchString(conf.RegexpAccount, account); account == "" || !ok || err != nil {
 		c.JsonResult(6001, "账号只能由英文字母数字组成，且在3-50个字符")
@@ -117,7 +118,15 @@ func (c *ManagerController) CreateMember() {
 	member.Nickname = nickname
 	member.Password = password1
 	member.Role = role
-	member.Avatar = conf.GetDefaultAvatar()
+	member.Sex = sex
+	if sex == 1 {
+		member.Avatar = "/static/images/boy.png"
+	} else if sex == 2 {
+		member.Avatar = "/static/images/girl.png"
+	} else {
+		member.Avatar = conf.GetDefaultAvatar()
+	}
+
 	member.CreateAt = c.Member.MemberId
 	member.Email = email
 	if phone != "" {
@@ -221,6 +230,16 @@ func (c *ManagerController) EditMember() {
 		email := c.GetString("email")
 		phone := c.GetString("phone")
 		description := c.GetString("description")
+		sex, _ := c.GetInt("sex", 0)
+		member.Sex = sex
+		if sex == 1 && (member.Avatar == "/static/images/girl.png" || member.Avatar == conf.GetDefaultAvatar()) {
+			member.Avatar = "/static/images/boy.png"
+		} else if sex == 2 && (member.Avatar == "/static/images/boy.png" || member.Avatar == conf.GetDefaultAvatar()) {
+			member.Avatar = "/static/images/girl.png"
+		} else if member.Avatar == "/static/images/boy.png" || member.Avatar == "/static/images/girl.png" {
+			member.Avatar = conf.GetDefaultAvatar()
+		}
+
 		member.Email = email
 		member.Phone = phone
 		member.Description = description

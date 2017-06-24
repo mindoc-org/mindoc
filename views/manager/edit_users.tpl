@@ -40,6 +40,14 @@
                             <label>用户昵称</label>
                             <input type="text" class="form-control" name="nickname" placeholder="用户账号" value="{{.Model.Nickname}}">
                         </div>
+                        <div class="form-group">
+                            <label>用户性别</label>
+                            <div class="form-control">
+                                <label><input type="radio" name="sex" value="0" {{if eq .Model.Sex 0}}checked{{end}}> 保密 </label>
+                                <label><input type="radio" name="sex" value="1" {{if eq .Model.Sex 1}}checked{{end}}> 男孩 </label>
+                                <label><input type="radio" name="sex" value="2" {{if eq .Model.Sex 2}}checked{{end}}> 女孩 </label>
+                            </div>
+                        </div>
                         {{if ne .Member.AuthMethod "ldap"}}
                         <div class="form-group">
                             <label>用户密码</label>

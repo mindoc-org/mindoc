@@ -48,7 +48,7 @@ func initialization() {
 	if err == orm.ErrNoRows {
 
 		member.Account = "admin"
-		member.Avatar = "/static/images/headimgurl.jpg"
+		member.Avatar = "/static/images/middle.gif"
 		member.Password = "123456"
 		member.AuthMethod = "local"
 		member.Role = 0

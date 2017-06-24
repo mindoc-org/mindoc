@@ -42,7 +42,7 @@ db_password=123456
 cover=/static/images/book.jpg
 
 #默认头像
-avatar=/static/images/headimgurl.jpg
+avatar=/static/images/middle.gif
 
 #默认阅读令牌长度
 token_size=12

@@ -21,6 +21,8 @@ type Member struct {
 	MemberId int    `orm:"pk;auto;unique;column(member_id)" json:"member_id"`
 	Account  string `orm:"size(100);unique;column(account)" json:"account"`
 	Nickname string `orm:"size(100);column(nickname)" json:"nickname"`
+	//性别：0 保密 /1 男/ 2 女
+	Sex      int    `orm:"column(sex);type(int);default(0);" json:"sex"`
 	Password string `orm:"size(1000);column(password)" json:"-"`
 	//认证方式: local 本地数据库 /ldap LDAP
 	AuthMethod  string `orm:"column(auth_method);default(local);size(50);" json:"auth_method"`
@@ -129,7 +131,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		m.Account = account
 		m.Email = searchResult.Entries[0].GetAttributeValue("mail")
 		m.AuthMethod = "ldap"
-		m.Avatar = "/static/images/headimgurl.jpg"
+		m.Avatar = "/static/images/middle.gif"
 		m.Role = beego.AppConfig.DefaultInt("ldap_user_role", 2)
 		m.CreateTime = time.Now()
 
