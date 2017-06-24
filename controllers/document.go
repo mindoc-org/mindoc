@@ -42,8 +42,8 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 		c.Abort("500")
 	}
 	if c.Member != nil && c.Member.IsAdministrator() {
-		bookResult := book.ToBookResult()
-		return bookResult
+		//bookResult := book.ToBookResult()
+		//return bookResult
 	}
 	//如果文档是私有的
 	if book.PrivatelyOwned == 1 {
@@ -1078,10 +1078,10 @@ func (c *DocumentController) RestoreHistory() {
 	c.JsonResult(0, "ok", doc)
 }
 
-func (c *DocumentController) Compare()  {
+func (c *DocumentController) Compare() {
 	c.Prepare()
 	c.TplName = "document/compare.tpl"
-	history_id ,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	history_id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 	identify := c.Ctx.Input.Param(":key")
 
 	book_id := 0
@@ -1112,18 +1112,18 @@ func (c *DocumentController) Compare()  {
 	}
 
 	if history_id <= 0 {
-		c.ShowErrorPage(60002,"参数错误")
+		c.ShowErrorPage(60002, "参数错误")
 	}
 
-	history,err := models.NewDocumentHistory().Find(history_id)
+	history, err := models.NewDocumentHistory().Find(history_id)
 	if err != nil {
-		beego.Error("DocumentController.Compare => ",err)
-		c.ShowErrorPage(60003,err.Error())
+		beego.Error("DocumentController.Compare => ", err)
+		c.ShowErrorPage(60003, err.Error())
 	}
-	doc,err := models.NewDocument().Find(history.DocumentId)
+	doc, err := models.NewDocument().Find(history.DocumentId)
 
 	if doc.BookId != book_id {
-		c.ShowErrorPage(60002,"参数错误")
+		c.ShowErrorPage(60002, "参数错误")
 	}
 	c.Data["HistoryId"] = history_id
 	c.Data["DocumentId"] = doc.DocumentId
@@ -1131,7 +1131,7 @@ func (c *DocumentController) Compare()  {
 	if editor == "markdown" {
 		c.Data["HistoryContent"] = history.Markdown
 		c.Data["Content"] = doc.Markdown
-	}else{
+	} else {
 		c.Data["HistoryContent"] = template.HTML(history.Content)
 		c.Data["Content"] = template.HTML(doc.Content)
 	}

@@ -12,7 +12,7 @@ import (
 	"github.com/lifei6671/mindoc/commands"
 	"github.com/lifei6671/mindoc/commands/daemon"
 	_ "github.com/lifei6671/mindoc/routers"
-	_ "github.com/mattn/go-sqlite3"
+	//_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {

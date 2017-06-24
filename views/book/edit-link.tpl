@@ -45,12 +45,12 @@
                     {{end}}
                     <li class="active"><a href="###" class="item"><i class="fa fa-book" aria-hidden="true"></i> {{.Model.BookName}}</a> </li>
                     <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
-                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
                     {{if eq .Model.RoleId 0 1}}
+                        <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
                         <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
-                    {{end}}
-                    {{if gt .Model.LinkId 0}}
-                        <li class="active"><a href="{{urlfor "BookController.EditLink" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-book" aria-hidden="true"></i> 文档</a> </li>
+                        {{if gt .Model.LinkId 0}}
+                            <li class="active"><a href="{{urlfor "BookController.EditLink" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-book" aria-hidden="true"></i> 文档</a> </li>
+                        {{end}}
                     {{end}}
                 </ul>
             </div>
