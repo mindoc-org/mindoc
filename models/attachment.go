@@ -6,11 +6,12 @@ import (
 
 	"os"
 
+	"strings"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/utils"
-	"strings"
 )
 
 // Attachment struct .
@@ -90,10 +91,15 @@ func (m *Attachment) FindListByDocumentId(doc_id int) (attaches []*Attachment, e
 }
 
 //分页查询附件
-func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*AttachmentResult, totalCount int64, err error) {
+func (m *Attachment) FindToPager(pageIndex, pageSize int, keyword string) (attachList []*AttachmentResult, totalCount int64, err error) {
 	o := orm.NewOrm()
 
-	totalCount, err = o.QueryTable(m.TableNameWithPrefix()).Count()
+	qs := o.QueryTable(m.TableNameWithPrefix())
+	if keyword != "" {
+		qs = qs.Filter("file_name__icontains", keyword)
+	}
+
+	totalCount, err = qs.Count()
 
 	if err != nil {
 		return
@@ -102,7 +108,7 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 
 	var list []*Attachment
 
-	_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-attachment_id").Offset(offset).Limit(pageSize).All(&list)
+	_, err = qs.OrderBy("-attachment_id").Offset(offset).Limit(pageSize).All(&list)
 
 	if err != nil {
 		return
@@ -127,7 +133,7 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 		} else {
 			attach.DocumentName = "[不存在]"
 		}
-		attach.LocalHttpPath = strings.Replace(item.FilePath,"\\","/",-1)
+		attach.LocalHttpPath = strings.Replace(item.FilePath, "\\", "/", -1)
 
 		attachList = append(attachList, attach)
 	}

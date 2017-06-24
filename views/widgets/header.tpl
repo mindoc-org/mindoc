@@ -10,6 +10,8 @@
             </a>
             <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">
                 <form class="form-inline" action="{{urlfor "SearchController.Index"}}" method="get">
+                    <input type="hidden" name="sidebar_id" value="{{.SIDEBAR_ID}}">
+                    <input type="hidden" name="book_identify" value="{{if eq .SIDEBAR_BOOK 1}}{{.Model.Identify}}{{end}}">
                     <input class="form-control" name="keyword" type="search" style="width: 230px;" placeholder="请输入关键词..." value="{{.Keyword}}">
                     <button class="search-btn">
                         <i class="fa fa-search"></i>

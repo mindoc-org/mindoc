@@ -32,6 +32,8 @@ func (c *ManagerController) Prepare() {
 
 func (c *ManagerController) Index() {
 	c.TplName = "manager/index.tpl"
+	c.Data["SIDEBAR_ID"] = "dashboard"
+	c.Data["SIDEBAR_BOOK"] = 0
 
 	c.Data["Model"] = models.NewDashboard().Query()
 }
@@ -40,10 +42,16 @@ func (c *ManagerController) Index() {
 func (c *ManagerController) Users() {
 	c.Prepare()
 	c.TplName = "manager/users.tpl"
+	c.Data["SIDEBAR_ID"] = "users"
+	c.Data["SIDEBAR_BOOK"] = 0
+
+	keyword := c.GetString("keyword")
+	
+	c.Data["Keyword"] = keyword
 
 	pageIndex, _ := c.GetInt("page", 0)
 
-	members, totalCount, err := models.NewMember().FindToPager(pageIndex, conf.UserPageSize)
+	members, totalCount, err := models.NewMember().FindToPager(pageIndex, conf.UserPageSize, keyword)
 
 	if err != nil {
 		c.Data["ErrorMessage"] = err.Error()
@@ -192,6 +200,8 @@ func (c *ManagerController) ChangeMemberRole() {
 func (c *ManagerController) EditMember() {
 	c.Prepare()
 	c.TplName = "manager/edit_users.tpl"
+	c.Data["SIDEBAR_ID"] = "users"
+	c.Data["SIDEBAR_BOOK"] = 0
 
 	member_id, _ := c.GetInt(":id", 0)
 
@@ -244,10 +254,15 @@ func (c *ManagerController) EditMember() {
 func (c *ManagerController) Books() {
 	c.Prepare()
 	c.TplName = "manager/books.tpl"
+	c.Data["SIDEBAR_ID"] = "books"
+	c.Data["SIDEBAR_BOOK"] = 0
 
 	pageIndex, _ := c.GetInt("page", 1)
+	keyword := c.GetString("keyword")
+	
+	c.Data["Keyword"] = keyword
 
-	books, totalCount, err := models.NewBookResult().FindToPager(pageIndex, conf.BookPageSize)
+	books, totalCount, err := models.NewBookResult().FindToPager(pageIndex, conf.BookPageSize,keyword)
 
 	if err != nil {
 		c.Abort("500")
@@ -378,6 +393,8 @@ func (c *ManagerController) CreateToken() {
 func (c *ManagerController) Setting() {
 	c.Prepare()
 	c.TplName = "manager/setting.tpl"
+	c.Data["SIDEBAR_ID"] = "setting"
+	c.Data["SIDEBAR_BOOK"] = 0
 
 	options, err := models.NewOption().All()
 
@@ -450,6 +467,8 @@ func (c *ManagerController) Transfer() {
 func (c *ManagerController) Comments() {
 	c.Prepare()
 	c.TplName = "manager/comments.tpl"
+	c.Data["SIDEBAR_ID"] = "comments"
+	c.Data["SIDEBAR_BOOK"] = 0
 	if !c.Member.IsAdministrator() {
 		c.Abort("403")
 	}
@@ -522,10 +541,16 @@ func (c *ManagerController) PrivatelyOwned() {
 func (c *ManagerController) AttachList() {
 	c.Prepare()
 	c.TplName = "manager/attach_list.tpl"
+	c.Data["SIDEBAR_ID"] = "attach"
+	c.Data["SIDEBAR_BOOK"] = 0
 
 	pageIndex, _ := c.GetInt("page", 1)
+	keyword := c.GetString("keyword")
+	
+	c.Data["Keyword"] = keyword
 
-	attachList, totalCount, err := models.NewAttachment().FindToPager(pageIndex, conf.PageSize)
+
+	attachList, totalCount, err := models.NewAttachment().FindToPager(pageIndex, conf.PageSize,keyword)
 
 	if err != nil {
 		c.Abort("500")
@@ -553,6 +578,8 @@ func (c *ManagerController) AttachList() {
 func (c *ManagerController) AttachDetailed() {
 	c.Prepare()
 	c.TplName = "manager/attach_detailed.tpl"
+	c.Data["SIDEBAR_ID"] = "attach"
+	c.Data["SIDEBAR_BOOK"] = 0
 	attach_id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
 	if attach_id <= 0 {

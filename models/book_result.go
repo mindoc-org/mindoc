@@ -110,26 +110,34 @@ func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult
 	return m, nil
 }
 
-func (m *BookResult) FindToPager(pageIndex, pageSize int) (books []*BookResult, totalCount int, err error) {
+func (m *BookResult) FindToPager(pageIndex, pageSize int, keyword string) (books []*BookResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
-	count, err := o.QueryTable(NewBook().TableNameWithPrefix()).Count()
+	qs := o.QueryTable(NewBook().TableNameWithPrefix())
+	if keyword != "" {
+		cond := orm.NewCondition()
+		cond1 := cond.Or("book_name__icontains", keyword).Or("label__icontains", keyword)
+		qs = qs.SetCond(cond1)
+	}
+	count, err := qs.Count()
 
 	if err != nil {
 		return
 	}
 	totalCount = int(count)
 
+	keyword = "%" + keyword + "%"
 	sql := `SELECT
 			book.*,rel.relationship_id,rel.role_id,m.nickname AS create_name
 		FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
-			LEFT JOIN md_members AS m ON rel.member_id = m.member_id
+			LEFT JOIN md_members AS m ON rel.member_id = m.member_id 
+		WHERE book.book_name LIKE ? OR book.label LIKE ? 
 		ORDER BY book.order_index DESC ,book.book_id DESC  LIMIT ?,?`
 
 	offset := (pageIndex - 1) * pageSize
 
-	_, err = o.Raw(sql, offset, pageSize).QueryRows(&books)
+	_, err = o.Raw(sql, keyword, keyword, offset, pageSize).QueryRows(&books)
 
 	return
 }

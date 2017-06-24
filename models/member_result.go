@@ -57,18 +57,19 @@ func (m *MemberRelationshipResult) ResolveRoleName() *MemberRelationshipResult {
 	return m
 }
 
-func (m *MemberRelationshipResult) FindForUsersByBookId(book_id, pageIndex, pageSize int) ([]*MemberRelationshipResult, int, error) {
+func (m *MemberRelationshipResult) FindForUsersByBookId(book_id, pageIndex, pageSize int, keyword string) ([]*MemberRelationshipResult, int, error) {
 	o := orm.NewOrm()
 
 	var members []*MemberRelationshipResult
 
-	sql1 := "SELECT * FROM md_relationship AS rel LEFT JOIN md_members as member ON rel.member_id = member.member_id WHERE rel.book_id = ? ORDER BY rel.relationship_id DESC  LIMIT ?,?"
+	keyword = "%" + keyword + "%"
+	sql1 := "SELECT * FROM md_relationship AS rel LEFT JOIN md_members as member ON rel.member_id = member.member_id WHERE rel.book_id = ? AND ( member.account LIKE ? OR member.nickname LIKE ? ) ORDER BY rel.relationship_id DESC  LIMIT ?,?"
 
-	sql2 := "SELECT count(*) AS total_count FROM md_relationship AS rel LEFT JOIN md_members as member ON rel.member_id = member.member_id WHERE rel.book_id = ?"
+	sql2 := "SELECT count(*) AS total_count FROM md_relationship AS rel LEFT JOIN md_members as member ON rel.member_id = member.member_id WHERE rel.book_id = ? AND ( member.account LIKE ? OR member.nickname LIKE ? ) "
 
 	var total_count int
 
-	err := o.Raw(sql2, book_id).QueryRow(&total_count)
+	err := o.Raw(sql2, book_id, keyword, keyword).QueryRow(&total_count)
 
 	if err != nil {
 		return members, 0, err
@@ -76,7 +77,7 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(book_id, pageIndex, page
 
 	offset := (pageIndex - 1) * pageSize
 
-	_, err = o.Raw(sql1, book_id, offset, pageSize).QueryRows(&members)
+	_, err = o.Raw(sql1, book_id, keyword, keyword, offset, pageSize).QueryRows(&members)
 
 	if err != nil {
 		return members, 0, err

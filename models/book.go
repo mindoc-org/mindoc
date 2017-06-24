@@ -144,7 +144,7 @@ func (m *Book) FindByIdentify(identify string) (*Book, error) {
 }
 
 //分页查询指定用户的项目
-func (m *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
+func (m *Book) FindToPager(pageIndex, pageSize, memberId int, keyword string) (books []*BookResult, totalCount int, err error) {
 
 	relationship := NewRelationship()
 
@@ -152,13 +152,14 @@ func (m *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResu
 
 	qb, _ := orm.NewQueryBuilder("mysql")
 
+	keyword = "%" + keyword + "%"
 	qb.Select("COUNT(book.book_id) AS total_count").
 		From(m.TableNameWithPrefix() + " AS book").
 		LeftJoin(relationship.TableNameWithPrefix() + " AS rel").
 		On("book.book_id=rel.book_id AND rel.member_id = ?").
-		Where("rel.relationship_id > 0")
+		Where("rel.relationship_id > 0 AND (book.book_name LIKE ? OR book.label LIKE ?) ")
 
-	err = o.Raw(qb.String(), memberId).QueryRow(&totalCount)
+	err = o.Raw(qb.String(), memberId, keyword, keyword).QueryRow(&totalCount)
 
 	if err != nil {
 		return
@@ -172,12 +173,12 @@ func (m *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResu
 		LeftJoin(relationship.TableNameWithPrefix()+" AS rel").On("book.book_id=rel.book_id AND rel.member_id = ?").
 		LeftJoin(relationship.TableNameWithPrefix()+" AS rel1").On("book.book_id=rel1.book_id  AND rel1.role_id=0").
 		LeftJoin(NewMember().TableNameWithPrefix()+" AS m").On("rel1.member_id=m.member_id").
-		Where("rel.relationship_id > 0").
+		Where("rel.relationship_id > 0 AND (book.book_name LIKE ? OR book.label LIKE ?) ").
 		OrderBy("book.order_index DESC ", "book.book_id").Desc().
 		Limit(pageSize).
 		Offset(offset)
 
-	_, err = o.Raw(qb2.String(), memberId).QueryRows(&books)
+	_, err = o.Raw(qb2.String(), memberId, keyword, keyword).QueryRows(&books)
 	if err != nil {
 		logs.Error("分页查询项目列表 => ", err)
 		return
@@ -348,7 +349,7 @@ func (m *Book) ResetDocumentNumber(book_id int) {
 }
 
 //分页查询指定用户的项目
-func (m *Book) FindLinksToPager(pageIndex, pageSize, memberId int, linkId int) (books []*BookResult, totalCount int, err error) {
+func (m *Book) FindLinksToPager(pageIndex, pageSize, memberId int, linkId int, keyword string) (books []*BookResult, totalCount int, err error) {
 
 	relationship := NewRelationship()
 
@@ -356,13 +357,14 @@ func (m *Book) FindLinksToPager(pageIndex, pageSize, memberId int, linkId int) (
 
 	qb, _ := orm.NewQueryBuilder("mysql")
 
+	keyword = "%" + keyword + "%"
 	qb.Select("COUNT(book.book_id) AS total_count").
 		From(m.TableNameWithPrefix() + " AS book").
 		LeftJoin(relationship.TableNameWithPrefix() + " AS rel").
 		On("book.book_id=rel.book_id AND rel.member_id = ?").
-		Where("rel.relationship_id > 0 AND book.link_id = ? ")
+		Where("rel.relationship_id > 0 AND book.link_id = ? AND (book.book_name LIKE ? OR book.label LIKE ?) ")
 
-	err = o.Raw(qb.String(), memberId, linkId).QueryRow(&totalCount)
+	err = o.Raw(qb.String(), memberId, linkId, keyword, keyword).QueryRow(&totalCount)
 
 	if err != nil {
 		return
@@ -376,12 +378,12 @@ func (m *Book) FindLinksToPager(pageIndex, pageSize, memberId int, linkId int) (
 		LeftJoin(relationship.TableNameWithPrefix()+" AS rel").On("book.book_id=rel.book_id AND rel.member_id = ?").
 		LeftJoin(relationship.TableNameWithPrefix()+" AS rel1").On("book.book_id=rel1.book_id  AND rel1.role_id=0").
 		LeftJoin(NewMember().TableNameWithPrefix()+" AS m").On("rel1.member_id=m.member_id").
-		Where("rel.relationship_id > 0 AND book.link_id = ? ").
+		Where("rel.relationship_id > 0 AND book.link_id = ? AND (book.book_name LIKE ? OR book.label LIKE ?)").
 		OrderBy("book.order_index DESC ", "book.book_id").Desc().
 		Limit(pageSize).
 		Offset(offset)
 
-	_, err = o.Raw(qb2.String(), memberId, linkId).QueryRows(&books)
+	_, err = o.Raw(qb2.String(), memberId, linkId, keyword, keyword).QueryRows(&books)
 	if err != nil {
 		logs.Error("分页查询项目列表 => ", err)
 		return

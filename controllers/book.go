@@ -29,10 +29,15 @@ type BookController struct {
 func (c *BookController) Index() {
 	c.Prepare()
 	c.TplName = "book/index.tpl"
+	c.Data["SIDEBAR_ID"] = "mybook"
+	c.Data["SIDEBAR_BOOK"] = 0
 
 	pageIndex, _ := c.GetInt("page", 1)
+	keyword := c.GetString("keyword")
 
-	books, totalCount, err := models.NewBook().FindToPager(pageIndex, conf.BookPageSize, c.Member.MemberId)
+	c.Data["Keyword"] = keyword
+
+	books, totalCount, err := models.NewBook().FindToPager(pageIndex, conf.BookPageSize, c.Member.MemberId, keyword)
 
 	if err != nil {
 		logs.Error("BookController.Index => ", err)
@@ -59,6 +64,8 @@ func (c *BookController) Index() {
 func (c *BookController) Dashboard() {
 	c.Prepare()
 	c.TplName = "book/dashboard.tpl"
+	c.Data["SIDEBAR_ID"] = "bookdashboard"
+	c.Data["SIDEBAR_BOOK"] = 1
 
 	key := c.Ctx.Input.Param(":key")
 
@@ -82,6 +89,8 @@ func (c *BookController) Dashboard() {
 func (c *BookController) Setting() {
 	c.Prepare()
 	c.TplName = "book/setting.tpl"
+	c.Data["SIDEBAR_ID"] = "booksetting"
+	c.Data["SIDEBAR_BOOK"] = 1
 
 	key := c.Ctx.Input.Param(":key")
 
@@ -338,9 +347,14 @@ func (c *BookController) UploadCover() {
 func (c *BookController) Users() {
 	c.Prepare()
 	c.TplName = "book/users.tpl"
+	c.Data["SIDEBAR_ID"] = "bookuser"
+	c.Data["SIDEBAR_BOOK"] = 1
 
 	key := c.Ctx.Input.Param(":key")
 	pageIndex, _ := c.GetInt("page", 1)
+	keyword := c.GetString("keyword")
+
+	c.Data["Keyword"] = keyword
 
 	if key == "" {
 		c.Abort("404")
@@ -360,7 +374,7 @@ func (c *BookController) Users() {
 	_, err = orm.NewOrm().QueryTable("md_members").Filter("status", 0).All(&allmembers)
 	c.Data["AllUsers"] = allmembers
 
-	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, conf.BookUserPageSize)
+	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, conf.BookUserPageSize,keyword)
 
 	if totalCount > 0 {
 		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, totalCount)
@@ -660,9 +674,14 @@ func (c *BookController) IsPermission() (*models.BookResult, error) {
 func (c *BookController) Links() {
 	c.Prepare()
 	c.TplName = "book/links.tpl"
+	c.Data["SIDEBAR_ID"] = "booklink"
+	c.Data["SIDEBAR_BOOK"] = 1
 
 	key := c.Ctx.Input.Param(":key")
 	pageIndex, _ := c.GetInt("page", 1)
+	keyword := c.GetString("keyword")
+
+	c.Data["Keyword"] = keyword
 
 	if key == "" {
 		c.Abort("404")
@@ -678,7 +697,7 @@ func (c *BookController) Links() {
 
 	c.Data["Model"] = *book
 
-	books, totalCount, err := models.NewBook().FindLinksToPager(pageIndex, conf.BookPageSize, c.Member.MemberId, book.BookId)
+	books, totalCount, err := models.NewBook().FindLinksToPager(pageIndex, conf.BookPageSize, c.Member.MemberId, book.BookId, keyword)
 
 	if err != nil {
 		logs.Error("BookController.Links => ", err)
@@ -704,6 +723,8 @@ func (c *BookController) Links() {
 func (c *BookController) EditLink() {
 	c.Prepare()
 	c.TplName = "book/edit-link.tpl"
+	c.Data["SIDEBAR_ID"] = "bookdocument"
+	c.Data["SIDEBAR_BOOK"] = 1
 
 	key := c.Ctx.Input.Param(":key")
 

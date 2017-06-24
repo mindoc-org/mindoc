@@ -233,20 +233,27 @@ func (m *Member) FindByAccount(account string) (*Member, error) {
 	return m, err
 }
 
-func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int64, error) {
+func (m *Member) FindToPager(pageIndex, pageSize int, keyword string) ([]*Member, int64, error) {
 	o := orm.NewOrm()
 
 	var members []*Member
 
 	offset := (pageIndex - 1) * pageSize
 
-	totalCount, err := o.QueryTable(m.TableNameWithPrefix()).Count()
+	qs := o.QueryTable(m.TableNameWithPrefix())
+	if keyword != "" {
+		cond := orm.NewCondition()
+		cond1 := cond.Or("account__icontains", keyword).Or("nickname__icontains", keyword).Or("email__icontains", keyword).Or("phone__icontains", keyword)
+		qs = qs.SetCond(cond1)
+	}
+
+	totalCount, err := qs.Count()
 
 	if err != nil {
 		return members, 0, err
 	}
 
-	_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-member_id").Offset(offset).Limit(pageSize).All(&members)
+	_, err = qs.OrderBy("-member_id").Offset(offset).Limit(pageSize).All(&members)
 
 	if err != nil {
 		return members, 0, err
