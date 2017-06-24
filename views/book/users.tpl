@@ -11,6 +11,8 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
 
+    <link href="{{cdncss "/static/bootstrap-select/1.12.2/css/bootstrap-select.min.css"}}" rel="stylesheet">
+
     <link href="/static/css/main.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -130,7 +132,7 @@
                         <label class="col-sm-2 control-label">账号</label>
                        <div class="col-sm-10">
                            {{/*<input type="text" name="account" class="form-control" placeholder="用户账号" id="account" maxlength="50">*/}}
-                            <select name="account" class="form-control" id="account" >
+                            <select name="account" class="selectpicker show-tick form-control" id="account" required data-live-search="true" >
                                 {{range $index,$item := .AllUsers}}
                                 <option value="{{$item.Account}}">{{$item.Account}} - {{$item.Nickname}}</option>
                                 {{end}}
@@ -163,6 +165,7 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/bootstrap-select/1.12.2/js/bootstrap-select.min.js"}}"></script>
 <script src="/static/js/main.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
