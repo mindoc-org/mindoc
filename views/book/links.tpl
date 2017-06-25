@@ -32,7 +32,9 @@
                         {{if ne $.Keyword ""}}
                         <span style="font-size:20px;color:red;"><i class="fa fa-filter"></i></span>
                         {{end}}
+                        {{if eq .Member.Role 0 1 2}}
                         <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">添加链接</button>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body" id="bookList">

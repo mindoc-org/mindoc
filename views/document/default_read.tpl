@@ -46,10 +46,12 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dLabel">
                         {{if gt .Member.MemberId 0}}
+                        {{if eq .Member.Role 0 1 2}}
                         {{if eq .Model.RoleId 0 1 2}}
                         {{if eq .Model.LinkId 0}}
                             <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">进入编辑</a> </li>
                             <li role="presentation" class="divider"></li>
+                        {{end}}
                         {{end}}
                         {{end}}
                         {{end}}

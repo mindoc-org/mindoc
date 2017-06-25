@@ -32,7 +32,7 @@
                         {{if ne $.Keyword ""}}
                         <span style="font-size:20px;color:red;"><i class="fa fa-filter"></i></span>
                         {{end}}
-                        {{if eq .Member.Role 0}}
+                        {{if eq .Member.Role 0 1}}
                         <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> 添加成员</button>
                         {{end}}
                     </div>
@@ -77,6 +77,7 @@
                                             <ul class="dropdown-menu">
                                                 <li><a href="javascript:;" @click="setMemberRole(item.member_id,1)">管理员</a> </li>
                                                 <li><a href="javascript:;" @click="setMemberRole(item.member_id,2)">普通用户</a> </li>
+                                                <li><a href="javascript:;" @click="setMemberRole(item.member_id,3)">普通读者</a> </li>
                                             </ul>
                                             </div>
                                         </template>
@@ -185,6 +186,7 @@
                             <select name="role" class="form-control">
                                 <option value="1">管理员</option>
                                 <option value="2">普通用户</option>
+                                <option value="3">普通读者</option>
                             </select>
                         </div>
                     </div>

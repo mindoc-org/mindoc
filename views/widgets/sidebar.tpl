@@ -18,6 +18,7 @@
         {{if eq .SIDEBAR_BOOK 1}}
             <li class="active"><a href="###" class="item"><i class="fa fa-book" aria-hidden="true"></i> {{.Model.BookName}}</a> </li>
             <li class="{{if eq $.SIDEBAR_ID "bookdashboard"}}active{{end}}"><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
+            {{if eq .Member.Role 0 1 2}}
             {{if eq .Model.RoleId 0 1}}
                 {{if eq .Model.LinkId 0}}
                     <li class="{{if eq $.SIDEBAR_ID "bookattach"}}active{{end}}"><a href="{{urlfor "BookController.Attach" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-cloud-upload" aria-hidden="true"></i> 附件</a> </li>
@@ -28,6 +29,7 @@
                 {{if gt .Model.LinkId 0}}
                     <li class="{{if eq $.SIDEBAR_ID "bookdocument"}}active{{end}}"><a href="{{urlfor "BookController.EditLink" ":key" .Model.Identify}}" class="item">&nbsp;&nbsp;&nbsp;&nbsp;<i class="fa fa-book" aria-hidden="true"></i> 文档</a> </li>
                 {{end}}
+            {{end}}
             {{end}}
         {{end}}
     </ul>

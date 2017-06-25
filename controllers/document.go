@@ -41,39 +41,37 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 		beego.Error(err)
 		c.Abort("500")
 	}
-	if c.Member != nil && c.Member.IsAdministrator() {
-		//bookResult := book.ToBookResult()
-		//return bookResult
-	}
-	//如果文档是私有的
-	if book.PrivatelyOwned == 1 {
+	if c.Member == nil || !c.Member.IsAdministrator() {
+		//如果文档是私有的
+		if book.PrivatelyOwned == 1 {
 
-		is_ok := false
+			is_ok := false
 
-		if c.Member != nil {
-			_, err := models.NewRelationship().FindForRoleId(book.BookId, c.Member.MemberId)
-			if err == nil {
-				is_ok = true
+			if c.Member != nil {
+				_, err := models.NewRelationship().FindForRoleId(book.BookId, c.Member.MemberId)
+				if err == nil {
+					is_ok = true
+				}
 			}
-		}
-		if book.PrivateToken != "" && !is_ok {
-			//如果有访问的Token，并且该项目设置了访问Token，并且和用户提供的相匹配，则记录到Session中.
-			//如果用户未提供Token且用户登录了，则判断用户是否参与了该项目.
-			//如果用户未登录，则从Session中读取Token.
-			if token != "" && strings.EqualFold(token, book.PrivateToken) {
-				c.SetSession(identify, token)
+			if book.PrivateToken != "" && !is_ok {
+				//如果有访问的Token，并且该项目设置了访问Token，并且和用户提供的相匹配，则记录到Session中.
+				//如果用户未提供Token且用户登录了，则判断用户是否参与了该项目.
+				//如果用户未登录，则从Session中读取Token.
+				if token != "" && strings.EqualFold(token, book.PrivateToken) {
+					c.SetSession(identify, token)
 
-			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
+				} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
+					c.Abort("403")
+				}
+			} else if !is_ok {
 				c.Abort("403")
 			}
-		} else if !is_ok {
-			c.Abort("403")
-		}
 
+		}
 	}
 	bookResult := book.ToBookResult()
 
-	if c.Member != nil {
+	if c.Member != nil && !c.Member.IsAdministrator() {
 
 		rel, err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId, c.Member.MemberId)
 

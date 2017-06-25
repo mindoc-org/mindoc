@@ -32,7 +32,9 @@
                         {{if ne $.Keyword ""}}
                         <span style="font-size:20px;color:red;"><i class="fa fa-filter"></i></span>
                         {{end}}
+                        {{if eq .Member.Role 0 1 2}}
                         <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">添加项目</button>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body" id="bookList">
@@ -60,7 +62,9 @@
                                     <a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>
                                     <template v-if="item.role_id != 3">
                                     <template v-if="item.link_id == 0">
+                                        {{if eq .Member.Role 0 1 2}}
                                         <a :href="'/api/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
+                                        {{end}}
                                     </template>
                                     </template>
                                 </div>
