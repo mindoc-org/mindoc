@@ -837,6 +837,133 @@ func (c *DocumentController) Export() {
 		defer os.Remove(pdfpath)
 
 		c.StopRun()
+
+	} else if output == "html" {
+		dpath := "cache/"
+		os.MkdirAll(dpath, 0766)
+		fpath := dpath + bookResult.Identify + ".html"
+		f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0777)
+		if err != nil {
+			beego.Error(err)
+			c.Abort("500")
+		}
+		doc_id := 0
+		for _, item := range docs {
+			if doc_id == 0 {
+				doc_id = item.DocumentId
+				break
+			}
+		}
+		tree, err := models.NewDocument().CreateDocumentTreeForHtmlOutput(bookResult.BookId, doc_id)
+		if err != nil {
+			beego.Error(err)
+			c.Abort("500")
+		}
+
+		f.WriteString("<!DOCTYPE html>")
+		f.WriteString("<html lang=\"zh-CN\">")
+		f.WriteString("<head>")
+		f.WriteString("    <meta charset=\"utf-8\">")
+		f.WriteString("    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">")
+		f.WriteString("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">")
+		f.WriteString("    <title>" + bookResult.BookName + " - Powered by MinDoc</title>")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/bootstrap/css/bootstrap.min.css\" rel=\"stylesheet\">")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/font-awesome/css/font-awesome.min.css\" rel=\"stylesheet\">")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/jstree/3.3.4/themes/default/style.min.css\" rel=\"stylesheet\">")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/nprogress/nprogress.css\" rel=\"stylesheet\">")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/css/kancloud.css\" rel=\"stylesheet\">")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/css/jstree.css\" rel=\"stylesheet\">")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/editor.md/css/editormd.preview.css\" rel=\"stylesheet\">")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/prettify/themes/atelier-estuary-dark.min.css\" rel=\"stylesheet\">")
+		f.WriteString("    <link href=\"" + c.BaseUrl() + "/static/css/markdown.preview.css\" rel=\"stylesheet\">")
+		f.WriteString("</head>")
+		f.WriteString("<body>")
+		f.WriteString("    <script type=\"text/javascript\">")
+		f.WriteString("        function docText(did) {")
+		for _, item := range docs {
+			f.WriteString("            $('#mindoc_" + item.Identify + "').hide();")
+		}
+		f.WriteString("            $(did).show();")
+		f.WriteString("        }")
+		f.WriteString("    </script>")
+		f.WriteString("    <div class=\"m-manual manual-mode-view manual-reader\">")
+		f.WriteString("        <header class=\"navbar navbar-static-top manual-head\" role=\"banner\">")
+		f.WriteString("            <div class=\"container-fluid\">")
+		f.WriteString("                <div class=\"navbar-header pull-left manual-title\">")
+		f.WriteString("                    <span class=\"slidebar\" id=\"slidebar\"><i class=\"fa fa-align-justify\"></i></span>")
+		f.WriteString("                    <a href=\"#\" title=\"" + bookResult.BookName + "\" class=\"book-title\">" + bookResult.BookName + "</a>")
+		f.WriteString("                    <span style=\"font-size: 12px;font-weight: 100;\"></span>")
+		f.WriteString("                </div>")
+		f.WriteString("            </div>")
+		f.WriteString("        </header>")
+		f.WriteString("        <article class=\"container-fluid manual-body\">")
+		f.WriteString("            <div class=\"manual-left\">")
+		f.WriteString("                <div class=\"manual-tab\">")
+		f.WriteString("                    <div class=\"tab-navg\">")
+		f.WriteString("                        <span data-mode=\"view\" class=\"navg-item active\"><i class=\"fa fa-align-justify\"></i><b class=\"text\">目录</b></span>")
+		f.WriteString("                    </div>")
+		f.WriteString("                    <div class=\"tab-wrap\">")
+		f.WriteString("                        <div class=\"tab-item manual-catalog\">")
+		f.WriteString("                            <div class=\"catalog-list read-book-preview\" id=\"sidebar\">")
+		f.WriteString("                                " + tree)
+		f.WriteString("                            </div>")
+		f.WriteString("                        </div>")
+		f.WriteString("                    </div>")
+		f.WriteString("                </div>")
+		f.WriteString("                <div class=\"m-copyright\">")
+		f.WriteString("                    <p>")
+		f.WriteString("                        本文档使用 <a href=\"https://github.com/wolcengit/mindoc\" target=\"_blank\">MinDoc</a> 发布")
+		f.WriteString("                    </p>")
+		f.WriteString("                </div>")
+		f.WriteString("            </div>")
+		f.WriteString("            <div class=\"manual-right\">")
+		for _, item := range docs {
+			f.WriteString("<div class=\"manual-article\" name=\"mindoc_")
+			f.WriteString(item.Identify)
+			f.WriteString("\" id=\"mindoc_")
+			f.WriteString(item.Identify)
+			f.WriteString("\" style=\"display:none\">")
+			f.WriteString("<div class=\"article-head\">")
+			f.WriteString("<div class=\"container-fluid\">")
+			f.WriteString("<div class=\"row\">")
+			f.WriteString("<div class=\"col-md-8 text-center\"><h1 id=\"article-title\">")
+			f.WriteString(template.HTMLEscapeString(item.DocumentName))
+			f.WriteString("</h1></div>")
+			f.WriteString("</div>")
+			f.WriteString("</div>")
+			f.WriteString("</div>")
+			f.WriteString("<div class=\"article-content\">")
+			f.WriteString("<div class=\"article-body  markdown-body editormd-preview-container\"  id=\"page-content\">")
+			doctext := strings.Replace(item.Release, "/uploads/", c.BaseUrl()+"/uploads/", -1)
+			f.WriteString(doctext)
+			f.WriteString("</div>")
+			f.WriteString("<div class=\"jump-top\">")
+			f.WriteString("<a href=\"javascript:;\" class=\"view-backtop\"><i class=\"fa fa-arrow-up\" aria-hidden=\"true\"></i></a>")
+			f.WriteString("</div>")
+			f.WriteString("</div>")
+			f.WriteString("</div>")
+		}
+		f.WriteString("            </div>")
+		f.WriteString("            <div class=\"manual-progress\"><b class=\"progress-bar\"></b></div>")
+		f.WriteString("        </article>")
+		f.WriteString("        <div class=\"manual-mask\"></div>")
+		f.WriteString("    </div>")
+		f.WriteString("    <script src=\"" + c.BaseUrl() + "/static/jquery/1.12.4/jquery.min.js\"></script>")
+		f.WriteString("    <script src=\"" + c.BaseUrl() + "/static/bootstrap/js/bootstrap.min.js\"></script>")
+		f.WriteString("    <script src=\"" + c.BaseUrl() + "/static/jstree/3.3.4/jstree.min.js\" type=\"text/javascript\"></script>")
+		f.WriteString("    <script type=\"text/javascript\" src=\"" + c.BaseUrl() + "/static/nprogress/nprogress.js\"></script>")
+		f.WriteString("    <script type=\"text/javascript\" src=\"" + c.BaseUrl() + "/static/highlight/highlight.js\"></script>")
+		f.WriteString("    <script type=\"text/javascript\" src=\"" + c.BaseUrl() + "/static/highlight/highlightjs-line-numbers.min.js\"></script>")
+		f.WriteString("    <script type=\"text/javascript\" src=\"" + c.BaseUrl() + "/static/js/jquery.highlight.js\"></script>")
+		f.WriteString("    <script type=\"text/javascript\" src=\"" + c.BaseUrl() + "/static/js/kancloud.js\"></script>")
+		f.WriteString("</body>")
+		f.WriteString("</html>")
+		f.Close()
+
+		c.Ctx.Output.Download(fpath, identify+".html")
+
+		c.StopRun()
+
 	}
 
 	c.Abort("404")

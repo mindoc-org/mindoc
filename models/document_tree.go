@@ -152,3 +152,47 @@ func getDocumentTree(array []*DocumentTree, parent_id int, selected_id int, sele
 	}
 	buf.WriteString("</ul>")
 }
+
+func (m *Document) CreateDocumentTreeForHtmlOutput(book_id, selected_id int) (string, error) {
+	trees, err := m.FindDocumentTree(book_id)
+	if err != nil {
+		return "", err
+	}
+	parent_id := getSelectedNode(trees, selected_id)
+
+	buf := bytes.NewBufferString("")
+
+	getDocumentTreeForHtmlOutputInternal(trees, 0, selected_id, parent_id, buf)
+
+	return buf.String(), nil
+
+}
+
+func getDocumentTreeForHtmlOutputInternal(array []*DocumentTree, parent_id int, selected_id int, selected_parent_id int, buf *bytes.Buffer) {
+	buf.WriteString("<ul>")
+
+	for _, item := range array {
+		pid := 0
+
+		if p, ok := item.ParentId.(int); ok {
+			pid = p
+		}
+		if pid == parent_id {
+			buf.WriteString("<li>")
+			buf.WriteString("<span onclick=\"docText('#mindoc_")
+			buf.WriteString(item.Identify)
+			buf.WriteString("');\">")
+			buf.WriteString(template.HTMLEscapeString(item.DocumentName))
+			buf.WriteString("</span>")
+			for _, sub := range array {
+				if p, ok := sub.ParentId.(int); ok && p == item.DocumentId {
+					getDocumentTreeForHtmlOutputInternal(array, p, selected_id, selected_parent_id, buf)
+					break
+				}
+			}
+			buf.WriteString("</li>")
+
+		}
+	}
+	buf.WriteString("</ul>")
+}
