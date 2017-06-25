@@ -74,7 +74,7 @@ func (c *BookController) Dashboard() {
 		c.Abort("404")
 	}
 
-	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId, c.Member.Role)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
 			c.Abort("403")
@@ -99,7 +99,7 @@ func (c *BookController) Setting() {
 		c.Abort("404")
 	}
 
-	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId, c.Member.Role)
 	if err != nil {
 		if err == orm.ErrNoRows {
 			c.Abort("404")
@@ -363,7 +363,7 @@ func (c *BookController) Users() {
 		c.Abort("404")
 	}
 
-	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId, c.Member.Role)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
 			c.Abort("403")
@@ -455,7 +455,7 @@ func (c *BookController) Create() {
 			logs.Error("Insert => ", err)
 			c.JsonResult(6005, "保存项目失败")
 		}
-		bookResult, err := models.NewBookResult().FindByIdentify(book.Identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(book.Identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil {
 			beego.Error(err)
@@ -549,7 +549,7 @@ func (c *BookController) Release() {
 		}
 		book_id = book.BookId
 	} else {
-		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil {
 			if err == models.ErrPermissionDenied {
@@ -591,7 +591,7 @@ func (c *BookController) SaveSort() {
 		}
 		book_id = book.BookId
 	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 		if err != nil {
 			beego.Error("DocumentController.Edit => ", err)
 
@@ -657,7 +657,7 @@ func (c *BookController) SaveSort() {
 func (c *BookController) IsPermission() (*models.BookResult, error) {
 	identify := c.GetString("identify")
 
-	book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+	book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 	if err != nil {
 		if err == models.ErrPermissionDenied {
@@ -690,7 +690,7 @@ func (c *BookController) Links() {
 		c.Abort("404")
 	}
 
-	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId, c.Member.Role)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
 			c.Abort("403")
@@ -735,7 +735,7 @@ func (c *BookController) EditLink() {
 		c.Abort("404")
 	}
 
-	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId, c.Member.Role)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
 			c.Abort("403")
@@ -780,7 +780,7 @@ func (c *BookController) Attach() {
 		c.Abort("404")
 	}
 
-	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId, c.Member.Role)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
 			c.Abort("403")
@@ -827,7 +827,7 @@ func (c *BookController) EditAttach() {
 		c.Abort("404")
 	}
 
-	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId, c.Member.Role)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
 			c.Abort("403")

@@ -44,7 +44,7 @@ func NewBookResult() *BookResult {
 }
 
 // 根据项目标识查询项目以及指定用户权限的信息.
-func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult, error) {
+func (m *BookResult) FindByIdentify(identify string, member_id, role int) (*BookResult, error) {
 	if identify == "" || member_id <= 0 {
 		return m, ErrInvalidParameter
 	}
@@ -60,10 +60,18 @@ func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult
 
 	relationship := NewRelationship()
 
-	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("member_id", member_id).One(relationship)
+	m = book.ToBookResult()
 
-	if err != nil {
-		return m, err
+	if role > 1 {
+		err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("member_id", member_id).One(relationship)
+
+		if err != nil {
+			return m, err
+		}
+	} else {
+		relationship.MemberId = member_id
+		relationship.RoleId = 1
+		relationship.RelationshipId = 0
 	}
 	var relationship2 Relationship
 
@@ -78,9 +86,6 @@ func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult
 	if err != nil {
 		return m, err
 	}
-
-	m = book.ToBookResult()
-
 	m.CreateName = member.Nickname
 	m.MemberId = relationship.MemberId
 	m.RoleId = relationship.RoleId

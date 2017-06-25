@@ -246,7 +246,7 @@ func (c *DocumentController) Edit() {
 		bookResult = book.ToBookResult()
 
 	} else {
-		bookResult, err = models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err = models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil {
 			beego.Error("DocumentController.Edit => ", err)
@@ -327,7 +327,7 @@ func (c *DocumentController) Create() {
 		}
 		book_id = book.BookId
 	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
 			beego.Error("FindByIdentify => ", err)
@@ -409,7 +409,7 @@ func (c *DocumentController) Upload() {
 		book_id = book.BookId
 
 	} else {
-		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil {
 			beego.Error("DocumentController.Edit => ", err)
@@ -519,7 +519,7 @@ func (c *DocumentController) DownloadAttachment() {
 	book_id := 0
 
 	//判断用户是否参与了项目
-	bookResult, err := models.NewBookResult().FindByIdentify(identify, member_id)
+	bookResult, err := models.NewBookResult().FindByIdentify(identify, member_id, c.Member.Role)
 
 	if err != nil {
 		//判断项目公开状态
@@ -616,7 +616,7 @@ func (c *DocumentController) Delete() {
 		}
 		book_id = book.BookId
 	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
 			beego.Error("FindByIdentify => ", err)
@@ -668,7 +668,7 @@ func (c *DocumentController) Content() {
 		}
 		book_id = book.BookId
 	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
 			beego.Error("FindByIdentify => ", err)
@@ -1060,7 +1060,7 @@ func (c *DocumentController) History() {
 		book_id = book.BookId
 		c.Data["Model"] = book
 	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
 			beego.Error("FindByIdentify => ", err)
@@ -1129,7 +1129,7 @@ func (c *DocumentController) DeleteHistory() {
 		}
 		book_id = book.BookId
 	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
 			beego.Error("FindByIdentify => ", err)
@@ -1181,7 +1181,7 @@ func (c *DocumentController) RestoreHistory() {
 		}
 		book_id = book.BookId
 	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
 			beego.Error("FindByIdentify => ", err)
@@ -1233,7 +1233,7 @@ func (c *DocumentController) Compare() {
 		c.Data["Model"] = book
 		editor = book.Editor
 	} else {
-		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId, c.Member.Role)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
 			beego.Error("FindByIdentify => ", err)
