@@ -46,6 +46,14 @@
                                 <input type="text" class="form-control disabled" value="{{.Member.Nickname}}" id="nickname" name="nickname" max="100" placeholder="用户昵称">
                             </div>
                             <div class="form-group">
+                                <label>用户性别</label>
+                                <div class="form-control">
+                                    <label><input type="radio" name="sex" value="0" {{if eq .Member.Sex 0}}checked{{end}}> 保密 </label>
+                                    <label><input type="radio" name="sex" value="1" {{if eq .Member.Sex 1}}checked{{end}}> 男孩 </label>
+                                    <label><input type="radio" name="sex" value="2" {{if eq .Member.Sex 2}}checked{{end}}> 女孩 </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label for="user-email">用户邮箱<strong class="text-danger">*</strong></label>
                                 <input type="email" class="form-control" value="{{.Member.Email}}" id="userEmail" name="email" max="100" placeholder="用户邮箱">
                             </div>

@@ -230,6 +230,7 @@ func (c *ManagerController) EditMember() {
 		email := c.GetString("email")
 		phone := c.GetString("phone")
 		description := c.GetString("description")
+		nnickname := c.GetString("nnickname")
 		sex, _ := c.GetInt("sex", 0)
 		member.Sex = sex
 		if sex == 1 && (member.Avatar == "/static/images/girl.png" || member.Avatar == conf.GetDefaultAvatar()) {
@@ -239,7 +240,7 @@ func (c *ManagerController) EditMember() {
 		} else if member.Avatar == "/static/images/boy.png" || member.Avatar == "/static/images/girl.png" {
 			member.Avatar = conf.GetDefaultAvatar()
 		}
-
+		member.Nickname = nnickname
 		member.Email = email
 		member.Phone = phone
 		member.Description = description

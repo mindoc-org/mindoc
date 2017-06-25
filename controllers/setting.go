@@ -30,6 +30,8 @@ func (c *SettingController) Index() {
 		email := strings.TrimSpace(c.GetString("email", ""))
 		phone := strings.TrimSpace(c.GetString("phone"))
 		description := strings.TrimSpace(c.GetString("description"))
+		nnickname := c.GetString("nnickname")
+		sex, _ := c.GetInt("sex", 0)
 
 		if email == "" {
 			c.JsonResult(601, "邮箱不能为空")
@@ -38,6 +40,15 @@ func (c *SettingController) Index() {
 		member.Email = email
 		member.Phone = phone
 		member.Description = description
+		member.Sex = sex
+		if sex == 1 && (member.Avatar == "/static/images/girl.png" || member.Avatar == conf.GetDefaultAvatar()) {
+			member.Avatar = "/static/images/boy.png"
+		} else if sex == 2 && (member.Avatar == "/static/images/boy.png" || member.Avatar == conf.GetDefaultAvatar()) {
+			member.Avatar = "/static/images/girl.png"
+		} else if member.Avatar == "/static/images/boy.png" || member.Avatar == "/static/images/girl.png" {
+			member.Avatar = conf.GetDefaultAvatar()
+		}
+		member.Nickname = nnickname
 		if err := member.Update(); err != nil {
 			c.JsonResult(602, err.Error())
 		}

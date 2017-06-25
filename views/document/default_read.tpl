@@ -55,8 +55,8 @@
                         {{end}}
                         {{if eq .Model.PrivatelyOwned 0}}
                             <li><a href="javascript:" data-toggle="modal" data-target="#shareProject">项目分享</a> </li>
+                            <li role="presentation" class="divider"></li>
                         {{end}}
-                        <li role="presentation" class="divider"></li>
                         <li><a href="{{urlfor "HomeController.Index"}}" title="返回首页">返回首页</a> </li>
                     </ul>
                 </div>
