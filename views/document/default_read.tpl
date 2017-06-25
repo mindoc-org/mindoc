@@ -47,16 +47,15 @@
                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dLabel">
                         {{if gt .Member.MemberId 0}}
                         {{if eq .Model.RoleId 0 1 2}}
-                        <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">进入编辑</a> </li>
+                        {{if eq .Model.LinkId 0}}
+                            <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">进入编辑</a> </li>
+                            <li role="presentation" class="divider"></li>
+                        {{end}}
                         {{end}}
                         {{end}}
                         {{if eq .Model.PrivatelyOwned 0}}
-                        <li role="presentation" class="divider"></li>
-                        <li><a href="javascript:" data-toggle="modal" data-target="#shareProject">项目分享</a> </li>
-                        <li role="presentation" class="divider"></li>
-                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">项目导出PDF</a> </li>
+                            <li><a href="javascript:" data-toggle="modal" data-target="#shareProject">项目分享</a> </li>
                         {{end}}
-
                         <li role="presentation" class="divider"></li>
                         <li><a href="{{urlfor "HomeController.Index"}}" title="返回首页">返回首页</a> </li>
                     </ul>
@@ -110,7 +109,7 @@
             </div>
             <div class="m-copyright">
                 <p>
-                    本文档使用 <a href="https://www.iminho.me" target="_blank">MinDoc</a> 发布
+                    本文档使用 <a href="https://github.com/wolcengit/mindoc" target="_blank">MinDoc</a> 发布
                 </p>
             </div>
         </div>
@@ -208,9 +207,16 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="password" class="col-sm-2 control-label">项目地址</label>
+                    <label for="projectUrl" class="col-sm-2 control-label">项目地址</label>
                     <div class="col-sm-10">
-                        <input type="text" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="项目地址">
+                        <input type="text" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" readonly="readonly" onmouseover="this.select()" id="projectUrl" title="项目地址">
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="form-group">
+                    <label for="download" class="col-sm-2 control-label">项目导出</label>
+                    <div class="col-sm-10">
+                        <a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">PDF文档</a>
                     </div>
                     <div class="clearfix"></div>
                 </div>

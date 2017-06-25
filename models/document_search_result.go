@@ -1,10 +1,8 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -94,7 +92,7 @@ func (m *DocumentSearchResult) SearchDocument(keyword string, book_id int) (docs
 			return nil, err
 		}
 		doclinks := rdoc.Markdown
-		beego.Info(fmt.Sprintf("%d", book.LinkId) + " --- " + keyword + " --- " + doclinks)
+
 		sql := "SELECT * FROM md_documents WHERE book_id = ? AND (document_name LIKE ? OR `release` LIKE ?) AND FIND_IN_SET(document_id,?)>0 "
 		keyword = "%" + keyword + "%"
 		_, err = o.Raw(sql, book.LinkId, keyword, keyword, doclinks).QueryRows(&docs)

@@ -57,38 +57,54 @@
                                 <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.jpg'" width="174" height="229" style="border: 1px solid #666">
                             </div>
                         </div>
-
-                            <div class="list">
-                                <span class="title">创建者：</span>
-                                <span class="body">{{.Model.CreateName}}</span>
-                            </div>
-                            <div class="list">
-                                <span class="title">文档数量：</span>
-                                <span class="body">{{.Model.DocCount}} 篇</span>
-                            </div>
-                            <div class="list">
-                                <span class="title">创建时间：</span>
-                                <span class="body"> {{date .Model.CreateTime "Y-m-d H:i:s"}} </span>
-                            </div>
-                            <div class="list">
-                                <span class="title">修改时间：</span>
-                                <span class="body"> {{date .Model.ModifyTime "Y-m-d H:i:s"}} </span>
-                            </div>
+                        <div class="list">
+                            <span class="title">创建者：</span>
+                            <span class="body">{{.Model.CreateName}}</span>
+                        </div>
+                        <div class="list">
+                            <span class="title">文档数量：</span>
+                            <span class="body">{{.Model.DocCount}} 篇</span>
+                        </div>
+                        <div class="list">
+                            <span class="title">创建时间：</span>
+                            <span class="body"> {{date .Model.CreateTime "Y-m-d H:i:s"}} </span>
+                        </div>
+                        <div class="list">
+                            <span class="title">修改时间：</span>
+                            <span class="body"> {{date .Model.ModifyTime "Y-m-d H:i:s"}} </span>
+                        </div>
                         <div class="list">
                             <span class="title">担任角色：</span>
                             <span class="body">{{.Model.RoleName}}</span>
                         </div>
-                       <!-- {{/* <div class="list">
+                        <!-- {{/* 
+                        <div class="list">
                             <span class="title">评论数量：</span>
                             <span class="body">{{.Model.CommentCount}} 条</span>
-                        </div>*/}}
-                        -->
-                    <div class="list">
-                        <span class="title">文档标签：</span>
-                        <span class="body">{{.Model.Label}}</span>
-                    </div>
+                        </div>
+                        */}} -->
+                        <div class="list">
+                            <span class="title">文档标签：</span>
+                            <span class="body">{{.Model.Label}}</span>
+                        </div>
                         <div class="summary">{{.Model.Description}} </div>
-
+                    </div>
+                </div>
+                <div class="box-body">
+                    <div class="dashboard">
+                        <div class="pull-left" style="width: 200px;margin-bottom: 15px;">
+                            <div class="book-image">
+                                <img src="{{urlfor "DocumentController.QrCode" ":key" .Model.Identify}}" alt="扫一扫手机阅读" />
+                            </div>
+                        </div>
+                        <div class="list">
+                            <span class="title">项目地址：</span>
+                            <span class="body">{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}</span>
+                        </div>
+                        <div class="list">
+                            <span class="title">项目导出：</span>
+                            <span class="body"><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">PDF文档</a></span>
+                        </div>
                     </div>
                 </div>
             </div>

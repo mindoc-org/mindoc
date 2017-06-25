@@ -166,8 +166,14 @@ func (c *DocumentController) Read() {
 		}
 	}
 
-	if doc.BookId != bookResult.BookId {
-		c.Abort("403")
+	if bookResult.LinkId == 0 {
+		if doc.BookId != bookResult.BookId {
+			c.Abort("403")
+		}
+	} else {
+		if doc.BookId != bookResult.LinkId {
+			c.Abort("403")
+		}
 	}
 	attach, err := models.NewAttachment().FindListByDocumentId(doc.DocumentId)
 	if err == nil {
