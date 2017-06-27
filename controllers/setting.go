@@ -30,7 +30,7 @@ func (c *SettingController) Index() {
 		email := strings.TrimSpace(c.GetString("email", ""))
 		phone := strings.TrimSpace(c.GetString("phone"))
 		description := strings.TrimSpace(c.GetString("description"))
-		nnickname := c.GetString("nnickname")
+		nickname := c.GetString("nickname")
 		sex, _ := c.GetInt("sex", 0)
 
 		if email == "" {
@@ -48,7 +48,7 @@ func (c *SettingController) Index() {
 		} else if member.Avatar == "/static/images/boy.png" || member.Avatar == "/static/images/girl.png" {
 			member.Avatar = conf.GetDefaultAvatar()
 		}
-		member.Nickname = nnickname
+		member.Nickname = nickname
 		if err := member.Update(); err != nil {
 			c.JsonResult(602, err.Error())
 		}

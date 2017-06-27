@@ -33,7 +33,7 @@
                         <strong class="box-title">{{.Model.BookName}}</strong>
                     </div>
                 </div>
-                <div class="box-body" style="width: 300px;">
+                <div class="box-body">
                     <form role="form" method="post" id="editLinkForm">
                         <input type="hidden" name="link_docs" id="link_docs" value="{{.LinkDocLinks}}">
                         <div class="form-group">

@@ -157,8 +157,24 @@ func (m *Document) ReleaseContent(book_id int) {
 func (m *Document) FindListByBookId(book_id int) (docs []*Document, err error) {
 	o := orm.NewOrm()
 
-	_, err = o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).All(&docs)
-
+	book, err := NewBook().Find(book_id)
+	if err != nil {
+		return
+	}
+	if book.LinkId == 0 {
+		_, err = o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).All(&docs)
+	} else {
+		rdoc, err := m.FindByFieldFirst("book_id", book_id)
+		if err == nil {
+			doclinks := rdoc.Markdown
+			beego.Info(doclinks)
+			sql2 := `SELECT * 
+				FROM md_documents  
+				WHERE book_id = ? AND FIND_IN_SET(document_id,?)> 0
+				ORDER BY order_sort  ,document_id  `
+			_, err = o.Raw(sql2, book.LinkId, doclinks).QueryRows(&docs)
+		}
+	}
 	return
 }
 
@@ -191,7 +207,7 @@ func GetLinkBookDocumentsInternal(doclinks string, book_id, parent_id int, buf *
 	sql2 := `SELECT document_id,document_name,FIND_IN_SET(document_id,?) AS modify_at
 		FROM md_documents  
 		WHERE book_id = ? AND parent_id= ?  
-		ORDER BY order_sort DESC ,document_id DESC `
+		ORDER BY order_sort  ,document_id  `
 	count, _ := o.Raw(sql2, doclinks, book_id, parent_id).QueryRows(&docs)
 	if count > 0 {
 		buf.WriteString("<ul>\r\n")
@@ -207,8 +223,6 @@ func GetLinkBookDocumentsInternal(doclinks string, book_id, parent_id int, buf *
 			buf.WriteString(fmt.Sprintf("%d", item.DocumentId))
 			buf.WriteString("\">")
 			buf.WriteString(template.HTMLEscapeString(item.DocumentName))
-			buf.WriteString("--")
-			buf.WriteString(fmt.Sprintf("%d", item.DocumentId))
 			buf.WriteString("</label>")
 			GetLinkBookDocumentsInternal(doclinks, book_id, item.DocumentId, buf)
 			buf.WriteString("</li>\r\n")

@@ -222,34 +222,31 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 		return err
 	}
 	o.Begin()
-	//sql1 := "DELETE FROM " + NewComment().TableNameWithPrefix() + " WHERE book_id = ?"
-	//
-	//_,err := o.Raw(sql1,m.BookId).Exec()
-	//
-	//if err != nil {
-	//	o.Rollback()
-	//	return err
-	//}
-	sql2 := "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?"
+	/*
+		sql1 := "DELETE FROM " + NewComment().TableNameWithPrefix() + " WHERE book_id IN (SELECT book_id FROM " + m.TableNameWithPrefix() + " WHERE book_id = ? or link_id = ?)"
+		_, err := o.Raw(sql1, m.BookId, m.BookId).Exec()
+		if err != nil {
+			o.Rollback()
+			return err
+		}
+	*/
 
-	_, err := o.Raw(sql2, m.BookId).Exec()
-
+	sql2 := "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id IN (SELECT book_id FROM " + m.TableNameWithPrefix() + " WHERE book_id = ? or link_id = ?)"
+	_, err := o.Raw(sql2, m.BookId, m.BookId).Exec()
 	if err != nil {
 		o.Rollback()
 		return err
 	}
-	sql3 := "DELETE FROM " + m.TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_, err = o.Raw(sql3, m.BookId).Exec()
-
+	sql4 := "DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id IN (SELECT book_id FROM " + m.TableNameWithPrefix() + " WHERE book_id = ? or link_id = ?)"
+	_, err = o.Raw(sql4, m.BookId, m.BookId).Exec()
 	if err != nil {
 		o.Rollback()
 		return err
 	}
-	sql4 := "DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_, err = o.Raw(sql4, m.BookId).Exec()
-
+	sql3 := "DELETE FROM " + m.TableNameWithPrefix() + " WHERE book_id = ? or link_id = ? "
+	_, err = o.Raw(sql3, m.BookId, m.BookId).Exec()
 	if err != nil {
 		o.Rollback()
 		return err

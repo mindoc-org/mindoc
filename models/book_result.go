@@ -70,7 +70,7 @@ func (m *BookResult) FindByIdentify(identify string, member_id, role int) (*Book
 		}
 	} else {
 		relationship.MemberId = member_id
-		relationship.RoleId = 1
+		relationship.RoleId = 0
 		relationship.RelationshipId = 0
 	}
 	var relationship2 Relationship
