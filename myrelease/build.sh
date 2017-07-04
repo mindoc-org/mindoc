@@ -14,7 +14,7 @@ fi
 if [ -f "myrelease/centos6-mindoc/files/mindoc.tar.gz" ];then
    rm -rf myrelease/centos6-mindoc/files/mindoc.tar.gz
 fi
-tar -zcf centos6-mindoc/files/mindoc.tar.gz . --exclude myrelease --exclude .git --exclude .github --exclude logs --exclude  database --exclude conf/app.conf --exclude *.go --exclude *.tmp --exclude appveyor.yml --exclude glide.yaml --exclude Dockerfile  --exclude start.h 
+tar -zcf myrelease/centos6-mindoc/files/mindoc.tar.gz . --exclude myrelease --exclude .git --exclude .github --exclude logs --exclude  database --exclude conf/app.conf --exclude *.go --exclude *.tmp --exclude appveyor.yml --exclude glide.yaml --exclude Dockerfile  --exclude start.h 
 
 cd myrelease
 if [ -f "centos6-mindoc-release.tar.gz" ];then
