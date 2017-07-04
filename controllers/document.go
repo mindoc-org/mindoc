@@ -1283,6 +1283,20 @@ func RecursiveFun(parent_id int, prefix, dpath string, c *DocumentController, bo
 				beego.Error(err)
 				c.Abort("500")
 			}
+
+			rhtml := item.Release
+			rhtml = strings.Replace(rhtml, "<h5", "<h6", -1)
+			rhtml = strings.Replace(rhtml, "</h5", "</h6", -1)
+			rhtml = strings.Replace(rhtml, "<h4", "<h5", -1)
+			rhtml = strings.Replace(rhtml, "</h4", "</h5", -1)
+			rhtml = strings.Replace(rhtml, "<h3", "<h4", -1)
+			rhtml = strings.Replace(rhtml, "</h3", "</h4", -1)
+			rhtml = strings.Replace(rhtml, "<h2", "<h3", -1)
+			rhtml = strings.Replace(rhtml, "</h2", "</h3", -1)
+			rhtml = strings.Replace(rhtml, "<h1", "<h2", -1)
+			rhtml = strings.Replace(rhtml, "</h1", "</h2", -1)
+			item.Release = rhtml
+
 			baseurl := "http://127.0.0.1:" + beego.AppConfig.String("httpport")
 			html, err := c.ExecuteViewPathTemplate("document/export.tpl", map[string]interface{}{"Model": book, "Lists": item, "BaseUrl": baseurl})
 			if err != nil {
