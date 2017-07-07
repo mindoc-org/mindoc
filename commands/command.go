@@ -78,6 +78,7 @@ func RegisterModel() {
 		new(models.MemberToken),
 		new(models.DocumentHistory),
 		new(models.Migration),
+		new(models.Label),
 	)
 	migrate.RegisterMigration()
 }

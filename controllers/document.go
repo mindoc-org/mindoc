@@ -26,6 +26,7 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/wkhtmltopdf"
+	"github.com/russross/blackfriday"
 )
 
 //DocumentController struct.
@@ -126,7 +127,7 @@ func (c *DocumentController) Index() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = "概要"
-	c.Data["Content"] = bookResult.Description
+	c.Data["Content"] = template.HTML( blackfriday.MarkdownBasic([]byte(bookResult.Description)))
 }
 
 //阅读文档.

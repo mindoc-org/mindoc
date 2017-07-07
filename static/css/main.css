@@ -48,12 +48,15 @@ textarea{
     -o-border-radius: 6px;
     border-radius: 6px;
 }
-
+.bootstrap-tagsinput{
+    display: block !important;
+}
 .manual-header{
     margin-bottom: 0;
     background-color: #fff;
     border-bottom: 0;
     box-shadow: rgba(0,0,0,.1)0 1px 5px;
+    border-top: 3px solid #009a61
 }
 .manual-header  .navbar-brand,.manual-header a {
     font-weight: 500;
@@ -106,9 +109,48 @@ textarea{
     line-height: 1;
     color: #9ba3af;
 }
+/**************首页标签*******************/
+.tag-container-outer{
+    border-bottom: 1px solid #eee;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    line-height: 30px;
+    position: relative;
+    display: block !important;
+    margin-top: 15px;
+}
+.tag-container-outer .title{
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.tag-container-outer .tags a{
+    display: inline-block;
+    vertical-align: baseline;
+    line-height: 1;
+    border-radius: 0.3rem;
+    transition: background .1s ease;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    margin: 0 .5em .5em 0!important;
+    padding: 0.5rem 0.8rem;
+    color: #999999;
+    opacity: 0.8;
+}
+.tag-container-outer .tags a:hover{
+    color: #666666;
+    opacity: 1;
+}
+.tag-container-outer .tags a>.detail{
+    display: inline-block;
+    vertical-align: top;
+    font-weight: 400;
+    margin-left: 1em;
+    opacity: .8
+}
 /*********************************/
 .manual-body{
-    margin-top: 50px;
+    margin-top: 53px;
 }
 .manual-body .page-left{
     position: fixed;

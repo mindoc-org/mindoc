@@ -5,13 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>设置 - Powered by MinDoc</title>
+    <title>设置 - {{.Model.BookName}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/cropper/2.3.4/cropper.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/bootstrap/plugins/tagsinput/bootstrap-tagsinput.css"}}" rel="stylesheet">
     <link href="/static/css/main.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -60,17 +61,17 @@
                             </div>
                             <div class="form-group">
                                 <label>标识</label>
-                                <input type="text" class="form-control" value=" {{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" disabled>
+                                <input type="text" class="form-control" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
                             </div>
                             <div class="form-group">
                                 <label>描述</label>
-                                <textarea rows="3" class="form-control" name="description" style="height: 90px">{{.Model.Description}}</textarea>
-                                <p class="text">描述信息不超过500个字符</p>
+                                <textarea rows="3" class="form-control" name="description" style="height: 90px" placeholder="项目描述">{{.Model.Description}}</textarea>
+                                <p class="text">描述信息不超过500个字符,支持Markdown语法</p>
                             </div>
                             <div class="form-group">
                                 <label>标签</label>
                                 <input type="text" class="form-control" name="label" placeholder="项目标签" value="{{.Model.Label}}">
-                                <p class="text">最多允许添加10个标签，多个标签请用“;”分割</p>
+                                <p class="text">最多允许添加10个标签，多个标签请用“,”分割</p>
                             </div>
                             <div class="form-group">
                                 <label>编辑器</label>
@@ -177,12 +178,12 @@
     </div>
 </div>
 <!-- Start Modal -->
-<div class="modal fade" id="upload-logo-panel" tabindex="-1" role="dialog" aria-labelledby="修改头像" aria-hidden="true">
+<div class="modal fade" id="upload-logo-panel" tabindex="-1" role="dialog" aria-labelledby="修改封面" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">修改头像</h4>
+                <h4 class="modal-title">修改封面</h4>
             </div>
             <div class="modal-body">
                 <div class="wraper">
@@ -271,6 +272,7 @@
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/cropper/2.3.4/cropper.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/bootstrap/plugins/tagsinput/bootstrap-tagsinput.min.js"}}" type="text/javascript"></script>
 <script src="/static/js/main.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
@@ -278,6 +280,13 @@
             $("#upload-logo-panel").find(".modal-body").html(window.modalHtml);
         }).on("show.bs.modal",function () {
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
+        });
+
+        $('input[name="label"]').tagsinput({
+            confirmKeys: [13,44],
+            maxTags: 10,
+            trimValue: true,
+            cancelConfirmKeysOnEmpty : false
         });
 
         $("#changePrivatelyOwnedForm").ajaxForm({
