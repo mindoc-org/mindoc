@@ -376,11 +376,29 @@ func (m *Member) Delete(oldId int,newId int) error {
 		o.Rollback()
 		return err
 	}
-	_,err = o.Raw("UPDATE md_relationship SET member_id = ? WHERE member_id = ?",newId,oldId).Exec()
-	if err != nil {
-		o.Rollback()
-		return err
+	//_,err = o.Raw("UPDATE md_relationship SET member_id = ? WHERE member_id = ?",newId,oldId).Exec()
+	//if err != nil {
+	//
+	//	if err != nil {
+	//		o.Rollback()
+	//		return err
+	//	}
+	//}
+	var relationship_list []*Relationship
+
+	_,err = o.QueryTable(NewRelationship().TableNameWithPrefix()).Filter("member_id",oldId).All(&relationship_list)
+
+	if err == nil {
+		for _,relationship := range relationship_list {
+			if o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id",relationship.BookId).Exist() {
+				o.Delete(relationship)
+			}else{
+				relationship.MemberId = newId
+				o.Update(relationship)
+			}
+		}
 	}
+
 	if err = o.Commit();err != nil {
 		o.Rollback()
 		return err
