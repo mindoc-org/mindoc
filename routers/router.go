@@ -85,5 +85,6 @@ func init()  {
 	beego.Router("/search",&controllers.SearchController{},"get:Index")
 
 	beego.Router("/tag/:key", &controllers.LabelController{},"get:Index")
+	beego.Router("/tags", &controllers.LabelController{},"get:List")
 }
 

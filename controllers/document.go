@@ -768,6 +768,9 @@ func (c *DocumentController) Export() {
 	} else {
 		bookResult = isReadable(identify, token, c)
 	}
+	if bookResult.PrivatelyOwned == 0 {
+		//TODO 私有项目禁止导出
+	}
 	docs, err := models.NewDocument().FindListByBookId(bookResult.BookId)
 
 	if err != nil {

@@ -52,7 +52,7 @@
 
                 <div class="clearfix"></div>
             </div>
-            <nav>
+            <nav class="pagination-container">
                 {{.PageHtml}}
             </nav>
         </div>

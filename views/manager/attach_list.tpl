@@ -72,7 +72,7 @@
                             {{end}}
                             </tbody>
                         </table>
-                        <nav>
+                        <nav class="pagination-container">
                             {{.PageHtml}}
                         </nav>
                     </div>

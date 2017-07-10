@@ -25,6 +25,7 @@ type PageOptions struct {
 	NextPageText        string //下一页文字 默认"下一页"
 	EnableFirstLastLink bool   //是否启用首尾连接 默认false 建议开启
 	EnablePreNexLink    bool   //是否启用上一页,下一页连接 默认false 建议开启
+	TotalPages	    int
 }
 
 /**
@@ -99,6 +100,7 @@ func GetPagerHtml(requestURI string,pageIndex, pageSize,totalCount int) (html.HT
 		PageSize: pageSize,
 		EnableFirstLastLink : true,
 		ParamName : "page",
+		TotalPages:int(math.Ceil(float64(totalCount) / float64(pageSize))),
 	}
 	totalPages := int(math.Ceil(float64(totalCount) / float64(pageSize)))
 
@@ -249,9 +251,13 @@ func fun1(po *PageOptions, totalpages int) string {
  */
 func getHeader(po *PageOptions, totalpages int) string {
 	var rs string = "<ul class=\"pagination\">"
-	if po.EnableFirstLastLink { //当首页,尾页都设定的时候,就显示
 
-		rs += "<li" + judgeDisable(po, totalpages, 0) + " ><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(1) + "'>" + po.FirstPageText + "</a></li>"
+	if po.EnableFirstLastLink { //当首页,尾页都设定的时候,就显示
+		if po.CurrentPage == 1 {
+			rs += "<li" + judgeDisable(po, totalpages, 0) + " class=\"disabled\"><a href=\"###\">" + po.FirstPageText + "</a></li>"
+		}else{
+			rs += "<li" + judgeDisable(po, totalpages, 0) + " ><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(1) + "'>" + po.FirstPageText + "</a></li>"
+		}
 	}
 	if po.EnablePreNexLink { // disabled=\"disabled\"
 		var a int = po.CurrentPage - 1
@@ -270,13 +276,14 @@ func getFooter(po *PageOptions, totalpages int) string {
 	var rs string = ""
 	if po.EnablePreNexLink {
 		var a int = po.CurrentPage + 1
-		if po.CurrentPage == totalpages {
-			a = totalpages
-		}
 		rs += "<li " + judgeDisable(po, totalpages, 1) + "  ><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(a) + "'>" + po.NextPageText + "</a></li>"
 	}
 	if po.EnableFirstLastLink { //当首页,尾页都设定的时候,就显示
-		rs += "<li " + judgeDisable(po, totalpages, 1) + " ><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(totalpages) + "'>" + po.LastPageText + "</a></li>"
+		if po.CurrentPage == totalpages {
+			rs += "<li " + judgeDisable(po, totalpages, 1) + " class=\"disabled\"><a href=\"###\">" + po.LastPageText + "</a></li>"
+		}else{
+			rs += "<li " + judgeDisable(po, totalpages, 1) + " ><a href=\"" + po.Href + "&" + po.ParamName + "=" + con.Itoa(totalpages) + "\">" + po.LastPageText + "</a></li>"
+		}
 	}
 	rs += "</ul>"
 	return rs
