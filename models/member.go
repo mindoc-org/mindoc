@@ -390,11 +390,26 @@ func (m *Member) Delete(oldId int,newId int) error {
 
 	if err == nil {
 		for _,relationship := range relationship_list {
-			if o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id",relationship.BookId).Exist() {
-				o.Delete(relationship)
-			}else{
+			//如果存在创始人，则删除
+			if relationship.RoleId == 0 {
+				rel := NewRelationship()
+
+				err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id",relationship.BookId).Filter("member_id",newId).One(rel)
+				if err == nil {
+					if _,err := o.Delete(relationship) ; err != nil{
+						beego.Error(err)
+					}
+					relationship.RelationshipId = rel.RelationshipId
+				}
 				relationship.MemberId = newId
-				o.Update(relationship)
+				relationship.RoleId = 0
+				if _,err := o.Update(relationship) ; err != nil{
+					beego.Error(err)
+				}
+			}else{
+				if _,err := o.Delete(relationship) ; err != nil{
+					beego.Error(err)
+				}
 			}
 		}
 	}
