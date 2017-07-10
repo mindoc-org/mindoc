@@ -137,7 +137,7 @@ func (c *BookController) SaveBook()  {
 		comment_status = "closed"
 	}
 	if tag != ""{
-		tags := strings.Split(tag,";")
+		tags := strings.Split(tag,",")
 		if len(tags) > 10 {
 			c.JsonResult(6005,"最多允许添加10个标签")
 		}

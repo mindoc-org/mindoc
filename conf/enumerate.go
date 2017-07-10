@@ -19,7 +19,7 @@ const RegexpEmail = `^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$`
 const RegexpAccount = `^[a-zA-Z][a-zA-z0-9\.]{2,50}$`
 
 // PageSize 默认分页条数.
-const PageSize = 15
+const PageSize = 5
 
 // 用户权限
 const (

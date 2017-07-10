@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego/context"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
+	"encoding/json"
 )
 
 func init()  {
@@ -12,7 +13,17 @@ func init()  {
 		_, ok := ctx.Input.Session(conf.LoginSessionName).(models.Member)
 
 		if !ok {
-			ctx.Redirect(302, beego.URLFor("AccountController.Login"))
+			if ctx.Input.IsAjax() {
+				jsonData := make(map[string]interface{},3)
+
+				jsonData["errcode"] = 403
+				jsonData["message"] = "请登录后再操作"
+				returnJSON, _ := json.Marshal(jsonData)
+
+				ctx.ResponseWriter.Write(returnJSON)
+			}else{
+				ctx.Redirect(302, beego.URLFor("AccountController.Login"))
+			}
 		}
 	}
 	beego.InsertFilter("/manager",beego.BeforeRouter,FilterUser)
