@@ -88,7 +88,7 @@
                         <div class="text-center">暂无数据</div>
                         {{end}}
                     </div>
-                    <nav>
+                    <nav class="pagination-container">
                         {{.PageHtml}}
                     </nav>
                 </div>
