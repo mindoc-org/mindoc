@@ -13,7 +13,8 @@ before_install:
   - go get github.com/golang/freetype
 
 script:
-  - go get -t -v ./...
+  - curl https://glide.sh/get | sh
+  - glide update
   - GO_ENABLED=1 go build -v -x -tags "pam" && go install
 
 before_deploy:
@@ -22,9 +23,7 @@ before_deploy:
   - rm -rf commands controllers models modules data routers tasks vendor docs search utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
   - cp conf/app.conf.example conf/app.conf
   - zip -r mindoc_linux_amd64.zip conf logs static uploads views lib mindoc_linux_amd64
-  - zip -r mindoc_darwin_amd64.zip conf logs static uploads views lib mindoc_darwin_amd64
-  - zip -r mindoc_windows_amd64.zip conf logs static uploads views lib mindoc_windows_amd64.exe
-  - zip -r mindoc_windows_i386.zip conf logs static uploads views lib mindoc_windows_i386.exe
+
 
 
 deploy:
