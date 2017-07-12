@@ -19,6 +19,7 @@ func init()  {
 	beego.Router("/manager/users", &controllers.ManagerController{},"*:Users")
 	beego.Router("/manager/users/edit/:id", &controllers.ManagerController{},"*:EditMember")
 	beego.Router("/manager/member/create", &controllers.ManagerController{},"post:CreateMember")
+	beego.Router("/manager/member/delete", &controllers.ManagerController{},"post:DeleteMember")
 	beego.Router("/manager/member/update-member-status",&controllers.ManagerController{},"post:UpdateMemberStatus")
 	beego.Router("/manager/member/change-member-role", &controllers.ManagerController{},"post:ChangeMemberRole")
 	beego.Router("/manager/books", &controllers.ManagerController{},"*:Books")
@@ -82,5 +83,8 @@ func init()  {
 	beego.Router("/comment/index", &controllers.CommentController{},"*:Index")
 
 	beego.Router("/search",&controllers.SearchController{},"get:Index")
+
+	beego.Router("/tag/:key", &controllers.LabelController{},"get:Index")
+	beego.Router("/tags", &controllers.LabelController{},"get:List")
 }
 

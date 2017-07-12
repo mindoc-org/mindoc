@@ -186,6 +186,7 @@ func (c *ManagerController) ChangeMemberRole() {
 	c.JsonResult(0, "ok", member)
 }
 
+//编辑用户信息.
 func (c *ManagerController) EditMember() {
 	c.Prepare()
 	c.TplName = "manager/edit_users.tpl"
@@ -238,6 +239,41 @@ func (c *ManagerController) EditMember() {
 	c.Data["Model"] = member
 }
 
+//删除一个用户，并将该用户的所有信息转移到超级管理员上.
+func (c *ManagerController) DeleteMember()  {
+	c.Prepare()
+	member_id,_ := c.GetInt("id",0)
+
+	if member_id <= 0 {
+		c.JsonResult(404,"参数错误")
+	}
+
+	member ,err := models.NewMember().Find(member_id)
+
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(500,"用户不存在")
+	}
+	if member.Role == conf.MemberSuperRole {
+		c.JsonResult(500,"不能删除超级管理员")
+	}
+	superMember,err := models.NewMember().FindByFieldFirst("role",0)
+
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(5001,"未能找到超级管理员")
+	}
+
+	err = models.NewMember().Delete(member_id,superMember.MemberId)
+
+	if err != nil {
+		beego.Error(err)
+		c.JsonResult(5002,"删除失败")
+	}
+	c.JsonResult(0,"ok")
+}
+
+//项目列表.
 func (c *ManagerController) Books() {
 	c.Prepare()
 	c.TplName = "manager/books.tpl"
@@ -261,7 +297,7 @@ func (c *ManagerController) Books() {
 	c.Data["Lists"] = books
 }
 
-//编辑项目
+//编辑项目.
 func (c *ManagerController) EditBook() {
 	c.Prepare()
 

@@ -48,12 +48,15 @@ textarea{
     -o-border-radius: 6px;
     border-radius: 6px;
 }
-
+.bootstrap-tagsinput{
+    display: block !important;
+}
 .manual-header{
     margin-bottom: 0;
     background-color: #fff;
     border-bottom: 0;
     box-shadow: rgba(0,0,0,.1)0 1px 5px;
+    border-top: 3px solid #009a61
 }
 .manual-header  .navbar-brand,.manual-header a {
     font-weight: 500;
@@ -106,9 +109,48 @@ textarea{
     line-height: 1;
     color: #9ba3af;
 }
+/**************首页标签*******************/
+.tag-container-outer{
+    border-bottom: 1px solid #eee;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    line-height: 30px;
+    position: relative;
+    display: block !important;
+    margin-top: 15px;
+}
+.tag-container-outer .title{
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.tag-container-outer .tags a{
+    display: inline-block;
+    vertical-align: baseline;
+    line-height: 1;
+    border-radius: 0.3rem;
+    transition: background .1s ease;
+    cursor: pointer;
+    background-color: #e0e0e0;
+    margin: 0 .5em .5em 0!important;
+    padding: 0.5rem 0.8rem;
+    color: #999999;
+    opacity: 0.8;
+}
+.tag-container-outer .tags a:hover{
+    color: #666666;
+    opacity: 1;
+}
+.tag-container-outer .tags a>.detail{
+    display: inline-block;
+    vertical-align: top;
+    font-weight: 400;
+    margin-left: 1em;
+    opacity: .8
+}
 /*********************************/
 .manual-body{
-    margin-top: 50px;
+    margin-top: 53px;
 }
 .manual-body .page-left{
     position: fixed;
@@ -207,13 +249,24 @@ textarea{
     height: 231px;
     position: relative;
 }
+.manual-list .list-item .manual-item-standard>dt>a {
+    display: block;
+    position: relative;
+    width: 100%;
+}
+.manual-list .list-item .manual-item-standard>dt>a .image{
+    position: relative;
+    /*display: none;*/
+}
 .manual-list .list-item .manual-item-standard .cover {
-    border: 1px solid #999999;
+    border: none;
     width: 171px;
     position: relative;
     display: inline-block;
     height: 229px;
-    background-color: #eee
+    background-color: #eee;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
 }
 .manual-list .list-item .manual-item-standard .b-cover:hover {
     border-color: #4db559;
@@ -520,19 +573,27 @@ textarea{
 
 .pagination-container {
     margin: 5px auto;
-    text-align: center !important;
     display: block !important;
 }
+.pagination-container .pagination{
+    box-shadow: 0 1px 2px 0 #e3e3e0;
+}
 .pagination-container .pagination>li>a,.pagination-container .pagination>li>span{
-    padding: 4px 9px !important;
+    padding: 8px 16px !important;
 }
 .pagination-container .pagination>li>a,.pagination-container  .pagination>li>span{
-    color: #333;
+    color: #272727;
 }
 .pagination-container .pagination>.active>a{
-    color: #fff;
+    /*color: #fff;*/
+    background-color: #f3f3f3;
+    border: 1px solid #e3e3e0;
 }
-    /**************网站底部样式*************************/
+.pagination-container .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover{
+    color: #272727;
+}
+
+/**************网站底部样式*************************/
 .footer{
     color: #777;
     padding: 30px 0;

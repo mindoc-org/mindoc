@@ -16,8 +16,8 @@ body {
     word-wrap: break-word;
     line-height: 1em;
 }
-input,select,textarea,button,body,code {
-    font-family: "Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif
+h1,h2,h3,h4,h5,h6,strong,input,select,textarea,button,body,code {
+    font-family: "Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
 }
 h1 {
     font-size: 2.25em;
