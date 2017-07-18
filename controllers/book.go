@@ -747,9 +747,29 @@ func (c *BookController) EditLink() {
 
 	if c.Ctx.Input.IsPost() {
 		link_docs := strings.TrimSpace(c.GetString("link_docs", ""))
-		rdoc, _ := models.NewDocument().FindByFieldFirst("book_id", book.BookId)
+
 		o := orm.NewOrm()
+		slink := link_docs
+		for {
+			doclinks := slink
+			slink = ""
+			var docs []*models.Document
+			sql := "SELECT * FROM md_documents WHERE FIND_IN_SET(document_id,?)>0 "
+			_, err = o.Raw(sql, doclinks).QueryRows(&docs)
+			for _, doc := range docs {
+				if doc.ParentId > 0 && !strings.Contains(","+link_docs+",", ","+strconv.Itoa(doc.ParentId)+",") {
+					link_docs += strconv.Itoa(doc.ParentId) + ","
+					slink += strconv.Itoa(doc.ParentId) + ","
+				}
+			}
+			if slink == "" {
+				break
+			}
+		}
+
+		rdoc, _ := models.NewDocument().FindByFieldFirst("book_id", book.BookId)
 		o.Raw("UPDATE md_documents SET markdown = ? WHERE document_id = ?", link_docs, rdoc.DocumentId).Exec()
+
 	}
 
 	doclinks, docs, err := models.NewDocument().GetLinkBookDocuments(book.BookId)
