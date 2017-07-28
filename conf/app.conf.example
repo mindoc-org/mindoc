@@ -1,6 +1,6 @@
 appname = godoc
 # httpaddr = 127.0.0.1
-httpport = 6666
+httpport = 8181
 runmode = dev
 sessionon = true
 sessionname = mindoc_id
