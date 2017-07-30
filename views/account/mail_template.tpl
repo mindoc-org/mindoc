@@ -89,7 +89,7 @@
             </p>
             <p class="footer" style="border-top: 1px solid #DDDDDD; padding-top:6px; margin-top:25px; color:#838383;">
                 请勿回复本邮件, 此邮箱未受监控, 您不会得到任何回复. 要获得帮助, 请登录网站<br><br>
-                <a href="https://www.iminho.me/" target="_blank">MinDoc</a>
+                <a href="https://www.hulai.com" target="_blank">AccessDoc</a>
             </p>
         </div>
     </div>
