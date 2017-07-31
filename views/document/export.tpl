@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{.Model.BookName}} - Powered by MinDoc</title>
+    <title>{{.Model.BookName}} - Powered by AccessDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{.BaseUrl}}/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">

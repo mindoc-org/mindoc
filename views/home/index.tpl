@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>网站首页 - Powered by MinDoc</title>
+    <title>网站首页 - Powered by AccessDoc</title>
     <meta name="author" content="Minho" />
     <meta name="site" content="https://www.iminho.me" />
     <!-- Bootstrap -->

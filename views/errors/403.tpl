@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>权限不足 - Powered by MinDoc</title>
+    <title>权限不足 - Powered by AccessDoc</title>
     <link href="/static/fonts/lato-100.css" rel="stylesheet" type="text/css">
     <style type="text/css">
         html, body {

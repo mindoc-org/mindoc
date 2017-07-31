@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>文档比较 - Powered by MinDoc</title>
+    <title>文档比较 - Powered by AccessDoc</title>
     <link rel="shortcut icon" href="/favicon.ico" />
     <link href="/static/fonts/notosans.css" rel='stylesheet' type='text/css' />
     <script type="text/javascript" src="/static/jquery/1.12.4/jquery.min.js"></script>
