@@ -17,7 +17,7 @@
                         <a href="{{urlfor "LabelController.List" }}" title="标签">标签</a>
                     </li>
                 </ul>
-                <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">
+                <div class="searchbar">
                     <form class="form-inline" action="{{urlfor "SearchController.Index"}}" method="get">
                         <input class="form-control" name="keyword" type="search" style="width: 230px;" placeholder="请输入关键词..." value="{{.Keyword}}">
                         <button class="search-btn">
