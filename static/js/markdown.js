@@ -91,6 +91,12 @@ $(function () {
             });
        }else if(name === "release"){
             if(Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0){
+                if($("#markdown-save").hasClass('change')) {
+                    var comfirm_result = confirm("编辑内容未保存，需要保存吗？")
+                    if(comfirm_result) {
+                        saveDocument();
+                    }
+                }
                 $.ajax({
                     url : window.releaseURL,
                     data :{"identify" : window.book.identify },
