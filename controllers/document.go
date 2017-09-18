@@ -42,12 +42,9 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 		beego.Error(err)
 		c.Abort("500")
 	}
-	if c.Member != nil && c.Member.IsAdministrator() {
-		bookResult := book.ToBookResult()
-		return bookResult
-	}
+
 	//如果文档是私有的
-	if book.PrivatelyOwned == 1 {
+	if book.PrivatelyOwned == 1 && !c.Member.IsAdministrator() {
 
 		is_ok := false
 

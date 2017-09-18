@@ -47,8 +47,10 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dLabel">
                         {{if gt .Member.MemberId 0}}
+                        {{if gt .Model.RelationshipId 0}}
                         {{if eq .Model.RoleId 0 1 2}}
                         <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">返回编辑</a> </li>
+                        {{end}}
                         {{end}}
                         <li><a href="{{urlfor "BookController.Index"}}">我的项目</a> </li>
                         <li role="presentation" class="divider"></li>

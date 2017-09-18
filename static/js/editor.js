@@ -135,7 +135,6 @@ function pushDocumentCategory($node) {
         if(item.id === $node.id){
 
             window.documentCategory[index] = $node;
-            console.log( window.documentCategory[index]);
             return;
         }
     }
