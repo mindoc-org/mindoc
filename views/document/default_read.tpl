@@ -58,7 +58,8 @@
                         {{if eq .Model.PrivatelyOwned 0}}
                         <li><a href="javascript:" data-toggle="modal" data-target="#shareProject">项目分享</a> </li>
                         <li role="presentation" class="divider"></li>
-                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">项目导出PDF</a> </li>
+                        <li><a href="javascript:void(0);" onclick="ExportPdfDoc()">文档导出为 PDF</a> </li>
+                        <li><a href="{{urlfor "DocumentController.ExportBook" ":key" .Model.Identify "output" "pdf"}}" target="_blank">项目导出为 PDF</a> </li>
                         {{end}}
 
                         <li><a href="{{urlfor "HomeController.Index"}}" title="返回首页">返回首页</a> </li>
@@ -234,6 +235,13 @@
 <script type="text/javascript" src="/static/js/jquery.highlight.js"></script>
 <script type="text/javascript" src="/static/js/kancloud.js"></script>
 <script type="text/javascript">
+active_book_id = {{.Model.Identify}};
+active_doc_id = {{.DocumentId}};
+$(function () {
+    $("body").on('article.open', function (event, $param) {
+        active_doc_id = $param.$id;
+    });
+});
 $(function () {
     $("#searchList").on("click","a",function () {
         var id = $(this).attr("data-id");
@@ -245,6 +253,12 @@ $(function () {
         });
     });
 });
+function ExportPdfDoc() {
+    var id = active_book_id;
+    if(active_doc_id != "0")
+        id += "/" + active_doc_id;
+    window.location.href = "/export/" + id + "?output=pdf";
+}
 </script>
 </body>
 </html>

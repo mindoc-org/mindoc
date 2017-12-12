@@ -16,6 +16,8 @@ import (
 
 	"bytes"
 
+	"log"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
@@ -125,6 +127,9 @@ func (c *DocumentController) Index() {
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = "概要"
 	c.Data["Content"] = template.HTML( blackfriday.MarkdownBasic([]byte(bookResult.Description)))
+
+	c.Data["DocumentId"] = "0"	// added by dandycheung, 2017-12-08, for exporting
+	log.Println("DocumentController.Index(): c.Data[\"DocumentId\"] = ", 0)
 }
 
 //阅读文档.
@@ -133,6 +138,9 @@ func (c *DocumentController) Read() {
 	identify := c.Ctx.Input.Param(":key")
 	token := c.GetString("token")
 	id := c.GetString(":id")
+
+	c.Data["DocumentId"] = id       // added by dandycheung, 2017-12-08, for exporting
+	log.Println("DocumentController.Read(): c.Data[\"DocumentId\"] = ", id, ", IsAjax = ", c.IsAjax())
 
 	if identify == "" || id == "" {
 		c.Abort("404")
@@ -735,8 +743,32 @@ func (c *DocumentController) Content() {
 	c.JsonResult(0, "ok", doc)
 }
 
-//导出文件
-func (c *DocumentController) Export() {
+func (c *DocumentController) ExportDoc() {
+	c.Export(true)
+}
+
+func (c *DocumentController) ExportBook() {
+	c.Export(false)
+}
+
+func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
+	doc = models.NewDocument()
+        if doc_id, err := strconv.Atoi(id); err == nil {
+                doc, err = doc.Find(doc_id)
+                if err != nil {
+                        return nil, err
+                }
+        } else {
+                doc, err = doc.FindByFieldFirst("identify", id)
+                if err != nil {
+			return nil, err
+                }
+        }
+	return doc, nil
+}
+
+// 导出
+func (c *DocumentController) Export(single_doc bool) {
 	c.Prepare()
 	c.TplName = "document/export.tpl"
 
@@ -791,9 +823,19 @@ func (c *DocumentController) Export() {
 
 		pathList := list.New()
 
-		RecursiveFun(0, "", dpath, c, bookResult, docs, pathList)
+		// 增加对单页文档的导出，dandycheung, 2017-12-07
+		if single_doc {
+			id := c.Ctx.Input.Param(":id")
+			if doc, err := c.GetDocumentById(id); err == nil {
+				EachFun("", dpath, c, bookResult, doc, pathList)
+			}
+		} else {
+			RecursiveFun(0, "", dpath, c, bookResult, docs, pathList)
+		}
 
 		defer os.RemoveAll(dpath)
+
+		// TODO: check if the pathList is empty
 
 		os.MkdirAll("./cache", 0766)
 		pdfpath := filepath.Join("cache", identify+"_"+c.CruSession.SessionID()+".pdf")
@@ -1142,49 +1184,54 @@ func (c *DocumentController) Compare()  {
 func RecursiveFun(parent_id int, prefix, dpath string, c *DocumentController, book *models.BookResult, docs []*models.Document, paths *list.List) {
 	for _, item := range docs {
 		if item.ParentId == parent_id {
-			name := prefix + strconv.Itoa(item.ParentId) + strconv.Itoa(item.OrderSort) + strconv.Itoa(item.DocumentId)
-			fpath := dpath + "/" + name + ".html"
-			paths.PushBack(fpath)
-
-			f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0777)
-
-			if err != nil {
-				beego.Error(err)
-				c.Abort("500")
-			}
-
-			html, err := c.ExecuteViewPathTemplate("document/export.tpl", map[string]interface{}{"Model": book, "Lists": item, "BaseUrl": c.BaseUrl()})
-			if err != nil {
-				f.Close()
-				beego.Error(err)
-				c.Abort("500")
-			}
-
-			buf := bytes.NewReader([]byte(html))
-			doc, err := goquery.NewDocumentFromReader(buf)
-			doc.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
-				if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
-					contentSelection.SetAttr("src", c.BaseUrl()+src)
-				}
-			})
-			html, err = doc.Html()
-
-			if err != nil {
-				f.Close()
-				beego.Error(err)
-				c.Abort("500")
-			}
-			//html = strings.Replace(html,"<img src=\"/uploads","<img src=\""+ c.BaseUrl() +"/uploads",-1)
-
-			f.WriteString(html)
-			f.Close()
+			EachFun(prefix, dpath, c, book, item, paths)
 
 			for _, sub := range docs {
 				if sub.ParentId == item.DocumentId {
-					RecursiveFun(item.DocumentId, name, dpath, c, book, docs, paths)
+					prefix += strconv.Itoa(item.ParentId) + strconv.Itoa(item.OrderSort) + strconv.Itoa(item.DocumentId);
+					RecursiveFun(item.DocumentId, prefix, dpath, c, book, docs, paths)
 					break
 				}
 			}
 		}
 	}
+}
+
+func EachFun(prefix, dpath string, c *DocumentController, book *models.BookResult, item *models.Document, paths *list.List) {
+	name := prefix + strconv.Itoa(item.ParentId) + strconv.Itoa(item.OrderSort) + strconv.Itoa(item.DocumentId)
+	fpath := dpath + "/" + name + ".html"
+	paths.PushBack(fpath)
+
+	f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0777)
+
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
+
+	html, err := c.ExecuteViewPathTemplate("document/export.tpl", map[string]interface{}{"Model": book, "Lists": item, "BaseUrl": c.BaseUrl()})
+	if err != nil {
+		f.Close()
+		beego.Error(err)
+		c.Abort("500")
+	}
+
+	buf := bytes.NewReader([]byte(html))
+	doc, err := goquery.NewDocumentFromReader(buf)
+	doc.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
+		if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
+			contentSelection.SetAttr("src", c.BaseUrl()+src)
+		}
+	})
+	html, err = doc.Html()
+
+	if err != nil {
+		f.Close()
+		beego.Error(err)
+		c.Abort("500")
+	}
+	//html = strings.Replace(html,"<img src=\"/uploads","<img src=\""+ c.BaseUrl() +"/uploads",-1)
+
+	f.WriteString(html)
+	f.Close()
 }
