@@ -127,7 +127,7 @@
             </div>
             <div class="form-right">
                 <label>
-                    <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
+                    <a href="#" data-toggle="modal" data-target="#upload-logo-panel">
                         <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.png'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
                     </a>
                 </label>
@@ -426,7 +426,6 @@
                     });
                 }, 1, 1 );
             }).on("uploadError",function (file,reason) {
-                console.log(reason);
                 $("#error-message").text("上传失败:" + reason);
 
             }).on("uploadSuccess",function (file, res) {

@@ -21,6 +21,7 @@ func ImageCopy(src image.Image, x, y, w, h int) (image.Image, error) {
 	} else {
 
 		return subImg, errors.New("图片解码失败")
+		return
 	}
 
 	return subImg, nil

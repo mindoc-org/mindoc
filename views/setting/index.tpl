@@ -68,7 +68,7 @@
                     </div>
                     <div class="form-right">
                         <label>
-                            <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
+                            <a href="#" data-toggle="modal" data-target="#upload-logo-panel">
                                 <img src="{{.Member.Avatar}}" onerror="this.src='/static/images/middle.gif'" class="img-circle" alt="头像" style="max-width: 120px;max-height: 120px;" id="headimgurl">
                             </a>
                         </label>
@@ -182,7 +182,6 @@
                     });
                 }, 1, 1 );
             }).on("uploadError",function (file,reason) {
-                console.log(reason);
                 $("#error-message").text("上传失败:" + reason);
 
             }).on("uploadSuccess",function (file, res) {
