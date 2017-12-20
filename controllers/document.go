@@ -16,8 +16,6 @@ import (
 
 	"bytes"
 
-	"log"
-
 	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
@@ -126,10 +124,11 @@ func (c *DocumentController) Index() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = "概要"
-	c.Data["Content"] = template.HTML( blackfriday.MarkdownBasic([]byte(bookResult.Description)))
+	c.Data["Content"] = template.HTML(blackfriday.MarkdownBasic([]byte(bookResult.Description)))
+	c.Data["Info"] = ""
 
-	c.Data["DocumentId"] = "0"	// added by dandycheung, 2017-12-08, for exporting
-	log.Println("DocumentController.Index(): c.Data[\"DocumentId\"] = ", 0)
+	c.Data["DocumentId"] = "0" // added by dandycheung, 2017-12-08, for exporting
+	beego.Info("DocumentController.Index(): c.Data[\"DocumentId\"] = ", 0)
 }
 
 //阅读文档.
@@ -139,8 +138,8 @@ func (c *DocumentController) Read() {
 	token := c.GetString("token")
 	id := c.GetString(":id")
 
-	c.Data["DocumentId"] = id       // added by dandycheung, 2017-12-08, for exporting
-	log.Println("DocumentController.Read(): c.Data[\"DocumentId\"] = ", id, ", IsAjax = ", c.IsAjax())
+	c.Data["DocumentId"] = id // added by dandycheung, 2017-12-08, for exporting
+	beego.Info("DocumentController.Read(): c.Data[\"DocumentId\"] = ", id, ", IsAjax = ", c.IsAjax())
 
 	if identify == "" || id == "" {
 		c.Abort("404")
@@ -200,15 +199,33 @@ func (c *DocumentController) Read() {
 		}
 
 	}
+
+	// assemble doc info, added by dandycheung, 2017-12-20
+	docInfo := ""
+	docCreator, err := models.NewMember().Find(doc.MemberId)
+	if err == nil {
+		docInfo += docCreator.Account
+	}
+
+	docInfo += " 创建于 "
+	docInfo += doc.CreateTime.Format("2006-01-02 15:04")
+
+	if doc.ModifyTime != doc.CreateTime {
+		docInfo += "；更新于 "
+		docInfo += doc.ModifyTime.Format("2006-01-02 15:04")
+	}
+
 	if c.IsAjax() {
 		var data struct {
 			DocTitle string `json:"doc_title"`
 			Body     string `json:"body"`
 			Title    string `json:"title"`
+			DocInfo  string `json:"doc_info"`
 		}
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
+		data.DocInfo = docInfo
 
 		c.JsonResult(0, "ok", data)
 	}
@@ -223,6 +240,7 @@ func (c *DocumentController) Read() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = doc.DocumentName
+	c.Data["Info"] = docInfo
 	c.Data["Content"] = template.HTML(doc.Release)
 }
 
@@ -753,17 +771,17 @@ func (c *DocumentController) ExportBook() {
 
 func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
 	doc = models.NewDocument()
-        if doc_id, err := strconv.Atoi(id); err == nil {
-                doc, err = doc.Find(doc_id)
-                if err != nil {
-                        return nil, err
-                }
-        } else {
-                doc, err = doc.FindByFieldFirst("identify", id)
-                if err != nil {
+	if doc_id, err := strconv.Atoi(id); err == nil {
+		doc, err = doc.Find(doc_id)
+		if err != nil {
 			return nil, err
-                }
-        }
+		}
+	} else {
+		doc, err = doc.FindByFieldFirst("identify", id)
+		if err != nil {
+			return nil, err
+		}
+	}
 	return doc, nil
 }
 
@@ -1121,10 +1139,10 @@ func (c *DocumentController) RestoreHistory() {
 	c.JsonResult(0, "ok", doc)
 }
 
-func (c *DocumentController) Compare()  {
+func (c *DocumentController) Compare() {
 	c.Prepare()
 	c.TplName = "document/compare.tpl"
-	history_id ,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	history_id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 	identify := c.Ctx.Input.Param(":key")
 
 	book_id := 0
@@ -1155,18 +1173,18 @@ func (c *DocumentController) Compare()  {
 	}
 
 	if history_id <= 0 {
-		c.ShowErrorPage(60002,"参数错误")
+		c.ShowErrorPage(60002, "参数错误")
 	}
 
-	history,err := models.NewDocumentHistory().Find(history_id)
+	history, err := models.NewDocumentHistory().Find(history_id)
 	if err != nil {
-		beego.Error("DocumentController.Compare => ",err)
-		c.ShowErrorPage(60003,err.Error())
+		beego.Error("DocumentController.Compare => ", err)
+		c.ShowErrorPage(60003, err.Error())
 	}
-	doc,err := models.NewDocument().Find(history.DocumentId)
+	doc, err := models.NewDocument().Find(history.DocumentId)
 
 	if doc.BookId != book_id {
-		c.ShowErrorPage(60002,"参数错误")
+		c.ShowErrorPage(60002, "参数错误")
 	}
 	c.Data["HistoryId"] = history_id
 	c.Data["DocumentId"] = doc.DocumentId
@@ -1174,7 +1192,7 @@ func (c *DocumentController) Compare()  {
 	if editor == "markdown" {
 		c.Data["HistoryContent"] = history.Markdown
 		c.Data["Content"] = doc.Markdown
-	}else{
+	} else {
 		c.Data["HistoryContent"] = template.HTML(history.Content)
 		c.Data["Content"] = template.HTML(doc.Content)
 	}
@@ -1188,7 +1206,7 @@ func RecursiveFun(parent_id int, prefix, dpath string, c *DocumentController, bo
 
 			for _, sub := range docs {
 				if sub.ParentId == item.DocumentId {
-					prefix += strconv.Itoa(item.ParentId) + strconv.Itoa(item.OrderSort) + strconv.Itoa(item.DocumentId);
+					prefix += strconv.Itoa(item.ParentId) + strconv.Itoa(item.OrderSort) + strconv.Itoa(item.DocumentId)
 					RecursiveFun(item.DocumentId, prefix, dpath, c, book, docs, paths)
 					break
 				}

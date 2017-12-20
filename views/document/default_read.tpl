@@ -128,6 +128,7 @@
                             </div>
                             <div class="col-md-8 text-center">
                                 <h1 id="article-title">{{.Title}}</h1>
+                                <h3 id="article-info">{{.Info}}</h3>
                             </div>
                             <div class="col-md-2">
                             </div>

@@ -33,6 +33,7 @@ function loadDocument($url,$id,$callback) {
                 var body = res.data.body;
                 var doc_title = res.data.doc_title;
                 var title = res.data.title;
+                var doc_info = res.data.doc_info;
 
                 $body = body;
                 if (typeof $callback === "function" ){
@@ -41,6 +42,7 @@ function loadDocument($url,$id,$callback) {
                 $("#page-content").html($body);
                 $("title").text(title);
                 $("#article-title").text(doc_title);
+                $("#article-info").text(doc_info);
 
                 events.data('body_' + $id,body);
                 events.data('title_' + $id,title);
