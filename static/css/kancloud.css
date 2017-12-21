@@ -417,7 +417,8 @@ table>tbody>tr:hover{
 }
 .manual-article .article-head {
     position: relative;
-    zoom:1;padding: 10px 20px
+    zoom: 1;
+    padding: 10px 20px
 }
 .manual-reader .book-title{
     color: #333333;
@@ -430,9 +431,20 @@ table>tbody>tr:hover{
 .manual-article .article-head h1 {
     margin: 0;
     font-size: 20px;
-    font-weight: 200;
+    font-weight: 300;
     text-align: center;
     line-height: 30px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #444
+}
+.manual-article .article-head h3 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 200;
+    text-align: center;
+    line-height: 18px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
