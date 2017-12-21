@@ -4,17 +4,17 @@
  * @param $id
  * @param $callback
  */
-function loadDocument($url,$id,$callback) {
+function loadDocument($url, $id, $callback) {
     $.ajax({
         url : $url,
         type : "GET",
-        beforeSend :function (xhr) {
+        beforeSend : function (xhr) {
             var body = events.data('body_' + $id);
             var title = events.data('title_' + $id);
             var doc_title = events.data('doc_title_' + $id);
             var doc_info = events.data('doc_info_' + $id);
 
-            if(body && title && doc_title) {
+            if (body && title && doc_title) {
                 if (typeof $callback === "function") {
                     body = $callback(body);
                 }
@@ -24,7 +24,7 @@ function loadDocument($url,$id,$callback) {
                 $("#article-title").text(doc_title);
                 $("#article-info").text(doc_info);
 
-                events.trigger('article.open', { $url : $url, $init : false , $id : $id });
+                events.trigger('article.open', { $url : $url, $init : false, $id : $id });
 
                 return false;
             }
@@ -53,7 +53,8 @@ function loadDocument($url,$id,$callback) {
                 events.data('doc_info_' + $id, doc_info);
 
                 events.trigger('article.open', { $url : $url, $init : true, $id : $id });
-
+            } else if (res.errcode === 6000) {
+                window.location.href = "/";
             } else {
                 layer.msg("加载失败");
             }
@@ -91,7 +92,7 @@ $(function () {
     initHighlighting();
 
     window.jsTree = $("#sidebar").jstree({
-        'plugins':["wholerow", "types"],
+        'plugins' : ["wholerow", "types"],
         "types": {
             "default" : {
                 "icon" : false  // 删除默认图标
@@ -102,7 +103,7 @@ $(function () {
             "multiple" : false,
             'animation' : 0
         }
-    }).on('select_node.jstree',function (node,selected,event) {
+    }).on('select_node.jstree', function (node, selected, event) {
         $(".m-manual").removeClass('manual-mobile-show-left');
         var url = selected.node.a_attr.href;
 
@@ -123,7 +124,7 @@ $(function () {
     /**
      * 关闭侧边栏
      */
-    $(".manual-fullscreen-switch").on("click",function () {
+    $(".manual-fullscreen-switch").on("click", function () {
         isFullScreen = !isFullScreen;
         if (isFullScreen) {
             $(".m-manual").addClass('manual-fullscreen-active');
@@ -148,7 +149,7 @@ $(function () {
         $(".manual-right").scrollTop(0);
     });
 
-    $(".navg-item[data-mode]").on("click",function () {
+    $(".navg-item[data-mode]").on("click", function () {
         var mode = $(this).data('mode');
         $(this).siblings().removeClass('active').end().addClass('active');
         $(".m-manual").removeClass("manual-mode-view manual-mode-collect manual-mode-search").addClass("manual-mode-" + mode);
@@ -160,23 +161,23 @@ $(function () {
     $("#searchForm").ajaxForm({
         beforeSubmit : function () {
             var keyword = $.trim($("#searchForm").find("input[name='keyword']").val());
-            if(keyword === ""){
+            if (keyword === "") {
                 $(".search-empty").show();
                 $("#searchList").html("");
                 return false;
             }
-            $("#btnSearch").attr("disabled","disabled").find("i").removeClass("fa-search").addClass("loading");
+            $("#btnSearch").attr("disabled", "disabled").find("i").removeClass("fa-search").addClass("loading");
             window.keyword = keyword;
         },
         success : function (res) {
             var html = "";
-            if(res.errcode === 0){
-                for(var i in res.data){
+            if (res.errcode === 0) {
+                for(var i in res.data) {
                     var item = res.data[i];
                     html += '<li><a href="javascript:;" title="' + item.doc_name + '" data-id="' + item.doc_id + '"> ' + item.doc_name + ' </a></li>';
                 }
             }
-            if(html !== "") {
+            if (html !== "") {
                 $(".search-empty").hide();
             } else {
                 $(".search-empty").show();
@@ -204,8 +205,8 @@ $(function () {
     try {
         var $node = window.jsTree.jstree().get_selected();
         if (typeof $node === "object") {
-            $node = window.jsTree.jstree().get_node({id: $node[0]});
-            events.trigger('article.open', {$url: $node.a_attr.href, $init: true, $id: $node.a_attr.id});
+            $node = window.jsTree.jstree().get_node({ id: $node[0] });
+            events.trigger('article.open', { $url: $node.a_attr.href, $init: true, $id: $node.a_attr.id });
         }
     } catch (e) {
         console.log(e);
