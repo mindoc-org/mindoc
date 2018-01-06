@@ -6,9 +6,6 @@ services:
 
     applications:
       image: tianon/true
-      volumes:
-        - ${APPLICATION}:/var/www/mindoc
-
 ### Workspace Utilities Container ###########################
 
     mindoc:
