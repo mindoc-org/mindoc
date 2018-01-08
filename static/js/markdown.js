@@ -1,32 +1,32 @@
 $(function () {
     window.addDocumentModalFormHtml = $(this).find("form").html();
     window.editor = editormd("docEditor", {
-        width : "100%",
-        height : "100%",
-        path : "/static/editor.md/lib/",
-        toolbar : true,
-        placeholder : "本编辑器支持 Markdown 编辑，左边编写，右边预览。",
-        imageUpload : true,
-        imageFormats : ["jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG"],
-        imageUploadURL : window.imageUploadURL,
-        toolbarModes : "full",
-        fileUpload : true,
-        fileUploadURL : window.fileUploadURL,
-        taskList : true,
-        flowChart : true,
-        htmlDecode : "style,script,iframe,title,onmouseover,onmouseout,style",
-        lineNumbers : false,
-        tocStartLevel : 1,
-        tocm : true,
-        saveHTMLToTextarea : true,
+        width: "100%",
+        height: "100%",
+        path: "/static/editor.md/lib/",
+        toolbar: true,
+        placeholder: "本编辑器支持 Markdown 编辑，左边编写，右边预览。",
+        imageUpload: true,
+        imageFormats: ["jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG"],
+        imageUploadURL: window.imageUploadURL,
+        toolbarModes: "full",
+        fileUpload: true,
+        fileUploadURL: window.fileUploadURL,
+        taskList: true,
+        flowChart: true,
+        htmlDecode: "style,script,iframe,title,onmouseover,onmouseout,style",
+        lineNumbers: false,
+        tocStartLevel: 1,
+        tocm: true,
+        saveHTMLToTextarea: true,
 
-        onload : function() {
+        onload: function() {
             this.hideToolbar();
             var keyMap = {
-                "Ctrl-S" : function(cm) {
+                "Ctrl-S": function(cm) {
                     saveDocument(false);
                 },
-                "Cmd-S" : function(cm){
+                "Cmd-S": function(cm){
                     saveDocument(false);
                 },
                 "Ctrl-A": function(cm) {
@@ -50,7 +50,7 @@ $(function () {
             uploadImage("docEditor", function ($state, $res) {
                 if ($state === "before") {
                     return layer.load(1, {
-                        shade: [0.1,'#fff'] // 0.1 透明度的白色背景
+                        shade: [0.1, '#fff'] // 0.1 透明度的白色背景
                     });
                 } else if ($state === "success") {
                     if ($res.errcode === 0) {
@@ -60,7 +60,7 @@ $(function () {
                 }
             });
         },
-        onchange : function () {
+        onchange: function () {
             resetEditorChanged(true);
         }
     });
@@ -135,7 +135,7 @@ $(function () {
      */
     window.loadDocument = function($node) {
         var index = layer.load(1, {
-            shade: [0.1,'#fff'] // 0.1 透明度的白色背景
+            shade: [0.1, '#fff'] // 0.1 透明度的白色背景
         });
 
         $.get(window.editURL + $node.node.id ).done(function (res) {
@@ -147,7 +147,7 @@ $(function () {
                 window.editor.clear();
                 window.editor.insertValue(res.data.markdown);
                 window.editor.setCursor({ line : 0, ch : 0 });
-                var node = { "id" : res.data.doc_id, 'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id, "text" : res.data.doc_name, "identify" : res.data.identify, "version" : res.data.version };
+                var node = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id, "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
                 pushDocumentCategory(node);
                 window.selectNode = node;
                 pushVueLists(res.data.attach);
@@ -187,14 +187,14 @@ $(function () {
             }
         }
         $.ajax({
-            beforeSend  : function () {
-                index = layer.load(1, { shade : [0.1,'#fff'] });
+            beforeSend: function () {
+                index = layer.load(1, { shade: [0.1, '#fff'] });
             },
-            url : window.editURL,
-            data : { "identify" : window.book.identify, "doc_id" : doc_id, "markdown" : content, "html" : html, "cover" : $is_cover ? "yes" : "no", "version" : version },
-            type : "post",
-            dataType : "json",
-            success : function (res) {
+            url: window.editURL,
+            data: { "identify": window.book.identify, "doc_id": doc_id, "markdown": content, "html": html, "cover": $is_cover ? "yes" : "no", "version": version },
+            type: "post",
+            dataType: "json",
+            success: function (res) {
                 layer.close(index);
                 if (res.errcode === 0) {
                     resetEditorChanged(false);
@@ -211,7 +211,7 @@ $(function () {
                     }
                 } else if(res.errcode === 6005) {
                     var confirmIndex = layer.confirm('文档已被其他人修改确定覆盖已存在的文档吗？', {
-                        btn: ['确定','取消'] // 按钮
+                        btn: ['确定', '取消'] // 按钮
                     }, function() {
                         layer.close(confirmIndex);
                         saveDocument(true, callback);
@@ -225,11 +225,11 @@ $(function () {
 
     function releaseBook() {
         $.ajax({
-            url : window.releaseURL,
-            data : { "identify" : window.book.identify },
-            type : "post",
-            dataType : "json",
-            success : function (res) {
+            url: window.releaseURL,
+            data: { "identify": window.book.identify },
+            type: "post",
+            dataType: "json",
+            success: function (res) {
                 if (res.errcode === 0) {
                     layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
                 } else {
@@ -259,7 +259,7 @@ $(function () {
      * 添加顶级文档
      */
     $("#addDocumentForm").ajaxForm({
-        beforeSubmit : function () {
+        beforeSubmit: function () {
             var doc_name = $.trim($("#documentName").val());
             if (doc_name === "") {
                 return showError("目录名称不能为空", "#add-error-message")
@@ -267,13 +267,13 @@ $(function () {
             $("#btnSaveDocument").button("loading");
             return true;
         },
-        success : function (res) {
+        success: function (res) {
             if (res.errcode === 0) {
-                var data = { "id" : res.data.doc_id, 'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id , "text" : res.data.doc_name, "identify" : res.data.identify, "version" : res.data.version };
+                var data = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id , "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
 
                 var node = window.treeCatalog.get_node(data.id);
                 if (node) {
-                    window.treeCatalog.rename_node({ "id" : data.id }, data.text);
+                    window.treeCatalog.rename_node({ "id": data.id }, data.text);
                 } else {
                     window.treeCatalog.create_node(data.parent, data);
                     window.treeCatalog.deselect_all();
@@ -293,54 +293,54 @@ $(function () {
      * 文档目录树
      */
     $("#sidebar").jstree({
-        'plugins' : ["wholerow", "types", 'dnd', 'contextmenu'],
-        "types" : {
-            "default" : {
-                "icon" : false  // 删除默认图标
+        'plugins': ["wholerow", "types", 'dnd', 'contextmenu'],
+        "types": {
+            "default": {
+                "icon": false  // 删除默认图标
             }
         },
-        'core' : {
-            'check_callback' : true,
-            "multiple" : false,
-            'animation' : 0,
-            "data" : window.documentCategory
+        'core': {
+            'check_callback': true,
+            "multiple": false,
+            'animation': 0,
+            "data": window.documentCategory
         },
-        "contextmenu" : {
-            show_at_node : false,
-            select_node : false,
-            "items" : {
-                "添加文档" : {
-                    "separator_before" : false,
-                    "separator_after" : true,
-                    "_disabled" : false,
-                    "label" : "添加文档",
-                    "icon" : "fa fa-plus",
-                    "action" : function (data) {
+        "contextmenu": {
+            show_at_node: false,
+            select_node: false,
+            "items": {
+                "添加文档": {
+                    "separator_before": false,
+                    "separator_after": true,
+                    "_disabled": false,
+                    "label": "添加文档",
+                    "icon": "fa fa-plus",
+                    "action": function (data) {
                         var inst = $.jstree.reference(data.reference),
                             node = inst.get_node(data.reference);
 
                         openCreateCatalogDialog(node);
                     }
                 },
-                "编辑" : {
-                    "separator_before" : false,
-                    "separator_after" : true,
-                    "_disabled" : false,
-                    "label" : "编辑",
-                    "icon" : "fa fa-edit",
-                    "action" : function (data) {
+                "编辑": {
+                    "separator_before": false,
+                    "separator_after": true,
+                    "_disabled": false,
+                    "label": "编辑",
+                    "icon": "fa fa-edit",
+                    "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
                         var node = inst.get_node(data.reference);
                         openEditCatalogDialog(node);
                     }
                 },
-                "删除" : {
-                    "separator_before" : false,
-                    "separator_after" : true,
-                    "_disabled" : false,
-                    "label" : "删除",
-                    "icon" : "fa fa-trash-o",
-                    "action" : function (data) {
+                "删除": {
+                    "separator_before": false,
+                    "separator_after": true,
+                    "_disabled": false,
+                    "label": "删除",
+                    "icon": "fa fa-trash-o",
+                    "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
                         var node = inst.get_node(data.reference);
                         openDeleteDocumentDialog(node);
@@ -370,7 +370,7 @@ $(function () {
             window.isLoad = true;
             window.editor.clear();
             window.editor.insertValue(body);
-            window.editor.setCursor({ line : 0, ch : 0 });
+            window.editor.setCursor({ line: 0, ch: 0 });
             resetEditorChanged(true);
         }
         $("#documentTemplateModal").modal('hide');
