@@ -92,60 +92,63 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        $("#account,#passwd,#code").on('focus',function () {
-            $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');;
+        $("#account,#passwd,#code").on('focus', function () {
+            $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');
         });
 
         $(document).keydown(function (e) {
             var event = document.all ? window.event : e;
-            if(event.keyCode === 13){
+            if (event.keyCode === 13) {
                 $("#btn-login").click();
             }
         });
-        $("#btn-login").on('click',function () {
+
+        $("#btn-login").on('click', function () {
             var $btn = $(this).button('loading');
 
             var account = $.trim($("#account").val());
             var password = $.trim($("#password").val());
             var code = $("#code").val();
-            if(account === ""){
-                $("#account").tooltip({placement:"auto",title : "账号不能为空",trigger : 'manual'})
-                    .tooltip('show')
-                    .parents('.form-group').addClass('has-error');
-                $btn.button('reset');
-                return false;
 
-            }else if(password === ""){
-                $("#password").tooltip({title : '密码不能为空',trigger : 'manual'})
+            if (account === "") {
+                $("#account").tooltip({ placement: "auto", title: "账号不能为空", trigger: 'manual' })
                     .tooltip('show')
                     .parents('.form-group').addClass('has-error');
                 $btn.button('reset');
                 return false;
-            }else if(code !== undefined && code === ""){
-                $("#code").tooltip({title : '验证码不能为空',trigger : 'manual'})
+            } else if (password === "") {
+                $("#password").tooltip({ title: '密码不能为空', trigger: 'manual' })
                     .tooltip('show')
                     .parents('.form-group').addClass('has-error');
                 $btn.button('reset');
                 return false;
-            }else{
+            } else if (code !== undefined && code === "") {
+                $("#code").tooltip({ title: '验证码不能为空', trigger: 'manual' })
+                    .tooltip('show')
+                    .parents('.form-group').addClass('has-error');
+                $btn.button('reset');
+                return false;
+            } else {
                 $.ajax({
-                    url : "{{urlfor "AccountController.Login"}}",
-                    data : $("form").serializeArray(),
-                    dataType : "json",
-                    type : "POST",
-                    success : function (res) {
-
-                        if(res.errcode !== 0){
+                    url: "{{urlfor "AccountController.Login"}}",
+                    data: $("form").serializeArray(),
+                    dataType: "json",
+                    type: "POST",
+                    success: function (res) {
+                        if (res.errcode !== 0) {
                             $("#captcha-img").click();
                             $("#code").val('');
                             layer.msg(res.message);
                             $btn.button('reset');
-                        }else{
-                            window.location = "/";
+                        } else {
+                            turl = res.data.turl;
+                            if (turl === "") {
+                                turl = "/";
+                            }
+                            window.location = turl;
                         }
-
                     },
-                    error :function () {
+                    error: function () {
                         $("#captcha-img").click();
                         $("#code").val('');
                         layer.msg('系统错误');
@@ -153,7 +156,6 @@
                     }
                 });
             }
-
 
             return false;
         });
