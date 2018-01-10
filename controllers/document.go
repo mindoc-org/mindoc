@@ -99,6 +99,11 @@ func isUserLoggedIn(c *DocumentController) bool {
 }
 
 func promptUserToLogIn(c *DocumentController) {
+	beego.Info("Access " + c.Ctx.Request.URL.RequestURI() + " not permitted.")
+	beego.Info("  Access will be redirected to login page(SessionId: " + c.CruSession.SessionID() + ").")
+
+	c.SetSession("turl", c.Ctx.Request.URL.RequestURI())
+
 	if c.IsAjax() {
 		c.JsonResult(6000, "需要[重]登录。")
 	} else {

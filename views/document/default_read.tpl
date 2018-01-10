@@ -230,11 +230,12 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
-<script type="text/javascript" src="{{cdnjs "/static/nprogress/nprogress.js"}}"></script>
-<script type="text/javascript" src="{{cdnjs "/static/highlight/highlight.js"}}"></script>
-<script type="text/javascript" src="{{cdnjs "/static/highlight/highlightjs-line-numbers.min.js"}}"></script>
-<script type="text/javascript" src="/static/js/jquery.highlight.js"></script>
-<script type="text/javascript" src="/static/js/kancloud.js"></script>
+<script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/highlight/highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/highlight/highlightjs-line-numbers.min.js"}}" type="text/javascript"></script>
+<script src="/static/js/jquery.highlight.js" type="text/javascript"></script>
+<script src="/static/js/kancloud.js" type="text/javascript"></script>
+<script src="/static/js/splitbar.js" type="text/javascript"></script>
 <script type="text/javascript">
 active_book_id = {{.Model.Identify}};
 active_doc_id = {{.DocumentId}};
