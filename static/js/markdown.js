@@ -1,23 +1,31 @@
 $(function () {
     window.addDocumentModalFormHtml = $(this).find("form").html();
     window.editor = editormd("docEditor", {
+        path: "/static/editor.md/lib/",
+
         width: "100%",
         height: "100%",
-        path: "/static/editor.md/lib/",
+
         toolbar: true,
+        toolbarModes: "full",
+        lineNumbers: false,
+
         placeholder: "本编辑器支持 Markdown 编辑，左边编写，右边预览。",
+        htmlDecode: "iframe,title,style,script,onmouseover,onmouseout",
+
+        tocStartLevel: 1,
+        tocm: true,
+        taskList: true,
+        flowChart: true,
+        sequenceDiagram: true,
+
         imageUpload: true,
         imageFormats: ["jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG"],
         imageUploadURL: window.imageUploadURL,
-        toolbarModes: "full",
+
         fileUpload: true,
         fileUploadURL: window.fileUploadURL,
-        taskList: true,
-        flowChart: true,
-        htmlDecode: "style,script,iframe,title,onmouseover,onmouseout,style",
-        lineNumbers: false,
-        tocStartLevel: 1,
-        tocm: true,
+
         saveHTMLToTextarea: true,
 
         onload: function() {
@@ -26,7 +34,7 @@ $(function () {
                 "Ctrl-S": function(cm) {
                     saveDocument(false);
                 },
-                "Cmd-S": function(cm){
+                "Cmd-S": function(cm) {
                     saveDocument(false);
                 },
                 "Ctrl-A": function(cm) {

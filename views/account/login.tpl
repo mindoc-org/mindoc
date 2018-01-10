@@ -141,7 +141,8 @@
                             layer.msg(res.message);
                             $btn.button('reset');
                         } else {
-                            turl = res.data.turl;
+                            turl = ""
+                            try { turl = res.data.turl; } catch (e) {}
                             if (turl === "") {
                                 turl = "/";
                             }
