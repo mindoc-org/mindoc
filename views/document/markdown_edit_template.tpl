@@ -159,6 +159,44 @@
         </form>
     </div>
 </div>
+
+<div class="modal fade" id="copyDocumentModal" tabindex="-1" role="dialog" aria-labelledby="copyDocumentModalLabel">
+    <div class="modal-dialog" role="document">
+        <form method="post" action="{{urlfor "DocumentController.Copy" ":key" .Model.Identify}}" id="copyDocumentForm" class="form-horizontal">
+            <input type="hidden" name="identify" value="{{.Model.Identify}}">
+            <input type="hidden" name="doc_id" value="0">
+            <input type="hidden" name="parent_id" value="0">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">复制文档</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">文档名称 <span class="error-message">*</span></label>
+                    <div class="col-sm-10">
+                        <input type="text" name="doc_name" id="copyDocumentName" placeholder="文档名称" class="form-control"  maxlength="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">文档标识</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="doc_identify" id="copyDocumentIdentify" placeholder="文档唯一标识" class="form-control" maxlength="50">
+                        <p style="color: #999;font-size: 12px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span id="copy-error-message" class="error-message"></span>
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary" id="copyBtnSaveDocument" data-loading-text="保存中...">立即保存</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
 <div class="modal fade" id="uploadAttachModal" tabindex="-1" role="dialog" aria-labelledby="uploadAttachModalLabel">
     <div class="modal-dialog" role="document">
         <form method="post" id="uploadAttachModalForm" class="form-horizontal">

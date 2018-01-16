@@ -264,6 +264,21 @@ $(function () {
     }
 
     /**
+     * 新增、编辑、复制节点成功后对 jstree 的重新渲染
+     * @param {*}  
+     */
+    function createOrRenameNode($data) {
+        var node = window.treeCatalog.get_node($data.id);
+        if (node) {
+            window.treeCatalog.rename_node({ "id": $data.id }, $data.text);
+        } else {
+            window.treeCatalog.create_node($data.parent, $data);
+            window.treeCatalog.deselect_all();
+            window.treeCatalog.select_node($data);
+        }
+    }
+
+    /**
      * 添加顶级文档
      */
     $("#addDocumentForm").ajaxForm({
@@ -279,14 +294,7 @@ $(function () {
             if (res.errcode === 0) {
                 var data = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id , "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
 
-                var node = window.treeCatalog.get_node(data.id);
-                if (node) {
-                    window.treeCatalog.rename_node({ "id": data.id }, data.text);
-                } else {
-                    window.treeCatalog.create_node(data.parent, data);
-                    window.treeCatalog.deselect_all();
-                    window.treeCatalog.select_node(data);
-                }
+                createOrRenameNode(data);
                 pushDocumentCategory(data);
                 $("#markdown-save").removeClass('change').addClass('disabled');
                 $("#addDocumentModal").modal('hide');
@@ -294,6 +302,34 @@ $(function () {
                 showError(res.message, "#add-error-message");
             }
             $("#btnSaveDocument").button("reset");
+        }
+    });
+
+    /**
+     * 复制文档
+     */
+    $("#copyDocumentForm").ajaxForm({
+        beforeSubmit: function () {
+            var doc_name = $.trim($("#copyDocumentName").val());
+            if (doc_name === "") {
+                return showError("目录名称不能为空", "#copy-error-message")
+            }
+            $("#copyBtnSaveDocument").button("loading");
+            return true;
+        },
+        success: function (res) {
+            if (res.errcode === 0) {
+                var data = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id , "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
+
+                createOrRenameNode(data);
+                pushDocumentCategory(data);
+                $("#markdown-save").removeClass('change').addClass('disabled');
+                $("#copyDocumentModal").modal('hide');
+                showError('', "#copy-error-message");
+            } else {
+                showError(res.message, "#copy-error-message");
+            }
+            $("#copyBtnSaveDocument").button("reset");
         }
     });
 
@@ -340,6 +376,18 @@ $(function () {
                         var inst = $.jstree.reference(data.reference);
                         var node = inst.get_node(data.reference);
                         openEditCatalogDialog(node);
+                    }
+                },
+                "复制": {
+                    "separator_before": false,
+                    "separator_after": true,
+                    "_disabled": false,
+                    "label": "复制",
+                    "icon": "fa fa-copy",
+                    "action": function (data) {
+                        var inst = $.jstree.reference(data.reference);
+                        var node = inst.get_node(data.reference);
+                        openCopyCatalogDialog(node);
                     }
                 },
                 "删除": {
