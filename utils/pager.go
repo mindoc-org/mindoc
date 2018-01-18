@@ -166,7 +166,7 @@ func DealUri(po *PageOptions, requestURI string) {
 func fun4(po *PageOptions, totalPages int) string {
 	rs := ""
 	rs += getHeader(po, totalPages)
-	rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(1) + "'>" + con.Itoa(1) + "</a><li>"
+	rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(1) + "'>" + con.Itoa(1) + "</a></li>"
 	rs += "<li><a href=''>...</a></li>"
 	for i := totalPages - po.LinkItemCount; i <= totalPages; i++ {
 		if po.CurrentPage != i {

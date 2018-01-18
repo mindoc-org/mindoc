@@ -92,7 +92,7 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        $("#account,#passwd,#code").on('focus', function () {
+        $("#account,#password,#code").on('focus', function () {
             $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');
         });
 
@@ -104,6 +104,7 @@
         });
 
         $("#btn-login").on('click', function () {
+            $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');
             var $btn = $(this).button('loading');
 
             var account = $.trim($("#account").val());

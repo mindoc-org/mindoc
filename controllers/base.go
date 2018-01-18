@@ -29,6 +29,7 @@ func (c *BaseController) Prepare (){
 	c.EnableDocumentHistory = false
 
 	if member,ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0{
+
 		c.Member = &member
 		c.Data["Member"] = c.Member
 	}else{

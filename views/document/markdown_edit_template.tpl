@@ -28,9 +28,9 @@
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
-    <link href="/static/css/markdown.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
-    <link href="/static/css/markdown.preview.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -310,6 +310,7 @@
                         compress : false
                     }).on("beforeFileQueued",function (file) {
                         uploader.reset();
+                        this.options.formData.doc_id = window.selectNode.id;
                     }).on( 'fileQueued', function( file ) {
                         var item = {
                             state : "wait",

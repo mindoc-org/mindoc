@@ -144,11 +144,16 @@ $(function () {
             resetEditor();
             if (res.errcode === 0) {
                 window.isLoad = true;
-                window.editor.clear();
-                window.editor.insertValue(res.data.markdown);
-                window.editor.setCursor({ line : 0, ch : 0 });
+                try {
+                    window.editor.clear();
+                    window.editor.insertValue(res.data.markdown);
+                    window.editor.setCursor({line: 0, ch: 0});
+                }catch(e){
+                    console.log(e);
+                }
                 var node = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id, "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
                 pushDocumentCategory(node);
+                console.log(node);
                 window.selectNode = node;
                 pushVueLists(res.data.attach);
             } else {
@@ -351,6 +356,7 @@ $(function () {
     }).on('loaded.jstree', function () {
         window.treeCatalog = $(this).jstree();
     }).on('select_node.jstree', function (node, selected, event) {
+
         if ($("#markdown-save").hasClass('change')) {
             if (confirm("编辑内容未保存，需要保存吗？")) {
                 saveDocument(false, function () {
@@ -362,7 +368,9 @@ $(function () {
 
         loadDocument(selected);
     }).on("move_node.jstree", jstree_save);
-
+    /**
+     * 打开文档模板
+     */
     $("#documentTemplateModal").on("click", ".section>a[data-type]", function () {
         var $this = $(this).attr("data-type");
         var body = $("#template-" + $this).html();

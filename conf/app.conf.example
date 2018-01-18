@@ -6,6 +6,9 @@ sessionon = true
 sessionname = mindoc_id
 copyrequestbody = true
 
+#是否自动发布文档，false 为否， true 保存文档后自动发布
+auto_release=false
+
 #默认Session生成Key的秘钥
 beegoserversessionkey=123456
 
@@ -47,8 +50,10 @@ avatar=/static/images/headimgurl.jpg
 #默认阅读令牌长度
 token_size=12
 
-#上传文件的后缀
+#上传文件的后缀,如果不限制后缀可以设置为 *
 upload_file_ext=txt|doc|docx|xls|xlsx|ppt|pptx|pdf|7z|rar|jpg|jpeg|png|gif
+#上传的文件大小限制,如果不填写,默认不限制，单位可以是 GB KB MB
+upload_file_size=10MB
 
 ####################邮件配置######################
 #是否启用邮件

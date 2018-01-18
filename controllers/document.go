@@ -392,9 +392,8 @@ func (c *DocumentController) Create() {
 	document.MemberId = c.Member.MemberId
 	document.BookId = book_id
 
-	if doc_identify != "" {
-		document.Identify = doc_identify
-	}
+	document.Identify = doc_identify
+
 
 	document.Version = time.Now().Unix()
 	document.DocumentName = doc_name
@@ -435,14 +434,26 @@ func (c *DocumentController) Upload() {
 
 	defer file.Close()
 
+	type Size interface {
+		Size() int64
+	}
+	beego.Info(conf.GetUploadFileSize())
+	beego.Info(moreFile.Size)
+	if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize()  {
+		c.JsonResult(6009,"查过文件允许的上传最大值")
+	}
+
+
 	ext := filepath.Ext(moreFile.Filename)
 
 	if ext == "" {
 		c.JsonResult(6003, "无法解析文件的格式")
 	}
-
-	if !conf.IsAllowUploadFileExt(ext) {
-		c.JsonResult(6004, "不允许的文件类型")
+	//如果文件类型设置为 * 标识不限制文件类型
+	if beego.AppConfig.DefaultString("upload_file_ext", "") != "*" {
+		if !conf.IsAllowUploadFileExt(ext) {
+			c.JsonResult(6004, "不允许的文件类型")
+		}
 	}
 
 	book_id := 0
@@ -806,6 +817,14 @@ func (c *DocumentController) Content() {
 				beego.Error("DocumentHistory InsertOrUpdate => ", err)
 			}
 		}
+		if beego.AppConfig.DefaultBool("auto_release", false)  {
+			go func(identify string) {
+				models.NewDocument().ReleaseContent(book_id)
+
+
+			}(identify)
+		}
+
 
 		c.JsonResult(0, "ok", doc)
 	}

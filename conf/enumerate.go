@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego"
+	"strconv"
 )
 
 // 登录用户的Session名
@@ -12,7 +13,7 @@ const LoginSessionName = "LoginSessionName"
 
 const CaptchaSessionName = "__captcha__"
 
-const RegexpEmail = `^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$`
+const RegexpEmail = "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 
 //允许用户名中出现点号
 
@@ -100,6 +101,30 @@ func GetUploadFileExt() []string {
 		}
 	}
 	return exts
+}
+// 获取上传文件允许的最大值
+func GetUploadFileSize() int64 {
+	size := beego.AppConfig.DefaultString("upload_file_size","0")
+
+	if strings.HasSuffix(size,"MB") {
+		if s,e := strconv.ParseInt(size[0:len(size) - 2], 10, 64);e == nil {
+			return s * 1024 * 1024
+		}
+	}
+	if strings.HasSuffix(size,"GB") {
+		if s,e := strconv.ParseInt(size[0:len(size) - 2], 10, 64);e == nil {
+			return s * 1024 * 1024 * 1024
+		}
+	}
+	if strings.HasSuffix(size,"KB") {
+		if s,e := strconv.ParseInt(size[0:len(size) - 2], 10, 64);e == nil {
+			return s * 1024
+		}
+	}
+	if s,e := strconv.ParseInt(size, 10, 64);e == nil {
+		return s * 1024
+	}
+	return  0
 }
 
 //判断是否是允许商城的文件类型.

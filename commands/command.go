@@ -133,6 +133,9 @@ func RegisterFunction() {
 
 	beego.AddFuncMap("cdn", func(p string) string {
 		cdn := beego.AppConfig.DefaultString("cdn", "")
+		if strings.HasPrefix(p,"http://") || strings.HasPrefix(p,"https://") {
+			return p
+		}
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
@@ -144,6 +147,9 @@ func RegisterFunction() {
 
 	beego.AddFuncMap("cdnjs", func(p string) string {
 		cdn := beego.AppConfig.DefaultString("cdnjs", "")
+		if strings.HasPrefix(p,"http://") || strings.HasPrefix(p,"https://") {
+			return p
+		}
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
@@ -154,6 +160,9 @@ func RegisterFunction() {
 	})
 	beego.AddFuncMap("cdncss", func(p string) string {
 		cdn := beego.AppConfig.DefaultString("cdncss", "")
+		if strings.HasPrefix(p,"http://") || strings.HasPrefix(p,"https://") {
+			return p
+		}
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
@@ -163,6 +172,9 @@ func RegisterFunction() {
 		return cdn + p
 	})
 	beego.AddFuncMap("cdnimg", func(p string) string {
+		if strings.HasPrefix(p,"http://") || strings.HasPrefix(p,"https://") {
+			return p
+		}
 		cdn := beego.AppConfig.DefaultString("cdnimg", "")
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
