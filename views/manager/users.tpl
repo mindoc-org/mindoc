@@ -119,7 +119,7 @@
                                 </tbody>
                             </table>
                         </template>
-                        <nav>
+                        <nav class="pagination-container">
                             {{.PageHtml}}
                         </nav>
                     </div>

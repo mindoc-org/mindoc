@@ -47,8 +47,10 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dLabel">
                         {{if gt .Member.MemberId 0}}
+                        {{if gt .Model.RelationshipId 0}}
                         {{if eq .Model.RoleId 0 1 2}}
                         <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">返回编辑</a> </li>
+                        {{end}}
                         {{end}}
                         <li><a href="{{urlfor "BookController.Index"}}">我的项目</a> </li>
                         <li role="presentation" class="divider"></li>
@@ -56,7 +58,8 @@
                         {{if eq .Model.PrivatelyOwned 0}}
                         <li><a href="javascript:" data-toggle="modal" data-target="#shareProject">项目分享</a> </li>
                         <li role="presentation" class="divider"></li>
-                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">项目导出PDF</a> </li>
+                        <li><a href="javascript:void(0);" onclick="ExportPdfDoc()">文档导出为 PDF</a> </li>
+                        <li><a href="{{urlfor "DocumentController.ExportBook" ":key" .Model.Identify "output" "pdf"}}" target="_blank">项目导出为 PDF</a> </li>
                         {{end}}
 
                         <li><a href="{{urlfor "HomeController.Index"}}" title="返回首页">返回首页</a> </li>
@@ -125,6 +128,7 @@
                             </div>
                             <div class="col-md-8 text-center">
                                 <h1 id="article-title">{{.Title}}</h1>
+                                <h3 id="article-info">{{.Info}}</h3>
                             </div>
                             <div class="col-md-2">
                             </div>
@@ -226,12 +230,20 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
-<script type="text/javascript" src="{{cdnjs "/static/nprogress/nprogress.js"}}"></script>
-<script type="text/javascript" src="{{cdnjs "/static/highlight/highlight.js"}}"></script>
-<script type="text/javascript" src="{{cdnjs "/static/highlight/highlightjs-line-numbers.min.js"}}"></script>
-<script type="text/javascript" src="/static/js/jquery.highlight.js"></script>
-<script type="text/javascript" src="/static/js/kancloud.js"></script>
+<script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/highlight/highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/highlight/highlightjs-line-numbers.min.js"}}" type="text/javascript"></script>
+<script src="/static/js/jquery.highlight.js" type="text/javascript"></script>
+<script src="/static/js/kancloud.js" type="text/javascript"></script>
+<script src="/static/js/splitbar.js" type="text/javascript"></script>
 <script type="text/javascript">
+active_book_id = {{.Model.Identify}};
+active_doc_id = {{.DocumentId}};
+$(function () {
+    $("body").on('article.open', function (event, $param) {
+        active_doc_id = $param.$id;
+    });
+});
 $(function () {
     $("#searchList").on("click","a",function () {
         var id = $(this).attr("data-id");
@@ -243,6 +255,12 @@ $(function () {
         });
     });
 });
+function ExportPdfDoc() {
+    var id = active_book_id;
+    if(active_doc_id != "0")
+        id += "/" + active_doc_id;
+    window.location.href = "/export/" + id + "?output=pdf";
+}
 </script>
 </body>
 </html>

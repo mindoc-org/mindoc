@@ -376,11 +376,44 @@ func (m *Member) Delete(oldId int,newId int) error {
 		o.Rollback()
 		return err
 	}
-	_,err = o.Raw("UPDATE md_relationship SET member_id = ? WHERE member_id = ?",newId,oldId).Exec()
-	if err != nil {
-		o.Rollback()
-		return err
+	//_,err = o.Raw("UPDATE md_relationship SET member_id = ? WHERE member_id = ?",newId,oldId).Exec()
+	//if err != nil {
+	//
+	//	if err != nil {
+	//		o.Rollback()
+	//		return err
+	//	}
+	//}
+	var relationship_list []*Relationship
+
+	_,err = o.QueryTable(NewRelationship().TableNameWithPrefix()).Filter("member_id",oldId).All(&relationship_list)
+
+	if err == nil {
+		for _,relationship := range relationship_list {
+			//如果存在创始人，则删除
+			if relationship.RoleId == 0 {
+				rel := NewRelationship()
+
+				err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id",relationship.BookId).Filter("member_id",newId).One(rel)
+				if err == nil {
+					if _,err := o.Delete(relationship) ; err != nil{
+						beego.Error(err)
+					}
+					relationship.RelationshipId = rel.RelationshipId
+				}
+				relationship.MemberId = newId
+				relationship.RoleId = 0
+				if _,err := o.Update(relationship) ; err != nil{
+					beego.Error(err)
+				}
+			}else{
+				if _,err := o.Delete(relationship) ; err != nil{
+					beego.Error(err)
+				}
+			}
+		}
 	}
+
 	if err = o.Commit();err != nil {
 		o.Rollback()
 		return err

@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+
+### Applications Code Container #############################
+
+    applications:
+      image: tianon/true
+### Workspace Utilities Container ###########################
+
+    mindoc:
+      build:
+        context: ./
+      env_file: .env
+      environment:
+        - MYSQL_PORT_3306_TCP_ADDR=${MYSQL_PORT_3306_TCP_ADDR}
+        - MYSQL_PORT_3306_TCP_PORT=${MYSQL_PORT_3306_TCP_PORT}
+        - MYSQL_INSTANCE_NAME=${MYSQL_INSTANCE_NAME}
+        - MYSQL_USERNAME=${MYSQL_USERNAME}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - HTTP_PORT=${HTTP_PORT}
+      ports:
+        - "${HTTP_PORT}:8181"
+      volumes_from:
+        - applications
+      tty: true
+      networks:
+        - backend
+
+
+### Networks Setup ############################################
+
+networks:
+  backend:
+    driver: "bridge"
+
+

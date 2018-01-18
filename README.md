@@ -17,7 +17,7 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 
 **如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。**
 
-更多信息请查看手册： [MinDoc 使用手册](https://github.com/lifei6671/mindoc/wiki/MinDoc-%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C)
+更多信息请查看手册： [MinDoc 使用手册](https://github.com/lifei6671/mindoc/wiki)
 
 对于没有Golang使用经验的用户，可以从 [https://github.com/lifei6671/mindoc/releases](https://github.com/lifei6671/mindoc/releases) 这里下载编译完的程序。
 
@@ -40,9 +40,7 @@ MinDoc 使用MySQL储存数据，且编码必须是`utf8mb4_general_ci`。请在
 
 如果conf目录下不存在 app.conf 请重命名 app.conf.example 为 app.conf。
  
-如果 MinDoc 根目录下存在 install.lock 文件表示已经初始化过数据库，想要重新初始化数据库，只需要删除该文件重新启动程序即可。
-
-**默认程序会自动创建表，同时初始化一个超级管理员用户：admin 密码：123456 。请登录后重新设置密码。**
+**默认程序会自动初始化一个超级管理员用户：admin 密码：123456 。请登录后重新设置密码。**
 
 ## Linux 下后台运行
 
@@ -110,7 +108,6 @@ mail_expired=30
 
 
 # 使用Docker部署
-
 如果是Docker用户，可参考项目内置的Dockerfile文件编译镜像。
 
 在启动镜像时需要提供如下的环境变量：
@@ -129,6 +126,28 @@ HTTP_PORT                   程序监听的端口号
 ```bash
 docker run -p 8181:8181 -e MYSQL_PORT_3306_TCP_ADDR=127.0.0.1 -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc_db -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
 ```
+### docker-compose 一键安装
+1. 生成配置文件
+    > cp env-example .env
+
+    按照自己的环境填写配置信息到.env文件中
+2. 一键完成所有环境搭建
+    > docker-compose up -d mindoc
+3. 浏览器访问
+    > http://localhost:8181/
+    
+    整个部署完成了
+4. 常用命令参考
+   - 启动
+        > docker-compose up -d mindoc
+   - 停止
+        > docker-compose stop mindoc
+   - 重启
+        > docker-compose restart mindoc        
+   - 停止删除容器，释放所有资源
+        > docker-compose down
+        
+   更多 docker-compose 的使用相关的内容 请查看官网文档或百度
 
 # 项目截图
 

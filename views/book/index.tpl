@@ -92,7 +92,7 @@
                         </template>
                     </div>
                     <template v-if="lists.length >= 0">
-                        <nav>
+                        <nav class="pagination-container">
                             {{.PageHtml}}
                         </nav>
                     </template>

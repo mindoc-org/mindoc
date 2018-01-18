@@ -248,11 +248,14 @@ func (c *ManagerController) DeleteMember()  {
 		c.JsonResult(404,"参数错误")
 	}
 
-	_ ,err := models.NewMember().Find(member_id)
+	member ,err := models.NewMember().Find(member_id)
 
 	if err != nil {
 		beego.Error(err)
 		c.JsonResult(500,"用户不存在")
+	}
+	if member.Role == conf.MemberSuperRole {
+		c.JsonResult(500,"不能删除超级管理员")
 	}
 	superMember,err := models.NewMember().FindByFieldFirst("role",0)
 
