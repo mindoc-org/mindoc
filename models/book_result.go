@@ -27,6 +27,7 @@ type BookResult struct {
 	Label string		`json:"label"`
 	MemberId int            `json:"member_id"`
 	Editor string           `json:"editor"`
+	AutoRelease bool		`json:"auto_release"`
 
 	RelationshipId int	`json:"relationship_id"`
 	RoleId int        	`json:"role_id"`

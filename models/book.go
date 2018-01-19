@@ -19,6 +19,8 @@ type Book struct {
 	BookName string `orm:"column(book_name);size(500)" json:"book_name"`
 	// Identify 项目唯一标识.
 	Identify   string `orm:"column(identify);size(100);unique" json:"identify"`
+	//是否是自动发布 0 否/1 是
+	AutoRelease int `orm:"column(auto_release);type(int);default(0)" json:"auto_release"`
 	OrderIndex int    `orm:"column(order_index);type(int);default(0)" json:"order_index"`
 	// Description 项目描述.
 	Description string `orm:"column(description);size(2000)" json:"description"`
@@ -373,6 +375,7 @@ func (book *Book) ToBookResult() *BookResult {
 	m.Status = book.Status
 	m.Editor = book.Editor
 	m.Theme = book.Theme
+	m.AutoRelease = book.AutoRelease == 1
 
 	if book.Theme == "" {
 		m.Theme = "default"

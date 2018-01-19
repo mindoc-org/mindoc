@@ -147,6 +147,8 @@ $(function () {
 
         initHighlighting();
         $(".manual-right").scrollTop(0);
+        //使用layer相册功能查看图片
+        layer.photos({photos: "#page-content"});
     });
 
     $(".navg-item[data-mode]").on("click", function () {

@@ -301,7 +301,7 @@ func (c *DocumentController) Edit() {
 	if bookResult.Editor == "markdown" {
 		c.TplName = "document/markdown_edit_template.tpl"
 	} else if bookResult.Editor == "html" {
-		c.TplName = "document/html_edit_template.tpl"
+		c.TplName = "document/new_html_edit_template.tpl"
 	} else {
 		c.TplName = "document/" + bookResult.Editor + "_edit_template.tpl"
 	}
@@ -739,6 +739,7 @@ func (c *DocumentController) Content() {
 	}
 
 	book_id := 0
+	auto_release := false
 
 	// 如果是超级管理员，则忽略权限
 	if c.Member.IsAdministrator() {
@@ -748,6 +749,7 @@ func (c *DocumentController) Content() {
 		}
 
 		book_id = book.BookId
+		auto_release = book.AutoRelease == 1
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
@@ -757,6 +759,7 @@ func (c *DocumentController) Content() {
 		}
 
 		book_id = bookResult.BookId
+		auto_release = bookResult.AutoRelease
 	}
 
 	if doc_id <= 0 {
@@ -817,7 +820,7 @@ func (c *DocumentController) Content() {
 				beego.Error("DocumentHistory InsertOrUpdate => ", err)
 			}
 		}
-		if beego.AppConfig.DefaultBool("auto_release", false)  {
+		if auto_release  {
 			go func(identify string) {
 				models.NewDocument().ReleaseContent(book_id)
 

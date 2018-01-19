@@ -23,8 +23,7 @@ $(function () {
                         left: 275px;\
                         height: 100%;\
                         display: block;\
-                        width: 3px;\
-                        border-right: 1px solid #8f949a;">\
+                        width: 3px;">\
                         <a href="javascript:void(0)" accesskey="" tabindex="0" title="vsplitbar"></a>\
                     </div>\
                 ')

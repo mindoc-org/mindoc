@@ -13,12 +13,12 @@
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/nprogress/nprogress.css"}}" rel="stylesheet">
-    <link href="/static/css/kancloud.css" rel="stylesheet">
-    <link href="/static/css/jstree.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/kancloud.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     {{if eq .Model.Editor "markdown"}}
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
-    <link href="/static/css/markdown.preview.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
     {{else}}
     <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
     {{end}}
@@ -128,7 +128,7 @@
                             </div>
                             <div class="col-md-8 text-center">
                                 <h1 id="article-title">{{.Title}}</h1>
-                                <h3 id="article-info">{{.Info}}</h3>
+                                <h3 id="article-info" class="article-info">{{.Info}}</h3>
                             </div>
                             <div class="col-md-2">
                             </div>
@@ -229,13 +229,14 @@
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="/static/layer/layer.js" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/highlight/highlightjs-line-numbers.min.js"}}" type="text/javascript"></script>
-<script src="/static/js/jquery.highlight.js" type="text/javascript"></script>
-<script src="/static/js/kancloud.js" type="text/javascript"></script>
-<script src="/static/js/splitbar.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/kancloud.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/splitbar.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
 active_book_id = {{.Model.Identify}};
 active_doc_id = {{.DocumentId}};
@@ -251,9 +252,21 @@ $(function () {
         $(this).parent("li").siblings().find("a").removeClass("active");
         $(this).addClass("active");
         loadDocument(url,id,function (body) {
+
             return $(body).highlight(window.keyword);
         });
     });
+    $("#page-content").on("click","img",function () {
+        var src = $(this).attr("src");
+        // layer.open({
+        //     type: 1,
+        //     shade: false,
+        //     area : ['90%','90%'],
+        //     title: false, //不显示标题
+        //     content: "<img src='" + src + "'>"
+        // });
+    });
+
 });
 function ExportPdfDoc() {
     var id = active_book_id;

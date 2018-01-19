@@ -6,9 +6,6 @@ sessionon = true
 sessionname = mindoc_id
 copyrequestbody = true
 
-#是否自动发布文档，false 为否， true 保存文档后自动发布
-auto_release=false
-
 #默认Session生成Key的秘钥
 beegoserversessionkey=123456
 

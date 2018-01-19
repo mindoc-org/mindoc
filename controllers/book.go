@@ -129,6 +129,7 @@ func (c *BookController) SaveBook()  {
 	comment_status := c.GetString("comment_status")
 	tag := strings.TrimSpace(c.GetString("label"))
 	editor := strings.TrimSpace(c.GetString("editor"))
+	auto_release := strings.TrimSpace(c.GetString("auto_release")) == "on"
 
 	if strings.Count(description,"") > 500 {
 		c.JsonResult(6004,"项目描述不能大于500字")
@@ -149,8 +150,14 @@ func (c *BookController) SaveBook()  {
 	book.BookName 		= book_name
 	book.Description 	= description
 	book.CommentStatus 	= comment_status
-	book.Label 		= tag
+	book.Label 			= tag
 	book.Editor 		= editor
+	if auto_release {
+		book.AutoRelease = 1
+	}else{
+		book.AutoRelease = 0
+	}
+
 
 	if err := book.Update();err != nil {
 		c.JsonResult(6006,"保存失败")

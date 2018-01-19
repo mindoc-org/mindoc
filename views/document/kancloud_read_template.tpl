@@ -12,6 +12,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/kancloud.css"}}" rel="stylesheet">
+    <link href="/static/jquery/plugins/imgbox/imgbox.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -171,6 +172,7 @@
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
+<script src="/static/jquery/plugins/imgbox/jquery.imgbox.pack.js"></script>
 <script type="text/javascript">
     $(function () {
         $("#sidebar").jstree({
@@ -186,6 +188,7 @@
                 'animation' : 0
             }
         });
+        $("img").imgbox();
     });
 </script>
 </body>
