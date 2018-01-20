@@ -25,9 +25,16 @@
 			toolbarBtnSelector,
 			updateToolbar = function () {
 				if (options.activeToolbarClass) {
+					var selection = window.getSelection();
+					try {
+                        var tag = 'formatBlock ' + selection.focusNode.parentNode.nodeName.toLowerCase();
+                    }catch (e){
+						console.log(e);
+						tag = '';
+					}
 					$(options.toolbarSelector).find(toolbarBtnSelector).each(function () {
 						var command = $(this).data(options.commandRole);
-						if (document.queryCommandState(command)) {
+						if (document.queryCommandState(command) || tag === command) {
 							$(this).addClass(options.activeToolbarClass);
 						} else {
 							$(this).removeClass(options.activeToolbarClass);
@@ -48,19 +55,57 @@
 					}else{
                         args = '<' + args + '>';
 					}
+				}else if(command === 'enterAction'){
 
 				}
-				// console.log(getCurrentRange())
+
 				document.execCommand(command, 0, args);
 				updateToolbar();
+                editor.change && editor.change();
 			},
+            insertEmpty = function ($selectionElem) {
+
+				insertHtml('\r\n');
+         		return true;
+        	},
+			codeHandler = function () {
+                var selection = window.getSelection();
+                try{
+                    var nodeName = selection.parentNode.nodeName;
+                    console.log(nodeName)
+                    if(nodeName !== 'CODE' && nodeName !== 'PRE'){
+
+                    }
+                    if (!document.queryCommandSupported('insertHTML')) {
+
+                    }
+                }catch (e){
+                    console.log(e)
+                }
+            },
+            enterKeyHandle = function (e) {
+                var selection = getCurrentRange();
+                try {
+                    var nodeName = selection.commonAncestorContainer.parentNode.nodeName;
+                    if(nodeName === 'CODE' || nodeName === 'PRE'){
+                        return insertEmpty(selection.parentNode);
+                    }
+                }catch (e){
+                	console.log(selection)
+                	console.log("enterKeyHandle:" + e);
+				}
+            },
 			bindHotkeys = function (hotKeys) {
 				$.each(hotKeys, function (hotkey, command) {
 					editor.keydown(hotkey, function (e) {
 						if (editor.attr('contenteditable') && editor.is(':visible')) {
 							e.preventDefault();
 							e.stopPropagation();
-							// console.log(command)
+							if(hotkey === 'return'){
+
+								return enterKeyHandle(e);
+							}
+
 							execCommand(command);
 						}
 					}).keyup(hotkey, function (e) {
@@ -164,7 +209,27 @@
 							insertFiles(dataTransfer.files);
 						}
 					});
-			};
+			},
+			insertHtml = function (html) {
+                if(!document.queryCommandSupported('insertHTML')){
+                    var range = window.getSelection().getRangeAt(0);
+
+                    if (range.insertNode) {
+                        // IE
+                        range.deleteContents();
+                        range.insertNode($(args)[0]);
+                        updateToolbar();
+                        editor.change && editor.change();
+                    } else if (range.pasteHTML) {
+                        // IE <= 10
+                        range.pasteHTML(args);
+                        updateToolbar();
+                        editor.change && editor.change();
+                    }
+                }else{
+                	execCommand('insertHTML',html);
+				}
+            };
 		options = $.extend({}, $.fn.wysiwyg.defaults, userOptions);
 		toolbarBtnSelector = 'a[data-' + options.commandRole + '],button[data-' + options.commandRole + '],input[type=button][data-' + options.commandRole + ']';
 		bindHotkeys(options.hotKeys);
@@ -186,6 +251,14 @@
 				updateToolbar();
 			}
 		});
+		this.insertLink = function (linkUrl,linkTitle) {
+            restoreSelection();
+            editor.focus();
+            var args = '<a href="'+linkUrl+'" target="_blank">'+linkTitle+'</a>';
+
+            insertHtml(args);
+            saveSelection();
+        };
 		return this;
 	};
 	$.fn.wysiwyg.defaults = {
@@ -200,7 +273,8 @@
 			'ctrl+e meta+e': 'justifycenter',
 			'ctrl+j meta+j': 'justifyfull',
 			'shift+tab': 'outdent',
-			'tab': 'indent'
+			'tab': 'indent',
+			 'return':'enterAction'
 		},
 		toolbarSelector: '[data-role=editor-toolbar]',
 		commandRole: 'edit',

@@ -73,10 +73,10 @@
         <div class="editormd-group">
             <a href="javascript:;" data-toggle="tooltip" data-title="无序列表" data-edit="insertunorderedlist"><i class="fa fa-list-ul first" name="list-ul" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="有序列表" data-edit="insertorderedlist"><i class="fa fa-list-ol item" name="list-ol" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="横线"><i class="fa fa-minus last" name="hr" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="横线" data-edit="insertHorizontalRule"><i class="fa fa-minus last" name="hr" unselectable="on"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="链接"><i class="fa fa-link first" name="link" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="链接" id="createLinkToolbar"><i class="fa fa-link first" name="link" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="引用链接"><i class="fa fa-anchor item" name="reference-link" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="添加图片"><i class="fa fa-picture-o item" name="image" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="行内代码"><i class="fa fa-code item" name="code" unselectable="on"></i></a>
@@ -127,6 +127,11 @@
                     开发缘起是公司IT部门需要一款简单实用的项目接口文档管理和分享的系统。其功能和界面源于 kancloud 。
 
                     可以用来储存日常接口文档，数据库字典，手册说明等文档。内置项目管理，用户管理，权限管理等功能，能够满足大部分中小团队的文档管理需求。
+                    <pre>
+                        <code>
+                            f
+                        </code>
+                    </pre>
                 </div>
             </div>
             <div class="manual-editor-status">
@@ -134,6 +139,37 @@
             </div>
         </div>
 
+    </div>
+</div>
+<!--创建链接的模态窗-->
+<div class="modal fade" id="createLinkToolbarModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">创建链接</h4>
+            </div>
+            <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="linkUrl" class="control-label col-sm-2">链接地址</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="linkUrl" value="http://" data-url="">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="linkTitle" class="control-label col-sm-2">链接标题</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" value="" id="linkTitle" data-title="">
+                    </div>
+                </div>
+            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="btnCreateLinkToolbar">确定</button>
+            </div>
+        </div>
     </div>
 </div>
 <!-- 添加文档 -->
@@ -306,9 +342,33 @@
 <script src="/static/js/editor.js" type="text/javascript"></script>
 
 <script type="text/javascript">
-    $("#docEditor").wysiwyg();
+    window.wysiwyg = $("#docEditor").wysiwyg();
 
     $(function () {
+        //弹出创建链接的对话框
+        $("#createLinkToolbar").on("click",function () {
+            $("#createLinkToolbarModal").modal("show");
+        });
+        /**
+         * 当点击创建链接按钮后
+         */
+        $("#btnCreateLinkToolbar").on("click",function () {
+
+            var $then = $("#createLinkToolbarModal");
+            var link = $then.find("input[data-url]").val();
+            var title = $then.find("input[data-title]").val();
+            if(link === ""){
+                alert("链接地址不能为空");
+                return false;
+            }else if(title === ""){
+                alert("链接标题不能为空");
+                return false;
+            }
+
+            $then.modal("hide");
+            window.wysiwyg.insertLink(link,title);
+        });
+
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });
