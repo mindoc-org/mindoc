@@ -41,6 +41,19 @@
         #docEditor {overflow:auto;border: 1px solid #ddd; height: 100%;outline:none;padding: 5px;}
         .btn-info{background-color: #ffffff !important;}
         .btn-info>i{background-color: #cacbcd !important; color: #393939 !important; box-shadow: inset 0 0 0 1px transparent,inset 0 0 0 0 rgba(34,36,38,.15);}
+        .editor-wrapper>pre{padding: 0;}
+        .editor-wrapper .editor-code{
+            font-size: 13px;
+            line-height: 1.8em;
+            color: #dcdcdc;
+            border-radius: 3px;
+            display: block;
+            overflow-x: auto;
+            padding: 0.5em;
+            background: #3f3f3f;
+        }
+        .editor-wrapper-selected .editor-code{border: 1px solid #1e88e5;}
+
     </style>
 </head>
 <body>
@@ -80,7 +93,7 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="引用链接"><i class="fa fa-anchor item" name="reference-link" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="添加图片"><i class="fa fa-picture-o item" name="image" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="行内代码"><i class="fa fa-code item" name="code" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="代码块" unselectable="on"><i class="fa fa-file-code-o item" name="code-block" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="代码块" id="createCodeToolbar"><i class="fa fa-file-code-o item" name="code-block" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="添加表格"><i class="fa fa-table item" name="table" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="引用"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="GFM 任务列表"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></a>
@@ -127,11 +140,8 @@
                     开发缘起是公司IT部门需要一款简单实用的项目接口文档管理和分享的系统。其功能和界面源于 kancloud 。
 
                     可以用来储存日常接口文档，数据库字典，手册说明等文档。内置项目管理，用户管理，权限管理等功能，能够满足大部分中小团队的文档管理需求。
-                    <pre>
-                        <code>
-                            f
-                        </code>
-                    </pre>
+                    <div contenteditable="false" class="editor-wrapper"><pre><code class="editor-code">f</code></pre></div>
+                    <div><br/></div>
                 </div>
             </div>
             <div class="manual-editor-status">
@@ -141,6 +151,25 @@
 
     </div>
 </div>
+<!--创建代码块的模态窗-->
+<div class="modal fade" id="createCodeToolbarModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">创建链接</h4>
+            </div>
+            <div class="modal-body">
+                <textarea></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="btnCreateCodeToolbar">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!--创建链接的模态窗-->
 <div class="modal fade" id="createLinkToolbarModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
     <div class="modal-dialog" role="document">
@@ -172,6 +201,7 @@
         </div>
     </div>
 </div>
+
 <!-- 添加文档 -->
 <div class="modal fade" id="addDocumentModal" tabindex="-1" role="dialog" aria-labelledby="addDocumentModalLabel">
     <div class="modal-dialog" role="document">
@@ -367,6 +397,37 @@
 
             $then.modal("hide");
             window.wysiwyg.insertLink(link,title);
+        });
+        /**
+         * 创建代码块弹窗
+         */
+        $("#createCodeToolbar").on("click",function () {
+           $("#createCodeToolbarModal").modal("show");
+        });
+        /**
+         * 插入代码块
+         */
+        $("#btnCreateCodeToolbar").on("click",function () {
+            var $then = $("#createCodeToolbarModal");
+            var code = $then.find("textarea").val();
+            console.log(code)
+            var codeHtml = '<div contenteditable="false" class="editor-wrapper"><code class="editor-code">' + code + '</code></div><p></p>';
+            $then.modal("hide");
+            window.wysiwyg.insertHtml(codeHtml);
+        });
+        $(".editor-code").on("dblclick",function () {
+            var code = $(this).html();
+            $("#createCodeToolbarModal").find("textarea").val(code);
+            $("#createCodeToolbarModal").modal("show");
+        }).on("click",function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log($(this).parents(".editor-wrapper").html())
+            $(this).parents(".editor-wrapper").addClass("editor-wrapper-selected");
+        });
+        $("body").on("click",function () {
+            console.log("a")
+            $("#docEditor").find(".editor-wrapper").removeClass("editor-wrapper-selected");
         });
 
         $("#attachInfo").on("click",function () {

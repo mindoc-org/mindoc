@@ -89,7 +89,10 @@
                     var nodeName = selection.commonAncestorContainer.parentNode.nodeName;
                     if(nodeName === 'CODE' || nodeName === 'PRE'){
                         return insertEmpty(selection.parentNode);
-                    }
+                    }else if(nodeName === "DIV" || nodeName === "P"){
+                    	return insertHtml('<br/>');
+					}
+					console.log(nodeName);
                 }catch (e){
                 	console.log(selection)
                 	console.log("enterKeyHandle:" + e);
@@ -227,6 +230,7 @@
                         editor.change && editor.change();
                     }
                 }else{
+                    console.log(html)
                 	execCommand('insertHTML',html);
 				}
             };
@@ -259,6 +263,7 @@
             insertHtml(args);
             saveSelection();
         };
+		this.insertHtml = insertHtml;
 		return this;
 	};
 	$.fn.wysiwyg.defaults = {
@@ -274,7 +279,7 @@
 			'ctrl+j meta+j': 'justifyfull',
 			'shift+tab': 'outdent',
 			'tab': 'indent',
-			 'return':'enterAction'
+            'return':'enterAction'
 		},
 		toolbarSelector: '[data-role=editor-toolbar]',
 		commandRole: 'edit',
