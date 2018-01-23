@@ -30,7 +30,10 @@
     <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
-    <link href="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.css" rel="stylesheet">
+    {{/*<link href="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.css" rel="stylesheet">*/}}
+    <link href="/static/katex/katex.min.css" rel="stylesheet">
+    <link href="/static/quill/quill.core.css" rel="stylesheet">
+    <link href="/static/quill/quill.snow.css" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -54,49 +57,151 @@
         }
         .editor-wrapper-selected .editor-code{border: 1px solid #1e88e5;}
 
+        .ql-toolbar.ql-snow{
+            border: none !important;
+        }
+        .editor-group{
+            float: left;
+            height: 32px;
+            margin-right: 10px;
+        }
+
+        .editor-group .editor-item{
+            float: left;
+            display: inline-block;
+            width: 34px !important;
+            height: 30px !important;
+            padding: 5px !important;
+            line-height: 30px;
+            text-align: center;
+            color: #4b4b4b;
+            border-top: 1px solid #ccc !important;
+            border-left: 1px solid #ccc !important;
+            border-bottom: 1px solid #ccc !important;
+            background: #fff;
+            border-radius: 0;
+            font-size: 12px
+        }
+        .editor-group .editor-item-last{
+            border-right: 1px solid #ccc !important;
+            border-radius: 0 4px 4px 0;
+        }
+        .editor-group .editor-item-first{
+            border-right: 0;
+            border-radius: 4px  0 0 4px;
+        }
+        .editor-group .disabled:hover{
+            background: #ffffff !important;
+        }
+        .editor-group .editor-item-change:hover{
+             background-color: #58CB48 !important;
+        }
+        .editor-group  .editor-item:hover {
+            background-color: #e4e4e4;
+            color: #4b4b4b !important;
+        }
+
+        .editor-group a{
+            float: left;
+        }
+
+        .editor-group .change i{
+            color: #ffffff;
+            background-color: #44B036 !important;
+            border: 1px #44B036 solid !important;
+        }
+        .editor-group .change i:hover{
+            background-color: #58CB48 !important;
+        }
+        .editor-group .disabled i:hover{
+            background: #ffffff !important;
+        }
+        .editor-group a.disabled{
+            border-color: #c9c9c9;
+            opacity: .6;
+            cursor: default
+        }
+        .editor-group a>i{
+            display: inline-block;
+            width: 34px !important;
+            height: 30px !important;
+            line-height: 30px;
+            text-align: center;
+            color: #4b4b4b;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 15px
+        }
+        .editor-group a>i.item{
+            border-radius: 0;
+            border-right: 0;
+        }
+        .editor-group a>i.last{
+            border-bottom-left-radius:0;
+            border-top-left-radius:0;
+        }
+        .editor-group a>i.first{
+            border-right: 0;
+            border-bottom-right-radius:0;
+            border-top-right-radius:0;
+        }
+        .editor-group  a i:hover {
+            background-color: #e4e4e4
+        }
+
+        .editor-group  a i:after {
+            display: block;
+            overflow: hidden;
+            line-height: 30px;
+            text-align: center;
+            font-family: icomoon,Helvetica,Arial,sans-serif;
+            font-style: normal;
+        }
     </style>
 </head>
 <body>
 
 <div class="m-manual manual-editor">
     <div class="manual-head btn-toolbar" id="editormd-tools" data-role="editor-toolbar" data-target="#editor">
-        <div class="editormd-group">
+        <div class="editor-group">
             <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
-        <div class="editormd-group">
+        <div class="editor-group">
             <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
         </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)" data-edit="undo"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="重做 (Ctrl-Y)" data-edit="redo"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
+        <div class="editor-group">
+            <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)" class="ql-undo"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="重做 (Ctrl-Y)" class="ql-redo"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
         </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="粗体" data-edit="bold"><i class="fa fa-bold first" name="bold" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="斜体" data-edit="italic"><i class="fa fa-italic item" name="italic" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="删除线" data-edit="strikethrough"><i class="fa fa-strikethrough last" name="del" unselectable="on"></i></a>
+        <div class="editor-group">
+            <button data-toggle="tooltip" data-title="粗体" class="ql-bold editor-item editor-item-first"></button>
+            <button data-toggle="tooltip" data-title="斜体" class="ql-italic editor-item"></button>
+            <button data-toggle="tooltip" data-title="删除线" class="ql-underline editor-item editor-item-last"></button>
         </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题一" data-edit="formatBlock h1"><i class="fa editormd-bold first" name="h1" unselectable="on">H1</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题二" data-edit="formatBlock h2"><i class="fa editormd-bold item" name="h2" unselectable="on">H2</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题三" data-edit="formatBlock h3"><i class="fa editormd-bold item" name="h3" unselectable="on">H3</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题四" data-edit="formatBlock h4"><i class="fa editormd-bold item" name="h4" unselectable="on">H4</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题五" data-edit="formatBlock h5"><i class="fa editormd-bold item" name="h5" unselectable="on">H5</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题六" data-edit="formatBlock h6"><i class="fa editormd-bold last" name="h6" unselectable="on">H6</i></a>
+        <div class="editor-group">
+            <button data-toggle="tooltip" data-title="标题一" class="ql-header editor-item editor-item-first" value="1"></button>
+            <button data-toggle="tooltip" data-title="标题二" class="ql-header editor-item" value="2"></button>
+            <button data-toggle="tooltip" data-title="标题三" class="ql-header editor-item" value="3"></button>
+            <button data-toggle="tooltip" data-title="标题四" class="ql-header editor-item" value="4"></button>
+            <button data-toggle="tooltip" data-title="标题五" class="ql-header editor-item" value="5"></button>
+            <button data-toggle="tooltip" data-title="标题六" class="ql-header editor-item editor-item-last" value="6"></button>
         </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="无序列表" data-edit="insertunorderedlist"><i class="fa fa-list-ul first" name="list-ul" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="有序列表" data-edit="insertorderedlist"><i class="fa fa-list-ol item" name="list-ol" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="横线" data-edit="insertHorizontalRule"><i class="fa fa-minus last" name="hr" unselectable="on"></i></a>
+        <div class="editor-group">
+            <button data-toggle="tooltip" data-title="无序列表" class="ql-list editor-item editor-item-first" value="ordered"></button>
+            <button data-toggle="tooltip" data-title="有序列表" class="ql-list editor-item" value="bullet"></button>
+            <button data-toggle="tooltip" data-title="右缩进" class="ql-indent editor-item" value="-1"></button>
+            <button data-toggle="tooltip" data-title="左缩进" class="ql-indent editor-item editor-item-last" value="+1"></button>
         </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="链接" id="createLinkToolbar"><i class="fa fa-link first" name="link" unselectable="on"></i></a>
+        <div class="editor-group ql-formats">
+            <button data-toggle="tooltip" data-title="链接" class="ql-link editor-item editor-item-first"></button>
             <a href="javascript:;" data-toggle="tooltip" data-title="引用链接"><i class="fa fa-anchor item" name="reference-link" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="添加图片"><i class="fa fa-picture-o item" name="image" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="行内代码"><i class="fa fa-code item" name="code" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="代码块" id="createCodeToolbar"><i class="fa fa-file-code-o item" name="code-block" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="添加表格"><i class="fa fa-table item" name="table" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="引用"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="GFM 任务列表"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></a>
+            <button data-toggle="tooltip" data-title="添加图片" class="ql-image editor-item"></button>
+            <button data-toggle="tooltip" data-title="代码块" class="ql-code-block editor-item"></button>
+            <button data-toggle="tooltip" data-title="添加表格" class="ql-table editor-item"></button>
+            <button data-toggle="tooltip" data-title="引用" class="ql-blockquote editor-item"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></button>
+            <button data-toggle="tooltip" data-title="公式" class="ql-formula editor-item"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></button>
+            <select data-toggle="" data-title="" class="ql-color ql-picker ql-color-picker editor-item"></select>
             <a href="javascript:;" data-toggle="tooltip" data-title="附件"><i class="fa fa-paperclip item" aria-hidden="true" name="attachment"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="模板"><i class="fa fa-tachometer last" name="template"></i></a>
 
@@ -113,7 +218,7 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="发布"><i class="fa fa-cloud-upload" name="release" aria-hidden="true"></i></a>
         </div>
 
-        <div class="editormd-group">
+        <div class="editor-group">
             <a href="javascript:;" data-toggle="tooltip" data-title=""></a>
             <a href="javascript:;" data-toggle="tooltip" data-title=""></a>
         </div>
@@ -364,17 +469,35 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
-<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/external/jquery.hotkeys.js"></script>
-<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/bootstrap-wysiwyg.js" type="text/javascript"></script>
-<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.js"></script>
+{{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/external/jquery.hotkeys.js"></script>*/}}
+{{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/bootstrap-wysiwyg.js" type="text/javascript"></script>*/}}
+{{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.js"></script>*/}}
+<script src="/static/katex/katex.min.js" type="text/javascript"></script>
+<script src="/static/quill/quill.min.js" type="text/javascript"></script>
+<script src="/static/quill/quill.icons.js"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/editor.js" type="text/javascript"></script>
+{{/*<script src="/static/js/editor.js" type="text/javascript"></script>*/}}
 
 <script type="text/javascript">
-    window.wysiwyg = $("#docEditor").wysiwyg();
+
+    var quill = new Quill('#docEditor', {
+        theme: 'snow',
+        modules : {
+            toolbar :"#editormd-tools"
+        }
+    });
 
     $(function () {
+        var $editorEle =  $("#editormd-tools");
+
+        $editorEle.find(".ql-undo").on("click",function () {
+           quill.history.undo();
+        });
+        $editorEle.find(".ql-redo").on("click",function () {
+            quill.history.redo();
+        });
+
         //弹出创建链接的对话框
         $("#createLinkToolbar").on("click",function () {
             $("#createLinkToolbarModal").modal("show");
@@ -424,10 +547,6 @@
             e.stopPropagation();
             console.log($(this).parents(".editor-wrapper").html())
             $(this).parents(".editor-wrapper").addClass("editor-wrapper-selected");
-        });
-        $("body").on("click",function () {
-            console.log("a")
-            $("#docEditor").find(".editor-wrapper").removeClass("editor-wrapper-selected");
         });
 
         $("#attachInfo").on("click",function () {
