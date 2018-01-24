@@ -9654,6 +9654,9 @@ var Tooltip = function () {
     key: 'position',
     value: function position(reference) {
       var left = reference.left + reference.width / 2 - this.root.offsetWidth / 2;
+      if(left <= 0){
+          left = 0;
+      }
       // root.scrollTop should be 0 if scrollContainer !== root
       var top = reference.bottom + this.quill.root.scrollTop;
       this.root.style.left = left + 'px';

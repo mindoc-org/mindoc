@@ -41,7 +41,15 @@
     <script src="/static/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
     <style type="text/css">
-        #docEditor {overflow:auto;border: 1px solid #ddd; height: 100%;outline:none;padding: 5px;}
+        .modal{z-index: 999999999;}
+        #docEditor {
+            overflow:auto;
+            border: 1px solid #ddd;
+            border-left: none;
+            height: 100%;
+            outline:none;
+            padding: 5px;
+        }
         .btn-info{background-color: #ffffff !important;}
         .btn-info>i{background-color: #cacbcd !important; color: #393939 !important; box-shadow: inset 0 0 0 1px transparent,inset 0 0 0 0 rgba(34,36,38,.15);}
         .editor-wrapper>pre{padding: 0;}
@@ -66,12 +74,12 @@
             margin-right: 10px;
         }
 
-        .editor-group .editor-item{
+        .editor-group .editor-item,.editor-group .editor-item-select>.ql-picker-label{
             float: left;
             display: inline-block;
-            width: 34px !important;
+            min-width: 34px;
             height: 30px !important;
-            padding: 5px !important;
+            padding: 5px;
             line-height: 30px;
             text-align: center;
             color: #4b4b4b;
@@ -82,6 +90,17 @@
             border-radius: 0;
             font-size: 12px
         }
+        .ql-snow .ql-picker.ql-expanded .ql-picker-options{
+            margin-top: 5px;
+        }
+        .editor-group .editor-item-select>.ql-picker-label{
+            border-right: 1px solid #ccc !important;
+        }
+        .editor-group .editor-item-single-select>.ql-picker-label{
+            border-radius: 4px;
+            padding: 0;
+        }
+
         .editor-group .editor-item-last{
             border-right: 1px solid #ccc !important;
             border-radius: 0 4px 4px 0;
@@ -163,7 +182,7 @@
 <body>
 
 <div class="m-manual manual-editor">
-    <div class="manual-head btn-toolbar" id="editormd-tools" data-role="editor-toolbar" data-target="#editor">
+    <div class="manual-head btn-toolbar" id="editormd-tools"  style="min-width: 1600px;" data-role="editor-toolbar" data-target="#editor">
         <div class="editor-group">
             <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
@@ -175,9 +194,16 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="重做 (Ctrl-Y)" class="ql-redo"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
         </div>
         <div class="editor-group">
+            <select data-toggle="tooltip" data-title="字体" title="字体" class="ql-font editor-item-select editor-item-single-select"></select>
+        </div>
+        <div class="editor-group">
+            <select data-toggle="tooltip" data-title="字号" title="字号" class="ql-size editor-item-select editor-item-single-select"></select>
+        </div>
+        <div class="editor-group">
             <button data-toggle="tooltip" data-title="粗体" class="ql-bold editor-item editor-item-first"></button>
             <button data-toggle="tooltip" data-title="斜体" class="ql-italic editor-item"></button>
-            <button data-toggle="tooltip" data-title="删除线" class="ql-underline editor-item editor-item-last"></button>
+            <button data-toggle="tooltip" data-title="删除线" class="ql-strike editor-item"></button>
+            <button data-toggle="tooltip" data-title="下划线" class="ql-underline editor-item editor-item-last"></button>
         </div>
         <div class="editor-group">
             <button data-toggle="tooltip" data-title="标题一" class="ql-header editor-item editor-item-first" value="1"></button>
@@ -191,17 +217,20 @@
             <button data-toggle="tooltip" data-title="无序列表" class="ql-list editor-item editor-item-first" value="ordered"></button>
             <button data-toggle="tooltip" data-title="有序列表" class="ql-list editor-item" value="bullet"></button>
             <button data-toggle="tooltip" data-title="右缩进" class="ql-indent editor-item" value="-1"></button>
-            <button data-toggle="tooltip" data-title="左缩进" class="ql-indent editor-item editor-item-last" value="+1"></button>
+            <button data-toggle="tooltip" data-title="左缩进" class="ql-indent editor-item" value="+1"></button>
+            <button data-toggle="tooltip" data-title="下标" class="ql-script editor-item" value="sub"></button>
+            <button data-toggle="tooltip" data-title="上标" class="ql-script editor-item editor-item-last" value="super"></button>
         </div>
         <div class="editor-group ql-formats">
             <button data-toggle="tooltip" data-title="链接" class="ql-link editor-item editor-item-first"></button>
-            <a href="javascript:;" data-toggle="tooltip" data-title="引用链接"><i class="fa fa-anchor item" name="reference-link" unselectable="on"></i></a>
+            <button data-toggle="tooltip" data-title="清空格式" class="ql-clean editor-item"></button>
             <button data-toggle="tooltip" data-title="添加图片" class="ql-image editor-item"></button>
+            <button data-toggle="tooltip" data-title="添加视频" class="ql-video editor-item"></button>
             <button data-toggle="tooltip" data-title="代码块" class="ql-code-block editor-item"></button>
-            <button data-toggle="tooltip" data-title="添加表格" class="ql-table editor-item"></button>
             <button data-toggle="tooltip" data-title="引用" class="ql-blockquote editor-item"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></button>
             <button data-toggle="tooltip" data-title="公式" class="ql-formula editor-item"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></button>
-            <select data-toggle="" data-title="" class="ql-color ql-picker ql-color-picker editor-item"></select>
+            <select data-toggle="tooltip" data-title="字体颜色" class="ql-color ql-picker ql-color-picker editor-item-select" ></select>
+            <select data-toggle="tooltip" data-title="背景颜色" class="ql-background editor-item-select"></select>
             <a href="javascript:;" data-toggle="tooltip" data-title="附件"><i class="fa fa-paperclip item" aria-hidden="true" name="attachment"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="模板"><i class="fa fa-tachometer last" name="template"></i></a>
 
@@ -225,8 +254,8 @@
 
         <div class="clearfix"></div>
     </div>
-    <div class="manual-body">
-        <div class="manual-category" id="manualCategory">
+    <div class="manual-body" style="min-width: 1600px;right: inherit">
+        <div class="manual-category" id="manualCategory" style=" border-right: 1px solid #DDDDDD;width: 281px;position: absolute;">
             <div class="manual-nav">
                 <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> 文档</div>
                 <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="创建文档" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
@@ -234,9 +263,9 @@
             </div>
             <div class="manual-tree" id="sidebar"> </div>
         </div>
-        <div class="manual-editor-container" id="manualEditorContainer">
+        <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 1319px;">
             <div class="manual-editormd">
-                <div id="docEditor" class="manual-editormd-active">
+                <div id="docEditor" class="manual-editormd-active ql-editor ql-blank">
                     MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。
 
 
@@ -256,57 +285,6 @@
 
     </div>
 </div>
-<!--创建代码块的模态窗-->
-<div class="modal fade" id="createCodeToolbarModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">创建链接</h4>
-            </div>
-            <div class="modal-body">
-                <textarea></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" id="btnCreateCodeToolbar">确定</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!--创建链接的模态窗-->
-<div class="modal fade" id="createLinkToolbarModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">创建链接</h4>
-            </div>
-            <div class="modal-body">
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label for="linkUrl" class="control-label col-sm-2">链接地址</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="linkUrl" value="http://" data-url="">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="linkTitle" class="control-label col-sm-2">链接标题</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" value="" id="linkTitle" data-title="">
-                    </div>
-                </div>
-            </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-primary" id="btnCreateLinkToolbar">确定</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- 添加文档 -->
 <div class="modal fade" id="addDocumentModal" tabindex="-1" role="dialog" aria-labelledby="addDocumentModalLabel">
     <div class="modal-dialog" role="document">
@@ -355,7 +333,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="attach-drop-panel">
-                        <div class="upload-container" id="filePicker"><i class="fa fa-upload" aria-hidden="true"></i></div>
+                        <div class="upload-container" id="filePicker">
+                            <div class="webuploader-pick">
+                                <i class="fa fa-upload" aria-hidden="true"></i>
+                            </div>
+                        </div>
                     </div>
                     <div class="attach-list" id="attachList">
                         <template v-for="item in lists">
@@ -473,20 +455,14 @@
 {{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/bootstrap-wysiwyg.js" type="text/javascript"></script>*/}}
 {{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.js"></script>*/}}
 <script src="/static/katex/katex.min.js" type="text/javascript"></script>
-<script src="/static/quill/quill.min.js" type="text/javascript"></script>
+<script src="/static/quill/quill.js" type="text/javascript"></script>
 <script src="/static/quill/quill.icons.js"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-{{/*<script src="/static/js/editor.js" type="text/javascript"></script>*/}}
-
+<script src="/static/js/editor.js" type="text/javascript"></script>
+<script src="/static/js/quill.js" type="text/javascript"></script>
 <script type="text/javascript">
 
-    var quill = new Quill('#docEditor', {
-        theme: 'snow',
-        modules : {
-            toolbar :"#editormd-tools"
-        }
-    });
 
     $(function () {
         var $editorEle =  $("#editormd-tools");
@@ -498,46 +474,6 @@
             quill.history.redo();
         });
 
-        //弹出创建链接的对话框
-        $("#createLinkToolbar").on("click",function () {
-            $("#createLinkToolbarModal").modal("show");
-        });
-        /**
-         * 当点击创建链接按钮后
-         */
-        $("#btnCreateLinkToolbar").on("click",function () {
-
-            var $then = $("#createLinkToolbarModal");
-            var link = $then.find("input[data-url]").val();
-            var title = $then.find("input[data-title]").val();
-            if(link === ""){
-                alert("链接地址不能为空");
-                return false;
-            }else if(title === ""){
-                alert("链接标题不能为空");
-                return false;
-            }
-
-            $then.modal("hide");
-            window.wysiwyg.insertLink(link,title);
-        });
-        /**
-         * 创建代码块弹窗
-         */
-        $("#createCodeToolbar").on("click",function () {
-           $("#createCodeToolbarModal").modal("show");
-        });
-        /**
-         * 插入代码块
-         */
-        $("#btnCreateCodeToolbar").on("click",function () {
-            var $then = $("#createCodeToolbarModal");
-            var code = $then.find("textarea").val();
-            console.log(code)
-            var codeHtml = '<div contenteditable="false" class="editor-wrapper"><code class="editor-code">' + code + '</code></div><p></p>';
-            $then.modal("hide");
-            window.wysiwyg.insertHtml(codeHtml);
-        });
         $(".editor-code").on("dblclick",function () {
             var code = $(this).html();
             $("#createCodeToolbarModal").find("textarea").val(code);
@@ -552,9 +488,11 @@
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });
-        window.uploader = null;
 
 
+        /**
+         * 文件上传
+         */
         $("#uploadAttachModal").on("shown.bs.modal",function () {
             if(window.uploader === null){
                 try {
