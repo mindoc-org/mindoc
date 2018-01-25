@@ -109,7 +109,15 @@ func (c *BaseController) ExecuteViewPathTemplate(tplName string,data interface{}
 }
 
 func (c *BaseController) BaseUrl() string {
-	return c.Ctx.Input.Scheme() + "://" + c.Ctx.Request.Host
+	baseUrl := beego.AppConfig.DefaultString("baseurl","")
+	if baseUrl != "" {
+		if strings.HasSuffix(baseUrl,"/"){
+			baseUrl = strings.TrimSuffix(baseUrl,"/")
+		}
+	}else{
+		baseUrl = c.Ctx.Input.Scheme() + "://" + c.Ctx.Request.Host
+	}
+	return baseUrl
 }
 
 //显示错误信息页面.

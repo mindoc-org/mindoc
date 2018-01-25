@@ -8,14 +8,83 @@ $(function () {
             toolbar :"#editormd-tools"
         }
     });
-    window.editor.on("editor-change",function () {
+    window.editor.on("text-change",function () {
         resetEditorChanged(true);
     });
-    window.menu_save.on("click",function () {
-       if($(this).hasClass('change')){
-           saveDocument();
-       }
+    var $editorEle =  $("#editormd-tools");
+
+    $editorEle.find(".ql-undo").on("click",function () {
+        window.editor.history.undo();
     });
+    $editorEle.find(".ql-redo").on("click",function () {
+        window.editor.history.redo();
+    });
+
+    $("#btnRelease").on("click",function () {
+        if (Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0) {
+            if ($("#markdown-save").hasClass('change')) {
+                var comfirm_result = confirm("编辑内容未保存，需要保存吗？")
+                if (comfirm_result) {
+                    saveDocument(false, releaseBook);
+                    return;
+                }
+            }
+
+            releaseBook();
+        } else {
+            layer.msg("没有需要发布的文档")
+        }
+    });
+
+    /**
+     * 实现自定义图片上传
+     */
+    window.editor.getModule('toolbar').addHandler('image',function () {
+        var input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.click();
+
+        // Listen upload local image and save to server
+        input.onchange = function () {
+            var file = input.files[0];
+
+            // file type is only image.
+            if (/^image\//.test(file.type)) {
+                var form = new FormData();
+                form.append('editormd-image-file', file, file.name);
+
+                var layerIndex = 0;
+
+                $.ajax({
+                    url: window.imageUploadURL,
+                    type: "POST",
+                    dataType: "json",
+                    data: form,
+                    processData: false,
+                    contentType: false,
+                    error: function() {
+                        layer.close(layerIndex);
+                        layer.msg("图片上传失败");
+                    },
+                    success: function(data) {
+                        layer.close(layerIndex);
+                        if(data.errcode !== 0){
+                            layer.msg(data.message);
+                        }else{
+                            var range = window.editor.getSelection();
+                            editor.insertEmbed(range.index, 'image', data.url);
+                        }
+                    }
+                });
+            } else {
+                console.warn('You could only upload images.');
+            }
+        };
+    });
+    /**
+     * 实现保存
+     */
+    window.menu_save.on("click",function () {if($(this).hasClass('change')){saveDocument();}});
     /**
      * 设置编辑器变更状态
      * @param $is_change
@@ -43,13 +112,14 @@ $(function () {
 
             if(res.errcode === 0){
                 window.isLoad = true;
-                window.editor.setContents([{ insert: res.data.content }]);
+                window.editor.root.innerHTML = res.data.content;
 
                 // 将原始内容备份
                 window.source = res.data.content;
                 var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
                 pushDocumentCategory(node);
                 window.selectNode = node;
+                window.isLoad = true;
 
                 pushVueLists(res.data.attach);
 
@@ -70,8 +140,9 @@ $(function () {
         var index = null;
         var node = window.selectNode;
 
-        var html = window.editor.getContents();
+        var html = window.editor.root.innerHTML;
 
+        console.log(html)
         var content = "";
         if($.trim(html) !== ""){
             content = toMarkdown(html, { gfm: true });
@@ -111,10 +182,9 @@ $(function () {
                             break;
                         }
                     }
+                    resetEditorChanged(false);
                     // 更新内容备份
                     window.source = res.data.content;
-                    // 触发编辑器 onchange 回调函数
-                    window.editor.onchange();
                     if(typeof callback === "function"){
                         callback();
                     }
@@ -231,8 +301,20 @@ $(function () {
         }
     }).on('loaded.jstree', function () {
         window.treeCatalog = $(this).jstree();
+        var $select_node_id = window.treeCatalog.get_selected();
+        if ($select_node_id) {
+            var $select_node = window.treeCatalog.get_node($select_node_id[0])
+            if ($select_node) {
+                $select_node.node = {
+                    id: $select_node.id
+                };
+
+                loadDocument($select_node);
+            }
+        }
+
     }).on('select_node.jstree', function (node, selected, event) {
-        if(window.menu_save.hasClass('selected')) {
+        if(window.menu_save.hasClass('change')) {
             if(confirm("编辑内容未保存，需要保存吗？")){
                 saveDocument(false,function () {
                     loadDocument(selected);
@@ -242,7 +324,11 @@ $(function () {
         }
         loadDocument(selected);
 
-    }).on("move_node.jstree", jstree_save);
+    }).on("move_node.jstree", jstree_save)
+      .on("delete_node.jstree",function (node,parent) {
+          window.isLoad = true;
+          window.editor.root.innerHTML ='';
+      });
 
     window.saveDocument = saveDocument;
 

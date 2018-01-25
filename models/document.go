@@ -8,6 +8,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
+	"strings"
 )
 
 // Document struct.
@@ -137,6 +138,9 @@ func (m *Document) ReleaseContent(book_id int) {
 		if err == nil && len(attach_list) > 0 {
 			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
 			for _, attach := range attach_list {
+				if strings.HasPrefix(attach.HttpPath,"/"){
+					attach.HttpPath = strings.TrimSuffix(beego.AppConfig.DefaultString("baseurl",""),"/") + attach.HttpPath
+				}
 				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
 
 				content.WriteString(li)

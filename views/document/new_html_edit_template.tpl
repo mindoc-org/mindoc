@@ -48,7 +48,7 @@
             border-left: none;
             height: 100%;
             outline:none;
-            padding: 5px;
+            padding: 5px 5px 30px 5px;
         }
         .btn-info{background-color: #ffffff !important;}
         .btn-info>i{background-color: #cacbcd !important; color: #393939 !important; box-shadow: inset 0 0 0 1px transparent,inset 0 0 0 0 rgba(34,36,38,.15);}
@@ -182,12 +182,13 @@
 <body>
 
 <div class="m-manual manual-editor">
-    <div class="manual-head btn-toolbar" id="editormd-tools"  style="min-width: 1600px;" data-role="editor-toolbar" data-target="#editor">
+    <div class="manual-head btn-toolbar" id="editormd-tools"  style="min-width: 1360px;" data-role="editor-toolbar" data-target="#editor">
         <div class="editor-group">
             <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
         <div class="editor-group">
-            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
+            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save first" aria-hidden="true" name="save"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="发布" id="btnRelease"><i class="fa fa-cloud-upload last" name="release" aria-hidden="true"></i></a>
         </div>
         <div class="editor-group">
             <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)" class="ql-undo"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
@@ -231,30 +232,13 @@
             <button data-toggle="tooltip" data-title="公式" class="ql-formula editor-item"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></button>
             <select data-toggle="tooltip" data-title="字体颜色" class="ql-color ql-picker ql-color-picker editor-item-select" ></select>
             <select data-toggle="tooltip" data-title="背景颜色" class="ql-background editor-item-select"></select>
-            <a href="javascript:;" data-toggle="tooltip" data-title="附件"><i class="fa fa-paperclip item" aria-hidden="true" name="attachment"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="模板"><i class="fa fa-tachometer last" name="template"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="附件" id="btnUploadFile"><i class="fa fa-paperclip last" aria-hidden="true" name="attachment"></i></a>
 
-        </div>
-
-        <div class="editormd-group pull-right">
-            <a href="javascript:;" data-toggle="tooltip" data-title="关闭实时预览"><i class="fa fa-eye-slash first" name="watch" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="修改历史"><i class="fa fa-history item" name="history" aria-hidden="true"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="边栏"><i class="fa fa-columns item" aria-hidden="true" name="sidebar"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="使用帮助"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
-        </div>
-
-        <div class="editormd-group pull-right">
-            <a href="javascript:;" data-toggle="tooltip" data-title="发布"><i class="fa fa-cloud-upload" name="release" aria-hidden="true"></i></a>
-        </div>
-
-        <div class="editor-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title=""></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title=""></a>
         </div>
 
         <div class="clearfix"></div>
     </div>
-    <div class="manual-body" style="min-width: 1600px;right: inherit">
+    <div class="manual-body">
         <div class="manual-category" id="manualCategory" style=" border-right: 1px solid #DDDDDD;width: 281px;position: absolute;">
             <div class="manual-nav">
                 <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> 文档</div>
@@ -263,26 +247,14 @@
             </div>
             <div class="manual-tree" id="sidebar"> </div>
         </div>
-        <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 1319px;">
-            <div class="manual-editormd">
-                <div id="docEditor" class="manual-editormd-active ql-editor ql-blank">
-                    MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。
-
-
-                    MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 laravel 开发的一款文档管理系统。因 PHP 的部署对普通用户来说太复杂，所以改用 Golang 开发。可以方便用户部署和实用。
-
-                    开发缘起是公司IT部门需要一款简单实用的项目接口文档管理和分享的系统。其功能和界面源于 kancloud 。
-
-                    可以用来储存日常接口文档，数据库字典，手册说明等文档。内置项目管理，用户管理，权限管理等功能，能够满足大部分中小团队的文档管理需求。
-                    <div contenteditable="false" class="editor-wrapper"><pre><code class="editor-code">f</code></pre></div>
-                    <div><br/></div>
+        <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 1060px;">
+            <div class="manual-editormd" style="bottom: 0;">
+                <div id="docEditor" class="manual-editormd-active ql-editor ql-blank"></div>
+                <div class="manual-editor-status" style="border-top: 1px solid #DDDDDD;">
+                    <div id="attachInfo" class="item">0 个附件</div>
                 </div>
             </div>
-            <div class="manual-editor-status">
-                <div id="attachInfo" class="item">0 个附件</div>
-            </div>
         </div>
-
     </div>
 </div>
 <!-- 添加文档 -->
@@ -334,9 +306,7 @@
                 <div class="modal-body">
                     <div class="attach-drop-panel">
                         <div class="upload-container" id="filePicker">
-                            <div class="webuploader-pick">
                                 <i class="fa fa-upload" aria-hidden="true"></i>
-                            </div>
                         </div>
                     </div>
                     <div class="attach-list" id="attachList">
@@ -395,57 +365,6 @@
     </div>
 </div>
 
-<div class="modal fade" id="documentTemplateModal" tabindex="-1" role="dialog" aria-labelledby="请选择模板类型" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="modal-title">请选择模板类型</h4>
-            </div>
-            <div class="modal-body template-list">
-                <div class="container">
-                    <div class="section">
-                        <a data-type="normal" href="javascript:;"><i class="fa fa-file-o"></i></a>
-                        <h3><a data-type="normal" href="javascript:;">普通文档</a></h3>
-                        <ul>
-                            <li>默认类型</li>
-                            <li>简单的文本文档</li>
-                        </ul>
-                    </div>
-                    <div class="section">
-                        <a data-type="api" href="javascript:;"><i class="fa fa-file-code-o"></i></a>
-                        <h3><a data-type="api" href="javascript:;">API文档</a></h3>
-                        <ul>
-                            <li>用于API文档速写</li>
-                            <li>支持代码高亮</li>
-                        </ul>
-                    </div>
-                    <div class="section">
-                        <a data-type="code" href="javascript:;"><i class="fa fa-book"></i></a>
-
-                        <h3><a data-type="code" href="javascript:;">数据字典</a></h3>
-                        <ul>
-                            <li>用于数据字典显示</li>
-                            <li>表格支持</li>
-                        </ul>
-                    </div>
-                </div>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-            </div>
-        </div>
-    </div>
-</div>
-<template id="template-normal">
-{{template "document/template_normal.tpl"}}
-</template>
-<template id="template-api">
-{{template "document/template_api.tpl"}}
-</template>
-<template id="template-code">
-{{template "document/template_code.tpl"}}
-</template>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
@@ -455,6 +374,7 @@
 {{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/bootstrap-wysiwyg.js" type="text/javascript"></script>*/}}
 {{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.js"></script>*/}}
 <script src="/static/katex/katex.min.js" type="text/javascript"></script>
+<script src="/static/to-markdown/dist/to-markdown.js" type="text/javascript"></script>
 <script src="/static/quill/quill.js" type="text/javascript"></script>
 <script src="/static/quill/quill.icons.js"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
@@ -465,14 +385,7 @@
 
 
     $(function () {
-        var $editorEle =  $("#editormd-tools");
 
-        $editorEle.find(".ql-undo").on("click",function () {
-           quill.history.undo();
-        });
-        $editorEle.find(".ql-redo").on("click",function () {
-            quill.history.redo();
-        });
 
         $(".editor-code").on("dblclick",function () {
             var code = $(this).html();
@@ -485,7 +398,7 @@
             $(this).parents(".editor-wrapper").addClass("editor-wrapper-selected");
         });
 
-        $("#attachInfo").on("click",function () {
+        $("#attachInfo,#btnUploadFile").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });
 

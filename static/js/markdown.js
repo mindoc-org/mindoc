@@ -227,25 +227,7 @@ $(function () {
             }
         });
     }
-
-    function releaseBook() {
-        $.ajax({
-            url: window.releaseURL,
-            data: { "identify": window.book.identify },
-            type: "post",
-            dataType: "json",
-            success: function (res) {
-                if (res.errcode === 0) {
-                    layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
-                } else {
-                    layer.msg(res.message);
-                }
-            }
-        });
-    }
-
-    function resetEditor($node) {
-    }
+    
 
     /**
      * 设置编辑器变更状态

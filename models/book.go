@@ -3,8 +3,6 @@ package models
 import (
 	"time"
 
-	"strings"
-
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -24,6 +22,10 @@ type Book struct {
 	OrderIndex int    `orm:"column(order_index);type(int);default(0)" json:"order_index"`
 	// Description 项目描述.
 	Description string `orm:"column(description);size(2000)" json:"description"`
+	//发行公司
+	Publisher string 	`orm:"column(publisher);size(500)" json:"publisher"`
+	//是否缓存导出的电子书，如果缓存可能会出现导出的文件不是最新的。 0 为不缓存
+	IsCacheEBook int `orm:"column(is_cache_ebook);type(int);default(0)" json:"is_cache_ebook"`
 	Label       string `orm:"column(label);size(500)" json:"label"`
 	// PrivatelyOwned 项目私有： 0 公开/ 1 私有
 	PrivatelyOwned int `orm:"column(privately_owned);type(int);default(0)" json:"privately_owned"`
@@ -353,38 +355,6 @@ func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, member_i
 	}
 }
 
-
-func (book *Book) ToBookResult() *BookResult {
-
-	m := NewBookResult()
-
-	m.BookId = book.BookId
-	m.BookName = book.BookName
-	m.Identify = book.Identify
-	m.OrderIndex = book.OrderIndex
-	m.Description = strings.Replace(book.Description, "\r\n", "<br/>", -1)
-	m.PrivatelyOwned = book.PrivatelyOwned
-	m.PrivateToken = book.PrivateToken
-	m.DocCount = book.DocCount
-	m.CommentStatus = book.CommentStatus
-	m.CommentCount = book.CommentCount
-	m.CreateTime = book.CreateTime
-	m.ModifyTime = book.ModifyTime
-	m.Cover = book.Cover
-	m.Label = book.Label
-	m.Status = book.Status
-	m.Editor = book.Editor
-	m.Theme = book.Theme
-	m.AutoRelease = book.AutoRelease == 1
-
-	if book.Theme == "" {
-		m.Theme = "default"
-	}
-	if book.Editor == "" {
-		m.Editor = "markdown"
-	}
-	return m
-}
 
 //重置文档数量
 func (m *Book) ResetDocumentNumber(book_id int) {

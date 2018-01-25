@@ -40,31 +40,34 @@
                 <span style="font-size: 12px;font-weight: 100;"></span>
             </div>
             <div class="navbar-header pull-right manual-menu">
-                <div class="dropdown">
-                    <button id="dLabel" class="btn btn-default" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        项目
-                        <span class="caret"></span>
+                {{if gt .Member.MemberId 0}}
+                {{if gt .Model.RelationshipId 0}}
+                {{if eq .Model.RoleId 0 1 2}}
+                <div class="dropdown pull-right">
+                   <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default">编辑</a>
+                </div>
+                {{end}}
+                {{end}}
+                {{end}}
+                <div class="dropdown pull-right" style="margin-right: 10px;">
+                    <a href="{{urlfor "HomeController.Index"}}" class="btn btn-default"><i class="fa fa-home" aria-hidden="true"></i> 首页</a>
+                </div>
+                <div class="dropdown pull-right" style="margin-right: 10px;">
+                {{if eq .Model.PrivatelyOwned 0}}
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#shareProject"><i class="fa fa-share-alt" aria-hidden="true"></i> 分享</button>
+                {{end}}
+                </div>
+                <div class="dropdown pull-right" style="margin-right: 10px;">
+                    <button type="button" class="btn btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        下载 <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dLabel">
-                        {{if gt .Member.MemberId 0}}
-                        {{if gt .Model.RelationshipId 0}}
-                        {{if eq .Model.RoleId 0 1 2}}
-                        <li><a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}">返回编辑</a> </li>
-                        {{end}}
-                        {{end}}
-                        <li><a href="{{urlfor "BookController.Index"}}">我的项目</a> </li>
-                        <li role="presentation" class="divider"></li>
-                        {{end}}
-                        {{if eq .Model.PrivatelyOwned 0}}
-                        <li><a href="javascript:" data-toggle="modal" data-target="#shareProject">项目分享</a> </li>
-                        <li role="presentation" class="divider"></li>
-                        <li><a href="javascript:void(0);" onclick="ExportPdfDoc()">文档导出为 PDF</a> </li>
-                        <li><a href="{{urlfor "DocumentController.ExportBook" ":key" .Model.Identify "output" "pdf"}}" target="_blank">项目导出为 PDF</a> </li>
-                        {{end}}
-
-                        <li><a href="{{urlfor "HomeController.Index"}}" title="返回首页">返回首页</a> </li>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" style="margin-top: -5px;">
+                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">PDF</a> </li>
+                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "epub"}}" target="_blank">EPUB</a> </li>
+                        <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "mobi"}}" target="_blank">MOBI</a> </li>
                     </ul>
                 </div>
+
             </div>
         </div>
     </header>
@@ -128,7 +131,7 @@
                             </div>
                             <div class="col-md-8 text-center">
                                 <h1 id="article-title">{{.Title}}</h1>
-                                <h3 id="article-info" class="article-info">{{.Info}}</h3>
+                                {{/*<h3 id="article-info" class="article-info">{{.Info}}</h3>*/}}
                             </div>
                             <div class="col-md-2">
                             </div>
@@ -198,7 +201,7 @@
     <div class="manual-mask"></div>
 </div>
 
-<!-- Share Modal -->
+<!-- 分享项目 -->
 <div class="modal fade" id="shareProject" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -226,10 +229,39 @@
         </div>
     </div>
 </div>
+<!-- 下载项目 -->
+<div class="modal fade" id="downloadBookModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">项目分享</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 text-center" style="padding-bottom: 15px;">
+                        <img src="{{urlfor "DocumentController.QrCode" ":key" .Model.Identify}}" alt="扫一扫手机阅读" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="col-sm-2 control-label">项目地址</label>
+                    <div class="col-sm-10">
+                        <input type="text" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="项目地址">
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/layer/layer.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/highlight/highlight.js"}}" type="text/javascript"></script>

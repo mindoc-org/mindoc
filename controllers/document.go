@@ -25,7 +25,6 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
-	"github.com/lifei6671/mindoc/utils/wkhtmltopdf"
 	"github.com/russross/blackfriday"
 )
 
@@ -68,7 +67,7 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 		}
 	}
 
-	bookResult := book.ToBookResult()
+	bookResult := models.NewBookResult().ToBookResult(*book)
 
 	if c.Member != nil {
 		rel, err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId, c.Member.MemberId)
@@ -283,7 +282,7 @@ func (c *DocumentController) Edit() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		bookResult = book.ToBookResult()
+		bookResult = models.NewBookResult().ToBookResult(*book)
 	} else {
 		bookResult, err = models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
@@ -545,7 +544,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	if attachment.HttpPath == "" {
-		attachment.HttpPath = beego.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
+		attachment.HttpPath = c.BaseUrl() + beego.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update(); err != nil {
 			beego.Error("SaveToFile => ", err)
@@ -845,13 +844,6 @@ func (c *DocumentController) Content() {
 	c.JsonResult(0, "ok", doc)
 }
 
-func (c *DocumentController) ExportDoc() {
-	c.Export(true)
-}
-
-func (c *DocumentController) ExportBook() {
-	c.Export(false)
-}
 
 func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
 	doc = models.NewDocument()
@@ -871,7 +863,7 @@ func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, e
 }
 
 // 导出
-func (c *DocumentController) Export(single_doc bool) {
+func (c *DocumentController) Export() {
 	c.Prepare()
 	c.TplName = "document/export.tpl"
 
@@ -897,7 +889,7 @@ func (c *DocumentController) Export(single_doc bool) {
 			c.Abort("500")
 		}
 
-		bookResult = book.ToBookResult()
+		bookResult = models.NewBookResult().ToBookResult(*book)
 	} else {
 		bookResult = isReadable(identify, token, c)
 	}
@@ -906,76 +898,50 @@ func (c *DocumentController) Export(single_doc bool) {
 		// TODO: 私有项目禁止导出
 	}
 
-	docs, err := models.NewDocument().FindListByBookId(bookResult.BookId)
+	if !strings.HasPrefix(bookResult.Cover,"http:://") && !strings.HasPrefix(bookResult.Cover,"https:://"){
+		bookResult.Cover = c.BaseUrl() + bookResult.Cover
+	}
+
+	eBookResult,err := bookResult.Converter(c.CruSession.SessionID())
+
 	if err != nil {
-		beego.Error(err)
+		beego.Error("转换文档失败：" + bookResult.BookName + " -> " + err.Error())
 		c.Abort("500")
 	}
 
+
 	if output == "pdf" {
-		exe := beego.AppConfig.String("wkhtmltopdf")
-		if exe == "" {
-			c.TplName = "errors/error.tpl"
-			c.Data["ErrorMessage"] = "没有配置PDF导出程序"
-			c.Data["ErrorCode"] = 50010
-			return
+		c.Ctx.Output.Download(eBookResult.PDFPath, identify + ".pdf")
+
+		//如果没有开启缓存，则10分钟后删除
+		if !bookResult.IsCacheEBook {
+			defer func(pdfpath string) {
+				time.Sleep(time.Minute * 10)
+				os.Remove(filepath.Dir(pdfpath))
+			}(eBookResult.PDFPath)
 		}
+		c.StopRun()
+	}else if output == "epub" {
+		c.Ctx.Output.Download(eBookResult.PDFPath, identify + ".epub")
 
-		dpath := "cache/" + bookResult.Identify
-		os.MkdirAll(dpath, 0766)
-
-		pathList := list.New()
-
-		// 增加对单页文档的导出，dandycheung, 2017-12-07
-		if single_doc {
-			id := c.Ctx.Input.Param(":id")
-			if doc, err := c.GetDocumentById(id); err == nil {
-				EachFun("", dpath, c, bookResult, doc, pathList)
-			}
-		} else {
-			RecursiveFun(0, "", dpath, c, bookResult, docs, pathList)
+		//如果没有开启缓存，则10分钟后删除
+		if !bookResult.IsCacheEBook {
+			defer func(pdfpath string) {
+				time.Sleep(time.Minute * 10)
+				os.Remove(filepath.Dir(pdfpath))
+			}(eBookResult.EpubPath)
 		}
+		c.StopRun()
+	}else if output == "mobi" {
+		c.Ctx.Output.Download(eBookResult.PDFPath, identify + ".epub")
 
-		defer os.RemoveAll(dpath)
-
-		// TODO: check if the pathList is empty
-
-		os.MkdirAll("./cache", 0766)
-		pdfpath := filepath.Join("cache", identify+"_"+c.CruSession.SessionID()+".pdf")
-
-		if _, err := os.Stat(pdfpath); os.IsNotExist(err) {
-			wkhtmltopdf.SetPath(beego.AppConfig.String("wkhtmltopdf"))
-
-			pdfg, err := wkhtmltopdf.NewPDFGenerator()
-			if err != nil {
-				beego.Error(err)
-				c.Abort("500")
-			}
-
-			pdfg.MarginBottom.Set(35)
-
-			for e := pathList.Front(); e != nil; e = e.Next() {
-				if page, ok := e.Value.(string); ok {
-					pdfg.AddPage(wkhtmltopdf.NewPage(page))
-				}
-			}
-
-			err = pdfg.Create()
-			if err != nil {
-				beego.Error(err)
-				c.Abort("500")
-			}
-
-			err = pdfg.WriteFile(pdfpath)
-			if err != nil {
-				beego.Error(err)
-			}
+		//如果没有开启缓存，则10分钟后删除
+		if !bookResult.IsCacheEBook {
+			defer func(pdfpath string) {
+				time.Sleep(time.Minute * 10)
+				os.Remove(filepath.Dir(pdfpath))
+			}(eBookResult.MobiPath)
 		}
-
-		c.Ctx.Output.Download(pdfpath, identify+".pdf")
-
-		defer os.Remove(pdfpath)
-
 		c.StopRun()
 	}
 
