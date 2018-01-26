@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
+	"github.com/lifei6671/mindoc/utils/pagination"
 	"math"
 	"github.com/lifei6671/mindoc/conf"
 )
@@ -35,9 +35,8 @@ func (c *HomeController) Index() {
 		c.Abort("500")
 	}
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, pageSize, totalCount)
-
-		c.Data["PageHtml"] = html
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}

@@ -4,7 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
+	"github.com/lifei6671/mindoc/utils/pagination"
 	"regexp"
 	"strconv"
 	"strings"
@@ -42,9 +42,8 @@ func (c *SearchController) Index() {
 			return
 		}
 		if totalCount > 0 {
-			html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
-
-			c.Data["PageHtml"] = html
+			pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+			c.Data["PageHtml"] = pager.HtmlPages()
 		} else {
 			c.Data["PageHtml"] = ""
 		}

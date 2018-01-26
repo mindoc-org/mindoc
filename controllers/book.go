@@ -19,6 +19,7 @@ import (
 	"github.com/lifei6671/mindoc/graphics"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
+	"github.com/lifei6671/mindoc/utils/pagination"
 )
 
 type BookController struct {
@@ -39,9 +40,8 @@ func (c *BookController) Index() {
 	}
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
-
-		c.Data["PageHtml"] = html
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}
@@ -364,9 +364,8 @@ func (c *BookController) Users() {
 	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, 15)
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, totalCount)
-
-		c.Data["PageHtml"] = html
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}

@@ -90,14 +90,16 @@ func (m *Attachment) FindListByDocumentId(doc_id int) (attaches []*Attachment, e
 }
 
 //分页查询附件
-func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*AttachmentResult, totalCount int64, err error) {
+func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*AttachmentResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
-	totalCount, err = o.QueryTable(m.TableNameWithPrefix()).Count()
+	total, err := o.QueryTable(m.TableNameWithPrefix()).Count()
 
 	if err != nil {
-		return
+
+		return nil,0,err
 	}
+	totalCount = int(total)
 	offset := (pageIndex - 1) * pageSize
 
 	var list []*Attachment

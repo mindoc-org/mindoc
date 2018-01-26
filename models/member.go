@@ -231,7 +231,7 @@ func (m *Member) FindByAccount(account string) (*Member, error) {
 }
 
 //分页查找用户.
-func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int64, error) {
+func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int, error) {
 	o := orm.NewOrm()
 
 	var members []*Member
@@ -253,7 +253,7 @@ func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int64, error) 
 	for _, m := range members {
 		m.ResolveRoleName()
 	}
-	return members, totalCount, nil
+	return members, int(totalCount), nil
 }
 
 func (c *Member) IsAdministrator() bool {

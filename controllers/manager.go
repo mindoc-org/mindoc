@@ -14,6 +14,7 @@ import (
 	"github.com/lifei6671/mindoc/utils"
 	"path/filepath"
 	"strconv"
+	"github.com/lifei6671/mindoc/utils/pagination"
 )
 
 type ManagerController struct {
@@ -49,9 +50,8 @@ func (c *ManagerController) Users() {
 	}
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, int(totalCount))
-
-		c.Data["PageHtml"] = html
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}
@@ -286,9 +286,11 @@ func (c *ManagerController) Books() {
 	}
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
+		//html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 8, totalCount)
 
-		c.Data["PageHtml"] = html
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+
+		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}
@@ -564,9 +566,8 @@ func (c *ManagerController) AttachList() {
 	}
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, int(totalCount))
-
-		c.Data["PageHtml"] = html
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}

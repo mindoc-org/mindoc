@@ -60,7 +60,7 @@
                 {{if gt .Member.MemberId 0}}
                 <li>
                     <div class="img user-info" data-toggle="dropdown">
-                        <img src="{{cdnimg .Member.Avatar}}" class="img-circle userbar-avatar" alt="{{.Member.Account}}">
+                        <img src="{{cdnimg .Member.Avatar}}" onerror="this.src='{{cdnimg "/static/images/headimgurl.jpg"}}';" class="img-circle userbar-avatar" alt="{{.Member.Account}}">
                         <div class="userbar-content">
                             <span>{{.Member.Account}}</span>
                             <div>{{.Member.RoleName}}</div>

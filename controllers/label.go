@@ -5,7 +5,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
+	"github.com/lifei6671/mindoc/utils/pagination"
 	"math"
 )
 
@@ -54,9 +54,8 @@ func (c *LabelController) Index() {
 		return
 	}
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
-
-		c.Data["PageHtml"] = html
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}
@@ -78,9 +77,8 @@ func (c *LabelController) List() {
 		c.ShowErrorPage(50001, err.Error())
 	}
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, pageSize, totalCount)
-
-		c.Data["PageHtml"] = html
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}
