@@ -6,8 +6,8 @@ import (
 	con "strconv"
 	"strings"
 
-	"github.com/astaxie/beego/orm"
 	"fmt"
+	"github.com/astaxie/beego/orm"
 	"math"
 )
 
@@ -25,7 +25,7 @@ type PageOptions struct {
 	NextPageText        string //下一页文字 默认"下一页"
 	EnableFirstLastLink bool   //是否启用首尾连接 默认false 建议开启
 	EnablePreNexLink    bool   //是否启用上一页,下一页连接 默认false 建议开启
-	TotalPages	    int
+	TotalPages          int
 }
 
 /**
@@ -42,7 +42,7 @@ func GetPagesInfo(tableName string, currentpage int, pagesize int, conditions st
 	}
 	var rs orm.RawSeter
 	o := orm.NewOrm()
-	var totalItem, totalpages int = 0, 0                                                          //总条数,总页数
+	var totalItem, totalpages int = 0, 0                                                            //总条数,总页数
 	o.Raw("SELECT count(*) FROM " + tableName + "  where 1 > 0 " + conditions).QueryRow(&totalItem) //获取总条数
 	if totalItem <= pagesize {
 		totalpages = 1
@@ -58,22 +58,22 @@ func GetPagesInfo(tableName string, currentpage int, pagesize int, conditions st
 }
 
 /**
- * 返回总记录条数,总页数,当前页面数据,分页html
- * 根据分页选项,生成分页连接 下面是一个实例:
-     func (this *MainController) Test() {
-        var po util.PageOptions
-        po.EnablePreNexLink = true
-        po.EnableFirstLastLink = true
-        po.LinkItemCount = 7
-        po.TableName = "help_topic"
-        cp, _ := this.GetInt("pno")
-        po.CurrentPage = int(cp)
-        _,_,_ pager := util.GetPagerLinks(&po, this.Ctx)
-        this.Data["Email"] = html.HTML(pager)
-        this.TplName = "test.html"
-    }
+* 返回总记录条数,总页数,当前页面数据,分页html
+* 根据分页选项,生成分页连接 下面是一个实例:
+    func (this *MainController) Test() {
+       var po util.PageOptions
+       po.EnablePreNexLink = true
+       po.EnableFirstLastLink = true
+       po.LinkItemCount = 7
+       po.TableName = "help_topic"
+       cp, _ := this.GetInt("pno")
+       po.CurrentPage = int(cp)
+       _,_,_ pager := util.GetPagerLinks(&po, this.Ctx)
+       this.Data["Email"] = html.HTML(pager)
+       this.TplName = "test.html"
+   }
 */
-func GetPagerLinks(po *PageOptions,requestURI string) (int, int, orm.RawSeter, html.HTML) {
+func GetPagerLinks(po *PageOptions, requestURI string) (int, int, orm.RawSeter, html.HTML) {
 	str := ""
 	totalItem, totalpages, rs := GetPagesInfo(po.TableName, po.CurrentPage, po.PageSize, po.Conditions)
 	po = setDefault(po, totalpages)
@@ -84,7 +84,7 @@ func GetPagerLinks(po *PageOptions,requestURI string) (int, int, orm.RawSeter, h
 		if po.CurrentPage < po.LinkItemCount {
 			str = fun2(po, totalpages) //123456789...200
 		} else {
-			if po.CurrentPage + po.LinkItemCount < totalpages {
+			if po.CurrentPage+po.LinkItemCount < totalpages {
 				str = fun3(po, totalpages)
 			} else {
 				str = fun4(po, totalpages)
@@ -94,18 +94,19 @@ func GetPagerLinks(po *PageOptions,requestURI string) (int, int, orm.RawSeter, h
 	return totalItem, totalpages, rs, html.HTML(str)
 }
 
-func GetPagerHtml(requestURI string,pageIndex, pageSize,totalCount int) (html.HTML){
+func GetPagerHtml(requestURI string, pageIndex, pageSize, totalCount int) html.HTML {
 	po := &PageOptions{
-		CurrentPage: pageIndex,
-		PageSize: pageSize,
-		EnableFirstLastLink : true,
-		ParamName : "page",
-		TotalPages:int(math.Ceil(float64(totalCount) / float64(pageSize))),
+		CurrentPage:         pageIndex,
+		PageSize:            pageSize,
+		EnableFirstLastLink: true,
+		ParamName:           "page",
+		TotalPages:          int(math.Ceil(float64(totalCount) / float64(pageSize))),
+		LinkItemCount:		 pageSize,
 	}
 	totalPages := int(math.Ceil(float64(totalCount) / float64(pageSize)))
 
-	setDefault(po,totalPages)
-	DealUri(po,requestURI)
+	setDefault(po, totalPages)
+	DealUri(po, requestURI)
 	str := ""
 	if totalPages <= po.LinkItemCount {
 		str = fun1(po, totalPages) //显示完全  12345678910
@@ -113,16 +114,16 @@ func GetPagerHtml(requestURI string,pageIndex, pageSize,totalCount int) (html.HT
 		if po.CurrentPage < po.LinkItemCount {
 			str = fun2(po, totalPages) //123456789...200
 		} else {
-			if po.CurrentPage + po.LinkItemCount < totalPages {
+			if po.CurrentPage+po.LinkItemCount < totalPages {
 				str = fun3(po, totalPages)
 			} else {
 				str = fun4(po, totalPages)
 			}
 		}
 	}
-	str = strings.Replace(str,"?&","?",-1)
+	str = strings.Replace(str, "?&", "?", -1)
 	//str = strings.Replace(str,"&&","&",-1)
-	return  html.HTML(str)
+	return html.HTML(str)
 }
 
 /**
@@ -136,19 +137,19 @@ func DealUri(po *PageOptions, requestURI string) {
 		arr2 := strings.Split(arr[1], "&")
 		for _, v := range arr2 {
 			if !strings.Contains(v, po.ParamName) {
-				if strings.HasSuffix(rs,"&") {
-					rs +=  v
-				}else{
-					rs +=  v + "&"
+				if strings.HasSuffix(rs, "&") {
+					rs += v
+				} else {
+					rs += v + "&"
 				}
 				//rs += "&" + v
 			}
 		}
-		if strings.HasPrefix(rs,"&") {
+		if strings.HasPrefix(rs, "&") {
 			rs = string(rs[1:])
 		}
-		if strings.HasSuffix(rs,"&"){
-			rs = string(rs[0:strings.Count(rs,"")-1])
+		if strings.HasSuffix(rs, "&") {
+			rs = string(rs[0 : strings.Count(rs, "")-1])
 		}
 		rs = arr[0] + "?" + rs
 		fmt.Println(rs)
@@ -167,8 +168,11 @@ func fun4(po *PageOptions, totalPages int) string {
 	rs := ""
 	rs += getHeader(po, totalPages)
 	rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(1) + "'>" + con.Itoa(1) + "</a></li>"
-	rs += "<li><a href=''>...</a></li>"
-	for i := totalPages - po.LinkItemCount; i <= totalPages; i++ {
+
+		rs += "<li><a href=\"#\" class=\"@3\">...</a></li>"
+
+
+	for i := totalPages - po.LinkItemCount-1; i <= totalPages; i++ {
 		if po.CurrentPage != i {
 			rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(i) + "'>" + con.Itoa(i) + "</a></li>"
 		} else {
@@ -187,15 +191,15 @@ func fun3(po *PageOptions, totalpages int) string {
 	var rs string = ""
 	rs += getHeader(po, totalpages)
 	rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(1) + "'>" + con.Itoa(1) + "</a></li>"
-	rs += "<a href=''>...</a>"
+	rs += "<li><a href=\"#\" class=\"@1\">...</a></li>"
 	for i := po.CurrentPage - po.LinkItemCount/2 + 1; i <= po.CurrentPage+po.LinkItemCount/2-1; i++ {
 		if po.CurrentPage != i {
-			rs += "<a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(i) + "'>" + con.Itoa(i) + "</a>"
+			rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(i) + "'>" + con.Itoa(i) + "</a></li>"
 		} else {
-			rs += "<li class=\"active\"><a href=\"###\">" + con.Itoa(i) +  "  <span class=\"sr-only\">(current)</span></a></li>"
+			rs += "<li class=\"active\"><a href=\"###\">" + con.Itoa(i) + "  <span class=\"sr-only\">(current)</span></a></li>"
 		}
 	}
-	rs += "<a href=''>...</a>"
+	rs += "<li><a href=\"#\" class=\"@2\">...</a></li>"
 	rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(totalpages) + "'>" + con.Itoa(totalpages) + "</a></li>"
 	rs += getFooter(po, totalpages)
 	return rs
@@ -207,18 +211,18 @@ func fun3(po *PageOptions, totalpages int) string {
  * 123456789...200
  */
 func fun2(po *PageOptions, totalpages int) string {
-	var rs string = ""
+	rs := ""
 	rs += getHeader(po, totalpages)
-	for i := 1; i <= po.LinkItemCount+1; i++ {
-		if i == po.LinkItemCount {
-			rs += "<li><a href=\"" + po.Href + "&" + po.ParamName + "=" + con.Itoa(i) + "\">...</a></li>"
+	for i := 1; i <= po.LinkItemCount+2; i++ {
+		if i == po.LinkItemCount+2 {
+			rs += "<li class=\"@4\"><a href=\"" + po.Href + "&" + po.ParamName + "=" + con.Itoa(i) + "\">...</a></li>"
 		} else if i == po.LinkItemCount+1 {
 			rs += "<li><a href=\"" + po.Href + "&" + po.ParamName + "=" + con.Itoa(totalpages) + "\">" + con.Itoa(totalpages) + "</a></li>"
 		} else {
 			if po.CurrentPage != i {
 				rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(i) + "'>" + con.Itoa(i) + "</a></li>"
 			} else {
-				rs += "<li class=\"active\"><a href=\"###\">" + con.Itoa(i) +  "  <span class=\"sr-only\">(current)</span></a></li>"
+				rs += "<li class=\"active\"><a href=\"###\">" + con.Itoa(i) + "  <span class=\"sr-only\">(current)</span></a></li>"
 			}
 		}
 	}
@@ -239,7 +243,7 @@ func fun1(po *PageOptions, totalpages int) string {
 
 			rs += "<li><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(i) + "'>" + con.Itoa(i) + "</a></li>"
 		} else {
-			rs += "<li class=\"active\"><a href=\"###\">" + con.Itoa(i) +  "  <span class=\"sr-only\">(current)</span></a></li>"
+			rs += "<li class=\"active\"><a href=\"###\">" + con.Itoa(i) + "  <span class=\"sr-only\">(current)</span></a></li>"
 		}
 	}
 	rs += getFooter(po, totalpages)
@@ -255,7 +259,7 @@ func getHeader(po *PageOptions, totalpages int) string {
 	if po.EnableFirstLastLink { //当首页,尾页都设定的时候,就显示
 		if po.CurrentPage == 1 {
 			rs += "<li" + judgeDisable(po, totalpages, 0) + " class=\"disabled\"><a href=\"###\">" + po.FirstPageText + "</a></li>"
-		}else{
+		} else {
 			rs += "<li" + judgeDisable(po, totalpages, 0) + " ><a href='" + po.Href + "&" + po.ParamName + "=" + con.Itoa(1) + "'>" + po.FirstPageText + "</a></li>"
 		}
 	}
@@ -281,7 +285,7 @@ func getFooter(po *PageOptions, totalpages int) string {
 	if po.EnableFirstLastLink { //当首页,尾页都设定的时候,就显示
 		if po.CurrentPage == totalpages {
 			rs += "<li " + judgeDisable(po, totalpages, 1) + " class=\"disabled\"><a href=\"###\">" + po.LastPageText + "</a></li>"
-		}else{
+		} else {
 			rs += "<li " + judgeDisable(po, totalpages, 1) + " ><a href=\"" + po.Href + "&" + po.ParamName + "=" + con.Itoa(totalpages) + "\">" + po.LastPageText + "</a></li>"
 		}
 	}

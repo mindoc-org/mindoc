@@ -4,9 +4,9 @@ import "time"
 
 //博文表
 type Blog struct {
-	BlogId int
+	BlogId    int
 	BlogTitle string
-	MemberId int
+	MemberId  int
 	//文字摘要
 	BlogExcerpt string
 	//文章内容

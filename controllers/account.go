@@ -14,6 +14,7 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
+	"net/url"
 )
 
 // AccountController 用户登录与注册
@@ -32,13 +33,16 @@ func (c *AccountController) Login() {
 		Time     time.Time
 	}
 
-	// 显式指定的 URL 参数优先；为了统一处理，将之更新到 Session 中
-	turl := c.GetString("turl", "")
-	if turl != "" {
-		c.SetSession("turl", turl)
+	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
+		u := c.GetString("url")
+		if u == "" {
+			u = c.Ctx.Request.Header.Get("Referer")
+		}
+		if u == "" {
+			u = beego.URLFor("HomeController.Index")
+		}
+		c.Redirect(u,302)
 	}
-
-	beego.Info("AccountController.Login(): turl is: " + turl)
 
 	// 如果 Cookie 中存在登录信息
 	if cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login"); ok {
@@ -81,26 +85,35 @@ func (c *AccountController) Login() {
 					c.SetSecureCookie(conf.GetAppKey(), "login", v)
 				}
 			}
+			u,_ := url.PathUnescape(c.GetString("url"))
+			if u == "" {
+				u = c.Ctx.Request.Header.Get("Referer")
+			}
+			if u == "" {
+				u = beego.URLFor("HomeController.Index")
+			}
 
-			data := c.LoggedIn(true)
-			c.JsonResult(0, "ok", data)
+			c.JsonResult(0, "ok", u)
 		} else {
 			logs.Error("用户登录 =>", err)
 			c.JsonResult(500, "账号或密码错误", nil)
 		}
+	}else{
+		u,_ := url.PathUnescape(c.GetString("url"))
+		if u == "" {
+			u = c.Ctx.Request.Header.Get("Referer")
+		}
+		if u == "" {
+			u = beego.URLFor("HomeController.Index")
+		}
+		c.Data["url"] = url.PathEscape(u)
 	}
 }
 
 // 登录成功后的操作，如重定向到原始请求页面
 func (c *AccountController) LoggedIn(isPost bool) interface{} {
-	turl := ""
-	value := c.GetSession("turl")
-	if value != nil {
-		turl = value.(string)
-	}
-	c.DelSession("turl")
 
-	beego.Info("AccountController.LoggedIn(): turl is: " + turl)
+	turl := c.GetString("url")
 
 	if !isPost {
 		// 检查是否存在 turl 参数，如果有则重定向至 turl 处，否则进入 Home 页面
@@ -111,7 +124,7 @@ func (c *AccountController) LoggedIn(isPost bool) interface{} {
 		return nil
 	} else {
 		var data struct {
-			TURL string `json:"turl"`
+			TURL string `json:"url"`
 		}
 		data.TURL = turl
 		return data
@@ -369,7 +382,9 @@ func (c *AccountController) Logout() {
 
 	c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
 
-	c.Redirect(beego.URLFor("AccountController.Login"), 302)
+	u := c.Ctx.Request.Header.Get("Referer")
+
+	c.Redirect(beego.URLFor("AccountController.Login","url",u), 302)
 }
 
 // 验证码

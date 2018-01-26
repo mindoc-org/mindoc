@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"net/url"
 	"image/png"
 
 	"bytes"
@@ -21,7 +21,6 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
-	"github.com/lifei6671/mindoc/commands"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
@@ -101,12 +100,10 @@ func promptUserToLogIn(c *DocumentController) {
 	beego.Info("Access " + c.Ctx.Request.URL.RequestURI() + " not permitted.")
 	beego.Info("  Access will be redirected to login page(SessionId: " + c.CruSession.SessionID() + ").")
 
-	c.SetSession("turl", c.Ctx.Request.URL.RequestURI())
-
 	if c.IsAjax() {
-		c.JsonResult(6000, "需要[重]登录。")
+		c.JsonResult(6000, "请重新登录。")
 	} else {
-		c.Redirect(beego.URLFor("AccountController.Login"), 302)
+		c.Redirect(beego.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
 	}
 }
 
@@ -156,8 +153,7 @@ func (c *DocumentController) Read() {
 	token := c.GetString("token")
 	id := c.GetString(":id")
 
-	c.Data["DocumentId"] = id // added by dandycheung, 2017-12-08, for exporting
-	beego.Info("DocumentController.Read(): c.Data[\"DocumentId\"] = ", id, ", IsAjax = ", c.IsAjax())
+	c.Data["DocumentId"] = id
 
 	if identify == "" || id == "" {
 		c.Abort("404")
@@ -393,7 +389,6 @@ func (c *DocumentController) Create() {
 
 	document.Identify = doc_identify
 
-
 	document.Version = time.Now().Unix()
 	document.DocumentName = doc_name
 	document.ParentId = parent_id
@@ -438,10 +433,9 @@ func (c *DocumentController) Upload() {
 	}
 	beego.Info(conf.GetUploadFileSize())
 	beego.Info(moreFile.Size)
-	if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize()  {
-		c.JsonResult(6009,"查过文件允许的上传最大值")
+	if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize() {
+		c.JsonResult(6009, "查过文件允许的上传最大值")
 	}
-
 
 	ext := filepath.Ext(moreFile.Filename)
 
@@ -498,7 +492,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	fileName := "attach_" + strconv.FormatInt(time.Now().UnixNano(), 16)
-	filePath := filepath.Join(commands.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+ext)
+	filePath := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+ext)
 	path := filepath.Dir(filePath)
 
 	os.MkdirAll(path, os.ModePerm)
@@ -515,7 +509,7 @@ func (c *DocumentController) Upload() {
 	attachment.FileName = moreFile.Filename
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
-	attachment.FilePath = strings.TrimPrefix(filePath, commands.WorkingDirectory)
+	attachment.FilePath = strings.TrimPrefix(filePath, conf.WorkingDirectory)
 	attachment.DocumentId = doc_id
 
 	if fileInfo, err := os.Stat(filePath); err == nil {
@@ -527,7 +521,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
-		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, commands.WorkingDirectory), "\\", "/", -1)
+		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
 		if strings.HasPrefix(attachment.HttpPath, "//") {
 			attachment.HttpPath = string(attachment.HttpPath[1:])
 		}
@@ -621,7 +615,7 @@ func (c *DocumentController) DownloadAttachment() {
 		c.Abort("404")
 	}
 
-	c.Ctx.Output.Download(filepath.Join(commands.WorkingDirectory, attachment.FilePath), attachment.FileName)
+	c.Ctx.Output.Download(filepath.Join(conf.WorkingDirectory, attachment.FilePath), attachment.FileName)
 	c.StopRun()
 }
 
@@ -666,7 +660,7 @@ func (c *DocumentController) RemoveAttachment() {
 		c.JsonResult(6005, "删除失败")
 	}
 
-	os.Remove(filepath.Join(commands.WorkingDirectory, attach.FilePath))
+	os.Remove(filepath.Join(conf.WorkingDirectory, attach.FilePath))
 
 	c.JsonResult(0, "ok", attach)
 }
@@ -819,14 +813,12 @@ func (c *DocumentController) Content() {
 				beego.Error("DocumentHistory InsertOrUpdate => ", err)
 			}
 		}
-		if auto_release  {
+		if auto_release {
 			go func(identify string) {
 				models.NewDocument().ReleaseContent(book_id)
 
-
 			}(identify)
 		}
-
 
 		c.JsonResult(0, "ok", doc)
 	}
@@ -843,7 +835,6 @@ func (c *DocumentController) Content() {
 
 	c.JsonResult(0, "ok", doc)
 }
-
 
 func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
 	doc = models.NewDocument()
@@ -894,55 +885,33 @@ func (c *DocumentController) Export() {
 		bookResult = isReadable(identify, token, c)
 	}
 
-	if bookResult.PrivatelyOwned == 0 {
-		// TODO: 私有项目禁止导出
-	}
-
-	if !strings.HasPrefix(bookResult.Cover,"http:://") && !strings.HasPrefix(bookResult.Cover,"https:://"){
+	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
 		bookResult.Cover = c.BaseUrl() + bookResult.Cover
 	}
 
-	eBookResult,err := bookResult.Converter(c.CruSession.SessionID())
+	eBookResult, err := bookResult.Converter(c.CruSession.SessionID())
 
 	if err != nil {
 		beego.Error("转换文档失败：" + bookResult.BookName + " -> " + err.Error())
 		c.Abort("500")
 	}
 
-
 	if output == "pdf" {
-		c.Ctx.Output.Download(eBookResult.PDFPath, identify + ".pdf")
+		c.Ctx.Output.Download(eBookResult.PDFPath, bookResult.BookName+".pdf")
 
-		//如果没有开启缓存，则10分钟后删除
-		if !bookResult.IsCacheEBook {
-			defer func(pdfpath string) {
-				time.Sleep(time.Minute * 10)
-				os.Remove(filepath.Dir(pdfpath))
-			}(eBookResult.PDFPath)
-		}
-		c.StopRun()
-	}else if output == "epub" {
-		c.Ctx.Output.Download(eBookResult.PDFPath, identify + ".epub")
+		c.Abort("200")
+	} else if output == "epub" {
+		c.Ctx.Output.Download(eBookResult.EpubPath, bookResult.BookName+".epub")
 
-		//如果没有开启缓存，则10分钟后删除
-		if !bookResult.IsCacheEBook {
-			defer func(pdfpath string) {
-				time.Sleep(time.Minute * 10)
-				os.Remove(filepath.Dir(pdfpath))
-			}(eBookResult.EpubPath)
-		}
-		c.StopRun()
-	}else if output == "mobi" {
-		c.Ctx.Output.Download(eBookResult.PDFPath, identify + ".epub")
+		c.Abort("200")
+	} else if output == "mobi" {
+		c.Ctx.Output.Download(eBookResult.MobiPath, bookResult.BookName+".epub")
 
-		//如果没有开启缓存，则10分钟后删除
-		if !bookResult.IsCacheEBook {
-			defer func(pdfpath string) {
-				time.Sleep(time.Minute * 10)
-				os.Remove(filepath.Dir(pdfpath))
-			}(eBookResult.MobiPath)
-		}
-		c.StopRun()
+		c.Abort("200")
+	} else if output == "docx" {
+		c.Ctx.Output.Download(eBookResult.WordPath, bookResult.BookName+".epub")
+
+		c.Abort("200")
 	}
 
 	c.Abort("404")

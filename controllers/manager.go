@@ -13,7 +13,6 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"path/filepath"
-	"github.com/lifei6671/mindoc/commands"
 	"strconv"
 )
 
@@ -21,7 +20,7 @@ type ManagerController struct {
 	BaseController
 }
 
-func (c *ManagerController) Prepare (){
+func (c *ManagerController) Prepare() {
 	c.BaseController.Prepare()
 
 	if !c.Member.IsAdministrator() {
@@ -42,7 +41,7 @@ func (c *ManagerController) Users() {
 
 	pageIndex, _ := c.GetInt("page", 0)
 
-	members, totalCount, err := models.NewMember().FindToPager(pageIndex, 15)
+	members, totalCount, err := models.NewMember().FindToPager(pageIndex, conf.PageSize)
 
 	if err != nil {
 		c.Data["ErrorMessage"] = err.Error()
@@ -50,7 +49,7 @@ func (c *ManagerController) Users() {
 	}
 
 	if totalCount > 0 {
-		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 10, int(totalCount))
+		html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, int(totalCount))
 
 		c.Data["PageHtml"] = html
 	} else {
@@ -139,10 +138,10 @@ func (c *ManagerController) UpdateMemberStatus() {
 		c.JsonResult(6002, "用户不存在")
 	}
 	if member.MemberId == c.Member.MemberId {
-		c.JsonResult(6004,"不能变更自己的状态")
+		c.JsonResult(6004, "不能变更自己的状态")
 	}
 	if member.Role == conf.MemberSuperRole {
-		c.JsonResult(6005,"不能变更超级管理员的状态")
+		c.JsonResult(6005, "不能变更超级管理员的状态")
 	}
 	member.Status = status
 
@@ -171,10 +170,10 @@ func (c *ManagerController) ChangeMemberRole() {
 		c.JsonResult(6002, "用户不存在")
 	}
 	if member.MemberId == c.Member.MemberId {
-		c.JsonResult(6004,"不能变更自己的权限")
+		c.JsonResult(6004, "不能变更自己的权限")
 	}
 	if member.Role == conf.MemberSuperRole {
-		c.JsonResult(6005,"不能变更超级管理员的权限")
+		c.JsonResult(6005, "不能变更超级管理员的权限")
 	}
 	member.Role = role
 
@@ -191,13 +190,13 @@ func (c *ManagerController) EditMember() {
 	c.Prepare()
 	c.TplName = "manager/edit_users.tpl"
 
-	member_id,_ := c.GetInt(":id",0)
+	member_id, _ := c.GetInt(":id", 0)
 
 	if member_id <= 0 {
 		c.Abort("404")
 	}
 
-	member ,err := models.NewMember().Find(member_id)
+	member, err := models.NewMember().Find(member_id)
 
 	if err != nil {
 		beego.Error(err)
@@ -213,64 +212,64 @@ func (c *ManagerController) EditMember() {
 		member.Phone = phone
 		member.Description = description
 		if password1 != "" && password2 != password1 {
-			c.JsonResult(6001,"确认密码不正确")
+			c.JsonResult(6001, "确认密码不正确")
 		}
-		if password1 != "" && member.AuthMethod != conf.AuthMethodLDAP{
+		if password1 != "" && member.AuthMethod != conf.AuthMethodLDAP {
 			member.Password = password1
 		}
-		if err := member.Valid(password1 == "");err != nil {
-			c.JsonResult(6002,err.Error())
+		if err := member.Valid(password1 == ""); err != nil {
+			c.JsonResult(6002, err.Error())
 		}
 		if password1 != "" {
-			password,err := utils.PasswordHash(password1)
+			password, err := utils.PasswordHash(password1)
 			if err != nil {
 				beego.Error(err)
-				c.JsonResult(6003,"对用户密码加密时出错")
+				c.JsonResult(6003, "对用户密码加密时出错")
 			}
 			member.Password = password
 		}
-		if err := member.Update();err != nil {
+		if err := member.Update(); err != nil {
 			beego.Error(err)
-			c.JsonResult(6004,"保存失败")
+			c.JsonResult(6004, "保存失败")
 		}
-		c.JsonResult(0,"ok")
+		c.JsonResult(0, "ok")
 	}
 
 	c.Data["Model"] = member
 }
 
 //删除一个用户，并将该用户的所有信息转移到超级管理员上.
-func (c *ManagerController) DeleteMember()  {
+func (c *ManagerController) DeleteMember() {
 	c.Prepare()
-	member_id,_ := c.GetInt("id",0)
+	member_id, _ := c.GetInt("id", 0)
 
 	if member_id <= 0 {
-		c.JsonResult(404,"参数错误")
+		c.JsonResult(404, "参数错误")
 	}
 
-	member ,err := models.NewMember().Find(member_id)
+	member, err := models.NewMember().Find(member_id)
 
 	if err != nil {
 		beego.Error(err)
-		c.JsonResult(500,"用户不存在")
+		c.JsonResult(500, "用户不存在")
 	}
 	if member.Role == conf.MemberSuperRole {
-		c.JsonResult(500,"不能删除超级管理员")
+		c.JsonResult(500, "不能删除超级管理员")
 	}
-	superMember,err := models.NewMember().FindByFieldFirst("role",0)
+	superMember, err := models.NewMember().FindByFieldFirst("role", 0)
 
 	if err != nil {
 		beego.Error(err)
-		c.JsonResult(5001,"未能找到超级管理员")
+		c.JsonResult(5001, "未能找到超级管理员")
 	}
 
-	err = models.NewMember().Delete(member_id,superMember.MemberId)
+	err = models.NewMember().Delete(member_id, superMember.MemberId)
 
 	if err != nil {
 		beego.Error(err)
-		c.JsonResult(5002,"删除失败")
+		c.JsonResult(5002, "删除失败")
 	}
-	c.JsonResult(0,"ok")
+	c.JsonResult(0, "ok")
 }
 
 //项目列表.
@@ -572,9 +571,9 @@ func (c *ManagerController) AttachList() {
 		c.Data["PageHtml"] = ""
 	}
 
-	for _,item := range attachList {
+	for _, item := range attachList {
 
-		p := filepath.Join(commands.WorkingDirectory,item.FilePath)
+		p := filepath.Join(conf.WorkingDirectory, item.FilePath)
 
 		item.IsExist = utils.FileExists(p)
 
@@ -583,27 +582,27 @@ func (c *ManagerController) AttachList() {
 }
 
 //附件详情.
-func (c *ManagerController) AttachDetailed()  {
+func (c *ManagerController) AttachDetailed() {
 	c.Prepare()
 	c.TplName = "manager/attach_detailed.tpl"
-	attach_id,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	attach_id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
 	if attach_id <= 0 {
 		c.Abort("404")
 	}
 
-	attach,err := models.NewAttachmentResult().Find(attach_id)
+	attach, err := models.NewAttachmentResult().Find(attach_id)
 
 	if err != nil {
-		beego.Error("AttachDetailed => ",err)
+		beego.Error("AttachDetailed => ", err)
 		if err == orm.ErrNoRows {
 			c.Abort("404")
-		}else{
+		} else {
 			c.Abort("500")
 		}
 	}
 
-	attach.FilePath = filepath.Join(commands.WorkingDirectory,attach.FilePath)
+	attach.FilePath = filepath.Join(conf.WorkingDirectory, attach.FilePath)
 	attach.HttpPath = c.BaseUrl() + attach.HttpPath
 
 	attach.IsExist = utils.FileExists(attach.FilePath)
@@ -612,43 +611,22 @@ func (c *ManagerController) AttachDetailed()  {
 }
 
 //删除附件.
-func (c *ManagerController) AttachDelete()  {
+func (c *ManagerController) AttachDelete() {
 	c.Prepare()
-	attach_id,_ := c.GetInt("attach_id")
+	attach_id, _ := c.GetInt("attach_id")
 
 	if attach_id <= 0 {
 		c.Abort("404")
 	}
-	attach,err := models.NewAttachment().Find(attach_id)
+	attach, err := models.NewAttachment().Find(attach_id)
 
 	if err != nil {
-		beego.Error("AttachDelete => ",err)
-		c.JsonResult(6001,err.Error())
+		beego.Error("AttachDelete => ", err)
+		c.JsonResult(6001, err.Error())
 	}
-	if err := attach.Delete();err != nil {
-		beego.Error("AttachDelete => ",err)
-		c.JsonResult(6002,err.Error())
+	if err := attach.Delete(); err != nil {
+		beego.Error("AttachDelete => ", err)
+		c.JsonResult(6002, err.Error())
 	}
-	c.JsonResult(0,"ok")
+	c.JsonResult(0, "ok")
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

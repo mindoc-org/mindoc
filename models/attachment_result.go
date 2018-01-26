@@ -8,27 +8,27 @@ import (
 
 type AttachmentResult struct {
 	Attachment
-	IsExist bool
-	BookName string
-	DocumentName string
+	IsExist       bool
+	BookName      string
+	DocumentName  string
 	FileShortSize string
-	Account string
+	Account       string
 	LocalHttpPath string
 }
 
 func NewAttachmentResult() *AttachmentResult {
-	return &AttachmentResult{ IsExist : false }
+	return &AttachmentResult{IsExist: false}
 }
 
-func (m *AttachmentResult) Find(id int) (*AttachmentResult,error)  {
+func (m *AttachmentResult) Find(id int) (*AttachmentResult, error) {
 	o := orm.NewOrm()
 
 	attach := NewAttachment()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("attachment_id",id).One(attach)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("attachment_id", id).One(attach)
 
 	if err != nil {
-		return m,err
+		return m, err
 	}
 
 	m.Attachment = *attach
@@ -50,12 +50,12 @@ func (m *AttachmentResult) Find(id int) (*AttachmentResult,error)  {
 
 	if attach.CreateAt > 0 {
 		member := NewMember()
-		if e := o.QueryTable(member.TableNameWithPrefix()).Filter("member_id",attach.CreateAt).One(member,"account");e == nil {
+		if e := o.QueryTable(member.TableNameWithPrefix()).Filter("member_id", attach.CreateAt).One(member, "account"); e == nil {
 			m.Account = member.Account
 		}
 	}
 	m.FileShortSize = utils.FormatBytes(int64(attach.FileSize))
-	m.LocalHttpPath = strings.Replace(m.FilePath,"\\","/",-1)
+	m.LocalHttpPath = strings.Replace(m.FilePath, "\\", "/", -1)
 
-	return m,nil
+	return m, nil
 }

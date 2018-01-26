@@ -6,11 +6,12 @@ import (
 	"net/url"
 	"os"
 	"time"
-
+	"log"
 	"flag"
 	"path/filepath"
 	"strings"
 
+	"encoding/json"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -19,14 +20,6 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
-	"log"
-	"encoding/json"
-)
-
-var (
-	ConfigurationFile = "./conf/app.conf"
-	WorkingDirectory  = "./"
-	LogFile           = "./logs"
 )
 
 // RegisterDataBase 注册数据库
@@ -54,8 +47,8 @@ func RegisterDataBase() {
 		}
 	} else if adapter == "sqlite3" {
 		database := beego.AppConfig.String("db_database")
-		if strings.HasPrefix(database,"./") {
-			database = filepath.Join(WorkingDirectory,string(database[1:]))
+		if strings.HasPrefix(database, "./") {
+			database = filepath.Join(conf.WorkingDirectory, string(database[1:]))
 		}
 
 		dbPath := filepath.Dir(database)
@@ -99,11 +92,11 @@ func RegisterLogger(log string) {
 
 		if f, err := os.Create(logPath); err == nil {
 			f.Close()
-			config := make(map[string]interface{},1)
+			config := make(map[string]interface{}, 1)
 
 			config["filename"] = logPath
 
-			b,_ := json.Marshal(config)
+			b, _ := json.Marshal(config)
 
 			beego.SetLogger("file", string(b))
 		}
@@ -133,7 +126,7 @@ func RegisterFunction() {
 
 	beego.AddFuncMap("cdn", func(p string) string {
 		cdn := beego.AppConfig.DefaultString("cdn", "")
-		if strings.HasPrefix(p,"http://") || strings.HasPrefix(p,"https://") {
+		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
@@ -147,7 +140,7 @@ func RegisterFunction() {
 
 	beego.AddFuncMap("cdnjs", func(p string) string {
 		cdn := beego.AppConfig.DefaultString("cdnjs", "")
-		if strings.HasPrefix(p,"http://") || strings.HasPrefix(p,"https://") {
+		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
@@ -160,7 +153,7 @@ func RegisterFunction() {
 	})
 	beego.AddFuncMap("cdncss", func(p string) string {
 		cdn := beego.AppConfig.DefaultString("cdncss", "")
-		if strings.HasPrefix(p,"http://") || strings.HasPrefix(p,"https://") {
+		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
@@ -172,7 +165,7 @@ func RegisterFunction() {
 		return cdn + p
 	})
 	beego.AddFuncMap("cdnimg", func(p string) string {
-		if strings.HasPrefix(p,"http://") || strings.HasPrefix(p,"https://") {
+		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
 		cdn := beego.AppConfig.DefaultString("cdnimg", "")
@@ -188,62 +181,64 @@ func RegisterFunction() {
 
 func ResolveCommand(args []string) {
 	flagSet := flag.NewFlagSet("MinDoc command: ", flag.ExitOnError)
-	flagSet.StringVar(&ConfigurationFile, "config", "", "MinDoc configuration file.")
-	flagSet.StringVar(&WorkingDirectory, "dir", "", "MinDoc working directory.")
-	flagSet.StringVar(&LogFile, "log", "", "MinDoc log file path.")
+	flagSet.StringVar(&conf.ConfigurationFile, "config", "", "MinDoc configuration file.")
+	flagSet.StringVar(&conf.WorkingDirectory, "dir", "", "MinDoc working directory.")
+	flagSet.StringVar(&conf.LogFile, "log", "", "MinDoc log file path.")
 
 	flagSet.Parse(args)
 
-
-	if WorkingDirectory == "" {
+	if conf.WorkingDirectory == "" {
 		if p, err := filepath.Abs(os.Args[0]); err == nil {
-			WorkingDirectory = filepath.Dir(p)
+			conf.WorkingDirectory = filepath.Dir(p)
 		}
 	}
-	if LogFile == "" {
-		LogFile = filepath.Join(WorkingDirectory,"logs")
+	if conf.LogFile == "" {
+		conf.LogFile = filepath.Join(conf.WorkingDirectory, "logs")
 	}
-	if ConfigurationFile == "" {
-		ConfigurationFile = filepath.Join(WorkingDirectory,"conf","app.conf")
-		config :=  filepath.Join(WorkingDirectory,"conf","app.conf.example")
-		if !utils.FileExists(ConfigurationFile) && utils.FileExists(config){
-			utils.CopyFile(ConfigurationFile,config)
+	if conf.ConfigurationFile == "" {
+		conf.ConfigurationFile = filepath.Join(conf.WorkingDirectory, "conf", "app.conf")
+		config := filepath.Join(conf.WorkingDirectory, "conf", "app.conf.example")
+		if !utils.FileExists(conf.ConfigurationFile) && utils.FileExists(config) {
+			utils.CopyFile(conf.ConfigurationFile, config)
 		}
 	}
-	gocaptcha.ReadFonts(filepath.Join(WorkingDirectory,"static","fonts"), ".ttf")
+	gocaptcha.ReadFonts(filepath.Join(conf.WorkingDirectory, "static", "fonts"), ".ttf")
 
-	err := beego.LoadAppConfig("ini", ConfigurationFile)
+	err := beego.LoadAppConfig("ini", conf.ConfigurationFile)
 
 	if err != nil {
 		log.Println("An error occurred:", err)
 		os.Exit(1)
 	}
-	uploads := filepath.Join(WorkingDirectory, "uploads")
+	uploads := filepath.Join(conf.WorkingDirectory, "uploads")
 
-	os.MkdirAll(uploads,0666)
+	os.MkdirAll(uploads, 0666)
 
-	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(WorkingDirectory, "static")
+	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
 	beego.BConfig.WebConfig.StaticDir["/uploads"] = uploads
-	beego.BConfig.WebConfig.ViewsPath = filepath.Join(WorkingDirectory, "views")
+	beego.BConfig.WebConfig.ViewsPath = filepath.Join(conf.WorkingDirectory, "views")
 
-	fonts := filepath.Join(WorkingDirectory, "static", "fonts")
+	fonts := filepath.Join(conf.WorkingDirectory, "static", "fonts")
 
 	if !utils.FileExists(fonts) {
 		log.Fatal("Font path not exist.")
 	}
-	gocaptcha.ReadFonts(filepath.Join(WorkingDirectory, "static", "fonts"), ".ttf")
+	gocaptcha.ReadFonts(filepath.Join(conf.WorkingDirectory, "static", "fonts"), ".ttf")
 
 	RegisterDataBase()
 	RegisterModel()
-	RegisterLogger(LogFile)
+	RegisterLogger(conf.LogFile)
 }
 
 func init() {
 
+	if configPath ,err := filepath.Abs(conf.ConfigurationFile); err == nil {
+		conf.ConfigurationFile = configPath
+	}
 	gocaptcha.ReadFonts("./static/fonts", ".ttf")
 	gob.Register(models.Member{})
 
-	if p,err := filepath.Abs(os.Args[0]);err == nil{
-		WorkingDirectory = filepath.Dir(p)
+	if p, err := filepath.Abs(os.Args[0]); err == nil {
+		conf.WorkingDirectory = filepath.Dir(p)
 	}
 }

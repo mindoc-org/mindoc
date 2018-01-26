@@ -1,31 +1,31 @@
 package controllers
 
 import (
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/utils"
 	"github.com/astaxie/beego"
-	"strings"
+	"github.com/lifei6671/mindoc/conf"
+	"github.com/lifei6671/mindoc/models"
+	"github.com/lifei6671/mindoc/utils"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type SearchController struct {
 	BaseController
 }
 
-func (c *SearchController) Index()  {
+func (c *SearchController) Index() {
 	c.Prepare()
 	c.TplName = "search/index.tpl"
 
 	//如果没有开启你们访问则跳转到登录
 	if !c.EnableAnonymous && c.Member == nil {
-		c.Redirect(beego.URLFor("AccountController.Login"),302)
+		c.Redirect(beego.URLFor("AccountController.Login"), 302)
 		return
 	}
 
 	keyword := c.GetString("keyword")
-	pageIndex,_ := c.GetInt("page",1)
+	pageIndex, _ := c.GetInt("page", 1)
 
 	c.Data["BaseUrl"] = c.BaseUrl()
 
@@ -35,7 +35,7 @@ func (c *SearchController) Index()  {
 		if c.Member != nil {
 			member_id = c.Member.MemberId
 		}
-		search_result,totalCount,err := models.NewDocumentSearchResult().FindToPager(keyword,pageIndex,conf.PageSize,member_id)
+		search_result, totalCount, err := models.NewDocumentSearchResult().FindToPager(keyword, pageIndex, conf.PageSize, member_id)
 
 		if err != nil {
 			beego.Error(err)
@@ -45,12 +45,12 @@ func (c *SearchController) Index()  {
 			html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, conf.PageSize, totalCount)
 
 			c.Data["PageHtml"] = html
-		}else {
+		} else {
 			c.Data["PageHtml"] = ""
 		}
 		if len(search_result) > 0 {
-			for _,item := range search_result {
-				item.DocumentName = strings.Replace(item.DocumentName,keyword,"<em>" + keyword + "</em>",-1)
+			for _, item := range search_result {
+				item.DocumentName = strings.Replace(item.DocumentName, keyword, "<em>"+keyword+"</em>", -1)
 
 				if item.Description != "" {
 					src := item.Description
@@ -79,13 +79,13 @@ func (c *SearchController) Index()  {
 
 					if len(r) > 100 {
 						src = string(r[:100])
-					}else{
+					} else {
 						src = string(r)
 					}
-					item.Description = strings.Replace(src, keyword, "<em>" + keyword + "</em>", -1)
+					item.Description = strings.Replace(src, keyword, "<em>"+keyword+"</em>", -1)
 				}
 
-				if item.Identify == ""{
+				if item.Identify == "" {
 					item.Identify = strconv.Itoa(item.DocumentId)
 				}
 				if item.ModifyTime.IsZero() {

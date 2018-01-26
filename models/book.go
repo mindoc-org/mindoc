@@ -3,11 +3,14 @@ package models
 import (
 	"time"
 
+	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
-	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 // Book struct .
@@ -16,17 +19,15 @@ type Book struct {
 	// BookName 项目名称.
 	BookName string `orm:"column(book_name);size(500)" json:"book_name"`
 	// Identify 项目唯一标识.
-	Identify   string `orm:"column(identify);size(100);unique" json:"identify"`
+	Identify string `orm:"column(identify);size(100);unique" json:"identify"`
 	//是否是自动发布 0 否/1 是
 	AutoRelease int `orm:"column(auto_release);type(int);default(0)" json:"auto_release"`
-	OrderIndex int    `orm:"column(order_index);type(int);default(0)" json:"order_index"`
+	OrderIndex  int `orm:"column(order_index);type(int);default(0)" json:"order_index"`
 	// Description 项目描述.
 	Description string `orm:"column(description);size(2000)" json:"description"`
 	//发行公司
-	Publisher string 	`orm:"column(publisher);size(500)" json:"publisher"`
-	//是否缓存导出的电子书，如果缓存可能会出现导出的文件不是最新的。 0 为不缓存
-	IsCacheEBook int `orm:"column(is_cache_ebook);type(int);default(0)" json:"is_cache_ebook"`
-	Label       string `orm:"column(label);size(500)" json:"label"`
+	Publisher string `orm:"column(publisher);size(500)" json:"publisher"`
+	Label        string `orm:"column(label);size(500)" json:"label"`
 	// PrivatelyOwned 项目私有： 0 公开/ 1 私有
 	PrivatelyOwned int `orm:"column(privately_owned);type(int);default(0)" json:"privately_owned"`
 	// 当项目是私有时的访问Token.
@@ -122,7 +123,7 @@ func (m *Book) Update(cols ...string) error {
 	temp := NewBook()
 	temp.BookId = m.BookId
 
-	if err := o.Read(temp);err != nil {
+	if err := o.Read(temp); err != nil {
 		return err
 	}
 
@@ -185,7 +186,7 @@ func (m *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResu
 		" LEFT JOIN " + relationship.TableNameWithPrefix() + " AS rel ON book.book_id=rel.book_id AND rel.member_id = ?" +
 		" LEFT JOIN " + relationship.TableNameWithPrefix() + " AS rel1 ON book.book_id=rel1.book_id  AND rel1.role_id=0" +
 		" LEFT JOIN " + NewMember().TableNameWithPrefix() + " AS m ON rel1.member_id=m.member_id " +
-		" WHERE rel.relationship_id > 0 ORDER BY book.order_index DESC,book.book_id DESC LIMIT " + fmt.Sprintf("%d,%d",offset,pageSize)
+		" WHERE rel.relationship_id > 0 ORDER BY book.order_index DESC,book.book_id DESC LIMIT " + fmt.Sprintf("%d,%d", offset, pageSize)
 
 	_, err = o.Raw(sql2, memberId).QueryRows(&books)
 	if err != nil {
@@ -261,6 +262,8 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 		NewLabel().InsertOrUpdateMulti(m.Label)
 	}
 
+	os.RemoveAll(filepath.Join(conf.WorkingDirectory,"uploads","books",strconv.Itoa(id)))
+
 	return o.Commit()
 
 }
@@ -320,7 +323,7 @@ func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, member_i
 	if member_id > 0 {
 		sql1 := "SELECT COUNT(*) FROM md_books AS book LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ? WHERE (relationship_id > 0 OR book.privately_owned = 0) AND book.label LIKE ?"
 
-		err = o.Raw(sql1, member_id,keyword).QueryRow(&totalCount)
+		err = o.Raw(sql1, member_id, keyword).QueryRow(&totalCount)
 		if err != nil {
 			return
 		}
@@ -330,12 +333,12 @@ func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, member_i
 			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
 			WHERE (rel.relationship_id > 0 OR book.privately_owned = 0) AND book.label LIKE ? ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
 
-		_, err = o.Raw(sql2, member_id,keyword, offset, pageSize).QueryRows(&books)
+		_, err = o.Raw(sql2, member_id, keyword, offset, pageSize).QueryRows(&books)
 
 		return
 
 	} else {
-		count, err1 := o.QueryTable(NewBook().TableNameWithPrefix()).Filter("privately_owned", 0).Filter("label__icontains",keyword).Count()
+		count, err1 := o.QueryTable(NewBook().TableNameWithPrefix()).Filter("privately_owned", 0).Filter("label__icontains", keyword).Count()
 
 		if err1 != nil {
 			err = err1
@@ -348,13 +351,12 @@ func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, member_i
 			LEFT JOIN md_members AS member ON rel.member_id = member.member_id
 			WHERE book.privately_owned = 0 AND book.label LIKE ? ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
 
-		_, err = o.Raw(sql,keyword, offset, pageSize).QueryRows(&books)
+		_, err = o.Raw(sql, keyword, offset, pageSize).QueryRows(&books)
 
 		return
 
 	}
 }
-
 
 //重置文档数量
 func (m *Book) ResetDocumentNumber(book_id int) {

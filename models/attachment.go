@@ -127,7 +127,7 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 		} else {
 			attach.DocumentName = "[不存在]"
 		}
-		attach.LocalHttpPath = strings.Replace(item.FilePath,"\\","/",-1)
+		attach.LocalHttpPath = strings.Replace(item.FilePath, "\\", "/", -1)
 
 		attachList = append(attachList, attach)
 	}

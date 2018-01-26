@@ -6,25 +6,25 @@ import (
 )
 
 //解码
-func Decode(value string,r interface{}) (error) {
+func Decode(value string, r interface{}) error {
 
-	network := bytes.NewBuffer([]byte(value));
+	network := bytes.NewBuffer([]byte(value))
 
 	dec := gob.NewDecoder(network)
 
-	return dec.Decode(r);
+	return dec.Decode(r)
 }
 
 //编码
-func Encode(value interface{}) (string,error) {
-	network:= bytes.NewBuffer(nil);
+func Encode(value interface{}) (string, error) {
+	network := bytes.NewBuffer(nil)
 
 	enc := gob.NewEncoder(network)
 
-	err := enc.Encode(value);
+	err := enc.Encode(value)
 	if err != nil {
-		return  "",err;
+		return "", err
 	}
 
-	return  network.String(),nil;
+	return network.String(), nil
 }

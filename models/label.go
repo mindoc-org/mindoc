@@ -1,35 +1,36 @@
 package models
 
 import (
-	"github.com/lifei6671/mindoc/conf"
 	"github.com/astaxie/beego/orm"
+	"github.com/lifei6671/mindoc/conf"
 	"strings"
 )
 
 type Label struct {
-	LabelId int		`orm:"column(label_id);pk;auto;unique;" json:"label_id"`
-	LabelName string	`orm:"column(label_name);size(50);unique" json:"label_name"`
-	BookNumber int		`orm:"column(book_number)" json:"book_number"`
+	LabelId    int    `orm:"column(label_id);pk;auto;unique;" json:"label_id"`
+	LabelName  string `orm:"column(label_name);size(50);unique" json:"label_name"`
+	BookNumber int    `orm:"column(book_number)" json:"book_number"`
 }
 
 // TableName 获取对应数据库表名.
 func (m *Label) TableName() string {
 	return "label"
 }
+
 // TableEngine 获取数据使用的引擎.
 func (m *Label) TableEngine() string {
 	return "INNODB"
 }
 
-func (m *Label)TableNameWithPrefix() string {
-	return conf.GetDatabasePrefix() +  m.TableName()
+func (m *Label) TableNameWithPrefix() string {
+	return conf.GetDatabasePrefix() + m.TableName()
 }
 
 func NewLabel() *Label {
 	return &Label{}
 }
 
-func (m *Label) FindFirst(field string, value interface{}) (*Label,error){
+func (m *Label) FindFirst(field string, value interface{}) (*Label, error) {
 	o := orm.NewOrm()
 
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter(field, value).One(m)
@@ -41,27 +42,27 @@ func (m *Label) FindFirst(field string, value interface{}) (*Label,error){
 func (m *Label) InsertOrUpdate(labelName string) error {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("label_name",labelName).One(m)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("label_name", labelName).One(m)
 	if err != nil && err != orm.ErrNoRows {
 		return err
 	}
-	count,_ := o.QueryTable(NewBook().TableNameWithPrefix()).Filter("label__icontains",labelName).Count()
+	count, _ := o.QueryTable(NewBook().TableNameWithPrefix()).Filter("label__icontains", labelName).Count()
 	m.BookNumber = int(count)
 	m.LabelName = labelName
 
 	if err == orm.ErrNoRows {
 		err = nil
 		m.LabelName = labelName
-		_,err = o.Insert(m)
-	}else{
-		_,err = o.Update(m)
+		_, err = o.Insert(m)
+	} else {
+		_, err = o.Update(m)
 	}
 	return err
 }
 
 //批量插入或更新标签.
-func (m *Label) InsertOrUpdateMulti(labels string)  {
-	if  labels != "" {
+func (m *Label) InsertOrUpdateMulti(labels string) {
+	if labels != "" {
 		labelArray := strings.Split(labels, ",")
 
 		for _, label := range labelArray {
@@ -73,10 +74,10 @@ func (m *Label) InsertOrUpdateMulti(labels string)  {
 }
 
 //分页查找标签.
-func (m *Label) FindToPager(pageIndex, pageSize int) (labels []*Label,totalCount int,err error) {
+func (m *Label) FindToPager(pageIndex, pageSize int) (labels []*Label, totalCount int, err error) {
 	o := orm.NewOrm()
 
-	count,err := o.QueryTable(m.TableNameWithPrefix()).Count()
+	count, err := o.QueryTable(m.TableNameWithPrefix()).Count()
 
 	if err != nil {
 		return
@@ -85,8 +86,7 @@ func (m *Label) FindToPager(pageIndex, pageSize int) (labels []*Label,totalCount
 
 	offset := (pageIndex - 1) * pageSize
 
-	_,err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-book_number").Offset(offset).Limit(pageSize).All(&labels)
+	_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-book_number").Offset(offset).Limit(pageSize).All(&labels)
 
 	return
 }
-

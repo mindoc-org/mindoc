@@ -1,15 +1,15 @@
 package utils
 
 import (
-	"strings"
-	"os"
 	"fmt"
-	"path/filepath"
 	"io"
 	"math"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
-func AbsolutePath(p string) (string,error) {
+func AbsolutePath(p string) (string, error) {
 
 	if strings.HasPrefix(p, "~") {
 		home := os.Getenv("HOME")
@@ -21,9 +21,9 @@ func AbsolutePath(p string) (string,error) {
 	s, err := filepath.Abs(p)
 
 	if nil != err {
-		return  "",err
+		return "", err
 	}
-	return s,nil
+	return s, nil
 }
 
 // FileExists reports whether the named file or directory exists.
@@ -58,17 +58,12 @@ func FormatBytes(size int64) string {
 
 	i := 0
 
-	for ; s >= 1024 && i < 4 ; i ++ {
+	for ; s >= 1024 && i < 4; i++ {
 		s /= 1024
 	}
 
-
-	return fmt.Sprintf("%.2f%s",s,units[i])
+	return fmt.Sprintf("%.2f%s", s, units[i])
 }
-
-
-
-
 
 func Round(val float64, places int) float64 {
 	var t float64
@@ -97,12 +92,3 @@ func Round(val float64, places int) float64 {
 
 	return t
 }
-
-
-
-
-
-
-
-
-

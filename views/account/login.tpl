@@ -131,7 +131,7 @@
                 return false;
             } else {
                 $.ajax({
-                    url: "{{urlfor "AccountController.Login"}}",
+                    url: "{{urlfor "AccountController.Login" "url" .url}}",
                     data: $("form").serializeArray(),
                     dataType: "json",
                     type: "POST",
@@ -142,7 +142,7 @@
                             layer.msg(res.message);
                             $btn.button('reset');
                         } else {
-                            turl = res.data.turl;
+                            turl = res.data;
                             if (turl === "") {
                                 turl = "/";
                             }

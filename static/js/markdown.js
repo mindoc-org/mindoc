@@ -141,7 +141,6 @@ $(function () {
         $.get(window.editURL + $node.node.id ).done(function (res) {
             layer.close(index);
 
-            resetEditor();
             if (res.errcode === 0) {
                 window.isLoad = true;
                 try {
@@ -153,7 +152,6 @@ $(function () {
                 }
                 var node = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id, "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
                 pushDocumentCategory(node);
-                console.log(node);
                 window.selectNode = node;
                 pushVueLists(res.data.attach);
             } else {

@@ -9,6 +9,9 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"strings"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 // Document struct.
@@ -121,12 +124,12 @@ func (m *Document) RecursiveDocument(doc_id int) error {
 }
 
 //发布文档
-func (m *Document) ReleaseContent(book_id int) {
+func (m *Document) ReleaseContent(bookId int) {
 
 	o := orm.NewOrm()
 
 	var docs []*Document
-	_, err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).All(&docs, "document_id", "content")
+	_, err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", bookId).All(&docs, "document_id", "content")
 
 	if err != nil {
 		beego.Error("发布失败 => ", err)
@@ -134,12 +137,12 @@ func (m *Document) ReleaseContent(book_id int) {
 	}
 	for _, item := range docs {
 		item.Release = item.Content
-		attach_list, err := NewAttachment().FindListByDocumentId(item.DocumentId)
-		if err == nil && len(attach_list) > 0 {
+		attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
+		if err == nil && len(attachList) > 0 {
 			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
-			for _, attach := range attach_list {
-				if strings.HasPrefix(attach.HttpPath,"/"){
-					attach.HttpPath = strings.TrimSuffix(beego.AppConfig.DefaultString("baseurl",""),"/") + attach.HttpPath
+			for _, attach := range attachList {
+				if strings.HasPrefix(attach.HttpPath, "/") {
+					attach.HttpPath = strings.TrimSuffix(beego.AppConfig.DefaultString("baseurl", ""), "/") + attach.HttpPath
 				}
 				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
 
@@ -151,6 +154,8 @@ func (m *Document) ReleaseContent(book_id int) {
 		_, err = o.Update(item, "release")
 		if err != nil {
 			beego.Error(fmt.Sprintf("发布失败 => %+v", item), err)
+		}else {
+			os.RemoveAll(filepath.Join(conf.WorkingDirectory,"uploads","books",strconv.Itoa(bookId)))
 		}
 	}
 }

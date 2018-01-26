@@ -1,15 +1,14 @@
 package utils
 
-
 import (
-	"crypto/rand"
-	mt "math/rand"
 	"crypto/md5"
+	"crypto/rand"
 	"crypto/sha256"
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/hex"
 	"io"
+	mt "math/rand"
 	"strconv"
 	"strings"
 )
@@ -20,6 +19,7 @@ const (
 	stretching_password = 500
 	salt_local_secret   = "ahfw*&TGdsfnbi*^Wt"
 )
+
 //加密密码
 func PasswordHash(pass string) (string, error) {
 
@@ -45,8 +45,9 @@ func PasswordHash(pass string) (string, error) {
 	return password, nil
 
 }
+
 //校验密码是否有效
-func  PasswordVerify(hashing string, pass string) (bool, error) {
+func PasswordVerify(hashing string, pass string) (bool, error) {
 	data := trim_salt_hash(hashing)
 
 	interation, _ := strconv.ParseInt(data["interation_string"], 10, 64)
@@ -56,7 +57,7 @@ func  PasswordVerify(hashing string, pass string) (bool, error) {
 		return false, err
 	}
 
-	if (data["salt_secret"]+delmiter+data["interation_string"]+delmiter+has+delmiter+data["salt"]) == hashing {
+	if (data["salt_secret"] + delmiter + data["interation_string"] + delmiter + has + delmiter + data["salt"]) == hashing {
 		return true, nil
 	} else {
 		return false, nil
@@ -110,7 +111,7 @@ func trim_salt_hash(hash string) map[string]string {
 }
 func salt(secret string) (string, error) {
 
-	buf := make([]byte, saltSize, saltSize + md5.Size)
+	buf := make([]byte, saltSize, saltSize+md5.Size)
 	_, err := io.ReadFull(rand.Reader, buf)
 	if err != nil {
 		return "", err
