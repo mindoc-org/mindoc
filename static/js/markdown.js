@@ -16,6 +16,7 @@ $(function () {
         flowChart: true,
         htmlDecode: "style,script,iframe,title,onmouseover,onmouseout,style",
         lineNumbers: false,
+        sequenceDiagram: true,
         tocStartLevel: 1,
         tocm: true,
         saveHTMLToTextarea: true,
