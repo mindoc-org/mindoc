@@ -22,6 +22,7 @@
     {{else}}
     <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
     {{end}}
+    <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 
@@ -44,7 +45,7 @@
                 {{if gt .Model.RelationshipId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
                 <div class="dropdown pull-right">
-                   <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default">编辑</a>
+                   <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
                 </div>
                 {{end}}
                 {{end}}
@@ -59,7 +60,7 @@
                 </div>
                 <div class="dropdown pull-right" style="margin-right: 10px;">
                     <button type="button" class="btn btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        下载 <span class="caret"></span>
+                        <i class="fa fa-cloud-download" aria-hidden="true"></i> 下载 <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel" style="margin-top: -5px;">
                         <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "pdf"}}" target="_blank">PDF</a> </li>
@@ -270,6 +271,7 @@
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/katex/katex.min.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
 active_book_id = {{.Model.Identify}};
 active_doc_id = {{.DocumentId}};

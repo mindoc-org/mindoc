@@ -41,7 +41,7 @@
 <body>
 
 <div class="m-manual manual-editor">
-    <div class="manual-head" id="editormd-tools">
+    <div class="manual-head" id="editormd-tools" style="min-width: 1200px;">
         <div class="editormd-group">
             <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
@@ -111,7 +111,7 @@
             </div>
             <div class="manual-tree" id="sidebar"> </div>
         </div>
-        <div class="manual-editor-container" id="manualEditorContainer">
+        <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 920px;">
             <div class="manual-editormd">
                 <div id="docEditor" class="manual-editormd-active"></div>
             </div>

@@ -30,10 +30,11 @@
     <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
+
     {{/*<link href="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.css" rel="stylesheet">*/}}
-    <link href="/static/katex/katex.min.css" rel="stylesheet">
-    <link href="/static/quill/quill.core.css" rel="stylesheet">
-    <link href="/static/quill/quill.snow.css" rel="stylesheet">
+    <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/quill/quill.core.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/quill/quill.snow.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -50,6 +51,13 @@
             outline:none;
             padding: 5px 5px 30px 5px;
         }
+        #docEditor p{
+            margin-bottom: 14px;
+            line-height: 1.7em;
+            font-size: 14px;
+            color: #5D5D5D;
+        }
+        .ql-picker-options{z-index: 99999;}
         .btn-info{background-color: #ffffff !important;}
         .btn-info>i{background-color: #cacbcd !important; color: #393939 !important; box-shadow: inset 0 0 0 1px transparent,inset 0 0 0 0 rgba(34,36,38,.15);}
         .editor-wrapper>pre{padding: 0;}
@@ -182,7 +190,7 @@
 <body>
 
 <div class="m-manual manual-editor">
-    <div class="manual-head btn-toolbar" id="editormd-tools"  style="min-width: 1360px;" data-role="editor-toolbar" data-target="#editor">
+    <div class="manual-head btn-toolbar" id="editormd-tools"  style="min-width: 1260px;" data-role="editor-toolbar" data-target="#editor">
         <div class="editor-group">
             <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
@@ -193,9 +201,6 @@
         <div class="editor-group">
             <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)" class="ql-undo"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="重做 (Ctrl-Y)" class="ql-redo"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
-        </div>
-        <div class="editor-group">
-            <select data-toggle="tooltip" data-title="字体" title="字体" class="ql-font editor-item-select editor-item-single-select"></select>
         </div>
         <div class="editor-group">
             <select data-toggle="tooltip" data-title="字号" title="字号" class="ql-size editor-item-select editor-item-single-select"></select>
@@ -247,9 +252,9 @@
             </div>
             <div class="manual-tree" id="sidebar"> </div>
         </div>
-        <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 1060px;">
+        <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 980px;">
             <div class="manual-editormd" style="bottom: 0;">
-                <div id="docEditor" class="manual-editormd-active ql-editor ql-blank"></div>
+                <div id="docEditor" class="manual-editormd-active ql-editor ql-blank  editor-content"></div>
                 <div class="manual-editor-status" style="border-top: 1px solid #DDDDDD;">
                     <div id="attachInfo" class="item">0 个附件</div>
                 </div>
@@ -370,23 +375,16 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
-{{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/external/jquery.hotkeys.js"></script>*/}}
-{{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/bootstrap-wysiwyg.js" type="text/javascript"></script>*/}}
-{{/*<script src="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.js"></script>*/}}
-<script src="/static/katex/katex.min.js" type="text/javascript"></script>
-<script src="/static/to-markdown/dist/to-markdown.js" type="text/javascript"></script>
-<script src="/static/quill/quill.js" type="text/javascript"></script>
-<script src="/static/quill/quill.icons.js"></script>
+<script src="{{cdnjs "/static/katex/katex.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/to-markdown/dist/to-markdown.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/quill/quill.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/quill/quill.icons.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/editor.js" type="text/javascript"></script>
-<script src="/static/js/quill.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/quill.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
-
-
     $(function () {
-
-
         $(".editor-code").on("dblclick",function () {
             var code = $(this).html();
             $("#createCodeToolbarModal").find("textarea").val(code);

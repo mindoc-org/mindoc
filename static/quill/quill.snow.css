@@ -692,7 +692,7 @@
   display: block;
   margin-top: -1px;
   top: 100%;
-  z-index: 1;
+  z-index: 1000;
 }
 .ql-snow .ql-color-picker,
 .ql-snow .ql-icon-picker {

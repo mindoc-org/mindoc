@@ -35,7 +35,7 @@ func (c *HomeController) Index() {
 		c.Abort("500")
 	}
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,pageSize)
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""

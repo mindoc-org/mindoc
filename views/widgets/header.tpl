@@ -1,6 +1,6 @@
 <header class="navbar navbar-static-top navbar-fixed-top manual-header" role="banner">
     <div class="container">
-        <div class="navbar-header col-sm-12 col-md-10 col-lg-8">
+        <div class="navbar-header col-sm-12 col-md-9 col-lg-8">
             <a href="/" class="navbar-brand" title="{{.SITE_NAME}}">
                 {{if .SITE_TITLE}}
                 {{.SITE_TITLE}}
@@ -8,7 +8,7 @@
                 {{.SITE_NAME}}
                 {{end}}
             </a>
-            <nav class="collapse navbar-collapse">
+            <nav class="collapse navbar-collapse col-sm-10">
                 <ul class="nav navbar-nav">
                     <li>
                         <a href="{{urlfor "HomeController.Index" }}" title="首页">首页</a>
@@ -26,8 +26,6 @@
                     </form>
                 </div>
             </nav>
-
-
 
             <div class="btn-group dropdown-menu-right pull-right slidebar visible-xs-inline-block visible-sm-inline-block">
                 <button class="btn btn-default dropdown-toggle hidden-lg" type="button" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
