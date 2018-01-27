@@ -49,7 +49,7 @@
                         <div class="form-group">
                             <label>网站描述</label>
                             <textarea rows="3" class="form-control" name="site_description" style="height: 90px" placeholder="网站描述">{{.site_description.OptionValue}}</textarea>
-                            <p class="text">描述信息不超过500个字符,支持Markdown语法</p>
+                            <p class="text">描述信息不超过500个字符</p>
                         </div>
                             <div class="form-group">
                                 <label>启用匿名访问</label>
