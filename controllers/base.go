@@ -9,6 +9,7 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"io"
 	"strings"
+	"github.com/russross/blackfriday"
 )
 
 type BaseController struct {
@@ -42,7 +43,8 @@ func (c *BaseController) Prepare() {
 		c.Option = make(map[string]string, len(options))
 		for _, item := range options {
 			c.Data[item.OptionName] = item.OptionValue
-			c.Option[item.OptionName] = item.OptionValue
+			c.Option[item.OptionName] = string(blackfriday.MarkdownBasic([]byte(item.OptionValue)))
+
 			if strings.EqualFold(item.OptionName, "ENABLE_ANONYMOUS") && item.OptionValue == "true" {
 				c.EnableAnonymous = true
 			}

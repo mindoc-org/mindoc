@@ -46,6 +46,11 @@
                                 <label>网站标题</label>
                                 <input type="text" class="form-control" name="SITE_NAME" id="siteName" placeholder="网站标题" value="{{.SITE_NAME.OptionValue}}">
                             </div>
+                        <div class="form-group">
+                            <label>网站描述</label>
+                            <textarea rows="3" class="form-control" name="site_description" style="height: 90px" placeholder="网站描述">{{.site_description.OptionValue}}</textarea>
+                            <p class="text">描述信息不超过500个字符,支持Markdown语法</p>
+                        </div>
                             <div class="form-group">
                                 <label>启用匿名访问</label>
                                 <div class="radio">

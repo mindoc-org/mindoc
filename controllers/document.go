@@ -140,10 +140,6 @@ func (c *DocumentController) Index() {
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = "概要"
 	c.Data["Content"] = template.HTML(blackfriday.MarkdownBasic([]byte(bookResult.Description)))
-	c.Data["Info"] = ""
-
-	c.Data["DocumentId"] = "0" // added by dandycheung, 2017-12-08, for exporting
-	beego.Info("DocumentController.Index(): c.Data[\"DocumentId\"] = ", 0)
 }
 
 // 阅读文档

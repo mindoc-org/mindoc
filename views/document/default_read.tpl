@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+
+    <title>{{.Model.BookName}} - Powered by MinDoc</title>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>{{.Model.BookName}} - Powered by MinDoc</title>
+    <meta name="renderer" content="webkit">
+    <meta name="author" content="Minho" />
+    <meta name="site" content="https://www.iminho.me" />
+    <meta name="keywords" content="{{.Model.BookName}}">
+    <meta name="description" content="{{.Model.Description}}">
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -133,7 +139,6 @@
                             </div>
                             <div class="col-md-8 text-center">
                                 <h1 id="article-title">{{.Title}}</h1>
-                                {{/*<h3 id="article-info" class="article-info">{{.Info}}</h3>*/}}
                             </div>
                             <div class="col-md-2">
                             </div>
@@ -273,13 +278,7 @@
 <script src="{{cdnjs "/static/js/splitbar.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/katex/katex.min.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
-active_book_id = {{.Model.Identify}};
-active_doc_id = {{.DocumentId}};
-$(function () {
-    $("body").on('article.open', function (event, $param) {
-        active_doc_id = $param.$id;
-    });
-});
+
 $(function () {
     $("#searchList").on("click","a",function () {
         var id = $(this).attr("data-id");
@@ -287,28 +286,12 @@ $(function () {
         $(this).parent("li").siblings().find("a").removeClass("active");
         $(this).addClass("active");
         loadDocument(url,id,function (body) {
-
             return $(body).highlight(window.keyword);
         });
     });
-    $("#page-content").on("click","img",function () {
-        var src = $(this).attr("src");
-        // layer.open({
-        //     type: 1,
-        //     shade: false,
-        //     area : ['90%','90%'],
-        //     title: false, //不显示标题
-        //     content: "<img src='" + src + "'>"
-        // });
-    });
 
 });
-function ExportPdfDoc() {
-    var id = active_book_id;
-    if(active_doc_id != "0")
-        id += "/" + active_doc_id;
-    window.location.href = "/export/" + id + "?output=pdf";
-}
+
 </script>
 </body>
 </html>
