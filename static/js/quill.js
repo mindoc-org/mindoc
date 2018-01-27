@@ -20,6 +20,20 @@ $(function () {
         window.editor.history.redo();
     });
 
+    uploadImage("docEditor", function ($state, $res) {
+        if ($state === "before") {
+            return layer.load(1, {
+                shade: [0.1, '#fff'] // 0.1 透明度的白色背景
+            });
+        } else if ($state === "success") {
+            if ($res.errcode === 0) {
+
+                var range = window.editor.getSelection();
+                window.editor.insertEmbed(range.index, 'image', $res.url);
+            }
+        }
+    });
+
     $("#btnRelease").on("click",function () {
         if (Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0) {
             if ($("#markdown-save").hasClass('change')) {
@@ -72,7 +86,7 @@ $(function () {
                             layer.msg(data.message);
                         }else{
                             var range = window.editor.getSelection();
-                            editor.insertEmbed(range.index, 'image', data.url);
+                            window.editor.insertEmbed(range.index, 'image', data.url);
                         }
                     }
                 });

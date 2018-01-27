@@ -432,8 +432,7 @@ func (c *DocumentController) Upload() {
 	type Size interface {
 		Size() int64
 	}
-	beego.Info(conf.GetUploadFileSize())
-	beego.Info(moreFile.Size)
+
 	if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize() {
 		c.JsonResult(6009, "查过文件允许的上传最大值")
 	}
@@ -450,7 +449,7 @@ func (c *DocumentController) Upload() {
 		}
 	}
 
-	book_id := 0
+	bookId := 0
 
 	// 如果是超级管理员，则不判断权限
 	if c.Member.IsAdministrator() {
@@ -460,7 +459,7 @@ func (c *DocumentController) Upload() {
 			c.JsonResult(6006, "文档不存在或权限不足")
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 	} else {
 		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
@@ -478,7 +477,7 @@ func (c *DocumentController) Upload() {
 			c.JsonResult(6006, "权限不足")
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 	}
 
 	if doc_id > 0 {
@@ -487,13 +486,15 @@ func (c *DocumentController) Upload() {
 			c.JsonResult(6007, "文档不存在")
 		}
 
-		if doc.BookId != book_id {
+		if doc.BookId != bookId {
 			c.JsonResult(6008, "文档不属于指定的项目")
 		}
 	}
 
 	fileName := "attach_" + strconv.FormatInt(time.Now().UnixNano(), 16)
-	filePath := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"), fileName+ext)
+
+	filePath := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"),identify, fileName+ext)
+
 	path := filepath.Dir(filePath)
 
 	os.MkdirAll(path, os.ModePerm)
@@ -506,7 +507,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	attachment := models.NewAttachment()
-	attachment.BookId = book_id
+	attachment.BookId = bookId
 	attachment.FileName = moreFile.Filename
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
