@@ -300,6 +300,16 @@ function uploadImage($id,$callback) {
     });
 }
 
+/**
+ * 初始化代码高亮
+ */
+function initHighlighting() {
+    $('pre code,pre.ql-syntax').each(function (i, block) {
+        hljs.highlightBlock(block);
+    });
+
+    hljs.initLineNumbersOnLoad();
+}
 $(function () {
     window.vueApp = new Vue({
         el : "#attachList",

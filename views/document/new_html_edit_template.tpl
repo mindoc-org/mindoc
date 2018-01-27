@@ -30,7 +30,7 @@
     <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
-
+    <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
     {{/*<link href="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.css" rel="stylesheet">*/}}
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/quill/quill.core.css"}}" rel="stylesheet">
@@ -381,10 +381,15 @@
 <script src="{{cdnjs "/static/quill/quill.icons.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/highlight/highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/highlight/highlightjs-line-numbers.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/quill.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+        hljs.configure({   // optionally configure hljs
+            languages: ['javascript', 'ruby', 'python']
+        });
         $(".editor-code").on("dblclick",function () {
             var code = $(this).html();
             $("#createCodeToolbarModal").find("textarea").val(code);

@@ -4,6 +4,7 @@ $(function () {
     window.uploader = null;
     window.editor = new Quill('#docEditor', {
         theme: 'snow',
+        syntax: true,
         modules : {
             toolbar :"#editormd-tools"
         }
@@ -136,6 +137,7 @@ $(function () {
                 window.isLoad = true;
 
                 pushVueLists(res.data.attach);
+                initHighlighting();
 
             }else{
                 layer.msg("文档加载失败");
@@ -149,6 +151,7 @@ $(function () {
     /**
      * 保存文档到服务器
      * @param $is_cover 是否强制覆盖
+     * @param callback
      */
     function saveDocument($is_cover,callback) {
         var index = null;
@@ -156,7 +159,6 @@ $(function () {
 
         var html = window.editor.root.innerHTML;
 
-        console.log(html)
         var content = "";
         if($.trim(html) !== ""){
             content = toMarkdown(html, { gfm: true });

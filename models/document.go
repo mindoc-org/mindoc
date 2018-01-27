@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"github.com/PuerkitoBio/goquery"
 )
 
 // Document struct.
@@ -136,7 +137,28 @@ func (m *Document) ReleaseContent(bookId int) {
 		return
 	}
 	for _, item := range docs {
-		item.Release = item.Content
+		if item.Content != "" {
+			item.Release = item.Content
+			bufio := bytes.NewReader([]byte(item.Content))
+			//解析文档中非本站的链接，并设置为新窗口打开
+			if content, err := goquery.NewDocumentFromReader(bufio);err == nil {
+
+				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
+					if src, ok := contentSelection.Attr("href"); ok{
+						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src,"https://") {
+							if conf.BaseUrl != "" && strings.Index(src,conf.BaseUrl) != 0 {
+								contentSelection.SetAttr("target", "_blank")
+								if html, err := content.Html();err == nil {
+									item.Release = html
+								}
+							}
+						}
+
+					}
+				})
+			}
+		}
+
 		attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
 		if err == nil && len(attachList) > 0 {
 			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
