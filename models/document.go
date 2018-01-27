@@ -146,7 +146,8 @@ func (m *Document) ReleaseContent(bookId int) {
 				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
 					if src, ok := contentSelection.Attr("href"); ok{
 						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src,"https://") {
-							if conf.BaseUrl != "" && strings.Index(src,conf.BaseUrl) != 0 {
+							beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
+							if conf.BaseUrl != "" && !strings.HasPrefix(src,conf.BaseUrl) {
 								contentSelection.SetAttr("target", "_blank")
 								if html, err := content.Html();err == nil {
 									item.Release = html
@@ -164,7 +165,7 @@ func (m *Document) ReleaseContent(bookId int) {
 			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
 			for _, attach := range attachList {
 				if strings.HasPrefix(attach.HttpPath, "/") {
-					attach.HttpPath = strings.TrimSuffix(beego.AppConfig.DefaultString("baseurl", ""), "/") + attach.HttpPath
+					attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
 				}
 				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
 
