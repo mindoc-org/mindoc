@@ -146,7 +146,7 @@ func (m *Document) ReleaseContent(bookId int) {
 				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
 					if src, ok := contentSelection.Attr("href"); ok{
 						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src,"https://") {
-							beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
+							//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
 							if conf.BaseUrl != "" && !strings.HasPrefix(src,conf.BaseUrl) {
 								contentSelection.SetAttr("target", "_blank")
 								if html, err := content.Html();err == nil {
