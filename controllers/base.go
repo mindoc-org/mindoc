@@ -9,7 +9,6 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"io"
 	"strings"
-	"github.com/russross/blackfriday"
 )
 
 type BaseController struct {
