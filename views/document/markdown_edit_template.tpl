@@ -41,7 +41,7 @@
 <body>
 
 <div class="m-manual manual-editor">
-    <div class="manual-head" id="editormd-tools" style="min-width: 1200px;">
+    <div class="manual-head" id="editormd-tools" style="min-width: 1200px; position:absolute;">
         <div class="editormd-group">
             <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
@@ -103,7 +103,7 @@
         <div class="clearfix"></div>
     </div>
     <div class="manual-body">
-        <div class="manual-category" id="manualCategory">
+        <div class="manual-category" id="manualCategory" style="position:absolute;">
             <div class="manual-nav">
                 <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> 文档</div>
                 <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="创建文档" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>

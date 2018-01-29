@@ -137,19 +137,22 @@ func (this *Converter) Convert() (err error) {
 				case "epub":
 					if err = this.convertToEpub(); err != nil {
 						errs = append(errs, err.Error())
+						fmt.Println("转换EPUB文档失败：" + err.Error())
 					}
 				case "mobi":
 					if err = this.convertToMobi(); err != nil {
 						errs = append(errs, err.Error())
+						fmt.Println("转换MOBI文档失败：" + err.Error())
 					}
 				case "pdf":
 					if err = this.convertToPdf(); err != nil {
-						fmt.Println(err)
+						fmt.Println("转换PDF文档失败：" + err.Error())
 						errs = append(errs, err.Error())
+
 					}
 				case "docx":
 					if err = this.convertToDocx(); err != nil {
-						fmt.Println(err)
+						fmt.Println("转换WORD文档失败：" + err.Error())
 						errs = append(errs, err.Error())
 					}
 				}
