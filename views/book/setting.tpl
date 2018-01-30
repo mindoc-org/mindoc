@@ -65,8 +65,8 @@
                             </div>
                             <div class="form-group">
                                 <label>公司标识</label>
-                                <input type="text" class="form-control" name="publisher" value="{{.Model.publisher}}" placeholder="公司名称" disabled>
-                                <p class="text">导出文档时的标识</p>
+                                <input type="text" class="form-control" name="publisher" value="{{.Model.Publisher}}" placeholder="公司名称">
+                                <p class="text">导出文档PDF文档时显示的页脚</p>
                             </div>
                             <div class="form-group">
                                 <label>描述</label>

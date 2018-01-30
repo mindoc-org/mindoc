@@ -45,3 +45,7 @@ func parseConfig(configFile string) (cfg Config, err error) {
 	}
 	return
 }
+
+func GetFooterOrHeaderParams(v string) string {
+	return v
+}
