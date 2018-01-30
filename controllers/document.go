@@ -903,11 +903,11 @@ func (c *DocumentController) Export() {
 
 		c.Abort("200")
 	} else if output == "mobi" {
-		c.Ctx.Output.Download(eBookResult.MobiPath, bookResult.BookName+".epub")
+		c.Ctx.Output.Download(eBookResult.MobiPath, bookResult.BookName+".mobi")
 
 		c.Abort("200")
 	} else if output == "docx" {
-		c.Ctx.Output.Download(eBookResult.WordPath, bookResult.BookName+".epub")
+		c.Ctx.Output.Download(eBookResult.WordPath, bookResult.BookName+".docx")
 
 		c.Abort("200")
 	}
