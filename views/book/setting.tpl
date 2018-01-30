@@ -64,6 +64,11 @@
                                 <input type="text" class="form-control" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
                             </div>
                             <div class="form-group">
+                                <label>公司标识</label>
+                                <input type="text" class="form-control" name="publisher" value="{{.Model.publisher}}" placeholder="公司名称" disabled>
+                                <p class="text">导出文档时的标识</p>
+                            </div>
+                            <div class="form-group">
                                 <label>描述</label>
                                 <textarea rows="3" class="form-control" name="description" style="height: 90px" placeholder="项目描述">{{.Model.Description}}</textarea>
                                 <p class="text">描述信息不超过500个字符,支持Markdown语法</p>

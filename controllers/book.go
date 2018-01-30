@@ -123,18 +123,19 @@ func (c *BookController) SaveBook() {
 		c.JsonResult(6002, err.Error())
 	}
 
-	book_name := strings.TrimSpace(c.GetString("book_name"))
+	bookName := strings.TrimSpace(c.GetString("book_name"))
 	description := strings.TrimSpace(c.GetString("description", ""))
-	comment_status := c.GetString("comment_status")
+	commentStatus := c.GetString("comment_status")
 	tag := strings.TrimSpace(c.GetString("label"))
 	editor := strings.TrimSpace(c.GetString("editor"))
-	auto_release := strings.TrimSpace(c.GetString("auto_release")) == "on"
+	autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
+	publisher := strings.TrimSpace(c.GetString("publisher"))
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
 	}
-	if comment_status != "open" && comment_status != "closed" && comment_status != "group_only" && comment_status != "registered_only" {
-		comment_status = "closed"
+	if commentStatus != "open" && commentStatus != "closed" && commentStatus != "group_only" && commentStatus != "registered_only" {
+		commentStatus = "closed"
 	}
 	if tag != "" {
 		tags := strings.Split(tag, ",")
@@ -146,12 +147,13 @@ func (c *BookController) SaveBook() {
 		editor = "markdown"
 	}
 
-	book.BookName = book_name
+	book.BookName = bookName
 	book.Description = description
-	book.CommentStatus = comment_status
+	book.CommentStatus = commentStatus
+	book.Publisher = publisher
 	book.Label = tag
 	book.Editor = editor
-	if auto_release {
+	if autoRelease {
 		book.AutoRelease = 1
 	} else {
 		book.AutoRelease = 0
@@ -160,9 +162,9 @@ func (c *BookController) SaveBook() {
 	if err := book.Update(); err != nil {
 		c.JsonResult(6006, "保存失败")
 	}
-	bookResult.BookName = book_name
+	bookResult.BookName = bookName
 	bookResult.Description = description
-	bookResult.CommentStatus = comment_status
+	bookResult.CommentStatus = commentStatus
 	bookResult.Label = tag
 	c.JsonResult(0, "ok", bookResult)
 }
