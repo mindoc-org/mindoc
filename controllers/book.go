@@ -20,6 +20,8 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
+	"net/http"
+	"github.com/lifei6671/mindoc/converter"
 )
 
 type BookController struct {
@@ -447,6 +449,30 @@ func (c *BookController) Create() {
 		c.JsonResult(0, "ok", bookResult)
 	}
 	c.JsonResult(6001, "error")
+}
+
+func (c *BookController) Import() {
+
+	file, moreFile, err := c.GetFile("import-file")
+	if err == http.ErrMissingFile {
+		c.JsonResult(6003, "没有发现需要上传的文件")
+	}
+
+	defer file.Close()
+
+	beego.Info(moreFile.Filename)
+
+	tempPath := filepath.Join(os.TempDir(),c.CruSession.SessionID())
+
+	os.MkdirAll(tempPath,0766)
+
+	tempPath = filepath.Join(tempPath,moreFile.Filename)
+
+	err = c.SaveToFile("import-file", tempPath)
+
+	converter.Resolve(tempPath)
+
+
 }
 
 // CreateToken 创建访问来令牌.

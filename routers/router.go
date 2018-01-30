@@ -49,6 +49,7 @@ func init() {
 	beego.Router("/book/users/create", &controllers.BookMemberController{}, "post:AddMember")
 	beego.Router("/book/users/change", &controllers.BookMemberController{}, "post:ChangeRole")
 	beego.Router("/book/users/delete", &controllers.BookMemberController{}, "post:RemoveMember")
+	beego.Router("/book/users/import", &controllers.BookController{},"post:Import")
 
 	beego.Router("/book/setting/save", &controllers.BookController{}, "post:SaveBook")
 	beego.Router("/book/setting/open", &controllers.BookController{}, "post:PrivatelyOwned")
