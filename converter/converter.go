@@ -476,12 +476,12 @@ func (this *Converter) convertToPdf() (err error) {
 
 	//header template
 	if len(this.Config.Header) > 0 {
-		args = append(args, "--pdf-header-template", GetFooterOrHeaderParams(this.Config.Header))
+		args = append(args, "--pdf-header-template", this.Config.Header)
 	}
 
 	//footer template
 	if len(this.Config.Footer) > 0 {
-		args = append(args, "--pdf-footer-template",GetFooterOrHeaderParams(this.Config.Footer))
+		args = append(args, "--pdf-footer-template",this.Config.Footer)
 	}
 
 	if len(this.Config.MarginLeft) > 0 {
