@@ -69,7 +69,8 @@ smtp_port=25
 form_user_name=admin@iminho.me
 #邮件有效期30分钟
 mail_expired=30
-
+#加密类型NONE 无认证、SSL 加密、LOGIN 普通用户登录
+secure=LOGIN
 
 ###############配置PDF生成工具地址###################
 wkhtmltopdf=D:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe
