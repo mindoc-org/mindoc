@@ -47,6 +47,8 @@ type Book struct {
 	Theme string `orm:"column(theme);size(255);default(default)" json:"theme"`
 	// CreateTime 创建时间 .
 	CreateTime time.Time `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
+	//每个文档保存的历史记录数量，0 为不限制
+	HistoryCount int	 `orm:"column(history_count);type(int);default(0)" json:"history_count"`
 	MemberId   int       `orm:"column(member_id);size(100)" json:"member_id"`
 	ModifyTime time.Time `orm:"type(datetime);column(modify_time);null;auto_now" json:"modify_time"`
 	Version    int64     `orm:"type(bigint);column(version)" json:"version"`
@@ -281,15 +283,13 @@ func (m *Book) FindForHomeToPager(pageIndex, pageSize, member_id int) (books []*
 		if err != nil {
 			return
 		}
-		sql2 := `SELECT book.*,rel1.*,member.account AS create_name FROM md_books AS book
+		sql2 := `SELECT book.*,rel1.*,member.account AS create_name,member.real_name FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
 			LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
 			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
 			WHERE rel.relationship_id > 0 OR book.privately_owned = 0 ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
 
 		_, err = o.Raw(sql2, member_id, offset, pageSize).QueryRows(&books)
-
-		return
 
 	} else {
 		count, err1 := o.QueryTable(m.TableNameWithPrefix()).Filter("privately_owned", 0).Count()
@@ -300,16 +300,16 @@ func (m *Book) FindForHomeToPager(pageIndex, pageSize, member_id int) (books []*
 		}
 		totalCount = int(count)
 
-		sql := `SELECT book.*,rel.*,member.account AS create_name FROM md_books AS book
+		sql := `SELECT book.*,rel.*,member.account AS create_name,member.real_name FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
 			LEFT JOIN md_members AS member ON rel.member_id = member.member_id
 			WHERE book.privately_owned = 0 ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
 
 		_, err = o.Raw(sql, offset, pageSize).QueryRows(&books)
 
-		return
-
 	}
+
+	return
 
 }
 

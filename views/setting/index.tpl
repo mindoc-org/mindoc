@@ -8,11 +8,11 @@
     <title>用户中心 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-    <link href="/static/webuploader/webuploader.css" rel="stylesheet">
-    <link href="/static/cropper/2.3.4/cropper.min.css" rel="stylesheet">
-    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/cropper/2.3.4/cropper.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/main.css"}}" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -45,7 +45,11 @@
                         <form role="form" method="post" id="memberInfoForm">
                             <div class="form-group">
                                 <label>用户名</label>
-                                <input type="text" class="form-control disabled" value="{{.Member.Account}}" disabled>
+                                <input type="text" class="form-control disabled" value="{{.Member.Account}}" disabled placeholder="用户名">
+                            </div>
+                            <div class="form-group">
+                                <label>真实姓名</label>
+                                <input type="text" name="real_name" class="form-control" value="{{.Member.RealName}}" placeholder="真实姓名">
                             </div>
                             <div class="form-group">
                                 <label for="user-email">邮箱<strong class="text-danger">*</strong></label>
@@ -115,12 +119,12 @@
     </div>
 </div>
 <!--END Modal-->
-<script src="/static/jquery/1.12.4/jquery.min.js" type="text/javascript"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="/static/webuploader/webuploader.min.js" type="text/javascript"></script>
-<script src="/static/cropper/2.3.4/cropper.min.js" type="text/javascript"></script>
-<script src="/static/js/jquery.form.js" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/cropper/2.3.4/cropper.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#upload-logo-panel").on("hidden.bs.modal",function () {

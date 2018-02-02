@@ -26,7 +26,7 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li class="active"><a href="{{urlfor "SettingController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> 我的项目</a> </li>
+                    <li class="active"><a href="{{urlfor "BookController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> 我的项目</a> </li>
                 </ul>
             </div>
             <div class="page-right">
@@ -53,15 +53,30 @@
                                        <template v-else-if="item.privately_owned == 1">
                                            <i class="fa fa-lock" aria-hidden="true"></i>
                                        </template>
-
                                         ${item.book_name}
                                     </a>
                                 </div>
                                 <div class="pull-right">
-                                    <a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>
-                                    <template v-if="item.role_id != 3">
-                                        <a :href="'/api/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>
-                                    </template>
+                                    <div class="btn-group">
+                                        <a  :href="'/book/' + item.identify + '/dashboard'" class="btn btn-default">设置</a>
+
+                                        <a href="javascript:;" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li><a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" target="_blank">阅读</a></li>
+                                            <template v-if="item.role_id != 3">
+                                            <li><a :href="'/api/' + item.identify + '/edit'" target="_blank" target="_blank">编辑</a></li>
+                                            </template>
+                                        </ul>
+
+                                    </div>
+
+                                    {{/*<a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>*/}}
+                                    {{/*<template v-if="item.role_id != 3">*/}}
+                                        {{/*<a :href="'/api/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>*/}}
+                                    {{/*</template>*/}}
                                 </div>
                                 <div class="clearfix"></div>
                             </div>

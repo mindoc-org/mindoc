@@ -132,6 +132,7 @@ func (c *BookController) SaveBook() {
 	editor := strings.TrimSpace(c.GetString("editor"))
 	autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 	publisher := strings.TrimSpace(c.GetString("publisher"))
+	historyCount,_ := c.GetInt("history_count",0)
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
@@ -155,6 +156,8 @@ func (c *BookController) SaveBook() {
 	book.Publisher = publisher
 	book.Label = tag
 	book.Editor = editor
+	book.HistoryCount = historyCount
+
 	if autoRelease {
 		book.AutoRelease = 1
 	} else {

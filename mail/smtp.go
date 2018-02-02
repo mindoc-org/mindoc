@@ -85,8 +85,8 @@ func (s *SMTPConfig) Auth() smtp.Auth {
 	case "SSL":
 		fallthrough
 	default:
-		//auth = smtp.PlainAuth(s.Identity, s.Username, s.Password, s.Host)
-		auth = unencryptedAuth{smtp.PlainAuth(s.Identity, s.Username, s.Password, s.Host)}
+		auth = smtp.PlainAuth(s.Identity, s.Username, s.Password, s.Host)
+		//auth = unencryptedAuth{smtp.PlainAuth(s.Identity, s.Username, s.Password, s.Host)}
 	}
 	return auth
 }
@@ -214,35 +214,42 @@ func (c *SMTPClient) SendTLS(m Mail, message bytes.Buffer) error {
 	var ct *smtp.Client
 	var err error
 	// TLS config
-	//tlsconfig := &tls.Config{
-	//	InsecureSkipVerify: true,
-	//	ServerName:         c.host,
-	//}
+	tlsconfig := &tls.Config{
+		InsecureSkipVerify: true,
+		ServerName:         c.host,
+	}
 
 	// Here is the key, you need to call tls.Dial instead of smtp.Dial
 	// for smtp servers running on 465 that require an ssl connection
 	// from the very beginning (no starttls)
-	conn, err := tls.Dial("tcp", c.host+":"+c.port, nil)
+	conn, err := tls.Dial("tcp", c.host+":"+c.port, tlsconfig)
 	if err != nil {
 		log.Println(err, c.host)
 		return err
 	}
+
 
 	ct, err = smtp.NewClient(conn, c.host)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	fmt.Println(c.smtpAuth)
-	// Auth
-	if err = ct.Auth(c.smtpAuth); err != nil {
-		log.Println("Auth Error:",
-			err,
-			c.user,
-		)
-		return err
-	}
+	//if err := ct.StartTLS(tlsconfig);err != nil {
+	//	fmt.Println(err)
+	//	return err
+	//}
 
+	fmt.Println(c.smtpAuth)
+	if ok,_ := ct.Extension("AUTH"); ok {
+		// Auth
+		if err = ct.Auth(c.smtpAuth); err != nil {
+			log.Println("Auth Error:",
+				err,
+				c.user,
+			)
+			return err
+		}
+	}
 	// To && From
 	if err = ct.Mail(m.From); err != nil {
 		log.Println("Mail Error:", err, m.From)

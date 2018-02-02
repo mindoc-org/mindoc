@@ -108,6 +108,7 @@ func (c *ManagerController) CreateMember() {
 	member.Avatar = conf.GetDefaultAvatar()
 	member.CreateAt = c.Member.MemberId
 	member.Email = email
+	member.RealName = strings.TrimSpace(c.GetString("real_name",""))
 	if phone != "" {
 		member.Phone = phone
 	}

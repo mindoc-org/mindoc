@@ -68,7 +68,7 @@
                                 </td>
                             </tr>
                             {{else}}
-                            <tr><td>暂无数据</td></tr>
+                            <tr><td class="text-center" colspan="6">暂无数据</td></tr>
                             {{end}}
                             </tbody>
                         </table>

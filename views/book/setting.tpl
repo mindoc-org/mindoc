@@ -64,6 +64,11 @@
                                 <input type="text" class="form-control" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
                             </div>
                             <div class="form-group">
+                                <label>历史记录数量</label>
+                                <input type="text" class="form-control" name="history_count" value="{{.Model.HistoryCount}}" placeholder="历史记录数量">
+                                <p class="text">当开启文档历史时,该值会限制每个文档保存的历史数量</p>
+                            </div>
+                            <div class="form-group">
                                 <label>公司标识</label>
                                 <input type="text" class="form-control" name="publisher" value="{{.Model.Publisher}}" placeholder="公司名称">
                                 <p class="text">导出文档PDF文档时显示的页脚</p>

@@ -34,6 +34,7 @@ type BookResult struct {
 	CommentCount   int       `json:"comment_count"`
 	CreateTime     time.Time `json:"create_time"`
 	CreateName     string    `json:"create_name"`
+	RealName	   string 	 `json:"real_name"`
 	ModifyTime     time.Time `json:"modify_time"`
 	Cover          string    `json:"cover"`
 	Theme          string    `json:"theme"`
@@ -41,6 +42,7 @@ type BookResult struct {
 	MemberId       int       `json:"member_id"`
 	Editor         string    `json:"editor"`
 	AutoRelease    bool      `json:"auto_release"`
+	HistoryCount   int 		 `json:"history_count"`
 
 	RelationshipId int    `json:"relationship_id"`
 	RoleId         int    `json:"role_id"`
@@ -94,6 +96,9 @@ func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult
 	m = NewBookResult().ToBookResult(*book)
 
 	m.CreateName = member.Account
+	if member.RealName != "" {
+		m.RealName = member.RealName
+	}
 	m.MemberId = relationship.MemberId
 	m.RoleId = relationship.RoleId
 	m.RelationshipId = relationship.RelationshipId
@@ -133,7 +138,7 @@ func (m *BookResult) FindToPager(pageIndex, pageSize int) (books []*BookResult, 
 	totalCount = int(count)
 
 	sql := `SELECT
-			book.*,rel.relationship_id,rel.role_id,m.account AS create_name
+			book.*,rel.relationship_id,rel.role_id,m.account AS create_name,m.real_name
 		FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
 			LEFT JOIN md_members AS m ON rel.member_id = m.member_id
@@ -168,6 +173,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.Theme = book.Theme
 	m.AutoRelease = book.AutoRelease == 1
 	m.Publisher = book.Publisher
+	m.HistoryCount = book.HistoryCount
 
 	if book.Theme == "" {
 		m.Theme = "default"
@@ -265,6 +271,9 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	}
 	if m.Publisher != "" {
 		ebookConfig.Footer = "<p style='color:#8E8E8E;font-size:12px;'>本文档由 <span style='text-decoration:none;color:#1abc9c;font-weight:bold;'>"+ m.Publisher +"</span> 生成<span style='float:right'>- _PAGENUM_ -</span></p>"
+	}
+	if m.RealName != "" {
+		ebookConfig.Creator = m.RealName
 	}
 
 	if tempOutputPath, err = filepath.Abs(tempOutputPath); err != nil {

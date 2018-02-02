@@ -156,7 +156,7 @@
                 <div class="modal-footer">
                     <span class="error-message" id="form-error-message1"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-primary" data-loading-text="变更中..." id="btnChangePrivatelyOwned">确定</button>
+                    <button type="submit" class="btn btn-primary" data-loading-text="正在保存..." id="btnChangePrivatelyOwned">确定</button>
                 </div>
             </div>
         </form>
@@ -181,7 +181,7 @@
                 <div class="modal-footer">
                     <span id="form-error-message2" class="error-message"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" id="btnDeleteBook" class="btn btn-primary">确定删除</button>
+                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="正在删除...">确定删除</button>
                 </div>
             </div>
         </form>
@@ -208,7 +208,7 @@
                 <div class="modal-footer">
                     <span id="form-error-message3" class="error-message"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" id="btnTransferBook" class="btn btn-primary">确定转让</button>
+                    <button type="submit" id="btnTransferBook" daata-loading-text="正在转让..." class="btn btn-primary">确定转让</button>
                 </div>
             </div>
         </form>
@@ -219,7 +219,7 @@
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/cropper/2.3.4/cropper.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#upload-logo-panel").on("hidden.bs.modal",function () {
@@ -274,11 +274,14 @@
             }
         });
         $("#deleteBookForm").ajaxForm({
+            beforeSubmit : function () {
+                $("#btnDeleteBook").button("loading");
+            },
             success : function (res) {
                 if(res.errcode === 0){
                     window.location = "{{urlfor "ManagerController.Books"}}";
                 }else{
-                    console.log(res.message)
+                    $("#btnDeleteBook").button("reset");
                     showError(res.message,"#form-error-message2");
                 }
             }

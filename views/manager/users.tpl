@@ -18,6 +18,9 @@
     <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="/static/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style type="text/css">
+        .table>tbody>tr>td{vertical-align: middle;}
+    </style>
 </head>
 <body>
 <div class="manual-reader">
@@ -56,6 +59,7 @@
                                     <th width="80">ID</th>
                                     <th width="80">头像</th>
                                     <th>账号</th>
+                                    <th>姓名</th>
                                     <th>角色</th>
                                     <th>类型</th>
                                     <th>状态</th>
@@ -67,6 +71,7 @@
                                     <td>${item.member_id}</td>
                                     <td><img :src="item.avatar" onerror="this.src='/static/images/middle.gif'" class="img-circle" width="34" height="34"></td>
                                     <td>${item.account}</td>
+                                    <td>${item.real_name}</td>
                                     <td>
                                         <template v-if="item.role == 0">
                                             超级管理员
@@ -161,6 +166,12 @@
                         <label class="col-sm-2 control-label" for="email">邮箱<span class="error-message">*</span></label>
                         <div class="col-sm-10">
                             <input type="email" class="form-control" placeholder="邮箱" name="email" id="email" maxlength="50">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">真实姓名</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="real_name" class="form-control" value="" placeholder="真实姓名">
                         </div>
                     </div>
                     <div class="form-group">

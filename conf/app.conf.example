@@ -60,7 +60,7 @@ mail_number=5
 #smtp服务用户名
 smtp_user_name=admin@iminho.me
 #smtp服务器地址
-smtp_host=smtp.ym.163.com
+smtp_host=smtp.163.com
 #smtp密码
 smtp_password=
 #端口号

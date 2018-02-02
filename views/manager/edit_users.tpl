@@ -46,6 +46,10 @@
                             <input type="text" class="form-control" name="account" disabled placeholder="用户账号" value="{{.Model.Account}}">
                         </div>
                         <div class="form-group">
+                            <label>真实姓名</label>
+                            <input type="text" name="real_name" class="form-control" value="{{.Member.RealName}}" placeholder="真实姓名">
+                        </div>
+                        <div class="form-group">
                             <label>用户密码</label>
                             <input type="password" class="form-control" name="password1" placeholder="用户密码" maxlength="50">
                             <p style="color: #999;font-size: 12px;">不修改密码请留空,只支持本地用户修改密码</p>

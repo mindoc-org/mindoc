@@ -34,6 +34,7 @@ func (c *SettingController) Index() {
 		member.Email = email
 		member.Phone = phone
 		member.Description = description
+		member.RealName = strings.TrimSpace(c.GetString("real_name",""))
 		if err := member.Update(); err != nil {
 			c.JsonResult(602, err.Error())
 		}

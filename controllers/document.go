@@ -811,6 +811,7 @@ func (c *DocumentController) Content() {
 				beego.Error("DocumentHistory InsertOrUpdate => ", err)
 			}
 		}
+		//如果启用了自动发布
 		if auto_release {
 			go func(identify string) {
 				models.NewDocument().ReleaseContent(book_id)
