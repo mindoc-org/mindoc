@@ -44,7 +44,7 @@ func (c *MinDocRestController) PostContent() {
 	token, err := models.NewBook().FindByFieldFirst("private_token", tokenkey)
 	if err != nil {
 		beego.Error("token => ", err)
-		c.JsonResult(6002, "系统权限不足")
+		c.JsonResult(6002, "系统权限不足["+tokenkey+"]")
 	}
 	beego.Info("req tokenkey =>" + tokenkey + "  -->" + fmt.Sprintf("%d", token.BookId))
 
@@ -83,6 +83,9 @@ func (c *MinDocRestController) PostContent() {
 	go func() {
 		models.NewDocument().ReleaseContent(doc.BookId)
 	}()
-
+	//减少返回信息
+	doc.Markdown = ""
+	doc.Content = ""
+	doc.Release = ""
 	c.JsonResult(0, "ok", doc)
 }
