@@ -230,6 +230,20 @@ func (m *Member) FindByAccount(account string) (*Member, error) {
 	}
 	return m, err
 }
+//批量查询用户
+func (m *Member) FindByAccountList(accounts ...string) ([]*Member,error) {
+	o := orm.NewOrm()
+
+	var members []*Member
+	_,err := o.QueryTable(m.TableNameWithPrefix()).Filter("account__in", accounts).All(&members)
+
+	if err == nil {
+		for _,item := range members {
+			item.ResolveRoleName()
+		}
+	}
+	return members, err
+}
 
 //分页查找用户.
 func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int, error) {

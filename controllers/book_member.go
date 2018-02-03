@@ -7,6 +7,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
+	"github.com/astaxie/beego"
 )
 
 type BookMemberController struct {
@@ -16,10 +17,10 @@ type BookMemberController struct {
 // AddMember 参加参与用户.
 func (c *BookMemberController) AddMember() {
 	identify := c.GetString("identify")
-	account := c.GetString("account")
+	account,_ := c.GetInt("account")
 	role_id, _ := c.GetInt("role_id", 3)
-
-	if identify == "" || account == "" {
+	beego.Info(account)
+	if identify == "" || account <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 	book, err := c.IsPermission()
@@ -28,9 +29,10 @@ func (c *BookMemberController) AddMember() {
 		c.JsonResult(6001, err.Error())
 	}
 
+
 	member := models.NewMember()
 
-	if _, err := member.FindByAccount(account); err != nil {
+	if _, err := member.Find(account); err != nil {
 		c.JsonResult(404, "用户不存在")
 	}
 	if member.Status == 1 {

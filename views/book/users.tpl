@@ -10,8 +10,8 @@
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
-
-    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/main.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -106,7 +106,8 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">账号</label>
                        <div class="col-sm-10">
-                           <input type="text" name="account" class="form-control" placeholder="用户账号" id="account" maxlength="50">
+                           {{/*<input type="text" name="account" class="form-control" placeholder="用户账号" id="account" maxlength="50">*/}}
+                           <select class="js-data-example-ajax form-control" multiple="multiple" name="account" id="account"></select>
                        </div>
                     </div>
                     <div class="form-group">
@@ -135,9 +136,17 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
+<script src="/static/select2/4.0.5/js/select2.full.min.js"></script>
+<script src="/static/select2/4.0.5/js/i18n/zh-CN.js"></script>
+<script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+
+        var modalCache = $("#addBookMemberDialogModal form").html();
+
+        /**
+         * 添加用户
+         */
         $("#addBookMemberDialogForm").ajaxForm({
             beforeSubmit : function () {
                 var account = $.trim($("#account").val());
@@ -155,6 +164,33 @@
                 }
                 $("#btnAddMember").button("reset");
             }
+        });
+        $("#addBookMemberDialogModal").on("hidden.bs.modal",function () {
+            $(this).find("form").html(modalCache);
+        }).on("show.bs.modal",function () {
+            $('.js-data-example-ajax').select2({
+                language: "zh-CN",
+                minimumInputLength : 1,
+                minimumResultsForSearch: Infinity,
+                maximumSelectionLength:1,
+                width : "100%",
+                ajax: {
+                    url: '{{urlfor "SearchController.User" ":key" .Model.Identify}}',
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, params) {
+                        console.log(data)
+                        return {
+                            results : data.data.results
+                        }
+                    }
+                }
+            });
         });
 
         var app = new Vue({

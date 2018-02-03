@@ -13,7 +13,7 @@ import (
 type SearchController struct {
 	BaseController
 }
-
+//搜索首页
 func (c *SearchController) Index() {
 	c.Prepare()
 	c.TplName = "search/index.tpl"
@@ -95,3 +95,41 @@ func (c *SearchController) Index() {
 		c.Data["Lists"] = search_result
 	}
 }
+
+//搜索用户
+func (c *SearchController) User() {
+	c.Prepare()
+	key := c.Ctx.Input.Param(":key")
+	keyword := strings.TrimSpace(c.GetString("q"))
+	if key == "" || keyword == ""{
+		c.JsonResult(404,"参数错误")
+	}
+
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.JsonResult(403,"没有权限")
+		}
+		c.JsonResult(500,"项目不存在")
+	}
+
+	members,err := models.NewMemberRelationshipResult().FindNotJoinUsersByAccount(book.BookId,10,"%"+keyword+"%")
+	if err != nil {
+		beego.Error("查询用户列表出错：" + err.Error())
+		c.JsonResult(500,err.Error())
+	}
+	result := models.SelectMemberResult{}
+	items := make([]models.KeyValueItem,0)
+
+	for _,member := range members {
+		item := models.KeyValueItem{}
+		item.Id = member.MemberId
+		item.Text = member.Account
+		items = append(items,item)
+	}
+
+	result.Result = items
+
+	c.JsonResult(0,"OK", result)
+}
+
