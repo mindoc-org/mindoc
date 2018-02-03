@@ -84,6 +84,8 @@ func (c *BaseController) JsonResult(errCode int,errMsg string,data ...interface{
 	}
 
 	c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
+	// 增加对客户端 Cache 的控制策略，使其不缓存 ajax 内容。这是因为目前的设计架构下，API 获取文档内容时所使用的 URL 与浏览器地址栏访问完全一致，导致浏览器后退时会直接显示 ajax 获取到的数据。
+	c.Ctx.ResponseWriter.Header().Set("Cache-Control", "no-cache, no-store")
 
 	io.WriteString(c.Ctx.ResponseWriter,string(returnJSON))
 
