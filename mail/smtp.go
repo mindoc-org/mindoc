@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"github.com/astaxie/beego"
 )
 
 var (
@@ -85,8 +86,8 @@ func (s *SMTPConfig) Auth() smtp.Auth {
 	case "SSL":
 		fallthrough
 	default:
-		auth = smtp.PlainAuth(s.Identity, s.Username, s.Password, s.Host)
-		//auth = unencryptedAuth{smtp.PlainAuth(s.Identity, s.Username, s.Password, s.Host)}
+		//auth = smtp.PlainAuth(s.Identity, s.Username, s.Password, s.Host)
+		auth = unencryptedAuth{smtp.PlainAuth(s.Identity, s.Username, s.Password, s.Host)}
 	}
 	return auth
 }
@@ -234,13 +235,20 @@ func (c *SMTPClient) SendTLS(m Mail, message bytes.Buffer) error {
 		log.Println(err)
 		return err
 	}
+
+	//if err := ct.StartTLS(tlsconfig);err != nil {
+	//	log.Println("StartTLS Error:",err,c.host,c.port)
+	//	return err
+	//}
+
 	//if err := ct.StartTLS(tlsconfig);err != nil {
 	//	fmt.Println(err)
 	//	return err
 	//}
 
 	fmt.Println(c.smtpAuth)
-	if ok,_ := ct.Extension("AUTH"); ok {
+	if ok,s := ct.Extension("AUTH"); ok {
+		beego.Info(s)
 		// Auth
 		if err = ct.Auth(c.smtpAuth); err != nil {
 			log.Println("Auth Error:",

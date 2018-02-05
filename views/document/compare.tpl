@@ -52,7 +52,7 @@
 </div>
 <template id="historyContent">{{.HistoryContent}}</template>
 <template id="documentContent">{{.Content}}</template>
-<script type="text/javascript" src="/static/layer/layer.js"></script>
+<script type="text/javascript" src="{{cdnjs "/static/layer/layer.js"}}"></script>
 
 </body>
 </html>

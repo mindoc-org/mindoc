@@ -203,11 +203,11 @@
         </form>
     </div>
 </div><!--END Modal-->
-<script src="/static/jquery/1.12.4/jquery.min.js"></script>
-<script src="/static/bootstrap/js/bootstrap.min.js"></script>
-<script src="/static/vuejs/vue.min.js"></script>
-<script src="/static/js/jquery.form.js" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
+<script src="{{cdncss "/static/jquery/1.12.4/jquery.min.js"}}"></script>
+<script src="{{cdncss "/static/bootstrap/js/bootstrap.min.js"}}"></script>
+<script src="{{cdncss "/static/vuejs/vue.min.js"}}"></script>
+<script src="{{cdncss "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdncss "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#addMemberDialogModal").on("show.bs.modal",function () {

@@ -8,7 +8,7 @@
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>服务器异常 - Powered by MinDoc</title>
-    <link href="/static/fonts/lato-100.css" rel="stylesheet" type="text/css">
+    <link href="{{cdncss "/static/fonts/lato-100.css"}}" rel="stylesheet" type="text/css">
     <style type="text/css">
         html, body {
             height: 100%;

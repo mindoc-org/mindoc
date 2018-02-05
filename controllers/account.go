@@ -246,6 +246,7 @@ func (c *AccountController) FindPassword() {
 		data := map[string]interface{}{
 			"SITE_NAME": c.Option["SITE_NAME"],
 			"url":       c.BaseUrl() + beego.URLFor("AccountController.FindPassword", "token", member_token.Token, "mail", email),
+			"BaseUrl": c.BaseUrl(),
 		}
 
 		body, err := c.ExecuteViewPathTemplate("account/mail_template.tpl", data)
