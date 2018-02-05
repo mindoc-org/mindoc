@@ -47,7 +47,7 @@
                         </div>
                         <div class="form-group">
                             <label>真实姓名</label>
-                            <input type="text" name="real_name" class="form-control" value="{{.Member.RealName}}" placeholder="真实姓名">
+                            <input type="text" name="real_name" class="form-control" value="{{.Model.RealName}}" placeholder="真实姓名">
                         </div>
                         <div class="form-group">
                             <label>用户密码</label>

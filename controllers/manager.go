@@ -212,6 +212,7 @@ func (c *ManagerController) EditMember() {
 		member.Email = email
 		member.Phone = phone
 		member.Description = description
+		member.RealName = c.GetString("real_name")
 		if password1 != "" && password2 != password1 {
 			c.JsonResult(6001, "确认密码不正确")
 		}
