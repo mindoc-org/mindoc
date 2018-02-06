@@ -24,7 +24,7 @@ function loadDocument($url, $id, $callback) {
                 $("#article-title").text(doc_title);
                 $("#article-info").text(doc_info);
 
-                events.trigger('article.open', { $url : $url, $init : false, $id : $id });
+                events.trigger('article.open', { $url : $url,  $id : $id });
 
                 return false;
             }
@@ -52,7 +52,7 @@ function loadDocument($url, $id, $callback) {
                 events.data('doc_title_' + $id, doc_title);
                 events.data('doc_info_' + $id, doc_info);
 
-                events.trigger('article.open', { $url : $url, $init : true, $id : $id });
+                events.trigger('article.open', { $url : $url, $id : $id });
             } else if (res.errcode === 6000) {
                 window.location.href = "/";
             } else {
@@ -138,11 +138,20 @@ $(function () {
 
     // 处理打开事件
     events.on('article.open', function (event, $param) {
+
+        var prevState = window.history.state || {};
         if ('pushState' in history) {
-            if ($param.$init === false) {
-                window.history.replaceState($param, $param.$id, $param.$url);
+            // if ($param.$init === false) {
+            //     window.history.replaceState($param, $param.$id, $param.$url);
+            // } else {
+            //     window.history.pushState($param, $param.$id, $param.$url);
+            // }
+
+            if ($param.$id) {
+                prevState.$id === $param.$id || window.history.pushState($param, $param.$id, $param.$url);
             } else {
                 window.history.pushState($param, $param.$id, $param.$url);
+                window.history.replaceState($param, $param.$id, $param.$url);
             }
         } else {
             window.location.hash = $param.$url;
@@ -196,12 +205,15 @@ $(function () {
 
     window.onpopstate = function (e) {
         var $param = e.state;
-        console.log($param);
+        if (!$param) return;
         if($param.hasOwnProperty("$url")) {
             window.jsTree.jstree().deselect_all();
 
-            window.jsTree.jstree().select_node({ id : $param.$id });
-            $param.$init = false;
+            if ($param.$id) {
+                window.jsTree.jstree().select_node({ id : $param.$id });
+            }else{
+                window.location.assign($param.$url);
+            }
             // events.trigger('article.open', $param);
         } else {
             console.log($param);
@@ -209,9 +221,9 @@ $(function () {
     };
     try {
         var $node = window.jsTree.jstree().get_selected();
-        if (typeof $node === "object") {
+        if ($node instanceof Array && $node.length) {
             $node = window.jsTree.jstree().get_node({ id: $node[0] });
-            events.trigger('article.open', { $url: $node.a_attr.href, $init: true, $id: $node.a_attr.id });
+            events.trigger('article.open', { $url: $node.a_attr.href, $id: $node.id });
         }
     } catch (e) {
         console.log(e);

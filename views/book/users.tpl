@@ -43,8 +43,8 @@
                         {{end}}
                     </div>
                 </div>
-                <div class="box-body">
-                    <div class="users-list" id="userList">
+                <div class="box-body" id="userList">
+                    <div class="users-list">
                         <template v-if="lists.length <= 0">
                             <div class="text-center">暂无数据</div>
                         </template>
@@ -86,6 +86,11 @@
                             </div>
                         </template>
                     </div>
+                    <template v-if="lists.length >= 0">
+                       <nav class="pagination-container">
+                        {{.PageHtml}}
+                        </nav>
+                    </template>
                 </div>
             </div>
         </div>
