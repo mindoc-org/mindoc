@@ -3,7 +3,7 @@ $(function () {
     window.editor = editormd("docEditor", {
         width: "100%",
         height: "100%",
-        path: "/static/editor.md/lib/",
+        path: (window.editormdURL ? window.editormdURL:"/static/editor.md/lib/"),
         toolbar: true,
         placeholder: "本编辑器支持 Markdown 编辑，左边编写，右边预览。",
         imageUpload: true,
@@ -231,7 +231,7 @@ $(function () {
             }
         });
     }
-    
+
 
     /**
      * 设置编辑器变更状态

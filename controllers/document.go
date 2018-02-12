@@ -4,15 +4,16 @@ import (
 	"container/list"
 	"encoding/json"
 	"html/template"
+	"image/png"
+	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"net/url"
-	"image/png"
 
 	"bytes"
 
@@ -104,7 +105,7 @@ func promptUserToLogIn(c *DocumentController) {
 	if c.IsAjax() {
 		c.JsonResult(6000, "请重新登录。")
 	} else {
-		c.Redirect(beego.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
+		c.Redirect(beego.URLFor("AccountController.Login")+"?url="+url.PathEscape(conf.BaseUrl+c.Ctx.Request.URL.RequestURI()), 302)
 	}
 }
 
@@ -198,6 +199,7 @@ func (c *DocumentController) Read() {
 			beego.Error(err)
 		} else {
 			query.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
+				log.Println("img src=", contentSelection)
 				if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
 					contentSelection.SetAttr("src", utils.JoinURI(cdnimg, src))
 				}
@@ -489,7 +491,7 @@ func (c *DocumentController) Upload() {
 
 	fileName := "attach_" + strconv.FormatInt(time.Now().UnixNano(), 16)
 
-	filePath := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"),identify, fileName+ext)
+	filePath := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"), identify, fileName+ext)
 
 	path := filepath.Dir(filePath)
 
@@ -519,7 +521,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
-		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
+		attachment.HttpPath = conf.GetUrlPrefix() + "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
 		if strings.HasPrefix(attachment.HttpPath, "//") {
 			attachment.HttpPath = string(attachment.HttpPath[1:])
 		}
@@ -536,7 +538,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	if attachment.HttpPath == "" {
-		attachment.HttpPath = c.BaseUrl() + beego.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
+		attachment.HttpPath = c.BaseUrl() + conf.GetUrlPrefix() + beego.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update(); err != nil {
 			beego.Error("SaveToFile => ", err)
@@ -1055,7 +1057,7 @@ func (c *DocumentController) History() {
 	c.Data["Document"] = doc
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize)
 		c.Data["PageHtml"] = pager.HtmlPages()
 	}
 }

@@ -19,6 +19,7 @@
         window.sortURL = "{{urlfor "BookController.SaveSort" ":key" .Model.Identify}}";
         window.historyURL = "{{urlfor "DocumentController.History"}}";
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
+        window.editormdURL = '{{urlprefix  "/static/editor.md/lib/"}}';
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -286,8 +287,8 @@
 <script src="{{cdnjs "/static/editor.md/editormd.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/editor.js" type="text/javascript"></script>
-<script src="/static/js/markdown.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/markdown.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#attachInfo").on("click",function () {
@@ -301,7 +302,7 @@
                     window.uploader = WebUploader.create({
                         auto: true,
                         dnd : true,
-                        swf: '/static/webuploader/Uploader.swf',
+                        swf: '{{urlprefix "/static/webuploader/Uploader.swf"}}',
                         server: '{{urlfor "DocumentController.Upload"}}',
                         formData : { "identify" : {{.Model.Identify}},"doc_id" :  window.selectNode.id },
                         pick: "#filePicker",
