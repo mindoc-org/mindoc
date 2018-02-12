@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"html/template"
 	"image/png"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -199,7 +198,6 @@ func (c *DocumentController) Read() {
 			beego.Error(err)
 		} else {
 			query.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
-				log.Println("img src=", contentSelection)
 				if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
 					contentSelection.SetAttr("src", utils.JoinURI(cdnimg, src))
 				}
