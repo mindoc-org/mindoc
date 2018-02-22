@@ -340,8 +340,8 @@ func (c *DocumentController) Create() {
 	}
 
 	if doc_identify != "" {
-		if ok, err := regexp.MatchString(`^[a-z]+[a-zA-Z0-9_\-]*$`, doc_identify); !ok || err != nil {
-			c.JsonResult(6003, "文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
+		if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, doc_identify); !ok || err != nil {
+			c.JsonResult(6003, "文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号")
 		}
 
 		d, _ := models.NewDocument().FindByFieldFirst("identify", doc_identify)
