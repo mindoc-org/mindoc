@@ -67,6 +67,7 @@
                                             <ul class="dropdown-menu">
                                                 <li><a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" target="_blank">阅读</a></li>
                                                 <li><a href="{{urlfor "ManagerController.EditBook" ":key" $item.Identify}}">设置</a></li>
+                                                <li><a href="javascript:deleteBook('{{$item.Identify}}');">删除</a> </li>
                                             </ul>
                                         </div>
                                         {{/*<a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>*/}}
@@ -109,12 +110,65 @@
     </div>
     {{template "widgets/footer.tpl" .}}
 </div>
-
+<!-- Delete Book Modal -->
+<div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel">
+    <div class="modal-dialog" role="document">
+        <form method="post" id="deleteBookForm" action="{{urlfor "BookController.Delete"}}">
+            <input type="hidden" name="identify" value="">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">删除项目</h4>
+                </div>
+                <div class="modal-body">
+                    <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
+                    <p></p>
+                    <p class="text error-message">删除项目后将无法找回。</p>
+                </div>
+                <div class="modal-footer">
+                    <span id="form-error-message2" class="error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
-
+<script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
+<script type="text/javascript">
+        /**
+         * 删除项目
+         */
+        function deleteBook($id) {
+            $("#deleteBookModal").find("input[name='identify']").val($id);
+            $("#deleteBookModal").modal("show");
+        }
+        $(function () {
+            /**
+             * 删除项目
+             */
+            $("#deleteBookForm").ajaxForm({
+                beforeSubmit : function () {
+                    $("#btnDeleteBook").button("loading");
+                },
+                success : function (res) {
+                    if(res.errcode === 0){
+                        window.location = window.location.href;
+                    }else{
+                        showError(res.message,"#form-error-message2");
+                    }
+                    $("#btnDeleteBook").button("reset");
+                },
+                error : function () {
+                    showError("服务器异常","#form-error-message2");
+                    $("#btnDeleteBook").button("reset");
+                }
+            });
+        });
+</script>
 </body>
 </html>

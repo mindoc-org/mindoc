@@ -59,7 +59,7 @@
                     <div class="dashboard">
                         <div class="pull-left" style="width: 200px;margin-bottom: 15px;">
                             <div class="book-image">
-                                <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.jpg'" width="174" height="229" style="border: 1px solid #666">
+                                <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.jpg'" style="border: 1px solid #666">
                             </div>
                         </div>
 

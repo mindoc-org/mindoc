@@ -67,7 +67,10 @@
                                         <ul class="dropdown-menu">
                                             <li><a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" target="_blank">阅读</a></li>
                                             <template v-if="item.role_id != 3">
-                                            <li><a :href="'/api/' + item.identify + '/edit'" target="_blank" target="_blank">编辑</a></li>
+                                            <li><a :href="'/api/' + item.identify + '/edit'" target="_blank">编辑</a></li>
+                                            </template>
+                                            <template v-if="item.role_id == 0">
+                                            <li><a :href="'javascript:deleteBook(\''+item.identify+'\');'">删除</a></li>
                                             </template>
                                         </ul>
 
@@ -119,8 +122,8 @@
 </div>
 <!-- Modal -->
 <div class="modal fade" id="addBookDialogModal" tabindex="-1" role="dialog" aria-labelledby="addBookDialogModalLabel">
-    <div class="modal-dialog" role="document" style="width: 655px">
-        <form method="post" autocomplete="off" action="{{urlfor "BookController.Create"}}" id="addBookDialogForm">
+    <div class="modal-dialog modal-lg" role="document" style="min-width: 900px;">
+        <form method="post" autocomplete="off" action="{{urlfor "BookController.Create"}}" id="addBookDialogForm" enctype="multipart/form-data">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -128,71 +131,76 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName">
-                </div>
-                <div class="form-group">
-                    <div class="pull-left" style="padding: 7px 5px 6px 0">
-                        {{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" ""}}
+                    <div class="pull-left" style="width: 620px">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName">
+                        </div>
+                        <div class="form-group">
+                            <div class="pull-left" style="padding: 7px 5px 6px 0">
+                            {{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" ""}}
+                            </div>
+                            <input type="text" class="form-control pull-left" style="width: 410px;vertical-align: middle" placeholder="项目唯一标识(不超过50字)" name="identify" id="identify">
+                            <div class="clearfix"></div>
+                            <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="description" id="description" class="form-control" placeholder="描述信息不超过500个字符" style="height: 90px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-6">
+                                <label>
+                                    <input type="radio" name="privately_owned" value="0" checked> 公开<span class="text">(任何人都可以访问)</span>
+                                </label>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>
+                                    <input type="radio" name="privately_owned" value="1"> 私有<span class="text">(只要参与者或使用令牌才能访问)</span>
+                                </label>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
                     </div>
-                    <input type="text" class="form-control pull-left" style="width: 220px;vertical-align: middle" placeholder="项目唯一标识(不能超过50字)" name="identify" id="identify">
-                    <div class="clearfix"></div>
-                    <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
+                    <div class="pull-right text-center" style="width: 235px;">
+                        <canvas id="bookCover" height="230px" width="170px"><img src="{{cdnimg "/static/images/book.jpg"}}"> </canvas>
+                    </div>
+                </div>
 
-                </div>
-                <div class="form-group">
-                    <textarea name="description" id="description" class="form-control" placeholder="描述信息不超过500个字符" style="height: 90px;"></textarea>
-                </div>
-                <div class="form-group">
-                    <div class="col-lg-6">
-                        <label>
-                            <input type="radio" name="privately_owned" value="0" checked> 公开<span class="text">(任何人都可以访问)</span>
-                        </label>
-                    </div>
-                    <div class="col-lg-6">
-                        <label>
-                            <input type="radio" name="privately_owned" value="1"> 私有<span class="text">(只要参与者或使用令牌才能访问)</span>
-                        </label>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-                <!--
-				{{/*
-                <div class="form-group">
-                    <div class="col-lg-3">
-                        <label>
-                            <input type="radio" checked name="comment_status" value="open">允许所有人评论<span class="text"></span>
-                        </label>
-                    </div>
-                    <div class="col-lg-3">
-                        <label>
-                            <input type="radio"  name="comment_status" value="closed">关闭评论<span class="text"></span>
-                        </label>
-                    </div>
-                    <div class="col-lg-3">
-                        <label>
-                            <input type="radio" name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>
-                        </label>
-                    </div>
-                    <div class="col-lg-3">
-                        <label>
-                            <input type="radio" name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>
-                        </label>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-				*/}}
-				-->
+
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
                 <span id="form-error-message"></span>
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="submit" class="btn btn-success" id="btnSaveDocument" data-loading-text="保存中...">保存</button>
+                <button type="button" class="btn btn-success" id="btnSaveDocument" data-loading-text="保存中...">保存</button>
             </div>
         </div>
         </form>
     </div>
 </div><!--END Modal-->
+<!-- Delete Book Modal -->
+<div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel">
+    <div class="modal-dialog" role="document">
+        <form method="post" id="deleteBookForm" action="{{urlfor "BookController.Delete"}}">
+            <input type="hidden" name="identify" value="">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">删除项目</h4>
+                </div>
+                <div class="modal-body">
+                    <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
+                    <p></p>
+                    <p class="text error-message">删除项目后将无法找回。</p>
+                </div>
+                <div class="modal-footer">
+                    <span id="form-error-message2" class="error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
@@ -200,41 +208,196 @@
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
+    /**
+     * 绘制项目封面
+     * @param $id
+     * @param $font
+     */
+    function drawBookCover($id,$font) {
+        var draw = document.getElementById($id);
+        //确认浏览器是否支持<canvas>元素
+        if (draw.getContext) {
+            var context = draw.getContext('2d');
+
+            //绘制红色矩形,绿色描边
+            context.fillStyle = '#eee';
+            context.strokeStyle = '#d4d4d5';
+            context.strokeRect(0,0,170,230);
+            context.fillRect(0,0,170,230);
+
+            //设置字体样式
+            context.font = "bold 20px SimSun";
+            context.textAlign = "left";
+            //设置字体填充颜色
+            context.fillStyle = "#3E403E";
+
+            var font = $font;
+
+            var lineWidth = 0; //当前行的绘制的宽度
+            var lastTextIndex = 0; //已经绘制上canvas最后的一个字符的下标
+            var drawWidth = 155,lineHeight = 25,drawStartX = 15,drawStartY=65;
+            //由于改变canvas 的高度会导致绘制的纹理被清空，所以，不预先绘制，先放入到一个数组当中
+            var arr = [];
+            for(var i = 0; i<font.length; i++){
+                //获取当前的截取的字符串的宽度
+                lineWidth = context.measureText(font.substr(lastTextIndex,i-lastTextIndex)).width;
+
+                if(lineWidth > drawWidth){
+                    //判断最后一位是否是标点符号
+                    if(judgePunctuationMarks(font[i-1])){
+                        arr.push(font.substr(lastTextIndex,i-lastTextIndex));
+                        lastTextIndex = i;
+                    }else{
+                        arr.push(font.substr(lastTextIndex,i-lastTextIndex-1));
+                        lastTextIndex = i-1;
+                    }
+                }
+                //将最后多余的一部分添加到数组
+                if(i === font.length - 1){
+                    arr.push(font.substr(lastTextIndex,i-lastTextIndex+1));
+                }
+            }
+
+            for(var i =0; i<arr.length; i++){
+                context.fillText(arr[i],drawStartX,drawStartY+i*lineHeight);
+            }
+
+            //判断是否是需要避开的标签符号
+            function judgePunctuationMarks(value) {
+                var arr = [".",",",";","?","!",":","\"","，","。","？","！","；","：","、"];
+                for(var i = 0; i< arr.length; i++){
+                    if(value === arr[i]){
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        }else{
+            console.log("浏览器不支持")
+        }
+    }
+
+    /**
+     * 将base64格式的图片转换为二进制
+     * @param dataURI
+     * @returns {Blob}
+     */
+    function dataURItoBlob(dataURI) {
+        var byteString = atob(dataURI.split(',')[1]);
+        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        var ab = new ArrayBuffer(byteString.length);
+        var ia = new Uint8Array(ab);
+        for (var i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+
+        return new Blob([ab], {type: mimeString});
+    }
+    /**
+     * 删除项目
+     */
+    function deleteBook($id) {
+        $("#deleteBookModal").find("input[name='identify']").val($id);
+        $("#deleteBookModal").modal("show");
+    }
+
     $(function () {
-        $("#addBookDialogForm").ajaxForm({
-            beforeSubmit : function () {
-                var bookName = $.trim($("#bookName").val());
-                if(bookName === ""){
-                    return showError("项目标题不能为空")
-                }
-                if(bookName.length > 100){
-                    return showError("项目标题必须小于100字符");
-                }
+        $("#addBookDialogModal").on("show.bs.modal",function () {
+            window.bookDialogModal = $(this).find("#addBookDialogForm").html();
+            drawBookCover("bookCover","默认封面");
+        }).on("hidden.bs.modal",function () {
+            $(this).find("#addBookDialogForm").html(window.bookDialogModal);
+        });
+        /**
+         * 创建项目
+         */
+        $("#btnSaveDocument").on("click",function () {
+            var $this = $(this);
 
-                var identify = $.trim($("#identify").val());
-                if(identify === ""){
-                    return showError("项目标识不能为空");
-                }
-                if(identify.length > 50){
-                    return showError("项目标识必须小于50字符");
-                }
-                var description = $.trim($("#description").val());
+            var bookName = $.trim($("#bookName").val());
+            if (bookName === "") {
+                return showError("项目标题不能为空")
+            }
+            if (bookName.length > 100) {
+                return showError("项目标题必须小于100字符");
+            }
 
-                if(description.length > 500){
-                    return showError("描述信息不超过500个字符");
-                }
-                $("#btnSaveDocument").button("loading");
-                return showSuccess("");
-            },
-            success : function (res) {
-                $("#btnSaveDocument").button("reset");
-                if(res.errcode === 0){
-                    window.app.lists.splice(0,0,res.data);
+            var identify = $.trim($("#identify").val());
+            if (identify === "") {
+                return showError("项目标识不能为空");
+            }
+            if (identify.length > 50) {
+                return showError("项目标识必须小于50字符");
+            }
+            var description = $.trim($("#description").val());
+
+            if (description.length > 500) {
+                return showError("描述信息不超过500个字符");
+            }
+
+            $this.button("loading");
+
+            var draw = document.getElementById("bookCover");
+            var form = document.getElementById("addBookDialogForm");
+            var fd = new FormData(form);
+            if (draw.getContext) {
+                var dataURL = draw.toDataURL("png", 100);
+
+                var blob = dataURItoBlob(dataURL);
+
+                fd.append('image-file', blob,(new Date()).valueOf() + ".png");
+            }
+
+            $.ajax({
+                url : "{{urlfor "BookController.Create"}}",
+                data: fd,
+                type: "POST",
+                dataType :"json",
+                processData: false,
+                contentType: false
+            }).success(function (res) {
+                $this.button("reset");
+                if (res.errcode === 0) {
+                    window.app.lists.splice(0, 0, res.data);
                     $("#addBookDialogModal").modal("hide");
-                }else{
+                } else {
                     showError(res.message);
                 }
-
+                $this.button("reset");
+            }).error(function () {
+                $this.button("reset");
+                return showError("服务器异常");
+            });
+            return false;
+        });
+        /**
+         * 当填写项目标题后，绘制项目封面
+         */
+        $("#bookName").on("blur",function () {
+           var txt = $(this).val();
+           if(txt !== ""){
+               drawBookCover("bookCover",txt);
+           }
+        });
+        /**
+         * 删除项目
+         */
+        $("#deleteBookForm").ajaxForm({
+            beforeSubmit : function () {
+                $("#btnDeleteBook").button("loading");
+            },
+            success : function (res) {
+                if(res.errcode === 0){
+                    window.location = window.location.href;
+                }else{
+                    showError(res.message,"#form-error-message2");
+                }
+                $("#btnDeleteBook").button("reset");
+            },
+            error : function () {
+                showError("服务器异常","#form-error-message2");
+                $("#btnDeleteBook").button("reset");
             }
         });
 
