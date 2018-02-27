@@ -834,23 +834,23 @@ func (c *DocumentController) Content() {
 
 	c.JsonResult(0, "ok", doc)
 }
-
-func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
-	doc = models.NewDocument()
-	if doc_id, err := strconv.Atoi(id); err == nil {
-		doc, err = doc.Find(doc_id)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		doc, err = doc.FindByFieldFirst("identify", id)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return doc, nil
-}
+//
+//func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
+//	doc = models.NewDocument()
+//	if doc_id, err := strconv.Atoi(id); err == nil {
+//		doc, err = doc.Find(doc_id)
+//		if err != nil {
+//			return nil, err
+//		}
+//	} else {
+//		doc, err = doc.FindByFieldFirst("identify", id)
+//		if err != nil {
+//			return nil, err
+//		}
+//	}
+//
+//	return doc, nil
+//}
 
 // 导出
 func (c *DocumentController) Export() {

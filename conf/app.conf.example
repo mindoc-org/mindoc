@@ -105,7 +105,29 @@ ldap_user_role=2
 ldap_filter=objectClass=posixAccount
 
 
-
+######################缓存配置###############################
+#是否开启缓存，true 开启/false 不开启
+cache=false
+#缓存方式:memory/memcache/redis/file
+cache_provider=memory
+#当配置缓存方式为memory时,内存回收时间,单位是秒
+cache_memory_interval=120
+#当缓存方式配置为file时,缓存的储存目录
+cache_file_path=./runtime/
+#缓存文件后缀
+cache_file_suffix=
+#文件缓存目录层级
+cache_file_dir_level=2
+#文件缓存的默认过期时间
+cache_file_expiry=3600
+#memcache缓存服务器地址
+cache_memcache_host=127.0.0.1:11211
+#redis服务器地址
+cache_redis_host=127.0.0.1:6379
+#redis数据库索引
+cache_redis_db=0
+#redis服务器密码
+cache_redis_password=
 
 
 
