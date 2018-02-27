@@ -22,6 +22,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/pagination"
 	"net/http"
 	"github.com/lifei6671/mindoc/converter"
+	"github.com/russross/blackfriday"
 )
 
 type BookController struct {
@@ -76,6 +77,7 @@ func (c *BookController) Dashboard() {
 		c.Abort("500")
 	}
 
+	c.Data["Description"] = template.HTML(blackfriday.MarkdownBasic([]byte(book.Description)))
 	c.Data["Model"] = *book
 }
 

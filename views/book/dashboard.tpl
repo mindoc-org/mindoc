@@ -92,7 +92,7 @@
                         <span class="title">文档标签：</span>
                         <span class="body">{{.Model.Label}}</span>
                     </div>
-                        <div class="summary">{{.Model.Description}} </div>
+                        <div class="summary">{{.Description}} </div>
 
                     </div>
                 </div>
