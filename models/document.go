@@ -14,7 +14,6 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/lifei6671/mindoc/cache"
 	"encoding/json"
-	"qiniupkg.com/x/errors.v7"
 )
 
 // Document struct.
@@ -65,9 +64,7 @@ func (m *Document) Find(id int) (*Document, error) {
 	if id <= 0 {
 		return m, ErrInvalidParameter
 	}
-	if m,err := m.FromCacheById(id); err == nil {
-		return m,nil
-	}
+
 	o := orm.NewOrm()
 
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", id).One(m)
@@ -75,7 +72,7 @@ func (m *Document) Find(id int) (*Document, error) {
 	if err == orm.ErrNoRows {
 		return m, ErrDataNotExist
 	}
-	m.PutToCache()
+
 	return m, nil
 }
 
@@ -93,35 +90,15 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 		return err
 	}
 
-	m.PutToCache()
-
 	return nil
 }
 
 //根据指定字段查询一条文档.
 func (m *Document) FindByFieldFirst(field string, v interface{}) (*Document, error) {
 
-	if field == "identify" {
-		if identify,ok := v.(string);ok {
-			if m,err := m.FromCacheByIdentify(identify);err == nil{
-				return m,nil
-			}
-		}
-	}else if field == "document_id" {
-		if id,ok := v.(int); ok && id > 0 {
-			if m,err := m.FromCacheById(id);err == nil{
-				return m,nil
-			}
-		}
-	}
-
 	o := orm.NewOrm()
 
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter(field, v).One(m)
-
-	if err == nil {
-		m.PutToCache()
-	}
 
 	return m, err
 }
@@ -165,7 +142,7 @@ func (m *Document) ReleaseContent(bookId int) {
 	o := orm.NewOrm()
 
 	var docs []*Document
-	_, err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", bookId).All(&docs, "document_id", "content")
+	_, err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", bookId).All(&docs, "document_id","identify", "content")
 
 	if err != nil {
 		beego.Error("发布失败 => ", err)
@@ -214,7 +191,12 @@ func (m *Document) ReleaseContent(bookId int) {
 			beego.Error(fmt.Sprintf("发布失败 => %+v", item), err)
 		}else {
 			//当文档发布后，需要清除已缓存的转换文档和文档缓存
-			item.PutToCache()
+			if doc,err := NewDocument().Find(item.DocumentId); err == nil {
+				doc.PutToCache()
+			}else{
+				doc.RemoveCache()
+			}
+
 			os.RemoveAll(filepath.Join(conf.WorkingDirectory,"uploads","books",strconv.Itoa(bookId)))
 		}
 	}
@@ -222,38 +204,54 @@ func (m *Document) ReleaseContent(bookId int) {
 
 //将文档写入缓存
 func (m *Document) PutToCache(){
-	if v,err := json.Marshal(m);err == nil {
-		if m.Identify == "" {
-			if err := cache.Put("Document.Id."+strconv.Itoa(m.DocumentId), v, time.Second*3600); err != nil {
-				beego.Info("文档缓存失败:", m)
-			}
-		}else{
-			if err := cache.Put("Document.Identify."+ m.Identify, v, time.Second*3600); err != nil {
-				beego.Info("文档缓存失败:", m)
+	go func(m Document) {
+		if v,err := json.Marshal(&m);err == nil {
+			if m.Identify == "" {
+
+				if err := cache.Put("Document.Id." + strconv.Itoa(m.DocumentId), v, time.Second*3600); err != nil {
+					beego.Info("文档缓存失败:", m.DocumentId)
+				}
+			}else{
+				if err := cache.Put("Document.Identify."+ m.Identify, v, time.Second*3600); err != nil {
+					beego.Info("文档缓存失败:", m.DocumentId)
+				}
 			}
 		}
-	}
+	}(*m)
 }
+//清除缓存
+func (m *Document) RemoveCache() {
+	go func(m Document) {
+		cache.Put("Document.Id." + strconv.Itoa(m.DocumentId), m, time.Second*3600);
+
+		if m.Identify != "" {
+			cache.Put("Document.Identify."+ m.Identify, m, time.Second*3600);
+		}
+	}(*m)
+}
+
 //从缓存获取
 func (m *Document) FromCacheById(id int) (*Document,error) {
 	b := cache.Get("Document.Id." + strconv.Itoa(id))
 	if v,ok := b.([]byte); ok {
-		beego.Info("从缓存中获取文档信息成功")
+
 		if err := json.Unmarshal(v,m);err == nil{
+			beego.Info("从缓存中获取文档信息成功",m.DocumentId)
 			return m,nil
 		}
 	}
-	return nil,errors.New("Cache not exists")
+	return m.Find(id)
 }
+//根据文档标识从缓存中查询文档
 func (m *Document) FromCacheByIdentify(identify string) (*Document,error) {
 	b := cache.Get("Document.Identify." + identify)
 	if v,ok := b.([]byte); ok {
-		beego.Info("从缓存中获取文档信息成功")
 		if err := json.Unmarshal(v,m);err == nil{
+			beego.Info("从缓存中获取文档信息成功",m.DocumentId)
 			return m,nil
 		}
 	}
-	return nil,errors.New("Cache not exists")
+	return m.FindByFieldFirst("identify",identify)
 }
 
 //根据项目ID查询文档列表.

@@ -22,6 +22,8 @@ type Book struct {
 	Identify string `orm:"column(identify);size(100);unique" json:"identify"`
 	//是否是自动发布 0 否/1 是
 	AutoRelease int `orm:"column(auto_release);type(int);default(0)" json:"auto_release"`
+	//是否开启下载功能 0 是/1 否
+	IsDownload int `orm:"column(is_download);type(int);default(0)" json:"is_download"`
 	OrderIndex  int `orm:"column(order_index);type(int);default(0)" json:"order_index"`
 	// Description 项目描述.
 	Description string `orm:"column(description);size(2000)" json:"description"`
@@ -129,7 +131,7 @@ func (m *Book) Update(cols ...string) error {
 		return err
 	}
 
-	if (m.Label + temp.Label) != "" {
+	if m.Label != "" || temp.Label != ""{
 
 		go NewLabel().InsertOrUpdateMulti(m.Label + "," + temp.Label)
 	}
@@ -314,16 +316,16 @@ func (m *Book) FindForHomeToPager(pageIndex, pageSize, member_id int) (books []*
 }
 
 //分页全局搜索.
-func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, member_id int) (books []*BookResult, totalCount int, err error) {
+func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
 	keyword = "%" + keyword + "%"
 	offset := (pageIndex - 1) * pageSize
 	//如果是登录用户
-	if member_id > 0 {
+	if memberId > 0 {
 		sql1 := "SELECT COUNT(*) FROM md_books AS book LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ? WHERE (relationship_id > 0 OR book.privately_owned = 0) AND book.label LIKE ?"
 
-		err = o.Raw(sql1, member_id, keyword).QueryRow(&totalCount)
+		err = o.Raw(sql1, memberId, keyword).QueryRow(&totalCount)
 		if err != nil {
 			return
 		}
@@ -333,7 +335,7 @@ func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, member_i
 			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
 			WHERE (rel.relationship_id > 0 OR book.privately_owned = 0) AND book.label LIKE ? ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
 
-		_, err = o.Raw(sql2, member_id, keyword, offset, pageSize).QueryRows(&books)
+		_, err = o.Raw(sql2, memberId, keyword, offset, pageSize).QueryRows(&books)
 
 		return
 
@@ -359,12 +361,12 @@ func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, member_i
 }
 
 //重置文档数量
-func (m *Book) ResetDocumentNumber(book_id int) {
+func (m *Book) ResetDocumentNumber(bookId int) {
 	o := orm.NewOrm()
 
-	totalCount, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", book_id).Count()
+	totalCount, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).Count()
 	if err == nil {
-		o.Raw("UPDATE md_books SET doc_count = ? WHERE book_id = ?", int(totalCount), book_id).Exec()
+		o.Raw("UPDATE md_books SET doc_count = ? WHERE book_id = ?", int(totalCount), bookId).Exec()
 	} else {
 		beego.Error(err)
 	}

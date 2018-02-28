@@ -123,7 +123,15 @@ func (c *BaseController) BaseUrl() string {
 //显示错误信息页面.
 func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 	c.TplName = "errors/error.tpl"
+
 	c.Data["ErrorMessage"] = errMsg
 	c.Data["ErrorCode"] = errCode
-	c.StopRun()
+
+	var buf bytes.Buffer
+
+	if err := beego.ExecuteViewPathTemplate(&buf, "document/export.tpl", beego.BConfig.WebConfig.ViewsPath, map[string]interface{}{"ErrorMessage": errMsg, "errCode": errCode, "BaseUrl": conf.BaseUrl}); err != nil {
+		c.Abort("500")
+	}
+
+	c.CustomAbort(200,buf.String())
 }

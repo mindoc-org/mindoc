@@ -42,6 +42,10 @@ func (c *BookController) Index() {
 		c.Abort("500")
 	}
 
+	for i,book := range books {
+		books[i].Description = utils.StripTags(string(blackfriday.MarkdownBasic([]byte(book.Description))))
+	}
+
 	if totalCount > 0 {
 		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
 		c.Data["PageHtml"] = pager.HtmlPages()
@@ -135,6 +139,7 @@ func (c *BookController) SaveBook() {
 	autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 	publisher := strings.TrimSpace(c.GetString("publisher"))
 	historyCount,_ := c.GetInt("history_count",0)
+	isDownload := strings.TrimSpace(c.GetString("is_download")) == "on"
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
@@ -159,13 +164,18 @@ func (c *BookController) SaveBook() {
 	book.Label = tag
 	book.Editor = editor
 	book.HistoryCount = historyCount
+	book.IsDownload = 0
 
 	if autoRelease {
 		book.AutoRelease = 1
 	} else {
 		book.AutoRelease = 0
 	}
-
+	if isDownload {
+		book.IsDownload = 0
+	}else{
+		book.IsDownload = 1
+	}
 	if err := book.Update(); err != nil {
 		c.JsonResult(6006, "保存失败")
 	}
@@ -395,7 +405,7 @@ func (c *BookController) Create() {
 		book_name := strings.TrimSpace(c.GetString("book_name", ""))
 		identify := strings.TrimSpace(c.GetString("identify", ""))
 		description := strings.TrimSpace(c.GetString("description", ""))
-		privately_owned, _ := strconv.Atoi(c.GetString("privately_owned"))
+		privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
 		comment_status := c.GetString("comment_status")
 
 		if book_name == "" {
@@ -413,8 +423,8 @@ func (c *BookController) Create() {
 		if strings.Count(description, "") > 500 {
 			c.JsonResult(6004, "项目描述不能大于500字")
 		}
-		if privately_owned != 0 && privately_owned != 1 {
-			privately_owned = 1
+		if privatelyOwned != 0 && privatelyOwned != 1 {
+			privatelyOwned = 1
 		}
 		if comment_status != "open" && comment_status != "closed" && comment_status != "group_only" && comment_status != "registered_only" {
 			comment_status = "closed"
@@ -460,7 +470,7 @@ func (c *BookController) Create() {
 		book.BookName = book_name
 		book.Description = description
 		book.CommentCount = 0
-		book.PrivatelyOwned = privately_owned
+		book.PrivatelyOwned = privatelyOwned
 		book.CommentStatus = comment_status
 		book.Identify = identify
 		book.DocCount = 0
@@ -487,7 +497,7 @@ func (c *BookController) Create() {
 	}
 	c.JsonResult(6001, "error")
 }
-
+//导入
 func (c *BookController) Import() {
 
 	file, moreFile, err := c.GetFile("import-file")

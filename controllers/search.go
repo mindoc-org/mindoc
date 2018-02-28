@@ -4,8 +4,8 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
+	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"regexp"
 	"strconv"
 	"strings"
 )
@@ -13,6 +13,7 @@ import (
 type SearchController struct {
 	BaseController
 }
+
 //搜索首页
 func (c *SearchController) Index() {
 	c.Prepare()
@@ -42,7 +43,7 @@ func (c *SearchController) Index() {
 			return
 		}
 		if totalCount > 0 {
-			pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+			pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize)
 			c.Data["PageHtml"] = pager.HtmlPages()
 		} else {
 			c.Data["PageHtml"] = ""
@@ -54,27 +55,7 @@ func (c *SearchController) Index() {
 				if item.Description != "" {
 					src := item.Description
 
-					//将HTML标签全转换成小写
-					re, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
-					src = re.ReplaceAllStringFunc(src, strings.ToLower)
-
-					//去除STYLE
-					re, _ = regexp.Compile("\\<style[\\S\\s]+?\\</style\\>")
-					src = re.ReplaceAllString(src, "")
-
-					//去除SCRIPT
-					re, _ = regexp.Compile("\\<script[\\S\\s]+?\\</script\\>")
-					src = re.ReplaceAllString(src, "")
-
-					//去除所有尖括号内的HTML代码，并换成换行符
-					re, _ = regexp.Compile("\\<[\\S\\s]+?\\>")
-					src = re.ReplaceAllString(src, "\n")
-
-					//去除连续的换行符
-					re, _ = regexp.Compile("\\s{2,}")
-					src = re.ReplaceAllString(src, "\n")
-
-					r := []rune(src)
+					r := []rune(utils.StripTags(item.Description))
 
 					if len(r) > 100 {
 						src = string(r[:100])
@@ -101,35 +82,34 @@ func (c *SearchController) User() {
 	c.Prepare()
 	key := c.Ctx.Input.Param(":key")
 	keyword := strings.TrimSpace(c.GetString("q"))
-	if key == "" || keyword == ""{
-		c.JsonResult(404,"参数错误")
+	if key == "" || keyword == "" {
+		c.JsonResult(404, "参数错误")
 	}
 
 	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
-			c.JsonResult(403,"没有权限")
+			c.JsonResult(403, "没有权限")
 		}
-		c.JsonResult(500,"项目不存在")
+		c.JsonResult(500, "项目不存在")
 	}
 
-	members,err := models.NewMemberRelationshipResult().FindNotJoinUsersByAccount(book.BookId,10,"%"+keyword+"%")
+	members, err := models.NewMemberRelationshipResult().FindNotJoinUsersByAccount(book.BookId, 10, "%"+keyword+"%")
 	if err != nil {
 		beego.Error("查询用户列表出错：" + err.Error())
-		c.JsonResult(500,err.Error())
+		c.JsonResult(500, err.Error())
 	}
 	result := models.SelectMemberResult{}
-	items := make([]models.KeyValueItem,0)
+	items := make([]models.KeyValueItem, 0)
 
-	for _,member := range members {
+	for _, member := range members {
 		item := models.KeyValueItem{}
 		item.Id = member.MemberId
 		item.Text = member.Account
-		items = append(items,item)
+		items = append(items, item)
 	}
 
 	result.Result = items
 
-	c.JsonResult(0,"OK", result)
+	c.JsonResult(0, "OK", result)
 }
-

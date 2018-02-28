@@ -51,6 +51,7 @@ type BookResult struct {
 
 	LastModifyText   string `json:"last_modify_text"`
 	IsDisplayComment bool   `json:"is_display_comment"`
+	IsDownload bool			`json:"is_download"`
 }
 
 func NewBookResult() *BookResult {
@@ -174,6 +175,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.AutoRelease = book.AutoRelease == 1
 	m.Publisher = book.Publisher
 	m.HistoryCount = book.HistoryCount
+	m.IsDownload = book.IsDownload == 0
 
 	if book.Theme == "" {
 		m.Theme = "default"

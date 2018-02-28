@@ -138,6 +138,14 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="autoRelease">开启导出</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
                     <span id="form-error-message" class="error-message"></span>
                 </div>
@@ -301,6 +309,7 @@
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
         });
         $("#autoRelease").bootstrapSwitch();
+        $("#isDownload").bootstrapSwitch();
 
         $('input[name="label"]').tagsinput({
             confirmKeys: [13,44],

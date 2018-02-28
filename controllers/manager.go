@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"github.com/lifei6671/mindoc/utils/pagination"
+	"math"
 )
 
 type ManagerController struct {
@@ -633,3 +634,66 @@ func (c *ManagerController) AttachDelete() {
 	}
 	c.JsonResult(0, "ok")
 }
+
+//标签列表
+func (c *ManagerController) LabelList(){
+	c.Prepare()
+	c.TplName = "manager/label_list.tpl"
+
+	pageIndex, _ := c.GetInt("page", 1)
+
+	labels, totalCount, err := models.NewLabel().FindToPager(pageIndex, conf.PageSize)
+
+	if err != nil {
+		c.ShowErrorPage(50001, err.Error())
+	}
+	if totalCount > 0 {
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		c.Data["PageHtml"] = pager.HtmlPages()
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(conf.PageSize)))
+
+	c.Data["Lists"] = labels
+}
+//删除标签
+func (c *ManagerController) LabelDelete(){
+	labelId,err := strconv.Atoi(c.Ctx.Input.Param(":id"))
+
+	if err != nil {
+		beego.Error("获取删除标签参数时出错:",err)
+		c.JsonResult(50001,"参数错误")
+	}
+	if labelId <= 0 {
+		c.JsonResult(50001,"参数错误")
+	}
+
+	label,err := models.NewLabel().FindFirst("label_id",labelId)
+	if err != nil {
+		beego.Error("查询标签时出错:",err)
+		c.JsonResult(50001,"查询标签时出错:" + err.Error())
+	}
+	if err := label.Delete();err != nil {
+		c.JsonResult(50002,"删除失败:" + err.Error())
+	}else{
+		c.JsonResult(0,"ok")
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
