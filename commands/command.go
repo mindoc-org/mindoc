@@ -53,7 +53,6 @@ func RegisterDataBase() {
 			orm.DefaultTimeLoc = location
 		} else {
 			beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量:",err)
-			os.Exit(1)
 		}
 	} else if adapter == "sqlite3" {
 		database := beego.AppConfig.String("db_database")
@@ -68,7 +67,6 @@ func RegisterDataBase() {
 
 		if err != nil {
 			beego.Error("注册默认数据库失败:",err)
-			os.Exit(1)
 		}
 	}else{
 		beego.Error("不支持的数据库类型.")
