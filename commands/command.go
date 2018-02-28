@@ -90,7 +90,7 @@ func RegisterModel() {
 		new(models.Migration),
 		new(models.Label),
 	)
-	migrate.RegisterMigration()
+	//migrate.RegisterMigration()
 }
 
 // RegisterLogger 注册日志
@@ -130,8 +130,8 @@ func RegisterCommand() {
 		ResolveCommand(os.Args[2:])
 		Install()
 	} else if len(os.Args) >= 2 && os.Args[1] == "version" {
-		ResolveCommand(os.Args[2:])
 		CheckUpdate()
+		os.Exit(0)
 	} else if len(os.Args) >= 2 && os.Args[1] == "migrate" {
 		ResolveCommand(os.Args[2:])
 		migrate.RunMigration()
@@ -295,7 +295,6 @@ func RegisterCache()  {
 			beego.Error("初始化Redis缓存失败:",err)
 			os.Exit(1)
 		}
-		beego.Info(string(bc))
 		redisCache,err := beegoCache.NewCache("redis",string(bc))
 
 		if err != nil {
