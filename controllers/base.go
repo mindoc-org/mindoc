@@ -23,6 +23,11 @@ type BaseController struct {
 func (c *BaseController) Prepare() {
 	c.Data["SiteName"] = "MinDoc"
 	c.Data["Member"] = models.Member{}
+	controller,action := c.GetControllerAndAction()
+
+	c.Data["ActionName"] = action
+	c.Data["ControllerName"] = controller
+
 	c.EnableAnonymous = false
 	c.EnableDocumentHistory = false
 

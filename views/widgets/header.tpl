@@ -10,10 +10,10 @@
             </a>
             <nav class="collapse navbar-collapse col-sm-10">
                 <ul class="nav navbar-nav">
-                    <li>
+                    <li {{if eq .ControllerName "HomeController"}}class="active"{{end}}>
                         <a href="{{urlfor "HomeController.Index" }}" title="首页">首页</a>
                     </li>
-                    <li>
+                    <li {{if eq .ControllerName "LabelController"}}class="active"{{end}}>
                         <a href="{{urlfor "LabelController.List" }}" title="标签">标签</a>
                     </li>
                 </ul>
