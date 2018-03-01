@@ -39,11 +39,11 @@
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">附件管理</strong>
+                        <strong class="box-title">标签管理</strong>
                     </div>
                 </div>
                 <div class="box-body">
-                    <div class="attach-list" id="attachList">
+                    <div class="attach-list" id="labelList">
                         <table class="table">
                             <thead>
                             <tr>
@@ -87,7 +87,7 @@
 <script src="{{cdnjs "/static/layer/layer.js" }}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        $("#attachList").on("click","button[data-method='delete']",function () {
+        $("#labelList").on("click","button[data-method='delete']",function () {
             var id = $(this).attr("data-id");
             var $this = $(this);
             $(this).button("loading");
