@@ -25,6 +25,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/editor.md/css/editormd.css"}}" rel="stylesheet">
+
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
@@ -286,10 +287,11 @@
 <script src="{{cdnjs "/static/editor.md/editormd.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/editor.js" type="text/javascript"></script>
-<script src="/static/js/markdown.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/markdown.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });

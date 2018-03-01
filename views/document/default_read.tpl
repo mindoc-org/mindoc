@@ -277,7 +277,6 @@
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/katex/katex.min.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
 
 $(function () {
