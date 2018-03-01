@@ -52,6 +52,30 @@ if [ ! -z $CDN ]; then
     sed -i "s#^cdn=.*#cdn=$CDN#g" conf/app.conf
 fi
 
+if [ ! -z $CACHE ]; then
+    sed -i "s#cache=.*#cache=$CACHE#g" conf/app.conf
+fi
+
+if [ ! -z $CACHE_PROVIDER ]; then
+    sed -i "s#cache_provider=.*#cache_provider=$CACHE_PROVIDER#g" conf/app.conf
+fi
+
+if [ ! -z $CACHE_MEMCACHE_HOST ]; then
+    sed -i "s#cache_memcache_host=.*#cache_memcache_host=$CACHE_MEMCACHE_HOST#g" conf/app.conf
+fi
+
+if [ ! -z $CACHE_REDIS_HOST ]; then
+    sed -i "s#cache_redis_host=.*#cache_redis_host=$CACHE_REDIS_HOST#g" conf/app.conf
+fi
+
+if [ ! -z $CACHE_REDIS_DB ]; then
+    sed -i "s#cache_redis_db=.*#cache_redis_db=$CACHE_REDIS_DB#g" conf/app.conf
+fi
+
+if [ ! -z $CACHE_REDIS_PASSWROD ]; then
+    sed -i "s#cache_redis_password=.*#cache_redis_password=$CACHE_REDIS_PASSWROD#g" conf/app.conf
+fi
+
 sed -i 's/^runmode.*/runmode=prod/g' conf/app.conf
 
 /go/src/github.com/lifei6671/mindoc/mindoc_linux_amd64 install
