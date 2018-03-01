@@ -133,6 +133,10 @@ func (c *AccountController) LoggedIn(isPost bool) interface{} {
 func (c *AccountController) Register() {
 	c.TplName = "account/register.tpl"
 
+	//如果用户登录了，则跳转到网站首页
+	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
+		c.Redirect(beego.URLFor("HomeController.Index"),302)
+	}
 	// 如果没有开启用户注册
 	if v, ok := c.Option["ENABLED_REGISTER"]; ok && !strings.EqualFold(v, "true") {
 		c.Abort("404")
