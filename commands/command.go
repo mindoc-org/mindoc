@@ -258,18 +258,30 @@ func RegisterCache()  {
 	beego.Info("正常初始化缓存配置.")
 	cacheProvider := beego.AppConfig.String("cache_provider")
 	if cacheProvider == "file" {
-		cacheFilePath := beego.AppConfig.DefaultString("cache_file_path","./runtime/")
+		cacheFilePath := beego.AppConfig.DefaultString("cache_file_path","./runtime/cache/")
 		if strings.HasPrefix(cacheFilePath, "./") {
 			cacheFilePath = filepath.Join(conf.WorkingDirectory, string(cacheFilePath[1:]))
 		}
 		fileCache := beegoCache.NewFileCache()
-		beegoCache.FileCachePath = cacheFilePath
-		beegoCache.FileCacheDirectoryLevel = beego.AppConfig.DefaultInt("cache_file_dir_level",2)
-		beegoCache.FileCacheEmbedExpiry = time.Duration(beego.AppConfig.DefaultInt64("cache_file_expiry",120))
-		beegoCache.FileCacheFileSuffix = beego.AppConfig.DefaultString("cache_file_suffix",".bin")
-		fileCache.StartAndGC("")
+
+
+		fileConfig := make(map[string]string,0)
+
+		fileConfig["CachePath"] =  cacheFilePath
+		fileConfig["DirectoryLevel"] = beego.AppConfig.DefaultString("cache_file_dir_level","2")
+		fileConfig["EmbedExpiry"] = beego.AppConfig.DefaultString("cache_file_expiry","120")
+		fileConfig["FileSuffix"] = beego.AppConfig.DefaultString("cache_file_suffix",".bin")
+
+		bc,err := json.Marshal(&fileConfig)
+		if err != nil {
+			beego.Error("初始化Redis缓存失败:",err)
+			os.Exit(1)
+		}
+
+		fileCache.StartAndGC(string(bc))
 
 		cache.Init(fileCache)
+
 	}else if cacheProvider == "memory" {
 		cacheInterval := beego.AppConfig.DefaultInt("cache_memory_interval",60)
 		memory := beegoCache.NewMemoryCache()

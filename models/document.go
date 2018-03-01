@@ -240,6 +240,11 @@ func (m *Document) FromCacheById(id int) (*Document,error) {
 			return m,nil
 		}
 	}
+	defer func() {
+		if m.DocumentId > 0 {
+			m.PutToCache()
+		}
+	}()
 	return m.Find(id)
 }
 //根据文档标识从缓存中查询文档
@@ -247,10 +252,15 @@ func (m *Document) FromCacheByIdentify(identify string) (*Document,error) {
 	b := cache.Get("Document.Identify." + identify)
 	if v,ok := b.([]byte); ok {
 		if err := json.Unmarshal(v,m);err == nil{
-			beego.Info("从缓存中获取文档信息成功",m.DocumentId)
+			beego.Info("从缓存中获取文档信息成功",m.DocumentId,identify)
 			return m,nil
 		}
 	}
+	defer func() {
+		if m.DocumentId > 0 {
+			m.PutToCache()
+		}
+	}()
 	return m.FindByFieldFirst("identify",identify)
 }
 

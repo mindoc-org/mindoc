@@ -113,7 +113,7 @@ cache_provider=memory
 #当配置缓存方式为memory时,内存回收时间,单位是秒
 cache_memory_interval=120
 #当缓存方式配置为file时,缓存的储存目录
-cache_file_path=./runtime/
+cache_file_path=./runtime/cache/
 #缓存文件后缀
 cache_file_suffix=.bin
 #文件缓存目录层级
