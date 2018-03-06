@@ -38,8 +38,7 @@ build_script:
   - if [%tbs_tools%]==[mingw] if [%tbs_arch%]==[x64] SET PATH=C:\mingw64\bin;%PATH%
   - set CGO_ENABLED=1
   - go get -u github.com/golang/dep/cmd/dep && cd %GOPATH%/src/github.com/golang/dep
-  - for /f "delims=" %%i in ('git describe') do (set DEP_LATEST=%%i)
-  - go install -ldflags="-X main.version=%DEP_LATEST%" ./cmd/dep
+  - go install -ldflags="-X main.version=" ./cmd/dep
   - for /f "delims=" %%i in ('go version') do (set GO_VERSION=%%i)
   - cd c:\gopath\src\github.com\lifei6671\mindoc
   - dep ensure -v
