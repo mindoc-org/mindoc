@@ -11,10 +11,11 @@ before_install:
   - go get github.com/garyburd/redigo/redis
   - go get github.com/go-sql-driver/mysql
   - go get github.com/golang/freetype
+  - go get github.com/russross/blackfriday
 
 script:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-  - dep ensure
+  - dep ensure -v
   - GO_ENABLED=1 go build -v -x -tags "pam" && go install
 
 before_deploy:
