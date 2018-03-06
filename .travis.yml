@@ -11,7 +11,7 @@ before_install:
   - go get github.com/garyburd/redigo/redis
   - go get github.com/go-sql-driver/mysql
   - go get github.com/golang/freetype
-  - go get github.com/russross/blackfriday
+  - go get -u gopkg.in/russross/blackfriday.v2
 
 script:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
