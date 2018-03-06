@@ -22,7 +22,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/pagination"
 	"net/http"
 	"github.com/lifei6671/mindoc/converter"
-	"github.com/russross/blackfriday"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type BookController struct {

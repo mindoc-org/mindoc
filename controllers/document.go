@@ -25,7 +25,7 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"github.com/russross/blackfriday"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 // DocumentController struct

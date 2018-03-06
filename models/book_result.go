@@ -17,7 +17,7 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/converter"
 	"github.com/lifei6671/mindoc/utils"
-	"github.com/russross/blackfriday"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type BookResult struct {
