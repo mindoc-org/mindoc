@@ -38,4 +38,4 @@ deploy:
     overwrite: true
     tags: true
     all_branches: true
-    go: 1.9.2
+    go: "1.10"
