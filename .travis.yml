@@ -4,6 +4,7 @@ go:
   - "1.10"
 
 sudo: true
+install: false
 
 before_install:
   - go get github.com/bradfitz/gomemcache/memcache
@@ -23,8 +24,6 @@ before_deploy:
   - rm -rf commands controllers models modules data routers tasks vendor docs search utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile Gopkg.toml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
   - cp conf/app.conf.example conf/app.conf
   - zip -r mindoc_linux_amd64.zip conf logs static uploads views lib mindoc_linux_amd64
-
-
 
 deploy:
   provider: releases
