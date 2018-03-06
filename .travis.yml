@@ -13,8 +13,8 @@ before_install:
   - go get github.com/golang/freetype
 
 script:
-  - curl https://glide.sh/get | sh
-  - glide update
+  - go get -u github.com/golang/dep/cmd/dep
+  - dep ensure
   - GO_ENABLED=1 go build -v -x -tags "pam" && go install
 
 before_deploy:
