@@ -139,7 +139,7 @@ func (c *DocumentController) Index() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = "概要"
-	c.Data["Content"] = template.HTML(blackfriday.MarkdownBasic([]byte(bookResult.Description)))
+	c.Data["Content"] = template.HTML(blackfriday.Run([]byte(bookResult.Description)))
 }
 
 // 阅读文档

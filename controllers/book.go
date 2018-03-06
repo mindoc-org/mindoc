@@ -43,7 +43,7 @@ func (c *BookController) Index() {
 	}
 
 	for i,book := range books {
-		books[i].Description = utils.StripTags(string(blackfriday.MarkdownBasic([]byte(book.Description))))
+		books[i].Description = utils.StripTags(string(blackfriday.Run([]byte(book.Description))))
 	}
 
 	if totalCount > 0 {
@@ -81,7 +81,7 @@ func (c *BookController) Dashboard() {
 		c.Abort("500")
 	}
 
-	c.Data["Description"] = template.HTML(blackfriday.MarkdownBasic([]byte(book.Description)))
+	c.Data["Description"] = template.HTML(blackfriday.Run([]byte(book.Description)))
 	c.Data["Model"] = *book
 }
 

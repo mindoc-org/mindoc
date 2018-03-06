@@ -252,7 +252,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		Charset:      "utf-8",
 		Cover:        m.Cover,
 		Timestamp:    time.Now().Format("2006-01-02 15:04:05"),
-		Description:  string(blackfriday.MarkdownBasic([]byte(m.Description))),
+		Description:  string(blackfriday.Run([]byte(m.Description))),
 		Footer:       "<p style='color:#8E8E8E;font-size:12px;'>本文档使用 <a href='https://www.iminho.me' style='text-decoration:none;color:#1abc9c;font-weight:bold;'>MinDoc</a> 构建 <span style='float:right'>- _PAGENUM_ -</span></p>",
 		Header:       "<p style='color:#8E8E8E;font-size:12px;'>_SECTION_</p>",
 		Identifier:   "",
