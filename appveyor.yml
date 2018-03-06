@@ -3,7 +3,7 @@ clone_folder: c:\gopath\src\github.com\lifei6671\mindoc
 
 environment:
   GOPATH: c:\gopath
-  GOVERSION: "1.10"
+  GOVERSION: 1.10
   matrix:
     - tbs_arch: "x86"
       tbs_tools: "mingw"
@@ -38,7 +38,7 @@ build_script:
   - if [%tbs_tools%]==[mingw] if [%tbs_arch%]==[x64] SET PATH=C:\mingw64\bin;%PATH%
   - set CGO_ENABLED=1
   - go get -u github.com/golang/dep/cmd/dep
-  - dep ensure
+  - dep ensure -v
   - for /f "delims=" %%i in ('go version') do (set GO_VERSION=%%i)
   - go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
   - 7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
