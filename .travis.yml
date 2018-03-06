@@ -12,9 +12,9 @@ before_install:
   - go get github.com/go-sql-driver/mysql
   - go get github.com/golang/freetype
   - go get -u gopkg.in/russross/blackfriday.v2
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 script:
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep ensure -v
   - GO_ENABLED=1 go build -v -x -tags "pam" && go install
 

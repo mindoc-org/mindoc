@@ -27,6 +27,16 @@ install:
             Start-FileDownload "http://libgd.blob.core.windows.net/mingw/i686-4.9.1-release-posix-dwarf-rt_v3-rev1.7z" -FileName mingw_x86.7z;
             7z x -oC:\ mingw_x86.7z | out-null;
         }
+  - ps: if($env:tbs_arch -eq 'x86')
+        {
+           Start-FileDownload  https://github.com/golang/dep/releases/download/v0.4.1/dep-windows-386.exe;
+           copy dep-windows-386.exe c:\go\bin\dep.exe;
+        }
+  - ps: if($evn:tab_arch -eq 'x64')
+        {
+            Start-FileDownload  https://github.com/golang/dep/releases/download/v0.4.1/dep-windows-amd64.exe;
+            copy dep-windows-amd64.exe c:\go\bin\dep.exe;
+        }
   - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
   - echo %PATH%
   - echo %GOPATH%
