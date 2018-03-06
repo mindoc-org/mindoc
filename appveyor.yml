@@ -42,6 +42,7 @@ build_script:
   - go install -ldflags="-X main.version=%DEP_LATEST%" ./cmd/dep
   - dep ensure -v
   - for /f "delims=" %%i in ('go version') do (set GO_VERSION=%%i)
+  - cd c:\gopath\src\github.com\lifei6671\mindoc
   - go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
   - 7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
 test_script:
