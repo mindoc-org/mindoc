@@ -59,8 +59,8 @@ func NewBookResult() *BookResult {
 }
 
 // 根据项目标识查询项目以及指定用户权限的信息.
-func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult, error) {
-	if identify == "" || member_id <= 0 {
+func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult, error) {
+	if identify == "" || memberId <= 0 {
 		return m, ErrInvalidParameter
 	}
 	o := orm.NewOrm()
@@ -75,7 +75,7 @@ func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult
 
 	relationship := NewRelationship()
 
-	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("member_id", member_id).One(relationship)
+	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("member_id", memberId).One(relationship)
 
 	if err != nil {
 		return m, err

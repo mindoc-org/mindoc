@@ -231,15 +231,15 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 	}
 	o := orm.NewOrm()
 
-	m.BookId = id
-	if err := o.Read(m); err != nil {
+	m,err := m.Find(id);
+	if err != nil {
 		return err
 	}
 	o.Begin()
 
 	sql2 := "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_, err := o.Raw(sql2, m.BookId).Exec()
+	_, err = o.Raw(sql2, m.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()

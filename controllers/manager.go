@@ -358,14 +358,14 @@ func (c *ManagerController) EditBook() {
 func (c *ManagerController) DeleteBook() {
 	c.Prepare()
 
-	book_id, _ := c.GetInt("book_id", 0)
+	bookId, _ := c.GetInt("book_id", 0)
 
-	if book_id <= 0 {
+	if bookId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 	book := models.NewBook()
 
-	err := book.ThoroughDeleteBook(book_id)
+	err := book.ThoroughDeleteBook(bookId)
 
 	if err == orm.ErrNoRows {
 		c.JsonResult(6002, "项目不存在")

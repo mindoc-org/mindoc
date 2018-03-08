@@ -68,7 +68,7 @@
                                             <ul class="dropdown-menu">
                                                 <li><a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" target="_blank">阅读</a></li>
                                                 <li><a href="{{urlfor "ManagerController.EditBook" ":key" $item.Identify}}">设置</a></li>
-                                                <li><a href="javascript:deleteBook('{{$item.Identify}}');">删除</a> </li>
+                                                <li><a href="javascript:deleteBook('{{$item.BookId}}');">删除</a> </li>
                                             </ul>
                                         </div>
                                         {{/*<a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>*/}}
@@ -114,8 +114,8 @@
 <!-- Delete Book Modal -->
 <div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel">
     <div class="modal-dialog" role="document">
-        <form method="post" id="deleteBookForm" action="{{urlfor "BookController.Delete"}}">
-            <input type="hidden" name="identify" value="">
+        <form method="post" id="deleteBookForm" action="{{urlfor "ManagerController.DeleteBook"}}">
+            <input type="hidden" name="book_id" value="">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -145,7 +145,7 @@
          * 删除项目
          */
         function deleteBook($id) {
-            $("#deleteBookModal").find("input[name='identify']").val($id);
+            $("#deleteBookModal").find("input[name='book_id']").val($id);
             $("#deleteBookModal").modal("show");
         }
         $(function () {
