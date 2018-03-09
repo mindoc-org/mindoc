@@ -4,11 +4,14 @@ import (
 	"bytes"
 
 	"encoding/json"
+	"io"
+	"strings"
+	"time"
+
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
-	"io"
-	"strings"
+	"github.com/lifei6671/mindoc/utils"
 )
 
 type BaseController struct {
@@ -19,11 +22,17 @@ type BaseController struct {
 	EnableDocumentHistory bool
 }
 
+type CookieRemember struct {
+	MemberId int
+	Account  string
+	Time     time.Time
+}
+
 // Prepare 预处理.
 func (c *BaseController) Prepare() {
 	c.Data["SiteName"] = "MinDoc"
-	c.Data["Member"] = models.Member{}
-	controller,action := c.GetControllerAndAction()
+	c.Data["Member"] = models.NewMember()
+	controller, action := c.GetControllerAndAction()
 
 	c.Data["ActionName"] = action
 	c.Data["ControllerName"] = controller
@@ -36,6 +45,17 @@ func (c *BaseController) Prepare() {
 		c.Member = &member
 		c.Data["Member"] = c.Member
 	} else {
+		var remember CookieRemember
+		// //如果Cookie中存在登录信息，从cookie中获取用户信息
+		if cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login"); ok {
+			if err := utils.Decode(cookie, &remember); err == nil {
+				if member, err := models.NewMember().Find(remember.MemberId); err == nil {
+					c.Member = member
+					c.Data["Member"] = member
+					c.SetMember(*member)
+				}
+			}
+		}
 		//c.Member = models.NewMember()
 		//c.Member.Find(1)
 		//c.Data["Member"] = *c.Member
@@ -138,5 +158,5 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 		c.Abort("500")
 	}
 
-	c.CustomAbort(200,buf.String())
+	c.CustomAbort(200, buf.String())
 }

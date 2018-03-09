@@ -5,7 +5,8 @@ runmode = dev
 sessionon = true
 sessionname = mindoc_id
 copyrequestbody = true
-
+#系统完整URL(http://doc.iminho.me),如果该项不设置，会从请求头中获取地址。
+baseurl=
 #默认Session生成Key的秘钥
 beegoserversessionkey=123456
 
