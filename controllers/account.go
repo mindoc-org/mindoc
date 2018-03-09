@@ -68,7 +68,7 @@ func (c *AccountController) Login() {
 			member.Update()
 
 			c.SetMember(*member)
-			beego.Info("是否记住密码：" , isRemember)
+
 			if strings.EqualFold(isRemember, "yes") {
 				remember.MemberId = member.MemberId
 				remember.Account = member.Account
