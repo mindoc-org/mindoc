@@ -28,3 +28,4 @@ _testmain.go
 glide.lock
 logs
 mindoc
+/vendor

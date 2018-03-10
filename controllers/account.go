@@ -25,11 +25,6 @@ func (c *AccountController) Login() {
 	c.Prepare()
 	c.TplName = "account/login.tpl"
 
-	var remember struct {
-		MemberId int
-		Account  string
-		Time     time.Time
-	}
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
 		u := c.GetString("url")
@@ -41,13 +36,12 @@ func (c *AccountController) Login() {
 		}
 		c.Redirect(u,302)
 	}
-
+	var remember CookieRemember
 	// 如果 Cookie 中存在登录信息
 	if cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login"); ok {
 		if err := utils.Decode(cookie, &remember); err == nil {
 			if member, err := models.NewMember().Find(remember.MemberId); err == nil {
 				c.SetMember(*member)
-
 				c.LoggedIn(false)
 				c.StopRun()
 			}
@@ -58,7 +52,7 @@ func (c *AccountController) Login() {
 		account := c.GetString("account")
 		password := c.GetString("password")
 		captcha := c.GetString("code")
-		is_remember := c.GetString("is_remember")
+		isRemember := c.GetString("is_remember")
 
 		// 如果开启了验证码
 		if v, ok := c.Option["ENABLED_CAPTCHA"]; ok && strings.EqualFold(v, "true") {
@@ -74,13 +68,14 @@ func (c *AccountController) Login() {
 			member.Update()
 
 			c.SetMember(*member)
-			if strings.EqualFold(is_remember, "yes") {
+
+			if strings.EqualFold(isRemember, "yes") {
 				remember.MemberId = member.MemberId
 				remember.Account = member.Account
 				remember.Time = time.Now()
 				v, err := utils.Encode(remember)
 				if err == nil {
-					c.SetSecureCookie(conf.GetAppKey(), "login", v)
+					c.SetSecureCookie(conf.GetAppKey(), "login", v,time.Now().Add(time.Hour * 24 * 30).Unix())
 				}
 			}
 			u,_ := url.PathUnescape(c.GetString("url"))
@@ -133,6 +128,10 @@ func (c *AccountController) LoggedIn(isPost bool) interface{} {
 func (c *AccountController) Register() {
 	c.TplName = "account/register.tpl"
 
+	//如果用户登录了，则跳转到网站首页
+	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
+		c.Redirect(beego.URLFor("HomeController.Index"),302)
+	}
 	// 如果没有开启用户注册
 	if v, ok := c.Option["ENABLED_REGISTER"]; ok && !strings.EqualFold(v, "true") {
 		c.Abort("404")

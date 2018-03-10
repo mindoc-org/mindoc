@@ -17,7 +17,7 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/converter"
 	"github.com/lifei6671/mindoc/utils"
-	"github.com/russross/blackfriday"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type BookResult struct {
@@ -51,6 +51,7 @@ type BookResult struct {
 
 	LastModifyText   string `json:"last_modify_text"`
 	IsDisplayComment bool   `json:"is_display_comment"`
+	IsDownload bool			`json:"is_download"`
 }
 
 func NewBookResult() *BookResult {
@@ -58,8 +59,8 @@ func NewBookResult() *BookResult {
 }
 
 // 根据项目标识查询项目以及指定用户权限的信息.
-func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult, error) {
-	if identify == "" || member_id <= 0 {
+func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult, error) {
+	if identify == "" || memberId <= 0 {
 		return m, ErrInvalidParameter
 	}
 	o := orm.NewOrm()
@@ -74,7 +75,7 @@ func (m *BookResult) FindByIdentify(identify string, member_id int) (*BookResult
 
 	relationship := NewRelationship()
 
-	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("member_id", member_id).One(relationship)
+	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("member_id", memberId).One(relationship)
 
 	if err != nil {
 		return m, err
@@ -174,6 +175,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.AutoRelease = book.AutoRelease == 1
 	m.Publisher = book.Publisher
 	m.HistoryCount = book.HistoryCount
+	m.IsDownload = book.IsDownload == 0
 
 	if book.Theme == "" {
 		m.Theme = "default"
@@ -250,7 +252,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		Charset:      "utf-8",
 		Cover:        m.Cover,
 		Timestamp:    time.Now().Format("2006-01-02 15:04:05"),
-		Description:  string(blackfriday.MarkdownBasic([]byte(m.Description))),
+		Description:  string(blackfriday.Run([]byte(m.Description))),
 		Footer:       "<p style='color:#8E8E8E;font-size:12px;'>本文档使用 <a href='https://www.iminho.me' style='text-decoration:none;color:#1abc9c;font-weight:bold;'>MinDoc</a> 构建 <span style='float:right'>- _PAGENUM_ -</span></p>",
 		Header:       "<p style='color:#8E8E8E;font-size:12px;'>_SECTION_</p>",
 		Identifier:   "",

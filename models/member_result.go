@@ -9,6 +9,7 @@ import (
 type MemberRelationshipResult struct {
 	MemberId       int       `json:"member_id"`
 	Account        string    `json:"account"`
+	RealName 	   string    `json:"real_name"`
 	Description    string    `json:"description"`
 	Email          string    `json:"email"`
 	Phone          string    `json:"phone"`
@@ -47,6 +48,7 @@ func (m *MemberRelationshipResult) FromMember(member *Member) *MemberRelationshi
 	m.Status = member.Status
 	m.CreateTime = member.CreateTime
 	m.CreateAt = member.CreateAt
+	m.RealName = member.RealName
 
 	return m
 }

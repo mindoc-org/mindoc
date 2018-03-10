@@ -22,6 +22,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/pagination"
 	"net/http"
 	"github.com/lifei6671/mindoc/converter"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type BookController struct {
@@ -39,6 +40,10 @@ func (c *BookController) Index() {
 	if err != nil {
 		logs.Error("BookController.Index => ", err)
 		c.Abort("500")
+	}
+
+	for i,book := range books {
+		books[i].Description = utils.StripTags(string(blackfriday.Run([]byte(book.Description))))
 	}
 
 	if totalCount > 0 {
@@ -76,6 +81,7 @@ func (c *BookController) Dashboard() {
 		c.Abort("500")
 	}
 
+	c.Data["Description"] = template.HTML(blackfriday.Run([]byte(book.Description)))
 	c.Data["Model"] = *book
 }
 
@@ -133,6 +139,7 @@ func (c *BookController) SaveBook() {
 	autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 	publisher := strings.TrimSpace(c.GetString("publisher"))
 	historyCount,_ := c.GetInt("history_count",0)
+	isDownload := strings.TrimSpace(c.GetString("is_download")) == "on"
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
@@ -157,13 +164,18 @@ func (c *BookController) SaveBook() {
 	book.Label = tag
 	book.Editor = editor
 	book.HistoryCount = historyCount
+	book.IsDownload = 0
 
 	if autoRelease {
 		book.AutoRelease = 1
 	} else {
 		book.AutoRelease = 0
 	}
-
+	if isDownload {
+		book.IsDownload = 0
+	}else{
+		book.IsDownload = 1
+	}
 	if err := book.Update(); err != nil {
 		c.JsonResult(6006, "保存失败")
 	}
@@ -331,7 +343,7 @@ func (c *BookController) UploadCover() {
 		url = string(url[1:])
 	}
 
-	old_cover := book.Cover
+	oldCover := book.Cover
 
 	book.Cover = url
 
@@ -339,8 +351,8 @@ func (c *BookController) UploadCover() {
 		c.JsonResult(6001, "保存图片失败")
 	}
 	//如果原封面不是默认封面则删除
-	if old_cover != conf.GetDefaultCover() {
-		os.Remove("." + old_cover)
+	if oldCover != conf.GetDefaultCover() {
+		os.Remove("." + oldCover)
 	}
 
 	c.JsonResult(0, "ok", url)
@@ -393,7 +405,7 @@ func (c *BookController) Create() {
 		book_name := strings.TrimSpace(c.GetString("book_name", ""))
 		identify := strings.TrimSpace(c.GetString("identify", ""))
 		description := strings.TrimSpace(c.GetString("description", ""))
-		privately_owned, _ := strconv.Atoi(c.GetString("privately_owned"))
+		privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
 		comment_status := c.GetString("comment_status")
 
 		if book_name == "" {
@@ -411,14 +423,45 @@ func (c *BookController) Create() {
 		if strings.Count(description, "") > 500 {
 			c.JsonResult(6004, "项目描述不能大于500字")
 		}
-		if privately_owned != 0 && privately_owned != 1 {
-			privately_owned = 1
+		if privatelyOwned != 0 && privatelyOwned != 1 {
+			privatelyOwned = 1
 		}
 		if comment_status != "open" && comment_status != "closed" && comment_status != "group_only" && comment_status != "registered_only" {
 			comment_status = "closed"
 		}
-
 		book := models.NewBook()
+		book.Cover = conf.GetDefaultCover()
+
+
+		//如果客户端上传了项目封面则直接保存
+		if file, moreFile, err := c.GetFile("image-file");err == nil {
+			defer file.Close()
+
+			ext := filepath.Ext(moreFile.Filename)
+
+			//如果上传的是图片
+			if strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".gif") || strings.EqualFold(ext, ".jpeg") {
+
+				fileName := "cover_" + strconv.FormatInt(time.Now().UnixNano(), 16)
+
+				filePath := filepath.Join("uploads", time.Now().Format("200601"), fileName + ext)
+
+				path := filepath.Dir(filePath)
+
+				os.MkdirAll(path, os.ModePerm)
+
+				if err := c.SaveToFile("image-file", filePath); err == nil {
+					url := "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
+
+					if strings.HasPrefix(url, "//") {
+						url = string(url[1:])
+					}
+					book.Cover = url
+				}
+			}
+		}
+
+
 
 		if books, _ := book.FindByField("identify", identify); len(books) > 0 {
 			c.JsonResult(6006, "项目标识已存在")
@@ -427,20 +470,20 @@ func (c *BookController) Create() {
 		book.BookName = book_name
 		book.Description = description
 		book.CommentCount = 0
-		book.PrivatelyOwned = privately_owned
+		book.PrivatelyOwned = privatelyOwned
 		book.CommentStatus = comment_status
 		book.Identify = identify
 		book.DocCount = 0
 		book.MemberId = c.Member.MemberId
 		book.CommentCount = 0
 		book.Version = time.Now().Unix()
-		book.Cover = conf.GetDefaultCover()
+
 		book.Editor = "markdown"
 		book.Theme = "default"
 
-		err := book.Insert()
 
-		if err != nil {
+
+		if err := book.Insert();err != nil {
 			logs.Error("Insert => ", err)
 			c.JsonResult(6005, "保存项目失败")
 		}
@@ -454,7 +497,7 @@ func (c *BookController) Create() {
 	}
 	c.JsonResult(6001, "error")
 }
-
+//导入
 func (c *BookController) Import() {
 
 	file, moreFile, err := c.GetFile("import-file")

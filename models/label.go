@@ -72,6 +72,16 @@ func (m *Label) InsertOrUpdateMulti(labels string) {
 		}
 	}
 }
+//删除标签
+func (m *Label) Delete() error {
+	o := orm.NewOrm()
+	_,err := o.Raw("DELETE FROM " + m.TableNameWithPrefix() + " WHERE label_id= ?",m.LabelId).Exec()
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 //分页查找标签.
 func (m *Label) FindToPager(pageIndex, pageSize int) (labels []*Label, totalCount int, err error) {
@@ -90,3 +100,7 @@ func (m *Label) FindToPager(pageIndex, pageSize int) (labels []*Label, totalCoun
 
 	return
 }
+
+
+
+

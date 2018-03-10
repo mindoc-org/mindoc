@@ -76,6 +76,7 @@ function initHighlighting() {
     hljs.initLineNumbersOnLoad();
 }
 
+
 var events = $("body");
 
 $(function () {
@@ -93,7 +94,6 @@ $(function () {
     window.isFullScreen = false;
 
     initHighlighting();
-
     window.jsTree = $("#sidebar").jstree({
         'plugins' : ["wholerow", "types"],
         "types": {
@@ -158,6 +158,7 @@ $(function () {
         }
 
         initHighlighting();
+
         $(".manual-right").scrollTop(0);
         //使用layer相册功能查看图片
         layer.photos({photos: "#page-content"});

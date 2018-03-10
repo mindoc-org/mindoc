@@ -25,7 +25,7 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"github.com/russross/blackfriday"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 // DocumentController struct
@@ -139,7 +139,7 @@ func (c *DocumentController) Index() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = "概要"
-	c.Data["Content"] = template.HTML(blackfriday.MarkdownBasic([]byte(bookResult.Description)))
+	c.Data["Content"] = template.HTML(blackfriday.Run([]byte(bookResult.Description)))
 }
 
 // 阅读文档
@@ -169,13 +169,13 @@ func (c *DocumentController) Read() {
 	doc := models.NewDocument()
 
 	if doc_id, err := strconv.Atoi(id); err == nil {
-		doc, err = doc.Find(doc_id)
+		doc, err = doc.FromCacheById(doc_id)
 		if err != nil {
 			beego.Error(err)
 			c.Abort("500")
 		}
 	} else {
-		doc, err = doc.FindByFieldFirst("identify", id)
+		doc, err = doc.FromCacheByIdentify(id)
 		if err != nil {
 			beego.Error(err)
 			c.Abort("500")
@@ -340,8 +340,8 @@ func (c *DocumentController) Create() {
 	}
 
 	if doc_identify != "" {
-		if ok, err := regexp.MatchString(`^[a-z]+[a-zA-Z0-9_\-]*$`, doc_identify); !ok || err != nil {
-			c.JsonResult(6003, "文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
+		if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, doc_identify); !ok || err != nil {
+			c.JsonResult(6003, "文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号")
 		}
 
 		d, _ := models.NewDocument().FindByFieldFirst("identify", doc_identify)
@@ -723,14 +723,14 @@ func (c *DocumentController) Content() {
 	c.Prepare()
 
 	identify := c.Ctx.Input.Param(":key")
-	doc_id, err := c.GetInt("doc_id")
+	docId, err := c.GetInt("doc_id")
 
 	if err != nil {
-		doc_id, _ = strconv.Atoi(c.Ctx.Input.Param(":id"))
+		docId, _ = strconv.Atoi(c.Ctx.Input.Param(":id"))
 	}
 
-	book_id := 0
-	auto_release := false
+	bookId := 0
+	autoRelease := false
 
 	// 如果是超级管理员，则忽略权限
 	if c.Member.IsAdministrator() {
@@ -739,8 +739,8 @@ func (c *DocumentController) Content() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = book.BookId
-		auto_release = book.AutoRelease == 1
+		bookId = book.BookId
+		autoRelease = book.AutoRelease == 1
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
@@ -749,11 +749,11 @@ func (c *DocumentController) Content() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = bookResult.BookId
-		auto_release = bookResult.AutoRelease
+		bookId = bookResult.BookId
+		autoRelease = bookResult.AutoRelease
 	}
 
-	if doc_id <= 0 {
+	if docId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
@@ -761,25 +761,25 @@ func (c *DocumentController) Content() {
 		markdown := strings.TrimSpace(c.GetString("markdown", ""))
 		content := c.GetString("html")
 		version, _ := c.GetInt64("version", 0)
-		is_cover := c.GetString("cover")
+		isCover := c.GetString("cover")
 
-		doc, err := models.NewDocument().Find(doc_id)
+		doc, err := models.NewDocument().Find(docId)
 
 		if err != nil {
 			c.JsonResult(6003, "读取文档错误")
 		}
 
-		if doc.BookId != book_id {
+		if doc.BookId != bookId {
 			c.JsonResult(6004, "保存的文档不属于指定项目")
 		}
 
-		if doc.Version != version && !strings.EqualFold(is_cover, "yes") {
+		if doc.Version != version && !strings.EqualFold(isCover, "yes") {
 			beego.Info("%d|", version, doc.Version)
 			c.JsonResult(6005, "文档已被修改确定要覆盖吗？")
 		}
 
 		history := models.NewDocumentHistory()
-		history.DocumentId = doc_id
+		history.DocumentId = docId
 		history.Content = doc.Content
 		history.Markdown = doc.Markdown
 		history.DocumentName = doc.DocumentName
@@ -812,9 +812,9 @@ func (c *DocumentController) Content() {
 			}
 		}
 		//如果启用了自动发布
-		if auto_release {
+		if autoRelease {
 			go func(identify string) {
-				models.NewDocument().ReleaseContent(book_id)
+				models.NewDocument().ReleaseContent(bookId)
 
 			}(identify)
 		}
@@ -822,7 +822,7 @@ func (c *DocumentController) Content() {
 		c.JsonResult(0, "ok", doc)
 	}
 
-	doc, err := models.NewDocument().Find(doc_id)
+	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
 		c.JsonResult(6003, "文档不存在")
 	}
@@ -834,23 +834,23 @@ func (c *DocumentController) Content() {
 
 	c.JsonResult(0, "ok", doc)
 }
-
-func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
-	doc = models.NewDocument()
-	if doc_id, err := strconv.Atoi(id); err == nil {
-		doc, err = doc.Find(doc_id)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		doc, err = doc.FindByFieldFirst("identify", id)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return doc, nil
-}
+//
+//func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
+//	doc = models.NewDocument()
+//	if doc_id, err := strconv.Atoi(id); err == nil {
+//		doc, err = doc.Find(doc_id)
+//		if err != nil {
+//			return nil, err
+//		}
+//	} else {
+//		doc, err = doc.FindByFieldFirst("identify", id)
+//		if err != nil {
+//			return nil, err
+//		}
+//	}
+//
+//	return doc, nil
+//}
 
 // 导出
 func (c *DocumentController) Export() {
@@ -883,6 +883,9 @@ func (c *DocumentController) Export() {
 	} else {
 		bookResult = isReadable(identify, token, c)
 	}
+	if !bookResult.IsDownload {
+		c.ShowErrorPage(200,"当前项目没有开启导出功能")
+	}
 
 	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
 		bookResult.Cover = c.BaseUrl() + bookResult.Cover
@@ -911,6 +914,8 @@ func (c *DocumentController) Export() {
 		c.Ctx.Output.Download(eBookResult.WordPath, bookResult.BookName+".docx")
 
 		c.Abort("200")
+	}else{
+		c.ShowErrorPage(200,"不支持的文件格式")
 	}
 
 	c.Abort("404")

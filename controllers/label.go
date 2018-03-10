@@ -47,7 +47,7 @@ func (c *LabelController) Index() {
 	if c.Member != nil {
 		member_id = c.Member.MemberId
 	}
-	search_result, totalCount, err := models.NewBook().FindForLabelToPager(labelName, pageIndex, conf.PageSize, member_id)
+	searchResult, totalCount, err := models.NewBook().FindForLabelToPager(labelName, pageIndex, conf.PageSize, member_id)
 
 	if err != nil {
 		beego.Error(err)
@@ -59,7 +59,7 @@ func (c *LabelController) Index() {
 	} else {
 		c.Data["PageHtml"] = ""
 	}
-	c.Data["Lists"] = search_result
+	c.Data["Lists"] = searchResult
 
 	c.Data["LabelName"] = labelName
 }

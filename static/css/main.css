@@ -65,6 +65,10 @@ textarea{
     white-space:nowrap;
     overflow: hidden;
 }
+.manual-header .navbar-nav li.active a{
+    background-color: #009a61;
+    color: #ffffff;
+}
 .manual-reader .slidebar {
     margin: 5px 10px 0 0;
 }
@@ -260,10 +264,10 @@ textarea{
 }
 .manual-list .list-item .manual-item-standard .cover {
     border: none;
-    width: 171px;
+    width: 170px;
     position: relative;
     display: inline-block;
-    height: 229px;
+    height: 230px;
     background-color: #eee;
     border-radius: 2px;
     box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;

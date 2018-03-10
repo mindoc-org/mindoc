@@ -1,4 +1,8 @@
 $(function () {
+    editormd.katexURL = {
+        js  : "/static/katex/katex",
+        css : "/static/katex/katex"
+    };
     window.addDocumentModalFormHtml = $(this).find("form").html();
     window.editor = editormd("docEditor", {
         width: "100%",
@@ -19,6 +23,7 @@ $(function () {
         sequenceDiagram: true,
         tocStartLevel: 1,
         tocm: true,
+        tex:true,
         saveHTMLToTextarea: true,
 
         onload: function() {
