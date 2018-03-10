@@ -156,3 +156,14 @@ func IsAllowUploadFileExt(ext string) bool {
 func GetUrlPrefix() string {
 	return beego.AppConfig.DefaultString("urlprefix", "")
 }
+
+func RemoveUrlPrefix(s string) string {
+	prefix := GetUrlPrefix()
+	if prefix != "" {
+		if strings.HasPrefix(s, prefix) {
+			return s[len(prefix):]
+		}
+	}
+
+	return s
+}
