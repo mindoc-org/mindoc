@@ -38,6 +38,8 @@ func init() {
 	beegoRouter("/manager/attach/list", &controllers.ManagerController{}, "*:AttachList")
 	beegoRouter("/manager/attach/detailed/:id", &controllers.ManagerController{}, "*:AttachDetailed")
 	beegoRouter("/manager/attach/delete", &controllers.ManagerController{}, "post:AttachDelete")
+	beegoRouter("/manager/label/list", &controllers.ManagerController{},"get:LabelList")
+	beegoRouter("/manager/label/delete/:id", &controllers.ManagerController{},"post:LabelDelete")
 
 	beegoRouter("/setting", &controllers.SettingController{}, "*:Index")
 	beegoRouter("/setting/password", &controllers.SettingController{}, "*:Password")
