@@ -87,10 +87,10 @@ func Zip(dest string, filepath ...string) (err error) {
 			if fw, err := w.Create(strings.TrimLeft(file.Path, "./")); err != nil {
 				return err
 			} else {
-				if filecontent, err := ioutil.ReadFile(file.Path); err != nil {
+				if fileContent, err := ioutil.ReadFile(file.Path); err != nil {
 					return err
 				} else {
-					if _, err = fw.Write(filecontent); err != nil {
+					if _, err = fw.Write(fileContent); err != nil {
 						return err
 					}
 				}
@@ -99,3 +99,81 @@ func Zip(dest string, filepath ...string) (err error) {
 	}
 	return
 }
+
+func Compress(dst string,src string) (err error) {
+	d, _ := os.Create(dst)
+	defer d.Close()
+	w := zip.NewWriter(d)
+	defer w.Close()
+
+	src = strings.Replace(src,"\\","/",-1)
+	f, err := os.Open(src)
+
+	if err != nil {
+		return err
+	}
+
+	//prefix := src[strings.LastIndex(src,"/"):]
+
+	err = compress(f, "", w)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+
+func compress(file *os.File, prefix string, zw *zip.Writer) error {
+	info, err := file.Stat()
+	if err != nil {
+		return err
+	}
+	if info.IsDir() {
+		if prefix != "" {
+			prefix = prefix + "/" + info.Name()
+		}else{
+			prefix = info.Name()
+		}
+		fileInfos, err := file.Readdir(-1)
+		if err != nil {
+			return err
+		}
+		for _, fi := range fileInfos {
+			f, err := os.Open(file.Name() + "/" + fi.Name())
+			if err != nil {
+				return err
+			}
+			err = compress(f, prefix, zw)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		header, err := zip.FileInfoHeader(info)
+		if prefix != "" {
+			header.Name = prefix + "/" + header.Name
+		}
+
+		if err != nil {
+			return err
+		}
+		writer, err := zw.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+		_, err = io.Copy(writer, file)
+		file.Close()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+
+
+
+
+

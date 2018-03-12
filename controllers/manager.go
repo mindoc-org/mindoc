@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"github.com/lifei6671/mindoc/utils/pagination"
 	"math"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type ManagerController struct {
@@ -297,7 +298,9 @@ func (c *ManagerController) Books() {
 	} else {
 		c.Data["PageHtml"] = ""
 	}
-
+	for i,book := range books {
+		books[i].Description = utils.StripTags(string(blackfriday.Run([]byte(book.Description))))
+	}
 	c.Data["Lists"] = books
 }
 

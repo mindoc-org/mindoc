@@ -860,7 +860,6 @@ func (c *DocumentController) Content() {
 // 导出
 func (c *DocumentController) Export() {
 	c.Prepare()
-	c.TplName = "document/export.tpl"
 
 	identify := c.Ctx.Input.Param(":key")
 	if identify == "" {
@@ -894,6 +893,21 @@ func (c *DocumentController) Export() {
 
 	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
 		bookResult.Cover = c.BaseUrl() + bookResult.Cover
+	}
+
+	if output == "markdown" {
+		if bookResult.Editor != "markdown"{
+			c.ShowErrorPage(500,"当前项目不支持Markdown编辑器")
+		}
+		p,err := bookResult.ExportMarkdown(c.CruSession.SessionID())
+
+		if err != nil {
+			c.ShowErrorPage(500,"导出文档失败")
+		}
+		c.Ctx.Output.Download(p, bookResult.BookName+".zip")
+
+		c.StopRun()
+		return
 	}
 
 	eBookResult, err := bookResult.Converter(c.CruSession.SessionID())

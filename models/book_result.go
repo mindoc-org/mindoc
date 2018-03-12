@@ -18,6 +18,7 @@ import (
 	"github.com/lifei6671/mindoc/converter"
 	"github.com/lifei6671/mindoc/utils"
 	"gopkg.in/russross/blackfriday.v2"
+	"github.com/lifei6671/mindoc/utils/ziptil"
 )
 
 type BookResult struct {
@@ -360,3 +361,104 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	return convertBookResult, nil
 }
+
+//导出Markdown原始文件
+func (m *BookResult) ExportMarkdown(sessionId string)(string, error){
+	outputPath := filepath.Join(conf.WorkingDirectory,"uploads","books", strconv.Itoa(m.BookId), "book.zip")
+
+	os.MkdirAll(filepath.Dir(outputPath),0644)
+
+	tempOutputPath := filepath.Join(os.TempDir(),sessionId,"markdown")
+
+	defer os.RemoveAll(tempOutputPath)
+
+	err := exportMarkdown(tempOutputPath,0,m.BookId)
+
+	if err != nil {
+		return "",err
+	}
+
+	if err := ziptil.Compress(outputPath,tempOutputPath);err != nil {
+		beego.Error("导出Markdown失败=>",err)
+		return "",err
+	}
+	return outputPath,nil
+}
+
+func exportMarkdown(p string,parentId int,bookId int) (error){
+	o := orm.NewOrm()
+
+	var docs []*Document
+
+	_,err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id",bookId).Filter("parent_id",parentId).All(&docs)
+
+	if err != nil {
+		beego.Error("导出Markdown失败=>",err)
+		return err
+	}
+	for _,doc := range docs {
+		//获取当前文档的子文档数量，如果数量不为0，则将当前文档命名为READMD.md并设置成目录。
+		subDocCount,err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("parent_id",doc.DocumentId).Count()
+
+		if err != nil {
+			beego.Error("导出Markdown失败=>",err)
+			return err
+		}
+
+		var docPath string
+
+		if subDocCount > 0 {
+			if doc.Identify != "" {
+				docPath = filepath.Join(p, doc.Identify,"README.md")
+			} else {
+				docPath = filepath.Join(p, strconv.Itoa(doc.DocumentId),"README.md")
+			}
+		}else{
+			if doc.Identify != "" {
+				docPath = filepath.Join(p, doc.Identify + ".md")
+			} else {
+				docPath = filepath.Join(p, doc.DocumentName + ".md")
+			}
+		}
+		dirPath := filepath.Dir(docPath);
+
+		os.MkdirAll(dirPath,0766)
+
+		if err := ioutil.WriteFile(docPath,[]byte(doc.Markdown),0644);err != nil {
+			beego.Error("导出Markdown失败=>",err)
+			return err
+		}
+		if subDocCount > 0 {
+			if err = exportMarkdown(dirPath,doc.DocumentId,bookId);err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
