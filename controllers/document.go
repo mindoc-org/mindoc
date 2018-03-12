@@ -26,6 +26,7 @@ import (
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
 	"gopkg.in/russross/blackfriday.v2"
+	"github.com/lifei6671/mindoc/utils/cryptil"
 )
 
 // DocumentController struct
@@ -805,12 +806,16 @@ func (c *DocumentController) Content() {
 		}
 
 		// 如果启用了文档历史，则添加历史文档
-		if c.EnableDocumentHistory {
-			_, err = history.InsertOrUpdate()
-			if err != nil {
-				beego.Error("DocumentHistory InsertOrUpdate => ", err)
+		///如果两次保存的MD5值不同则保存为历史，否则忽略
+		go func(history *models.DocumentHistory) {
+			if c.EnableDocumentHistory && cryptil.Md5Crypt(history.Markdown) != cryptil.Md5Crypt(doc.Markdown) {
+				_, err = history.InsertOrUpdate()
+				if err != nil {
+					beego.Error("DocumentHistory InsertOrUpdate => ", err)
+				}
 			}
-		}
+		}(history)
+
 		//如果启用了自动发布
 		if autoRelease {
 			go func(identify string) {
