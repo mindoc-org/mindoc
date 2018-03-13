@@ -129,6 +129,7 @@
                     </div>
                 </div>
                 {{end}}
+
                 <div class="form-group">
                     <label for="autoRelease">自动发布</label>
                     <div class="controls">
@@ -142,6 +143,14 @@
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="autoRelease">开启分享</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="enableShare" name="enable_share"{{if .Model.IsEnableShare }} checked{{end}} data-size="small">
                         </div>
                     </div>
                 </div>
@@ -308,8 +317,7 @@
         }).on("show.bs.modal",function () {
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
         });
-        $("#autoRelease").bootstrapSwitch();
-        $("#isDownload").bootstrapSwitch();
+        $("#autoRelease,#enableShare,#isDownload").bootstrapSwitch();
 
         $('input[name="label"]').tagsinput({
             confirmKeys: [13,44],

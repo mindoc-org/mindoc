@@ -105,7 +105,7 @@ func promptUserToLogIn(c *DocumentController) {
 	if c.IsAjax() {
 		c.JsonResult(6000, "请重新登录。")
 	} else {
-		c.Redirect(utils.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
+		c.Redirect(conf.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
 	}
 }
 
@@ -522,7 +522,7 @@ func (c *DocumentController) Upload() {
 	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
 		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
 		if strings.HasPrefix(attachment.HttpPath, "//") {
-			attachment.HttpPath = utils.URLForWithCdnImage(string(attachment.HttpPath[1:]))
+			attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))
 		}
 
 		is_attach = false
@@ -537,7 +537,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	if attachment.HttpPath == "" {
-		attachment.HttpPath = utils.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
+		attachment.HttpPath = conf.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update(); err != nil {
 			beego.Error("SaveToFile => ", err)
@@ -892,7 +892,7 @@ func (c *DocumentController) Export() {
 	}
 
 	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
-		bookResult.Cover = utils.URLForWithCdnImage(bookResult.Cover)
+		bookResult.Cover = conf.URLForWithCdnImage(bookResult.Cover)
 	}
 
 	if output == "markdown" {
@@ -951,7 +951,7 @@ func (c *DocumentController) QrCode() {
 		c.Abort("404")
 	}
 
-	uri := utils.URLFor("DocumentController.Index", ":key", identify)
+	uri := conf.URLFor("DocumentController.Index", ":key", identify)
 	code, err := qr.Encode(uri, qr.L, qr.Unicode)
 	if err != nil {
 		beego.Error(err)

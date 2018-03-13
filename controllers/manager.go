@@ -352,7 +352,7 @@ func (c *ManagerController) EditBook() {
 		c.JsonResult(0, "ok")
 	}
 	if book.PrivateToken != "" {
-		book.PrivateToken = utils.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
+		book.PrivateToken = conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
 	}
 	c.Data["Model"] = book
 }
@@ -403,7 +403,7 @@ func (c *ManagerController) CreateToken() {
 			logs.Error("生成阅读令牌失败 => ", err)
 			c.JsonResult(6003, "生成阅读令牌失败")
 		}
-		c.JsonResult(0, "ok", utils.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
+		c.JsonResult(0, "ok", conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
 	} else {
 		book.PrivateToken = ""
 		if err := book.Update(); err != nil {
@@ -610,7 +610,7 @@ func (c *ManagerController) AttachDetailed() {
 	}
 
 	attach.FilePath = filepath.Join(conf.WorkingDirectory, attach.FilePath)
-	attach.HttpPath = utils.URLForWithCdnImage(attach.HttpPath)
+	attach.HttpPath = conf.URLForWithCdnImage(attach.HttpPath)
 
 	attach.IsExist = utils.FileExists(attach.FilePath)
 

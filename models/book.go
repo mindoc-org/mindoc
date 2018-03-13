@@ -51,6 +51,8 @@ type Book struct {
 	CreateTime time.Time `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
 	//每个文档保存的历史记录数量，0 为不限制
 	HistoryCount int	 `orm:"column(history_count);type(int);default(0)" json:"history_count"`
+	//是否启用分享，0启用/1不启用
+	IsEnableShare int `orm:"column(is_enable_share);type(int);default(0)" json:"is_enable_share"`
 	MemberId   int       `orm:"column(member_id);size(100)" json:"member_id"`
 	ModifyTime time.Time `orm:"type(datetime);column(modify_time);null;auto_now" json:"modify_time"`
 	Version    int64     `orm:"type(bigint);column(version)" json:"version"`

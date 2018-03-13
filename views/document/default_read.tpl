@@ -61,7 +61,9 @@
                 </div>
                 <div class="dropdown pull-right" style="margin-right: 10px;">
                 {{if eq .Model.PrivatelyOwned 0}}
+                {{if .Model.IsEnableShare}}
                     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#shareProject"><i class="fa fa-share-alt" aria-hidden="true"></i> 分享</button>
+                {{end}}
                 {{end}}
                 </div>
                 {{if .Model.IsDownload}}
@@ -211,7 +213,7 @@
     </article>
     <div class="manual-mask"></div>
 </div>
-
+{{if .Model.IsEnableShare}}
 <!-- 分享项目 -->
 <div class="modal fade" id="shareProject" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -240,6 +242,7 @@
         </div>
     </div>
 </div>
+{{end}}
 <!-- 下载项目 -->
 <div class="modal fade" id="downloadBookModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -257,7 +260,7 @@
                 <div class="form-group">
                     <label for="password" class="col-sm-2 control-label">项目地址</label>
                     <div class="col-sm-10">
-                        <input type="text" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="项目地址">
+                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="项目地址">
                     </div>
                     <div class="clearfix"></div>
                 </div>

@@ -48,7 +48,8 @@ type BookResult struct {
 	RelationshipId int    `json:"relationship_id"`
 	RoleId         int    `json:"role_id"`
 	RoleName       string `json:"role_name"`
-	Status         int
+	Status         int		`json:"status"`
+	IsEnableShare  bool 	`json:"is_enable_share"`
 
 	LastModifyText   string `json:"last_modify_text"`
 	IsDisplayComment bool   `json:"is_display_comment"`
@@ -174,6 +175,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.Editor = book.Editor
 	m.Theme = book.Theme
 	m.AutoRelease = book.AutoRelease == 1
+	m.IsEnableShare = book.IsEnableShare == 0
 	m.Publisher = book.Publisher
 	m.HistoryCount = book.HistoryCount
 	m.IsDownload = book.IsDownload == 0

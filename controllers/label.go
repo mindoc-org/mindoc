@@ -7,7 +7,6 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
 )
 
@@ -20,7 +19,7 @@ func (c *LabelController) Prepare() {
 
 	//如果没有开启你们访问则跳转到登录
 	if !c.EnableAnonymous && c.Member == nil {
-		c.Redirect(utils.URLFor("AccountController.Login"), 302)
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
 		return
 	}
 }

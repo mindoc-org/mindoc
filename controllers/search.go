@@ -21,7 +21,7 @@ func (c *SearchController) Index() {
 
 	//如果没有开启你们访问则跳转到登录
 	if !c.EnableAnonymous && c.Member == nil {
-		c.Redirect(utils.URLFor("AccountController.Login"), 302)
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
 		return
 	}
 

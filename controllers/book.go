@@ -111,7 +111,7 @@ func (c *BookController) Setting() {
 		c.Abort("403")
 	}
 	if book.PrivateToken != "" {
-		book.PrivateToken = utils.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
+		book.PrivateToken = conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
 	}
 	c.Data["Model"] = book
 
@@ -140,6 +140,7 @@ func (c *BookController) SaveBook() {
 	publisher := strings.TrimSpace(c.GetString("publisher"))
 	historyCount,_ := c.GetInt("history_count",0)
 	isDownload := strings.TrimSpace(c.GetString("is_download")) == "on"
+	enableShare := strings.TrimSpace(c.GetString("enable_share")) == "on"
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
@@ -175,6 +176,11 @@ func (c *BookController) SaveBook() {
 		book.IsDownload = 0
 	}else{
 		book.IsDownload = 1
+	}
+	if enableShare {
+		book.IsEnableShare = 0
+	}else{
+		book.IsEnableShare = 1
 	}
 	if err := book.Update(); err != nil {
 		c.JsonResult(6006, "保存失败")
@@ -345,7 +351,7 @@ func (c *BookController) UploadCover() {
 
 	oldCover := book.Cover
 
-	book.Cover = utils.URLForWithCdnImage(url)
+	book.Cover = conf.URLForWithCdnImage(url)
 
 	if err := book.Update(); err != nil {
 		c.JsonResult(6001, "保存图片失败")
@@ -554,7 +560,7 @@ func (c *BookController) CreateToken() {
 			logs.Error("生成阅读令牌失败 => ", err)
 			c.JsonResult(6003, "生成阅读令牌失败")
 		}
-		c.JsonResult(0, "ok", utils.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
+		c.JsonResult(0, "ok", conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
 	} else {
 		book.PrivateToken = ""
 		if err := book.Update(); err != nil {

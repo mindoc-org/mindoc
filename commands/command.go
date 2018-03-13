@@ -168,11 +168,11 @@ func RegisterFunction() {
 		return cdn + p
 	})
 
-	beego.AddFuncMap("cdnjs",utils.URLForWithCdnJs)
-	beego.AddFuncMap("cdncss",utils.URLForWithCdnCss)
-	beego.AddFuncMap("cdnimg", utils.URLForWithCdnImage)
+	beego.AddFuncMap("cdnjs",conf.URLForWithCdnJs)
+	beego.AddFuncMap("cdncss",conf.URLForWithCdnCss)
+	beego.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
 	//重写url生成，支持配置域名以及域名前缀
-	beego.AddFuncMap("urlfor", utils.URLFor)
+	beego.AddFuncMap("urlfor", conf.URLFor)
 }
 
 //解析命令

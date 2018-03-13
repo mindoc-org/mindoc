@@ -7,7 +7,6 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
 )
 
@@ -20,7 +19,7 @@ func (c *HomeController) Index() {
 	c.TplName = "home/index.tpl"
 	//如果没有开启匿名访问，则跳转到登录页面
 	if !c.EnableAnonymous && c.Member == nil {
-		c.Redirect(utils.URLFor("AccountController.Login")+"?url="+url.PathEscape(conf.BaseUrl+c.Ctx.Request.URL.RequestURI()), 302)
+		c.Redirect(conf.URLFor("AccountController.Login")+"?url="+url.PathEscape(conf.BaseUrl+c.Ctx.Request.URL.RequestURI()), 302)
 	}
 	pageIndex, _ := c.GetInt("page", 1)
 	pageSize := 18

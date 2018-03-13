@@ -32,7 +32,7 @@ func (c *AccountController) Login() {
 			u = c.Ctx.Request.Header.Get("Referer")
 		}
 		if u == "" {
-			u = utils.URLFor("HomeController.Index")
+			u = conf.URLFor("HomeController.Index")
 		}
 		c.Redirect(u,302)
 	}
@@ -83,7 +83,7 @@ func (c *AccountController) Login() {
 				u = c.Ctx.Request.Header.Get("Referer")
 			}
 			if u == "" {
-				u = utils.URLFor("HomeController.Index")
+				u = conf.URLFor("HomeController.Index")
 			}
 
 			c.JsonResult(0, "ok", u)
@@ -97,7 +97,7 @@ func (c *AccountController) Login() {
 			u = c.Ctx.Request.Header.Get("Referer")
 		}
 		if u == "" {
-			u = utils.URLFor("HomeController.Index")
+			u = conf.URLFor("HomeController.Index")
 		}
 		c.Data["url"] = url.PathEscape(u)
 	}
@@ -111,7 +111,7 @@ func (c *AccountController) LoggedIn(isPost bool) interface{} {
 	if !isPost {
 		// 检查是否存在 turl 参数，如果有则重定向至 turl 处，否则进入 Home 页面
 		if turl == "" {
-			turl = utils.URLFor("HomeController.Index")
+			turl = conf.URLFor("HomeController.Index")
 		}
 		c.Redirect(turl, 302)
 		return nil
@@ -130,7 +130,7 @@ func (c *AccountController) Register() {
 
 	//如果用户登录了，则跳转到网站首页
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
-		c.Redirect(utils.URLFor("HomeController.Index"),302)
+		c.Redirect(conf.URLFor("HomeController.Index"),302)
 	}
 	// 如果没有开启用户注册
 	if v, ok := c.Option["ENABLED_REGISTER"]; ok && !strings.EqualFold(v, "true") {
@@ -244,7 +244,7 @@ func (c *AccountController) FindPassword() {
 
 		data := map[string]interface{}{
 			"SITE_NAME": c.Option["SITE_NAME"],
-			"url":       utils.URLFor("AccountController.FindPassword", "token", member_token.Token, "mail", email),
+			"url":       conf.URLFor("AccountController.FindPassword", "token", member_token.Token, "mail", email),
 			"BaseUrl": c.BaseUrl(),
 		}
 
@@ -302,7 +302,7 @@ func (c *AccountController) FindPassword() {
 			//}
 		}(mail_conf, email, body)
 
-		c.JsonResult(0, "ok", utils.URLFor("AccountController.Login"))
+		c.JsonResult(0, "ok", conf.URLFor("AccountController.Login"))
 	}
 
 	token := c.GetString("token")
@@ -396,7 +396,7 @@ func (c *AccountController) ValidEmail() {
 		beego.Error(err)
 		c.JsonResult(6006, "保存密码失败")
 	}
-	c.JsonResult(0, "ok", utils.URLFor("AccountController.Login"))
+	c.JsonResult(0, "ok", conf.URLFor("AccountController.Login"))
 }
 
 // Logout 退出登录
@@ -407,7 +407,7 @@ func (c *AccountController) Logout() {
 
 	u := c.Ctx.Request.Header.Get("Referer")
 
-	c.Redirect(utils.URLFor("AccountController.Login","url",u), 302)
+	c.Redirect(conf.URLFor("AccountController.Login","url",u), 302)
 }
 
 // 验证码

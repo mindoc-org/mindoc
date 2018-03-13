@@ -2,11 +2,12 @@ package models
 
 import (
 	"bytes"
-	"github.com/astaxie/beego/orm"
 	"html/template"
 	"math"
 	"strconv"
-	"github.com/lifei6671/mindoc/utils"
+
+	"github.com/astaxie/beego/orm"
+	"github.com/lifei6671/mindoc/conf"
 )
 
 type DocumentTree struct {
@@ -116,10 +117,10 @@ func getDocumentTree(array []*DocumentTree, parent_id int, selected_id int, sele
 			buf.WriteString(selected_li)
 			buf.WriteString("><a href=\"")
 			if item.Identify != "" {
-				uri := utils.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.Identify)
+				uri := conf.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.Identify)
 				buf.WriteString(uri)
 			} else {
-				uri := utils.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.DocumentId)
+				uri := conf.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.DocumentId)
 				buf.WriteString(uri)
 			}
 			buf.WriteString("\" title=\"")
