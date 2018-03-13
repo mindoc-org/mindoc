@@ -15,8 +15,8 @@
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
+    <script src="{{cdnjs "/static/html5shiv/3.7.3/html5shiv.min.js"}}"></script>
+    <script src="{{cdnjs "/static/respond.js/1.4.2/respond.min.js"}}"></script>
     <![endif]-->
 </head>
 <body>
@@ -50,7 +50,7 @@
                         </template>
                         <template v-else>
                             <div class="list-item" v-for="item in lists">
-                                <img :src="item.avatar" onerror="this.src='/static/images/middle.gif'" class="img-circle" width="34" height="34">
+                                <img :src="item.avatar" onerror="this.src='{{cdnimg "/static/images/middle.gif"}}'" class="img-circle" width="34" height="34">
                                 <span>${item.account}</span>
                                 <span style="font-size: 12px;color: #484848" v-if="item.real_name != ''">[${item.real_name}]</span>
                                 <div class="operate">

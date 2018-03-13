@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"math"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
+	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"math"
 )
 
 type LabelController struct {
@@ -18,7 +20,7 @@ func (c *LabelController) Prepare() {
 
 	//如果没有开启你们访问则跳转到登录
 	if !c.EnableAnonymous && c.Member == nil {
-		c.Redirect(beego.URLFor("AccountController.Login"), 302)
+		c.Redirect(utils.URLFor("AccountController.Login"), 302)
 		return
 	}
 }
@@ -54,7 +56,7 @@ func (c *LabelController) Index() {
 		return
 	}
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize,c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -77,7 +79,7 @@ func (c *LabelController) List() {
 		c.ShowErrorPage(50001, err.Error())
 	}
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""

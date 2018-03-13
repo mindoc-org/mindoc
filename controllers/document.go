@@ -105,7 +105,7 @@ func promptUserToLogIn(c *DocumentController) {
 	if c.IsAjax() {
 		c.JsonResult(6000, "请重新登录。")
 	} else {
-		c.Redirect(beego.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
+		c.Redirect(utils.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
 	}
 }
 
@@ -522,7 +522,7 @@ func (c *DocumentController) Upload() {
 	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
 		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
 		if strings.HasPrefix(attachment.HttpPath, "//") {
-			attachment.HttpPath = string(attachment.HttpPath[1:])
+			attachment.HttpPath = utils.URLForWithCdnImage(string(attachment.HttpPath[1:]))
 		}
 
 		is_attach = false
@@ -537,7 +537,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	if attachment.HttpPath == "" {
-		attachment.HttpPath = c.BaseUrl() + beego.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
+		attachment.HttpPath = utils.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update(); err != nil {
 			beego.Error("SaveToFile => ", err)
@@ -564,19 +564,19 @@ func (c *DocumentController) DownloadAttachment() {
 	c.Prepare()
 
 	identify := c.Ctx.Input.Param(":key")
-	attach_id, _ := strconv.Atoi(c.Ctx.Input.Param(":attach_id"))
+	attachId, _ := strconv.Atoi(c.Ctx.Input.Param(":attach_id"))
 	token := c.GetString("token")
 
-	member_id := 0
+	memberId := 0
 
 	if c.Member != nil {
-		member_id = c.Member.MemberId
+		memberId = c.Member.MemberId
 	}
 
-	book_id := 0
+	bookId := 0
 
 	// 判断用户是否参与了项目
-	bookResult, err := models.NewBookResult().FindByIdentify(identify, member_id)
+	bookResult, err := models.NewBookResult().FindByIdentify(identify, memberId)
 
 	if err != nil {
 		// 判断项目公开状态
@@ -593,13 +593,13 @@ func (c *DocumentController) DownloadAttachment() {
 			}
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 	} else {
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 	}
 
 	// 查找附件
-	attachment, err := models.NewAttachment().Find(attach_id)
+	attachment, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
 		beego.Error("DownloadAttachment => ", err)
@@ -610,7 +610,7 @@ func (c *DocumentController) DownloadAttachment() {
 		}
 	}
 
-	if attachment.BookId != book_id {
+	if attachment.BookId != bookId {
 		c.Abort("404")
 	}
 
@@ -892,7 +892,7 @@ func (c *DocumentController) Export() {
 	}
 
 	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
-		bookResult.Cover = c.BaseUrl() + bookResult.Cover
+		bookResult.Cover = utils.URLForWithCdnImage(bookResult.Cover)
 	}
 
 	if output == "markdown" {
@@ -951,7 +951,7 @@ func (c *DocumentController) QrCode() {
 		c.Abort("404")
 	}
 
-	uri := c.BaseUrl() + beego.URLFor("DocumentController.Index", ":key", identify)
+	uri := utils.URLFor("DocumentController.Index", ":key", identify)
 	code, err := qr.Encode(uri, qr.L, qr.Unicode)
 	if err != nil {
 		beego.Error(err)
@@ -1079,7 +1079,7 @@ func (c *DocumentController) History() {
 	c.Data["Document"] = doc
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	}
 }

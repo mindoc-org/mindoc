@@ -15,14 +15,16 @@ type Pagination struct {
 	Request *http.Request
 	Total   int
 	Pernum  int
+	BaseUrl string
 }
 
 //NewPagination 新建分页器
-func NewPagination(req *http.Request, total int, pernum int) *Pagination {
+func NewPagination(req *http.Request, total int, pernum int,baseUrl string) *Pagination {
 	return &Pagination{
 		Request: req,
 		Total:   total,
 		Pernum:  pernum,
+		BaseUrl: baseUrl,
 	}
 }
 
@@ -103,7 +105,7 @@ func (p *Pagination) Pages() string {
 //pageURL 生成分页url
 func (p *Pagination) pageURL(page string) string {
 	//基于当前url新建一个url对象
-	u, _ := url.Parse(p.Request.URL.String())
+	u, _ := url.Parse(p.BaseUrl + p.Request.URL.String())
 	q := u.Query()
 	q.Set("page", page)
 	u.RawQuery = q.Encode()

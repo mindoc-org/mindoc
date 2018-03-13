@@ -46,7 +46,7 @@
                         <div class="list-item" v-for="item in lists">
                             <div class="book-title">
                                 <div class="pull-left">
-                                    <a :href="'/book/' + item.identify + '/dashboard'" title="项目概要" data-toggle="tooltip">
+                                    <a :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" title="项目概要" data-toggle="tooltip">
                                        <template v-if="item.privately_owned == 0">
                                            <i class="fa fa-unlock" aria-hidden="true"></i>
                                        </template>
@@ -58,7 +58,7 @@
                                 </div>
                                 <div class="pull-right">
                                     <div class="btn-group">
-                                        <a  :href="'/book/' + item.identify + '/dashboard'" class="btn btn-default">设置</a>
+                                        <a  :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" class="btn btn-default">设置</a>
 
                                         <a href="javascript:;" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <span class="caret"></span>
@@ -67,7 +67,7 @@
                                         <ul class="dropdown-menu">
                                             <li><a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" target="_blank">阅读</a></li>
                                             <template v-if="item.role_id != 3">
-                                            <li><a :href="'/api/' + item.identify + '/edit'" target="_blank">编辑</a></li>
+                                            <li><a :href="'{{.BaseUrl}}/api/' + item.identify + '/edit'" target="_blank">编辑</a></li>
                                             </template>
                                             <template v-if="item.role_id == 0">
                                             <li><a :href="'javascript:deleteBook(\''+item.identify+'\');'">删除</a></li>
@@ -88,7 +88,7 @@
                                         &nbsp;
                                     </template>
                                     <template v-else="">
-                                        <a :href="'/book/' + item.identify + '/dashboard'" title="项目概要" style="font-size: 12px;">
+                                        <a :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" title="项目概要" style="font-size: 12px;">
                                         ${item.description}
                                         </a>
                                     </template>

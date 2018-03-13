@@ -2,11 +2,11 @@ package models
 
 import (
 	"bytes"
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"html/template"
 	"math"
 	"strconv"
+	"github.com/lifei6671/mindoc/utils"
 )
 
 type DocumentTree struct {
@@ -68,11 +68,11 @@ func (m *Document) CreateDocumentTreeForHtml(book_id, selected_id int) (string, 
 	if err != nil {
 		return "", err
 	}
-	parent_id := getSelectedNode(trees, selected_id)
+	parentId := getSelectedNode(trees, selected_id)
 
 	buf := bytes.NewBufferString("")
 
-	getDocumentTree(trees, 0, selected_id, parent_id, buf)
+	getDocumentTree(trees, 0, selected_id, parentId, buf)
 
 	return buf.String(), nil
 
@@ -116,10 +116,10 @@ func getDocumentTree(array []*DocumentTree, parent_id int, selected_id int, sele
 			buf.WriteString(selected_li)
 			buf.WriteString("><a href=\"")
 			if item.Identify != "" {
-				uri := beego.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.Identify)
+				uri := utils.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.Identify)
 				buf.WriteString(uri)
 			} else {
-				uri := beego.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.DocumentId)
+				uri := utils.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.DocumentId)
 				buf.WriteString(uri)
 			}
 			buf.WriteString("\" title=\"")

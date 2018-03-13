@@ -1,12 +1,14 @@
 package controllers
 
 import (
-	"net/url"
-	"github.com/astaxie/beego"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils/pagination"
 	"math"
+	"net/url"
+
+	"github.com/astaxie/beego"
 	"github.com/lifei6671/mindoc/conf"
+	"github.com/lifei6671/mindoc/models"
+	"github.com/lifei6671/mindoc/utils"
+	"github.com/lifei6671/mindoc/utils/pagination"
 )
 
 type HomeController struct {
@@ -18,7 +20,7 @@ func (c *HomeController) Index() {
 	c.TplName = "home/index.tpl"
 	//如果没有开启匿名访问，则跳转到登录页面
 	if !c.EnableAnonymous && c.Member == nil {
-		c.Redirect(beego.URLFor("AccountController.Login") + "?url=" + url.PathEscape(conf.BaseUrl + c.Ctx.Request.URL.RequestURI()), 302)
+		c.Redirect(utils.URLFor("AccountController.Login")+"?url="+url.PathEscape(conf.BaseUrl+c.Ctx.Request.URL.RequestURI()), 302)
 	}
 	pageIndex, _ := c.GetInt("page", 1)
 	pageSize := 18
@@ -35,7 +37,7 @@ func (c *HomeController) Index() {
 		c.Abort("500")
 	}
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,pageSize)
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, pageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""

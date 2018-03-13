@@ -61,7 +61,7 @@
                             </div>
                             <div class="form-group">
                                 <label>标识</label>
-                                <input type="text" class="form-control" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
+                                <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
                             </div>
                             <div class="form-group">
                                 <label>历史记录数量</label>
@@ -424,7 +424,7 @@
         try {
             var uploader = WebUploader.create({
                 auto: false,
-                swf: '/static/webuploader/Uploader.swf',
+                swf: '{{.BaseUrl}}/static/webuploader/Uploader.swf',
                 server: '{{urlfor "BookController.UploadCover"}}',
                 formData : { "identify" : {{.Model.Identify}} },
                 pick: "#filePicker",

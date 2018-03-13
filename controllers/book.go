@@ -47,7 +47,7 @@ func (c *BookController) Index() {
 	}
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize,c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -111,7 +111,7 @@ func (c *BookController) Setting() {
 		c.Abort("403")
 	}
 	if book.PrivateToken != "" {
-		book.PrivateToken = c.BaseUrl() + beego.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
+		book.PrivateToken = utils.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
 	}
 	c.Data["Model"] = book
 
@@ -345,7 +345,7 @@ func (c *BookController) UploadCover() {
 
 	oldCover := book.Cover
 
-	book.Cover = url
+	book.Cover = utils.URLForWithCdnImage(url)
 
 	if err := book.Update(); err != nil {
 		c.JsonResult(6001, "保存图片失败")
@@ -383,7 +383,7 @@ func (c *BookController) Users() {
 	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, 15)
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize,c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -554,7 +554,7 @@ func (c *BookController) CreateToken() {
 			logs.Error("生成阅读令牌失败 => ", err)
 			c.JsonResult(6003, "生成阅读令牌失败")
 		}
-		c.JsonResult(0, "ok", c.BaseUrl()+beego.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
+		c.JsonResult(0, "ok", utils.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
 	} else {
 		book.PrivateToken = ""
 		if err := book.Update(); err != nil {

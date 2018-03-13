@@ -52,7 +52,7 @@ func (c *ManagerController) Users() {
 	}
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize,c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -292,7 +292,7 @@ func (c *ManagerController) Books() {
 	if totalCount > 0 {
 		//html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 8, totalCount)
 
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize, c.BaseUrl())
 
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
@@ -352,7 +352,7 @@ func (c *ManagerController) EditBook() {
 		c.JsonResult(0, "ok")
 	}
 	if book.PrivateToken != "" {
-		book.PrivateToken = c.BaseUrl() + beego.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
+		book.PrivateToken = utils.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
 	}
 	c.Data["Model"] = book
 }
@@ -403,7 +403,7 @@ func (c *ManagerController) CreateToken() {
 			logs.Error("生成阅读令牌失败 => ", err)
 			c.JsonResult(6003, "生成阅读令牌失败")
 		}
-		c.JsonResult(0, "ok", c.BaseUrl()+beego.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
+		c.JsonResult(0, "ok", utils.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
 	} else {
 		book.PrivateToken = ""
 		if err := book.Update(); err != nil {
@@ -572,7 +572,7 @@ func (c *ManagerController) AttachList() {
 	}
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -610,7 +610,7 @@ func (c *ManagerController) AttachDetailed() {
 	}
 
 	attach.FilePath = filepath.Join(conf.WorkingDirectory, attach.FilePath)
-	attach.HttpPath = c.BaseUrl() + attach.HttpPath
+	attach.HttpPath = utils.URLForWithCdnImage(attach.HttpPath)
 
 	attach.IsExist = utils.FileExists(attach.FilePath)
 
@@ -639,7 +639,7 @@ func (c *ManagerController) AttachDelete() {
 }
 
 //标签列表
-func (c *ManagerController) LabelList(){
+func (c *ManagerController) LabelList() {
 	c.Prepare()
 	c.TplName = "manager/label_list.tpl"
 
@@ -651,7 +651,7 @@ func (c *ManagerController) LabelList(){
 		c.ShowErrorPage(50001, err.Error())
 	}
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize)
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""

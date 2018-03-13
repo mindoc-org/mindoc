@@ -137,6 +137,7 @@ func RegisterCommand() {
 		migrate.RunMigration()
 	}
 }
+
 //注册模板函数
 func RegisterFunction() {
 	beego.AddFuncMap("config", models.GetOptionValue)
@@ -146,6 +147,18 @@ func RegisterFunction() {
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
+		//如果没有设置cdn，则使用baseURL拼接
+		if cdn == "" {
+			baseUrl := beego.AppConfig.DefaultString("baseurl","")
+
+			if strings.HasPrefix(p,"/") && strings.HasSuffix(baseUrl,"/") {
+				return baseUrl + p[1:]
+			}
+			if !strings.HasPrefix(p,"/") && !strings.HasSuffix(baseUrl,"/") {
+				return baseUrl + "/" + p
+			}
+			return  baseUrl + p
+		}
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
@@ -155,45 +168,11 @@ func RegisterFunction() {
 		return cdn + p
 	})
 
-	beego.AddFuncMap("cdnjs", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdnjs", "")
-		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
-			return p
-		}
-		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
-			return cdn + string(p[1:])
-		}
-		if !strings.HasPrefix(p, "/") && !strings.HasSuffix(cdn, "/") {
-			return cdn + "/" + p
-		}
-		return cdn + p
-	})
-	beego.AddFuncMap("cdncss", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdncss", "")
-		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
-			return p
-		}
-		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
-			return cdn + string(p[1:])
-		}
-		if !strings.HasPrefix(p, "/") && !strings.HasSuffix(cdn, "/") {
-			return cdn + "/" + p
-		}
-		return cdn + p
-	})
-	beego.AddFuncMap("cdnimg", func(p string) string {
-		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
-			return p
-		}
-		cdn := beego.AppConfig.DefaultString("cdnimg", "")
-		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
-			return cdn + string(p[1:])
-		}
-		if !strings.HasPrefix(p, "/") && !strings.HasSuffix(cdn, "/") {
-			return cdn + "/" + p
-		}
-		return cdn + p
-	})
+	beego.AddFuncMap("cdnjs",utils.URLForWithCdnJs)
+	beego.AddFuncMap("cdncss",utils.URLForWithCdnCss)
+	beego.AddFuncMap("cdnimg", utils.URLForWithCdnImage)
+	//重写url生成，支持配置域名以及域名前缀
+	beego.AddFuncMap("urlfor", utils.URLFor)
 }
 
 //解析命令

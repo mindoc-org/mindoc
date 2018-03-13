@@ -21,7 +21,7 @@ func (c *SearchController) Index() {
 
 	//如果没有开启你们访问则跳转到登录
 	if !c.EnableAnonymous && c.Member == nil {
-		c.Redirect(beego.URLFor("AccountController.Login"), 302)
+		c.Redirect(utils.URLFor("AccountController.Login"), 302)
 		return
 	}
 
@@ -43,7 +43,7 @@ func (c *SearchController) Index() {
 			return
 		}
 		if totalCount > 0 {
-			pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize)
+			pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize,c.BaseUrl())
 			c.Data["PageHtml"] = pager.HtmlPages()
 		} else {
 			c.Data["PageHtml"] = ""
