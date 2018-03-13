@@ -24,4 +24,8 @@ _testmain.go
 *.prof
 .idea
 /conf/app.conf
+
+glide.lock
+logs
+mindoc
 /vendor

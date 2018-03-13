@@ -2,16 +2,17 @@ package commands
 
 import (
 	"encoding/gob"
+	"flag"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
-	"time"
-	"log"
-	"flag"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"encoding/json"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -142,7 +143,7 @@ func RegisterFunction() {
 	beego.AddFuncMap("config", models.GetOptionValue)
 
 	beego.AddFuncMap("cdn", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdn", "")
+		cdn := beego.AppConfig.DefaultString("cdn", conf.GetUrlPrefix())
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
@@ -156,7 +157,7 @@ func RegisterFunction() {
 	})
 
 	beego.AddFuncMap("cdnjs", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdnjs", "")
+		cdn := beego.AppConfig.DefaultString("cdnjs", conf.GetUrlPrefix())
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
@@ -169,7 +170,7 @@ func RegisterFunction() {
 		return cdn + p
 	})
 	beego.AddFuncMap("cdncss", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdncss", "")
+		cdn := beego.AppConfig.DefaultString("cdncss", conf.GetUrlPrefix())
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
@@ -185,7 +186,7 @@ func RegisterFunction() {
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
-		cdn := beego.AppConfig.DefaultString("cdnimg", "")
+		cdn := beego.AppConfig.DefaultString("cdnimg", conf.GetUrlPrefix())
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
 		}
@@ -193,6 +194,9 @@ func RegisterFunction() {
 			return cdn + "/" + p
 		}
 		return cdn + p
+	})
+	beego.AddFuncMap("urlprefix", func(p string) string {
+		return conf.GetUrlPrefix() + p
 	})
 }
 
@@ -232,8 +236,8 @@ func ResolveCommand(args []string) {
 
 	os.MkdirAll(uploads, 0666)
 
-	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
-	beego.BConfig.WebConfig.StaticDir["/uploads"] = uploads
+	beego.BConfig.WebConfig.StaticDir[conf.GetUrlPrefix()+"/static"] = filepath.Join(conf.WorkingDirectory, "static")
+	beego.BConfig.WebConfig.StaticDir[conf.GetUrlPrefix()+"/uploads"] = uploads
 	beego.BConfig.WebConfig.ViewsPath = filepath.Join(conf.WorkingDirectory, "views")
 
 	fonts := filepath.Join(conf.WorkingDirectory, "static", "fonts")
@@ -346,7 +350,7 @@ func RegisterCache()  {
 
 func init() {
 
-	if configPath ,err := filepath.Abs(conf.ConfigurationFile); err == nil {
+	if configPath, err := filepath.Abs(conf.ConfigurationFile); err == nil {
 		conf.ConfigurationFile = configPath
 	}
 	gocaptcha.ReadFonts("./static/fonts", ".ttf")

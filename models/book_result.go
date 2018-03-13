@@ -2,14 +2,15 @@ package models
 
 import (
 	"bytes"
-	"time"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"encoding/base64"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
@@ -35,7 +36,7 @@ type BookResult struct {
 	CommentCount   int       `json:"comment_count"`
 	CreateTime     time.Time `json:"create_time"`
 	CreateName     string    `json:"create_name"`
-	RealName	   string 	 `json:"real_name"`
+	RealName       string    `json:"real_name"`
 	ModifyTime     time.Time `json:"modify_time"`
 	Cover          string    `json:"cover"`
 	Theme          string    `json:"theme"`
@@ -43,7 +44,7 @@ type BookResult struct {
 	MemberId       int       `json:"member_id"`
 	Editor         string    `json:"editor"`
 	AutoRelease    bool      `json:"auto_release"`
-	HistoryCount   int 		 `json:"history_count"`
+	HistoryCount   int       `json:"history_count"`
 
 	RelationshipId int    `json:"relationship_id"`
 	RoleId         int    `json:"role_id"`
@@ -52,7 +53,7 @@ type BookResult struct {
 
 	LastModifyText   string `json:"last_modify_text"`
 	IsDisplayComment bool   `json:"is_display_comment"`
-	IsDownload bool			`json:"is_download"`
+	IsDownload       bool   `json:"is_download"`
 }
 
 func NewBookResult() *BookResult {
@@ -191,7 +192,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	convertBookResult := ConvertBookResult{}
 
-	outputPath := filepath.Join(conf.WorkingDirectory,"uploads","books", strconv.Itoa(m.BookId))
+	outputPath := filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(m.BookId))
 	viewPath := beego.BConfig.WebConfig.ViewsPath
 
 	pdfpath := filepath.Join(outputPath, "book.pdf")
@@ -200,7 +201,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	docxpath := filepath.Join(outputPath, "book.docx")
 
 	//先将转换的文件储存到临时目录
-	tempOutputPath :=  filepath.Join(os.TempDir(),sessionId) //filepath.Abs(filepath.Join("cache", sessionId))
+	tempOutputPath := filepath.Join(os.TempDir(), sessionId) //filepath.Abs(filepath.Join("cache", sessionId))
 
 	os.MkdirAll(outputPath, 0766)
 	os.MkdirAll(tempOutputPath, 0766)
@@ -216,7 +217,6 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		convertBookResult.WordPath = docxpath
 		return convertBookResult, nil
 	}
-
 
 	docs, err := NewDocument().FindListByBookId(m.BookId)
 	if err != nil {
@@ -273,7 +273,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		More:         []string{},
 	}
 	if m.Publisher != "" {
-		ebookConfig.Footer = "<p style='color:#8E8E8E;font-size:12px;'>本文档由 <span style='text-decoration:none;color:#1abc9c;font-weight:bold;'>"+ m.Publisher +"</span> 生成<span style='float:right'>- _PAGENUM_ -</span></p>"
+		ebookConfig.Footer = "<p style='color:#8E8E8E;font-size:12px;'>本文档由 <span style='text-decoration:none;color:#1abc9c;font-weight:bold;'>" + m.Publisher + "</span> 生成<span style='float:right'>- _PAGENUM_ -</span></p>"
 	}
 	if m.RealName != "" {
 		ebookConfig.Creator = m.RealName
@@ -311,7 +311,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		doc.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
 			if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/") {
 				//contentSelection.SetAttr("src", baseUrl + src)
-				spath := filepath.Join(conf.WorkingDirectory, src)
+				spath := filepath.Join(conf.WorkingDirectory, conf.RemoveUrlPrefix(src))
 
 				if ff, e := ioutil.ReadFile(spath); e == nil {
 
@@ -347,7 +347,6 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		return convertBookResult, err
 	}
 	beego.Info("文档转换完成：" + m.BookName)
-
 
 	utils.CopyFile(mobipath, filepath.Join(tempOutputPath, "output", "book.mobi"))
 	utils.CopyFile(pdfpath, filepath.Join(tempOutputPath, "output", "book.pdf"))

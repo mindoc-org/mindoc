@@ -69,7 +69,7 @@
                     <div class="form-right">
                         <label>
                             <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
-                                <img src="/uploads/user/201612/58649aefa944e_58649aef.JPG" onerror="this.src='https://wiki.iminho.me/static/images/middle.gif'" class="img-circle" alt="头像" style="max-width: 120px;max-height: 120px;" id="headimgurl">
+                                <img src='{{urlprefix "/uploads/user/201612/58649aefa944e_58649aef.JPG"}}' onerror="this.src='https://wiki.iminho.me/static/images/middle.gif'" class="img-circle" alt="头像" style="max-width: 120px;max-height: 120px;" id="headimgurl">
                             </a>
                         </label>
                     </div>

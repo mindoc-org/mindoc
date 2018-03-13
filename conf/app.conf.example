@@ -45,6 +45,9 @@ cover=/static/images/book.jpg
 #默认头像
 avatar=/static/images/headimgurl.jpg
 
+#修改整个网站的链接前缀
+urlprefix=
+
 #默认阅读令牌长度
 token_size=12
 

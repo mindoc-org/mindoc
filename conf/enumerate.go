@@ -4,8 +4,9 @@ package conf
 import (
 	"strings"
 
-	"github.com/astaxie/beego"
 	"strconv"
+
+	"github.com/astaxie/beego"
 )
 
 // 登录用户的Session名
@@ -66,7 +67,7 @@ var (
 	ConfigurationFile = "./conf/app.conf"
 	WorkingDirectory  = "./"
 	LogFile           = "./logs"
-	BaseUrl			  = ""
+	BaseUrl           = ""
 )
 
 // app_key
@@ -150,4 +151,19 @@ func IsAllowUploadFileExt(ext string) bool {
 		}
 	}
 	return false
+}
+
+func GetUrlPrefix() string {
+	return beego.AppConfig.DefaultString("urlprefix", "")
+}
+
+func RemoveUrlPrefix(s string) string {
+	prefix := GetUrlPrefix()
+	if prefix != "" {
+		if strings.HasPrefix(s, prefix) {
+			return s[len(prefix):]
+		}
+	}
+
+	return s
 }
