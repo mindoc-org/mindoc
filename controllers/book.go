@@ -503,6 +503,7 @@ func (c *BookController) Create() {
 	}
 	c.JsonResult(6001, "error")
 }
+
 //导入
 func (c *BookController) Import() {
 
@@ -515,6 +516,12 @@ func (c *BookController) Import() {
 
 	beego.Info(moreFile.Filename)
 
+	ext := filepath.Ext(moreFile.Filename)
+
+	if !strings.EqualFold(ext,".doc") || !strings.EqualFold(ext,".docx") {
+		c.JsonResult(6004,"不支持的文件类型")
+	}
+
 	tempPath := filepath.Join(os.TempDir(),c.CruSession.SessionID())
 
 	os.MkdirAll(tempPath,0766)
@@ -524,7 +531,6 @@ func (c *BookController) Import() {
 	err = c.SaveToFile("import-file", tempPath)
 
 	converter.Resolve(tempPath)
-
 
 }
 

@@ -611,22 +611,22 @@ textarea{
 }
 .footer .container .row{
     margin-left: 220px;
-    border-top: 2px solid #DDDDD9;
     padding-top: 20px;
     opacity : 0.8;
     font-size: 13px;
 }
+.footer .container .border-top{
+    border-top: 2px solid #DDDDD9;
+}
 .manual-container .footer .container .row{
     margin-left: 0;
 }
-.footer li {
-    display: inline-block;
-}
-.footer li a{
+
+.footer a{
     color: #222;
     text-decoration: none;
 }
-.footer li a:hover {
+.footer a:hover {
     color: #2b85ae
 }
 @media screen and (max-width: 840px) {

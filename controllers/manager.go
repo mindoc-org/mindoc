@@ -435,7 +435,7 @@ func (c *ManagerController) Setting() {
 	c.Data["SITE_TITLE"] = c.Option["SITE_NAME"]
 
 	for _, item := range options {
-		c.Data[item.OptionName] = item
+		c.Data[item.OptionName] = item.OptionValue
 	}
 
 }

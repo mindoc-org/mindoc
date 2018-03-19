@@ -154,6 +154,15 @@ func (m *Option) Init() error {
 		}
 	}
 
+	if !o.QueryTable(m.TableNameWithPrefix()).Filter("option_name", "site_beian").Exist() {
+		option := NewOption()
+		option.OptionValue = ""
+		option.OptionName = "site_beian"
+		option.OptionTitle = "域名备案"
+		if _, err := o.Insert(option); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
