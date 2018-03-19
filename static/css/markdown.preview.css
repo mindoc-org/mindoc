@@ -1,15 +1,53 @@
 /*************表格样式****************/
-
-.editormd-preview-container table thead tr{
-    background-color: #0088CC;
-    color: #ffffff;
+.editormd-preview-container table {
+    margin-top: 0;
+    margin-bottom: 24px;
+    width: 100%;
+    overflow: auto;
+    border-bottom: none;
+    line-height: 1.5
 }
-.editormd-preview-container table tr:nth-child(2n) {
-    background-color: #f8f8f8
+
+.editormd-preview-container table td,.editormd-preview-container table th {
+    padding: 8px 13px;
+    border: 1px solid #d9d9d9;
+    word-wrap: break-word;
+    text-align: left
 }
 .editormd-preview-container-body blockquote,.editormd-preview-container blockquote p {
     font-size: 14px;
-    color: #999
+    color: #999;
+}
+.editormd-preview-container blockquote, .editormd-html-preview blockquote{
+    font-style: normal;
+}
+.editormd-preview-container table th {
+    background-color: #f2f2f2;
+    color: #333;
+    font-weight: 400;
+    word-break: keep-all
+}
+
+.editormd-preview-container table tr {
+    background-color: #fff
+}
+.editormd-preview-container code {
+    padding: .2em 0;
+    margin-left: 3px;
+    margin-right: 3px;
+    background-color: #eee;
+    border-radius: 3px;
+    font-size: 1em;
+    font-family: Consolas,"Liberation Mono",Menlo,Courier,'Microsoft Yahei',monospace;
+    border: 0;
+    color: #555;
+    word-break: break-all;
+}
+
+/**************TOC*******************/
+.markdown-toc{
+    padding: 16px 11px 4px;
+    border: 1px solid #f0f0f0;
 }
 /***********代码样式*****************/
 .markdown-body .highlight pre, .markdown-body pre{
