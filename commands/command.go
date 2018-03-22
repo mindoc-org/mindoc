@@ -30,13 +30,20 @@ import (
 func RegisterDataBase() {
 	beego.Info("正在初始化数据库配置.")
 	adapter := beego.AppConfig.String("db_adapter")
+	timezone := beego.AppConfig.String("timezone")
+	location, err := time.LoadLocation(timezone)
+	if err == nil {
+		orm.DefaultTimeLoc = location
+	} else {
+		beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量:",err)
+	}
 
 	if adapter == "mysql" {
 		host := beego.AppConfig.String("db_host")
 		database := beego.AppConfig.String("db_database")
 		username := beego.AppConfig.String("db_username")
 		password := beego.AppConfig.String("db_password")
-		timezone := beego.AppConfig.String("timezone")
+
 
 		port := beego.AppConfig.String("db_port")
 
@@ -46,13 +53,6 @@ func RegisterDataBase() {
 		if err != nil {
 			beego.Error("注册默认数据库失败:",err)
 			os.Exit(1)
-		}
-
-		location, err := time.LoadLocation(timezone)
-		if err == nil {
-			orm.DefaultTimeLoc = location
-		} else {
-			beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量:",err)
 		}
 	} else if adapter == "sqlite3" {
 		database := beego.AppConfig.String("db_database")

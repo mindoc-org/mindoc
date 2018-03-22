@@ -33,7 +33,7 @@ type Document struct {
 	Content    string        `orm:"column(content);type(text);null" json:"content"`
 	CreateTime time.Time     `orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
 	MemberId   int           `orm:"column(member_id);type(int)" json:"member_id"`
-	ModifyTime time.Time     `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
+	ModifyTime time.Time     `orm:"column(modify_time);type(datetime)" json:"modify_time"`
 	ModifyAt   int           `orm:"column(modify_at);type(int)" json:"-"`
 	Version    int64         `orm:"type(bigint);column(version)" json:"version"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
@@ -81,6 +81,7 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 	o := orm.NewOrm()
 	var err error
 	if m.DocumentId > 0 {
+		m.ModifyTime = time.Now().Local()
 		_, err = o.Update(m)
 	} else {
 		_, err = o.Insert(m)

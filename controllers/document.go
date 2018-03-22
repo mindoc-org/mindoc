@@ -221,13 +221,13 @@ func (c *DocumentController) Read() {
 	}
 
 	docInfo += " 创建于 "
-	docInfo += doc.CreateTime.Format("2006-01-02 15:04")
+	docInfo += doc.CreateTime.Local().Format("2006-01-02 15:04")
 
 	if doc.ModifyTime != doc.CreateTime {
 		docInfo += "；更新于 "
-		docInfo += doc.ModifyTime.Format("2006-01-02 15:04")
+		docInfo += doc.ModifyTime.Local().Format("2006-01-02 15:04")
 		if strings.TrimSpace(doc.Release) != "" {
-			doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Format("2006-01-02 15:04") + "</div>";
+			doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + "</div>";
 		}
 	}
 
