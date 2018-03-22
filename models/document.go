@@ -84,6 +84,8 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 		m.ModifyTime = time.Now().Local()
 		_, err = o.Update(m)
 	} else {
+		m.ModifyTime = time.Now().Local()
+		m.CreateTime = time.Now().Local()
 		_, err = o.Insert(m)
 		NewBook().ResetDocumentNumber(m.BookId)
 	}
