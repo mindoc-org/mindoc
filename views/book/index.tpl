@@ -137,7 +137,7 @@
                         </div>
                         <div class="form-group">
                             <div class="pull-left" style="padding: 7px 5px 6px 0">
-                            {{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" ""}}
+                           {{urlfor "DocumentController.Index" ":key" ""}}
                             </div>
                             <input type="text" class="form-control pull-left" style="width: 410px;vertical-align: middle" placeholder="项目唯一标识(不超过50字)" name="identify" id="identify">
                             <div class="clearfix"></div>
