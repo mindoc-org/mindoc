@@ -9,7 +9,7 @@
         </div>
         {{if ne .site_beian ""}}
         <div class="row text-center">
-            <a href="http://www.miitbeian.gov.cn">{{.site_beian}}</a>
+            <a href="http://www.miitbeian.gov.cn" target="_blank">{{.site_beian}}</a>
         </div>
         {{end}}
     </div>
