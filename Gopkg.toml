@@ -58,10 +58,6 @@
   name = "github.com/nfnt/resize"
 
 [[constraint]]
-  name = "github.com/russross/blackfriday"
-  version = "2.0.0"
-
-[[constraint]]
   name = "gopkg.in/ldap.v2"
   version = "2.5.1"
 

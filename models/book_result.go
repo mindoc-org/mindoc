@@ -125,7 +125,7 @@ func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult,
 		member2 := NewMember()
 		member2.Find(doc.ModifyAt)
 
-		m.LastModifyText = member2.Account + " 于 " + doc.ModifyTime.Format("2006-01-02 15:04:05")
+		m.LastModifyText = member2.Account + " 于 " + doc.ModifyTime.Local().Format("2006-01-02 15:04:05")
 	}
 
 	return m, nil
@@ -168,8 +168,8 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.DocCount = book.DocCount
 	m.CommentStatus = book.CommentStatus
 	m.CommentCount = book.CommentCount
-	m.CreateTime = book.CreateTime
-	m.ModifyTime = book.ModifyTime
+	m.CreateTime = book.CreateTime.Local()
+	m.ModifyTime = book.ModifyTime.Local()
 	m.Cover = book.Cover
 	m.Label = book.Label
 	m.Status = book.Status
@@ -187,6 +187,20 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	if book.Editor == "" {
 		m.Editor = "markdown"
 	}
+
+	doc := NewDocument()
+
+	o := orm.NewOrm()
+
+	err := o.QueryTable(doc.TableNameWithPrefix()).Filter("book_id", book.BookId).OrderBy("modify_time").One(doc)
+
+	if err == nil {
+		member2 := NewMember()
+		member2.Find(doc.ModifyAt)
+
+		m.LastModifyText = member2.Account + " 于 " + doc.ModifyTime.Local().Format("2006-01-02 15:04:05")
+	}
+
 	return m
 }
 

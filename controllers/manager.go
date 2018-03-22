@@ -298,6 +298,8 @@ func (c *ManagerController) Books() {
 	}
 	for i,book := range books {
 		books[i].Description = utils.StripTags(string(blackfriday.Run([]byte(book.Description))))
+		books[i].ModifyTime = book.ModifyTime.Local()
+		books[i].CreateTime = book.CreateTime.Local()
 	}
 	c.Data["Lists"] = books
 }
@@ -319,17 +321,17 @@ func (c *ManagerController) EditBook() {
 	}
 	if c.Ctx.Input.IsPost() {
 
-		book_name := strings.TrimSpace(c.GetString("book_name"))
+		bookName := strings.TrimSpace(c.GetString("book_name"))
 		description := strings.TrimSpace(c.GetString("description", ""))
-		comment_status := c.GetString("comment_status")
+		commentStatus := c.GetString("comment_status")
 		tag := strings.TrimSpace(c.GetString("label"))
-		order_index, _ := c.GetInt("order_index", 0)
+		orderIndex, _ := c.GetInt("order_index", 0)
 
 		if strings.Count(description, "") > 500 {
 			c.JsonResult(6004, "项目描述不能大于500字")
 		}
-		if comment_status != "open" && comment_status != "closed" && comment_status != "group_only" && comment_status != "registered_only" {
-			comment_status = "closed"
+		if commentStatus != "open" && commentStatus != "closed" && commentStatus != "group_only" && commentStatus != "registered_only" {
+			commentStatus = "closed"
 		}
 		if tag != "" {
 			tags := strings.Split(tag, ";")
@@ -338,11 +340,11 @@ func (c *ManagerController) EditBook() {
 			}
 		}
 
-		book.BookName = book_name
+		book.BookName = bookName
 		book.Description = description
-		book.CommentStatus = comment_status
+		book.CommentStatus = commentStatus
 		book.Label = tag
-		book.OrderIndex = order_index
+		book.OrderIndex = orderIndex
 
 		if err := book.Update(); err != nil {
 			c.JsonResult(6006, "保存失败")

@@ -44,6 +44,8 @@ func (c *BookController) Index() {
 
 	for i,book := range books {
 		books[i].Description = utils.StripTags(string(blackfriday.Run([]byte(book.Description))))
+		books[i].ModifyTime = book.ModifyTime.Local()
+		books[i].CreateTime = book.CreateTime.Local()
 	}
 
 	if totalCount > 0 {
