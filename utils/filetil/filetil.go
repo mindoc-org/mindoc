@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"io"
+	"fmt"
 )
 
 //==================================
@@ -41,3 +43,90 @@ func ScanFiles(dir string) (fl []FileList, err error) {
 	})
 	return
 }
+
+//拷贝文件
+func CopyFile(source string, dst string) (err error) {
+	sourceFile, err := os.Open(source)
+	if err != nil {
+		return err
+	}
+
+	defer sourceFile.Close()
+
+	_,err = os.Stat(filepath.Dir(dst))
+
+	if err != nil {
+		if os.IsNotExist(err) {
+			os.MkdirAll(filepath.Dir(dst),0766)
+		}else{
+			return err
+		}
+	}
+
+
+	destFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, sourceFile)
+	if err == nil {
+		sourceInfo, err := os.Stat(source)
+		if err != nil {
+			err = os.Chmod(dst, sourceInfo.Mode())
+		}
+
+	}
+
+	return
+}
+
+//拷贝目录
+func CopyDir(source string, dest string) (err error) {
+
+	// get properties of source dir
+	sourceInfo, err := os.Stat(source)
+	if err != nil {
+		return err
+	}
+
+	// create dest dir
+	err = os.MkdirAll(dest, sourceInfo.Mode())
+	if err != nil {
+		return err
+	}
+
+	directory, _ := os.Open(source)
+
+	objects, err := directory.Readdir(-1)
+
+	for _, obj := range objects {
+
+		sourceFilePointer := filepath.Join(source , obj.Name())
+
+		destinationFilePointer := filepath.Join(dest, obj.Name())
+
+		if obj.IsDir() {
+			// create sub-directories - recursively
+			err = CopyDir(sourceFilePointer, destinationFilePointer)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			// perform copy
+			err = CopyFile(sourceFilePointer, destinationFilePointer)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+
+	}
+	return
+}
+
+func RemoveDir(dir string) error {
+	return os.RemoveAll(dir)
+}
+

@@ -2,14 +2,11 @@ package ziptil
 
 import (
 	"archive/zip"
-	"errors"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/lifei6671/mindoc/utils/filetil"
+	"fmt"
 )
 
 //解压zip文件
@@ -47,66 +44,122 @@ func Unzip(zipFile, dest string) (err error) {
 	return nil
 }
 
-//压缩指定文件或文件夹
-//@param			dest			压缩后的zip文件目标，如/usr/local/hello.zip
-//@param			filepath		需要压缩的文件或者文件夹
-//@return			err				错误。如果返回错误，则会删除dest文件
-func Zip(dest string, filepath ...string) (err error) {
-	if len(filepath) == 0 {
-		return errors.New("lack of file")
-	}
-	//创建文件
-	fzip, err := os.Create(dest)
+//压缩文件
+func Zip(source, target string) error {
+	zipFile, err := os.Create(target)
 	if err != nil {
 		return err
 	}
-	defer fzip.Close()
+	defer zipFile.Close()
 
-	var filelist []filetil.FileList
-	for _, file := range filepath {
-		if info, err := os.Stat(file); err == nil {
-			if info.IsDir() { //目录，则扫描文件
-				if f, _ := filetil.ScanFiles(file); len(f) > 0 {
-					filelist = append(filelist, f...)
-				}
-			} else { //文件
-				filelist = append(filelist, filetil.FileList{
-					IsDir: false,
-					Name:  info.Name(),
-					Path:  file,
-				})
-			}
-		} else {
+	archive := zip.NewWriter(zipFile)
+	defer archive.Close()
+	source = strings.Replace(source, "\\", "/", -1)
+
+	filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
 			return err
 		}
-	}
-	w := zip.NewWriter(fzip)
-	defer w.Close()
-	for _, file := range filelist {
-		if !file.IsDir {
-			if fw, err := w.Create(strings.TrimLeft(file.Path, "./")); err != nil {
-				return err
-			} else {
-				if fileContent, err := ioutil.ReadFile(file.Path); err != nil {
-					return err
-				} else {
-					if _, err = fw.Write(fileContent); err != nil {
-						return err
-					}
-				}
-			}
+		path = strings.Replace(path, "\\", "/", -1)
+
+		if path == source {
+			return nil
 		}
-	}
-	return
+		header, err := zip.FileInfoHeader(info)
+		if err != nil {
+			return err
+		}
+
+		header.Name = strings.TrimPrefix(strings.TrimPrefix(strings.Replace(path, "\\", "/", -1), source), "/")
+		fmt.Println(header.Name)
+
+		if info.IsDir() {
+			header.Name += "/"
+		} else {
+			header.Method = zip.Deflate
+		}
+
+		writer, err := archive.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		_, err = io.Copy(writer, file)
+		return err
+	})
+
+	return err
 }
 
-func Compress(dst string,src string) (err error) {
+////压缩指定文件或文件夹
+////@param			dest			压缩后的zip文件目标，如/usr/local/hello.zip
+////@param			filepath		需要压缩的文件或者文件夹
+////@return			err				错误。如果返回错误，则会删除dest文件
+//func Zip(dest string, filepath ...string) (err error) {
+//	if len(filepath) == 0 {
+//		return errors.New("lack of file")
+//	}
+//	//创建文件
+//	fzip, err := os.Create(dest)
+//	if err != nil {
+//		return err
+//	}
+//	defer fzip.Close()
+//
+//	var filelist []filetil.FileList
+//	for _, file := range filepath {
+//		if info, err := os.Stat(file); err == nil {
+//			if info.IsDir() { //目录，则扫描文件
+//				if f, _ := filetil.ScanFiles(file); len(f) > 0 {
+//					filelist = append(filelist, f...)
+//				}
+//			} else { //文件
+//				filelist = append(filelist, filetil.FileList{
+//					IsDir: false,
+//					Name:  info.Name(),
+//					Path:  file,
+//				})
+//			}
+//		} else {
+//			return err
+//		}
+//	}
+//	w := zip.NewWriter(fzip)
+//	defer w.Close()
+//	for _, file := range filelist {
+//		if !file.IsDir {
+//			if fw, err := w.Create(strings.TrimLeft(file.Path, "./")); err != nil {
+//				return err
+//			} else {
+//				if fileContent, err := ioutil.ReadFile(file.Path); err != nil {
+//					return err
+//				} else {
+//					if _, err = fw.Write(fileContent); err != nil {
+//						return err
+//					}
+//				}
+//			}
+//		}
+//	}
+//	return
+//}
+
+func Compress(dst string, src string) (err error) {
 	d, _ := os.Create(dst)
 	defer d.Close()
 	w := zip.NewWriter(d)
 	defer w.Close()
 
-	src = strings.Replace(src,"\\","/",-1)
+	src = strings.Replace(src, "\\", "/", -1)
 	f, err := os.Open(src)
 
 	if err != nil {
@@ -124,7 +177,6 @@ func Compress(dst string,src string) (err error) {
 	return nil
 }
 
-
 func compress(file *os.File, prefix string, zw *zip.Writer) error {
 	info, err := file.Stat()
 	if err != nil {
@@ -133,7 +185,7 @@ func compress(file *os.File, prefix string, zw *zip.Writer) error {
 	if info.IsDir() {
 		if prefix != "" {
 			prefix = prefix + "/" + info.Name()
-		}else{
+		} else {
 			prefix = info.Name()
 		}
 		fileInfos, err := file.Readdir(-1)
@@ -171,9 +223,3 @@ func compress(file *os.File, prefix string, zw *zip.Writer) error {
 	}
 	return nil
 }
-
-
-
-
-
-

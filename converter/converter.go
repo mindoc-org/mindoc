@@ -21,6 +21,7 @@ import (
 
 type Converter struct {
 	BasePath       string
+	OutputPath	   string
 	Config         Config
 	Debug          bool
 	GeneratedCover string
@@ -123,10 +124,9 @@ func (this *Converter) Convert() (err error) {
 	}
 
 	//将当前文件夹下的所有文件压缩成zip包，然后直接改名成content.epub
-	f := filepath.Join(this.BasePath, "content.epub")
-	fmt.Println("epub目录 " + f)
+	f := filepath.Join(this.OutputPath, "content.epub")
 	os.Remove(f) //如果原文件存在了，则删除;
-	if err = ziptil.Zip(f, this.BasePath); err == nil {
+	if err = ziptil.Zip(this.BasePath,f); err == nil {
 		//创建导出文件夹
 		os.Mkdir(this.BasePath+"/"+output, os.ModePerm)
 		if len(this.Config.Format) > 0 {
@@ -434,8 +434,8 @@ func (this *Converter) generateContentOpf() (err error) {
 //转成epub
 func (this *Converter) convertToEpub() (err error) {
 	args := []string{
-		filepath.Join(this.BasePath, "content.epub"),
-		filepath.Join(this.BasePath, output, "book.epub"),
+		filepath.Join(this.OutputPath, "content.epub"),
+		filepath.Join(this.OutputPath, output, "book.epub"),
 	}
 	cmd := exec.Command(ebookConvert, args...)
 
@@ -443,13 +443,15 @@ func (this *Converter) convertToEpub() (err error) {
 		fmt.Println(cmd.Args)
 	}
 	return cmd.Run()
+
+	//return filetil.CopyFile(filepath.Join(this.OutputPath, "content.epub"),filepath.Join(this.OutputPath, output, "book.epub"))
 }
 
 //转成mobi
 func (this *Converter) convertToMobi() (err error) {
 	args := []string{
-		filepath.Join(this.BasePath, "content.epub"),
-		filepath.Join(this.BasePath, output, "book.mobi"),
+		filepath.Join(this.OutputPath, "content.epub"),
+		filepath.Join(this.OutputPath, output, "book.mobi"),
 	}
 	cmd := exec.Command(ebookConvert, args...)
 	if this.Debug {
@@ -462,8 +464,8 @@ func (this *Converter) convertToMobi() (err error) {
 //转成pdf
 func (this *Converter) convertToPdf() (err error) {
 	args := []string{
-		filepath.Join(this.BasePath, "content.epub"),
-		filepath.Join(this.BasePath, output, "book.pdf"),
+		filepath.Join(this.OutputPath, "content.epub"),
+		filepath.Join(this.OutputPath, output, "book.pdf"),
 	}
 	//页面大小
 	if len(this.Config.PaperSize) > 0 {
@@ -484,16 +486,16 @@ func (this *Converter) convertToPdf() (err error) {
 		args = append(args, "--pdf-footer-template",this.Config.Footer)
 	}
 
-	if len(this.Config.MarginLeft) > 0 {
+	if strings.Count(this.Config.MarginLeft,"") > 0 {
 		args = append(args, "--pdf-page-margin-left", this.Config.MarginLeft)
 	}
-	if len(this.Config.MarginTop) > 0 {
+	if strings.Count(this.Config.MarginTop,"") > 0 {
 		args = append(args, "--pdf-page-margin-top", this.Config.MarginTop)
 	}
-	if len(this.Config.MarginRight) > 0 {
+	if strings.Count(this.Config.MarginRight,"") > 0 {
 		args = append(args, "--pdf-page-margin-right", this.Config.MarginRight)
 	}
-	if len(this.Config.MarginBottom) > 0 {
+	if strings.Count(this.Config.MarginBottom,"") > 0 {
 		args = append(args, "--pdf-page-margin-bottom", this.Config.MarginBottom)
 	}
 
@@ -513,8 +515,8 @@ func (this *Converter) convertToPdf() (err error) {
 // 转成word
 func (this *Converter) convertToDocx() (err error) {
 	args := []string{
-		this.BasePath + "/content.epub",
-		this.BasePath + "/" + output + "/book.docx",
+		filepath.Join(this.OutputPath , "content.epub"),
+		filepath.Join(this.OutputPath , output , "book.docx"),
 	}
 	args = append(args, "--docx-no-toc")
 

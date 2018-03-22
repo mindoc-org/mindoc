@@ -169,7 +169,8 @@ func (m *Member) Add() error {
 	hash, err := utils.PasswordHash(m.Password)
 
 	if err != nil {
-		return err
+		beego.Error("加密用户密码失败 =>",err)
+		return errors.New("加密用户密码失败")
 	}
 
 	m.Password = hash
@@ -179,7 +180,8 @@ func (m *Member) Add() error {
 	_, err = o.Insert(m)
 
 	if err != nil {
-		return err
+		beego.Error("保存用户数据到数据时失败 =>",err)
+		return errors.New("保存用户失败")
 	}
 	m.ResolveRoleName()
 	return nil
@@ -192,8 +194,12 @@ func (m *Member) Update(cols ...string) error {
 	if m.Email == "" {
 		return errors.New("邮箱不能为空")
 	}
+	if c, err := o.QueryTable(m.TableNameWithPrefix()).Filter("email", m.Email).Exclude("member_id",m.MemberId).Count(); err == nil && c > 0 {
+		return errors.New("邮箱已被使用")
+	}
 	if _, err := o.Update(m, cols...); err != nil {
-		return err
+		beego.Error("保存用户信息失败=>",err)
+		return errors.New("保存用户信息失败")
 	}
 	return nil
 }

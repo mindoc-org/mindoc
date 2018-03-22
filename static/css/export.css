@@ -1,0 +1,11 @@
+body{
+    margin: 5px auto;
+    padding: 5px 30px;
+}
+.article-title{
+    margin: 15px auto;
+    line-height: 35px;
+}
+.editormd-preview-container{
+    padding: 0 !important;
+}

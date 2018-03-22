@@ -19,6 +19,7 @@ import (
 	"github.com/lifei6671/mindoc/utils"
 	"gopkg.in/russross/blackfriday.v2"
 	"github.com/lifei6671/mindoc/utils/ziptil"
+	"github.com/lifei6671/mindoc/utils/filetil"
 )
 
 type BookResult struct {
@@ -189,6 +190,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	return m
 }
 
+//导出PDF、word等格式
 func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	convertBookResult := ConvertBookResult{}
@@ -202,7 +204,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	docxpath := filepath.Join(outputPath, "book.docx")
 
 	//先将转换的文件储存到临时目录
-	tempOutputPath :=  filepath.Join(os.TempDir(),sessionId) //filepath.Abs(filepath.Join("cache", sessionId))
+	tempOutputPath :=  filepath.Join(os.TempDir(),sessionId,m.Identify) //filepath.Abs(filepath.Join("cache", sessionId))
 
 	os.MkdirAll(outputPath, 0766)
 	os.MkdirAll(tempOutputPath, 0766)
@@ -332,17 +334,27 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 			f.Close()
 			return convertBookResult, err
 		}
-
-		// html = strings.Replace(html, "<img src=\"/uploads", "<img src=\"" + c.BaseUrl() + "/uploads", -1)
-
 		f.WriteString(html)
 		f.Close()
 	}
+
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","css","kancloud.css"),filepath.Join(tempOutputPath,"styles","css","kancloud.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","css","export.css"),filepath.Join(tempOutputPath,"styles","css","export.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","editor.md","css","editormd.preview.css"),filepath.Join(tempOutputPath,"styles","editor.md","css","editormd.preview.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","prettify","themes","prettify.css"),filepath.Join(tempOutputPath,"styles","prettify","themes","prettify.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","css,","markdown.preview.css"),filepath.Join(tempOutputPath,"styles","css","markdown.preview.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","highlight","styles","vs.css"),filepath.Join(tempOutputPath,"styles","highlight","styles","vs.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","katex","katex.min.css"),filepath.Join(tempOutputPath,"styles","katex","katex.min.css"))
+
+
 	eBookConverter := &converter.Converter{
 		BasePath: tempOutputPath,
+		OutputPath: strings.TrimSuffix(tempOutputPath,"sources"),
 		Config:   ebookConfig,
 		Debug:    true,
 	}
+
+
 
 	if err := eBookConverter.Convert(); err != nil {
 		beego.Error("转换文件错误：" + m.BookName + " => " + err.Error())

@@ -181,7 +181,6 @@ func (c *ManagerController) ChangeMemberRole() {
 	member.Role = role
 
 	if err := member.Update(); err != nil {
-		logs.Error("", err)
 		c.JsonResult(6003, "用户权限设置失败")
 	}
 	member.ResolveRoleName()
@@ -233,8 +232,7 @@ func (c *ManagerController) EditMember() {
 			member.Password = password
 		}
 		if err := member.Update(); err != nil {
-			beego.Error(err)
-			c.JsonResult(6004, "保存失败")
+			c.JsonResult(6004, err.Error())
 		}
 		c.JsonResult(0, "ok")
 	}

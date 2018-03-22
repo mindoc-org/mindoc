@@ -23,10 +23,10 @@
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     {{if eq .Model.Editor "markdown"}}
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/prettify/themes/prettify.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
     {{else}}
-    <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/highlight/styles/vs.css"}}" rel="stylesheet">
     {{end}}
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->

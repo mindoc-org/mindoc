@@ -178,7 +178,6 @@ func (c *AccountController) Register() {
 		member.Email = email
 		member.Status = 0
 		if err := member.Add(); err != nil {
-			beego.Error(err)
 			c.JsonResult(6006, "注册失败，请联系系统管理员处理")
 		}
 
