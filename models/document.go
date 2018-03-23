@@ -93,12 +93,20 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 	return nil
 }
 
-//根据指定字段查询一条文档.
-func (m *Document) FindByFieldFirst(field string, v interface{}) (*Document, error) {
-
+////根据指定字段查询一条文档.
+//func (m *Document) FindByFieldFirst(field string, v interface{}) (*Document, error) {
+//
+//	o := orm.NewOrm()
+//
+//	err := o.QueryTable(m.TableNameWithPrefix()).Filter(field, v).One(m)
+//
+//	return m, err
+//}
+//根据文档识别编号和项目id获取一篇文档
+func (m *Document) FindByIdentityFirst(identify string,bookId int) (*Document,error) {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter(field, v).One(m)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",bookId).Filter("identify", identify).One(m)
 
 	return m, err
 }
@@ -212,7 +220,7 @@ func (m *Document) PutToCache(){
 					beego.Info("文档缓存失败:", m.DocumentId)
 				}
 			}else{
-				if err := cache.Put("Document.Identify."+ m.Identify, v, time.Second*3600); err != nil {
+				if err := cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s",m.BookId , m.Identify), v, time.Second*3600); err != nil {
 					beego.Info("文档缓存失败:", m.DocumentId)
 				}
 			}
@@ -225,7 +233,7 @@ func (m *Document) RemoveCache() {
 		cache.Put("Document.Id." + strconv.Itoa(m.DocumentId), m, time.Second*3600);
 
 		if m.Identify != "" {
-			cache.Put("Document.Identify."+ m.Identify, m, time.Second*3600);
+			cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s",m.BookId , m.Identify), m, time.Second*3600);
 		}
 	}(*m)
 }
@@ -248,8 +256,8 @@ func (m *Document) FromCacheById(id int) (*Document,error) {
 	return m.Find(id)
 }
 //根据文档标识从缓存中查询文档
-func (m *Document) FromCacheByIdentify(identify string) (*Document,error) {
-	b := cache.Get("Document.Identify." + identify)
+func (m *Document) FromCacheByIdentify(identify string,bookId int) (*Document,error) {
+	b := cache.Get(fmt.Sprintf("Document.BookId.%d.Identify.%s",bookId , identify))
 	if v,ok := b.([]byte); ok {
 		if err := json.Unmarshal(v,m);err == nil{
 			beego.Info("从缓存中获取文档信息成功",m.DocumentId,identify)
@@ -261,7 +269,7 @@ func (m *Document) FromCacheByIdentify(identify string) (*Document,error) {
 			m.PutToCache()
 		}
 	}()
-	return m.FindByFieldFirst("identify",identify)
+	return m.FindByIdentityFirst(identify,bookId)
 }
 
 //根据项目ID查询文档列表.

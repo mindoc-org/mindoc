@@ -27,6 +27,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/pagination"
 	"gopkg.in/russross/blackfriday.v2"
 	"github.com/lifei6671/mindoc/utils/cryptil"
+	"fmt"
 )
 
 // DocumentController struct
@@ -107,18 +108,18 @@ func (c *DocumentController) Read() {
 
 	bookResult := isReadable(identify, token, c)
 
-	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
+	c.TplName = fmt.Sprintf("document/%s_read.tpl",bookResult.Theme)
 
 	doc := models.NewDocument()
 
-	if doc_id, err := strconv.Atoi(id); err == nil {
-		doc, err = doc.FromCacheById(doc_id)
+	if docId, err := strconv.Atoi(id); err == nil {
+		doc, err = doc.FromCacheById(docId)
 		if err != nil {
 			beego.Error(err)
 			c.Abort("500")
 		}
 	} else {
-		doc, err = doc.FromCacheByIdentify(id)
+		doc, err = doc.FromCacheByIdentify(id,bookResult.BookId)
 		if err != nil {
 			beego.Error(err)
 			c.Abort("500")
@@ -273,31 +274,21 @@ func (c *DocumentController) Edit() {
 // 创建一个文档
 func (c *DocumentController) Create() {
 	identify := c.GetString("identify")
-	doc_identify := c.GetString("doc_identify")
-	doc_name := c.GetString("doc_name")
-	parent_id, _ := c.GetInt("parent_id", 0)
-	doc_id, _ := c.GetInt("doc_id", 0)
+	docIdentify := c.GetString("doc_identify")
+	docName := c.GetString("doc_name")
+	parentId, _ := c.GetInt("parent_id", 0)
+	docId, _ := c.GetInt("doc_id", 0)
 
 	if identify == "" {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	if doc_name == "" {
+	if docName == "" {
 		c.JsonResult(6004, "文档名称不能为空")
 	}
 
-	if doc_identify != "" {
-		if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, doc_identify); !ok || err != nil {
-			c.JsonResult(6003, "文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号")
-		}
 
-		d, _ := models.NewDocument().FindByFieldFirst("identify", doc_identify)
-		if d.DocumentId > 0 && d.DocumentId != doc_id {
-			c.JsonResult(6006, "文档标识已被使用")
-		}
-	}
-
-	book_id := 0
+	bookId := 0
 
 	// 如果是超级管理员则不判断权限
 	if c.Member.IsAdministrator() {
@@ -307,7 +298,7 @@ func (c *DocumentController) Create() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
@@ -316,26 +307,36 @@ func (c *DocumentController) Create() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 	}
 
-	if parent_id > 0 {
-		doc, err := models.NewDocument().Find(parent_id)
-		if err != nil || doc.BookId != book_id {
+	if docIdentify != "" {
+		if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
+			c.JsonResult(6003, "文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号")
+		}
+
+		d, _ := models.NewDocument().FindByIdentityFirst(docIdentify,bookId)
+		if d.DocumentId > 0 && d.DocumentId != docId {
+			c.JsonResult(6006, "文档标识已被使用")
+		}
+	}
+	if parentId > 0 {
+		doc, err := models.NewDocument().Find(parentId)
+		if err != nil || doc.BookId != bookId {
 			c.JsonResult(6003, "父分类不存在")
 		}
 	}
 
-	document, _ := models.NewDocument().Find(doc_id)
+	document, _ := models.NewDocument().Find(docId)
 
 	document.MemberId = c.Member.MemberId
-	document.BookId = book_id
+	document.BookId = bookId
 
-	document.Identify = doc_identify
+	document.Identify = docIdentify
 
 	document.Version = time.Now().Unix()
-	document.DocumentName = doc_name
-	document.ParentId = parent_id
+	document.DocumentName = docName
+	document.ParentId = parentId
 
 	if err := document.InsertOrUpdate(); err != nil {
 		beego.Error("InsertOrUpdate => ", err)
@@ -967,7 +968,7 @@ func (c *DocumentController) History() {
 	c.TplName = "document/history.tpl"
 
 	identify := c.GetString("identify")
-	doc_id, err := c.GetInt("doc_id", 0)
+	docId, err := c.GetInt("doc_id", 0)
 	pageIndex, _ := c.GetInt("page", 1)
 
 	book_id := 0
@@ -995,12 +996,12 @@ func (c *DocumentController) History() {
 		c.Data["Model"] = bookResult
 	}
 
-	if doc_id <= 0 {
+	if docId <= 0 {
 		c.Data["ErrorMessage"] = "参数错误"
 		return
 	}
 
-	doc, err := models.NewDocument().Find(doc_id)
+	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
 		beego.Error("Delete => ", err)
 		c.Data["ErrorMessage"] = "获取历史失败"
@@ -1013,7 +1014,7 @@ func (c *DocumentController) History() {
 		return
 	}
 
-	historis, totalCount, err := models.NewDocumentHistory().FindToPager(doc_id, pageIndex, conf.PageSize)
+	historis, totalCount, err := models.NewDocumentHistory().FindToPager(docId, pageIndex, conf.PageSize)
 	if err != nil {
 		beego.Error("FindToPager => ", err)
 		c.Data["ErrorMessage"] = "获取历史失败"
@@ -1036,14 +1037,14 @@ func (c *DocumentController) DeleteHistory() {
 	c.TplName = "document/history.tpl"
 
 	identify := c.GetString("identify")
-	doc_id, err := c.GetInt("doc_id", 0)
-	history_id, _ := c.GetInt("history_id", 0)
+	docId, err := c.GetInt("doc_id", 0)
+	historyId, _ := c.GetInt("history_id", 0)
 
-	if history_id <= 0 {
+	if historyId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	book_id := 0
+	bookId := 0
 
 	// 如果是超级管理员则忽略权限判断
 	if c.Member.IsAdministrator() {
@@ -1053,7 +1054,7 @@ func (c *DocumentController) DeleteHistory() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
@@ -1061,25 +1062,25 @@ func (c *DocumentController) DeleteHistory() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 	}
 
-	if doc_id <= 0 {
+	if docId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	doc, err := models.NewDocument().Find(doc_id)
+	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
 		beego.Error("Delete => ", err)
 		c.JsonResult(6001, "获取历史失败")
 	}
 
 	// 如果文档所属项目错误
-	if doc.BookId != book_id {
+	if doc.BookId != bookId {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	err = models.NewDocumentHistory().Delete(history_id, doc_id)
+	err = models.NewDocumentHistory().Delete(historyId, docId)
 	if err != nil {
 		beego.Error(err)
 		c.JsonResult(6002, "删除失败")
@@ -1094,14 +1095,14 @@ func (c *DocumentController) RestoreHistory() {
 	c.TplName = "document/history.tpl"
 
 	identify := c.GetString("identify")
-	doc_id, err := c.GetInt("doc_id", 0)
-	history_id, _ := c.GetInt("history_id", 0)
+	docId, err := c.GetInt("doc_id", 0)
+	historyId, _ := c.GetInt("history_id", 0)
 
-	if history_id <= 0 {
+	if historyId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	book_id := 0
+	bookId := 0
 	// 如果是超级管理员则忽略权限判断
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
@@ -1110,7 +1111,7 @@ func (c *DocumentController) RestoreHistory() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
@@ -1118,25 +1119,25 @@ func (c *DocumentController) RestoreHistory() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 	}
 
-	if doc_id <= 0 {
+	if docId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	doc, err := models.NewDocument().Find(doc_id)
+	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
 		beego.Error("Delete => ", err)
 		c.JsonResult(6001, "获取历史失败")
 	}
 
 	// 如果文档所属项目错误
-	if doc.BookId != book_id {
+	if doc.BookId != bookId {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	err = models.NewDocumentHistory().Restore(history_id, doc_id, c.Member.MemberId)
+	err = models.NewDocumentHistory().Restore(historyId, docId, c.Member.MemberId)
 	if err != nil {
 		beego.Error(err)
 		c.JsonResult(6002, "删除失败")
@@ -1150,10 +1151,10 @@ func (c *DocumentController) Compare() {
 
 	c.TplName = "document/compare.tpl"
 
-	history_id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	historyId, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 	identify := c.Ctx.Input.Param(":key")
 
-	book_id := 0
+	bookId := 0
 	editor := "markdown"
 
 	// 如果是超级管理员则忽略权限判断
@@ -1165,7 +1166,7 @@ func (c *DocumentController) Compare() {
 			return
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 		c.Data["Model"] = book
 		editor = book.Editor
 	} else {
@@ -1176,27 +1177,27 @@ func (c *DocumentController) Compare() {
 			return
 		}
 
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 		c.Data["Model"] = bookResult
 		editor = bookResult.Editor
 	}
 
-	if history_id <= 0 {
+	if historyId <= 0 {
 		c.ShowErrorPage(60002, "参数错误")
 	}
 
-	history, err := models.NewDocumentHistory().Find(history_id)
+	history, err := models.NewDocumentHistory().Find(historyId)
 	if err != nil {
 		beego.Error("DocumentController.Compare => ", err)
 		c.ShowErrorPage(60003, err.Error())
 	}
 
 	doc, err := models.NewDocument().Find(history.DocumentId)
-	if doc.BookId != book_id {
+	if doc.BookId != bookId {
 		c.ShowErrorPage(60002, "参数错误")
 	}
 
-	c.Data["HistoryId"] = history_id
+	c.Data["HistoryId"] = historyId
 	c.Data["DocumentId"] = doc.DocumentId
 
 	if editor == "markdown" {
@@ -1209,9 +1210,9 @@ func (c *DocumentController) Compare() {
 }
 
 // 递归生成文档序列数组
-func RecursiveFun(parent_id int, prefix, dpath string, c *DocumentController, book *models.BookResult, docs []*models.Document, paths *list.List) {
+func RecursiveFun(parentId int, prefix, dpath string, c *DocumentController, book *models.BookResult, docs []*models.Document, paths *list.List) {
 	for _, item := range docs {
-		if item.ParentId == parent_id {
+		if item.ParentId == parentId {
 			EachFun(prefix, dpath, c, book, item, paths)
 
 			for _, sub := range docs {
