@@ -76,7 +76,7 @@
                     </div>
                     <div class="form-group">
                         <label>上传时间</label>
-                        <input type="text" value="{{date .Model.CreateTime "Y-m-d H:i:s"}}" class="form-control input-readonly" readonly placeholder="文件路径">
+                        <input type="text" value="{{date_format .Model.CreateTime "2006-01-02 15:04:05"}}" class="form-control input-readonly" readonly placeholder="文件路径">
                     </div>
                     <div class="form-group">
                         <label>用户账号</label>
@@ -100,7 +100,7 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 
 </body>
 </html>

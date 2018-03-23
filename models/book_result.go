@@ -51,6 +51,7 @@ type BookResult struct {
 	RoleName       string `json:"role_name"`
 	Status         int		`json:"status"`
 	IsEnableShare  bool 	`json:"is_enable_share"`
+	IsUseFirstDocument bool	 `json:"is_use_first_document"`
 
 	LastModifyText   string `json:"last_modify_text"`
 	IsDisplayComment bool   `json:"is_display_comment"`
@@ -168,8 +169,8 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.DocCount = book.DocCount
 	m.CommentStatus = book.CommentStatus
 	m.CommentCount = book.CommentCount
-	m.CreateTime = book.CreateTime.Local()
-	m.ModifyTime = book.ModifyTime.Local()
+	m.CreateTime = book.CreateTime
+	m.ModifyTime = book.ModifyTime
 	m.Cover = book.Cover
 	m.Label = book.Label
 	m.Status = book.Status
@@ -177,6 +178,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.Theme = book.Theme
 	m.AutoRelease = book.AutoRelease == 1
 	m.IsEnableShare = book.IsEnableShare == 0
+	m.IsUseFirstDocument = book.IsUseFirstDocument == 1
 	m.Publisher = book.Publisher
 	m.HistoryCount = book.HistoryCount
 	m.IsDownload = book.IsDownload == 0
@@ -465,8 +467,17 @@ func exportMarkdown(p string,parentId int,bookId int) (error){
 	return nil
 }
 
+//查询项目的第一篇文档
+func (m *BookResult) FindFirstDocumentByBookId(bookId int) (*Document,error) {
 
+	o := orm.NewOrm()
 
+	doc := NewDocument()
+
+	err := o.QueryTable(doc.TableNameWithPrefix()).Filter("book_id", bookId).Filter("parent_id",0).OrderBy("order_sort").One(doc)
+
+	return doc,err
+}
 
 
 

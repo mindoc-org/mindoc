@@ -73,11 +73,11 @@
                             </div>
                             <div class="list">
                                 <span class="title">创建时间：</span>
-                                <span class="body"> {{dateformat .Model.CreateTime "2006-01-02 15:04:05"}} </span>
+                                <span class="body"> {{date_format .Model.CreateTime "2006-01-02 15:04:05"}} </span>
                             </div>
                             <div class="list">
                                 <span class="title">修改时间：</span>
-                                <span class="body"> {{dateformat .Model.CreateTime "2006-01-02 15:04:05"}} </span>
+                                <span class="body"> {{date_format .Model.CreateTime "2006-01-02 15:04:05"}} </span>
                             </div>
                         <div class="list">
                             <span class="title">担任角色：</span>

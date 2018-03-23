@@ -142,7 +142,7 @@
                     <label for="autoRelease">开启导出</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
-                            <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small">
+                            <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small" placeholder="开启导出">
                         </div>
                     </div>
                 </div>
@@ -150,7 +150,15 @@
                     <label for="autoRelease">开启分享</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
-                            <input type="checkbox" id="enableShare" name="enable_share"{{if .Model.IsEnableShare }} checked{{end}} data-size="small">
+                            <input type="checkbox" id="enableShare" name="enable_share"{{if .Model.IsEnableShare }} checked{{end}} data-size="small" placeholder="开启分享">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="autoRelease">设置第一篇文档为默认首页</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="is_use_first_document" name="is_use_first_document"{{if .Model.IsUseFirstDocument }} checked{{end}} data-size="small" placeholder="设置第一篇文档为默认首页">
                         </div>
                     </div>
                 </div>
@@ -317,7 +325,7 @@
         }).on("show.bs.modal",function () {
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
         });
-        $("#autoRelease,#enableShare,#isDownload").bootstrapSwitch();
+        $("#autoRelease,#enableShare,#isDownload,#is_use_first_document").bootstrapSwitch();
 
         $('input[name="label"]').tagsinput({
             confirmKeys: [13,44],

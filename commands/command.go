@@ -173,6 +173,9 @@ func RegisterFunction() {
 	beego.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
 	//重写url生成，支持配置域名以及域名前缀
 	beego.AddFuncMap("urlfor", conf.URLFor)
+	beego.AddFuncMap("date_format", func(t time.Time,format string) string {
+		return t.Local().Format(format)
+	})
 }
 
 //解析命令

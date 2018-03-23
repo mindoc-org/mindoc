@@ -87,7 +87,7 @@
                                 </div>
                                 <div class="info">
                                 <span title="创建时间" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-clock-o"></i>
-                                    {{dateformat $item.CreateTime "2006-01-02 15:04:05"}}
+                                    {{date_format $item.CreateTime "2006-01-02 15:04:05"}}
 
                                 </span>
                                     <span title="创建者" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user"></i> {{if eq $item.RealName "" }}{{$item.CreateName}}{{else}}{{$item.RealName}}{{end}}</span>

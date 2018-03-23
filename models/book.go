@@ -56,6 +56,8 @@ type Book struct {
 	MemberId   int       `orm:"column(member_id);size(100)" json:"member_id"`
 	ModifyTime time.Time `orm:"type(datetime);column(modify_time);null;auto_now" json:"modify_time"`
 	Version    int64     `orm:"type(bigint);column(version)" json:"version"`
+	//是否使用第一篇文章项目为默认首页,0 否/1 是
+	IsUseFirstDocument int `orm:"column(is_use_first_document);type(int);default(0)" json:"is_use_first_document"`
 }
 
 // TableName 获取对应数据库表名.

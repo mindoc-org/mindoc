@@ -34,81 +34,6 @@ type DocumentController struct {
 	BaseController
 }
 
-// 判断用户是否可以阅读文档
-func isReadable(identify, token string, c *DocumentController) *models.BookResult {
-	book, err := models.NewBook().FindByFieldFirst("identify", identify)
-
-	if err != nil {
-		beego.Error(err)
-		c.Abort("500")
-	}
-
-	// 如果文档是私有的
-	if book.PrivatelyOwned == 1 && !c.Member.IsAdministrator() {
-		is_ok := false
-
-		if c.Member != nil {
-			_, err := models.NewRelationship().FindForRoleId(book.BookId, c.Member.MemberId)
-			if err == nil {
-				is_ok = true
-			}
-		}
-
-		if book.PrivateToken != "" && !is_ok {
-			// 如果有访问的 Token，并且该项目设置了访问 Token，并且和用户提供的相匹配，则记录到 Session 中。
-			// 如果用户未提供 Token 且用户登录了，则判断用户是否参与了该项目。
-			// 如果用户未登录，则从 Session 中读取 Token。
-			if token != "" && strings.EqualFold(token, book.PrivateToken) {
-				c.SetSession(identify, token)
-			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
-				c.Abort("403")
-			}
-		} else if !is_ok {
-			c.Abort("403")
-		}
-	}
-
-	bookResult := models.NewBookResult().ToBookResult(*book)
-
-	if c.Member != nil {
-		rel, err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId, c.Member.MemberId)
-
-		if err == nil {
-			bookResult.MemberId = rel.MemberId
-			bookResult.RoleId = rel.RoleId
-			bookResult.RelationshipId = rel.RelationshipId
-		}
-	}
-
-	// 判断是否需要显示评论框
-	if bookResult.CommentStatus == "closed" {
-		bookResult.IsDisplayComment = false
-	} else if bookResult.CommentStatus == "open" {
-		bookResult.IsDisplayComment = true
-	} else if bookResult.CommentStatus == "group_only" {
-		bookResult.IsDisplayComment = bookResult.RelationshipId > 0
-	} else if bookResult.CommentStatus == "registered_only" {
-		bookResult.IsDisplayComment = true
-	}
-
-	return bookResult
-}
-
-func isUserLoggedIn(c *DocumentController) bool {
-	return c.Member != nil && c.Member.MemberId > 0
-}
-
-func promptUserToLogIn(c *DocumentController) {
-	beego.Info("Access " + c.Ctx.Request.URL.RequestURI() + " not permitted.")
-	beego.Info("  Access will be redirected to login page(SessionId: " + c.CruSession.SessionID() + ").")
-
-	if c.IsAjax() {
-		c.JsonResult(6000, "请重新登录。")
-	} else {
-		c.Redirect(conf.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
-	}
-}
-
 // 文档首页
 func (c *DocumentController) Index() {
 	c.Prepare()
@@ -130,7 +55,25 @@ func (c *DocumentController) Index() {
 
 	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
 
-	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, 0)
+	selected := 0
+
+	if bookResult.IsUseFirstDocument {
+		doc,err := bookResult.FindFirstDocumentByBookId(bookResult.BookId)
+		if err == nil {
+			if strings.TrimSpace(doc.Release) != "" {
+				doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + "</div>";
+			}
+			selected = doc.DocumentId
+			c.Data["Title"] = doc.DocumentName
+			c.Data["Content"] = template.HTML(doc.Release)
+
+		}
+	}else {
+		c.Data["Title"] = "概要"
+		c.Data["Content"] = template.HTML(blackfriday.Run([]byte(bookResult.Description)))
+	}
+
+	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, selected)
 
 	if err != nil {
 		beego.Error(err)
@@ -139,8 +82,7 @@ func (c *DocumentController) Index() {
 
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
-	c.Data["Title"] = "概要"
-	c.Data["Content"] = template.HTML(blackfriday.Run([]byte(bookResult.Description)))
+
 }
 
 // 阅读文档
@@ -1320,4 +1262,80 @@ func EachFun(prefix, dpath string, c *DocumentController, book *models.BookResul
 
 	f.WriteString(html)
 	f.Close()
+}
+
+
+// 判断用户是否可以阅读文档
+func isReadable(identify, token string, c *DocumentController) *models.BookResult {
+	book, err := models.NewBook().FindByFieldFirst("identify", identify)
+
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
+
+	// 如果文档是私有的
+	if book.PrivatelyOwned == 1 && !c.Member.IsAdministrator() {
+		is_ok := false
+
+		if c.Member != nil {
+			_, err := models.NewRelationship().FindForRoleId(book.BookId, c.Member.MemberId)
+			if err == nil {
+				is_ok = true
+			}
+		}
+
+		if book.PrivateToken != "" && !is_ok {
+			// 如果有访问的 Token，并且该项目设置了访问 Token，并且和用户提供的相匹配，则记录到 Session 中。
+			// 如果用户未提供 Token 且用户登录了，则判断用户是否参与了该项目。
+			// 如果用户未登录，则从 Session 中读取 Token。
+			if token != "" && strings.EqualFold(token, book.PrivateToken) {
+				c.SetSession(identify, token)
+			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
+				c.Abort("403")
+			}
+		} else if !is_ok {
+			c.Abort("403")
+		}
+	}
+
+	bookResult := models.NewBookResult().ToBookResult(*book)
+
+	if c.Member != nil {
+		rel, err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId, c.Member.MemberId)
+
+		if err == nil {
+			bookResult.MemberId = rel.MemberId
+			bookResult.RoleId = rel.RoleId
+			bookResult.RelationshipId = rel.RelationshipId
+		}
+	}
+
+	// 判断是否需要显示评论框
+	if bookResult.CommentStatus == "closed" {
+		bookResult.IsDisplayComment = false
+	} else if bookResult.CommentStatus == "open" {
+		bookResult.IsDisplayComment = true
+	} else if bookResult.CommentStatus == "group_only" {
+		bookResult.IsDisplayComment = bookResult.RelationshipId > 0
+	} else if bookResult.CommentStatus == "registered_only" {
+		bookResult.IsDisplayComment = true
+	}
+
+	return bookResult
+}
+
+func isUserLoggedIn(c *DocumentController) bool {
+	return c.Member != nil && c.Member.MemberId > 0
+}
+
+func promptUserToLogIn(c *DocumentController) {
+	beego.Info("Access " + c.Ctx.Request.URL.RequestURI() + " not permitted.")
+	beego.Info("  Access will be redirected to login page(SessionId: " + c.CruSession.SessionID() + ").")
+
+	if c.IsAjax() {
+		c.JsonResult(6000, "请重新登录。")
+	} else {
+		c.Redirect(conf.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
+	}
 }
