@@ -326,6 +326,12 @@ func (c *ManagerController) EditBook() {
 		commentStatus := c.GetString("comment_status")
 		tag := strings.TrimSpace(c.GetString("label"))
 		orderIndex, _ := c.GetInt("order_index", 0)
+		isDownload := strings.TrimSpace(c.GetString("is_download")) == "on"
+		enableShare := strings.TrimSpace(c.GetString("enable_share")) == "on"
+		isUseFirstDocument :=  strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
+		autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
+		publisher := strings.TrimSpace(c.GetString("publisher"))
+		historyCount,_ := c.GetInt("history_count",0)
 
 		if strings.Count(description, "") > 500 {
 			c.JsonResult(6004, "项目描述不能大于500字")
@@ -339,12 +345,34 @@ func (c *ManagerController) EditBook() {
 				c.JsonResult(6005, "最多允许添加10个标签")
 			}
 		}
-
+		book.Publisher = publisher
+		book.HistoryCount = historyCount
 		book.BookName = bookName
 		book.Description = description
 		book.CommentStatus = commentStatus
 		book.Label = tag
 		book.OrderIndex = orderIndex
+
+		if autoRelease {
+			book.AutoRelease = 1
+		} else {
+			book.AutoRelease = 0
+		}
+		if isDownload {
+			book.IsDownload = 0
+		}else{
+			book.IsDownload = 1
+		}
+		if enableShare {
+			book.IsEnableShare = 0
+		}else{
+			book.IsEnableShare = 1
+		}
+		if isUseFirstDocument {
+			book.IsUseFirstDocument = 1
+		}else{
+			book.IsUseFirstDocument = 0
+		}
 
 		if err := book.Update(); err != nil {
 			c.JsonResult(6006, "保存失败")
@@ -354,7 +382,10 @@ func (c *ManagerController) EditBook() {
 	if book.PrivateToken != "" {
 		book.PrivateToken = conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
 	}
-	c.Data["Model"] = book
+	bookResult := models.NewBookResult()
+	bookResult.ToBookResult(*book)
+
+	c.Data["Model"] = bookResult
 }
 
 // 删除项目.
