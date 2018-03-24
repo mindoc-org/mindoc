@@ -72,16 +72,16 @@ type Book struct {
 }
 
 // TableName 获取对应数据库表名.
-func (m *Book) TableName() string {
+func (book *Book) TableName() string {
 	return "books"
 }
 
 // TableEngine 获取数据使用的引擎.
-func (m *Book) TableEngine() string {
+func (book *Book) TableEngine() string {
 	return "INNODB"
 }
-func (m *Book) TableNameWithPrefix() string {
-	return conf.GetDatabasePrefix() + m.TableName()
+func (book *Book) TableNameWithPrefix() string {
+	return conf.GetDatabasePrefix() + book.TableName()
 }
 
 func NewBook() *Book {
@@ -89,21 +89,21 @@ func NewBook() *Book {
 }
 
 //添加一个项目
-func (m *Book) Insert() error {
+func (book *Book) Insert() error {
 	o := orm.NewOrm()
 	//	o.Begin()
 
-	_, err := o.Insert(m)
+	_, err := o.Insert(book)
 
 	if err == nil {
-		if m.Label != "" {
-			NewLabel().InsertOrUpdateMulti(m.Label)
+		if book.Label != "" {
+			NewLabel().InsertOrUpdateMulti(book.Label)
 		}
 
 		relationship := NewRelationship()
-		relationship.BookId = m.BookId
+		relationship.BookId = book.BookId
 		relationship.RoleId = 0
-		relationship.MemberId = m.MemberId
+		relationship.MemberId = book.MemberId
 		err = relationship.Insert()
 		if err != nil {
 			logs.Error("插入项目与用户关联 => ", err)
@@ -111,9 +111,9 @@ func (m *Book) Insert() error {
 			return err
 		}
 		document := NewDocument()
-		document.BookId = m.BookId
+		document.BookId = book.BookId
 		document.DocumentName = "空白文档"
-		document.MemberId = m.MemberId
+		document.MemberId = book.MemberId
 		err = document.InsertOrUpdate()
 		if err != nil {
 			//o.Rollback()
@@ -126,73 +126,73 @@ func (m *Book) Insert() error {
 	return err
 }
 
-func (m *Book) Find(id int) (*Book, error) {
+func (book *Book) Find(id int) (*Book, error) {
 	if id <= 0 {
-		return m, ErrInvalidParameter
+		return book, ErrInvalidParameter
 	}
 	o := orm.NewOrm()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", id).One(m)
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", id).One(book)
 
-	return m, err
+	return book, err
 }
 //更新一个项目
-func (m *Book) Update(cols ...string) error {
+func (book *Book) Update(cols ...string) error {
 	o := orm.NewOrm()
 
 	temp := NewBook()
-	temp.BookId = m.BookId
+	temp.BookId = book.BookId
 
 	if err := o.Read(temp); err != nil {
 		return err
 	}
 
-	if m.Label != "" || temp.Label != ""{
+	if book.Label != "" || temp.Label != ""{
 
-		go NewLabel().InsertOrUpdateMulti(m.Label + "," + temp.Label)
+		go NewLabel().InsertOrUpdateMulti(book.Label + "," + temp.Label)
 	}
 
-	_, err := o.Update(m, cols...)
+	_, err := o.Update(book, cols...)
 	return err
 }
 
 //根据指定字段查询结果集.
-func (m *Book) FindByField(field string, value interface{}) ([]*Book, error) {
+func (book *Book) FindByField(field string, value interface{}) ([]*Book, error) {
 	o := orm.NewOrm()
 
 	var books []*Book
-	_, err := o.QueryTable(m.TableNameWithPrefix()).Filter(field, value).All(&books)
+	_, err := o.QueryTable(book.TableNameWithPrefix()).Filter(field, value).All(&books)
 
 	return books, err
 }
 
 //根据指定字段查询一个结果.
-func (m *Book) FindByFieldFirst(field string, value interface{}) (*Book, error) {
+func (book *Book) FindByFieldFirst(field string, value interface{}) (*Book, error) {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter(field, value).One(m)
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter(field, value).One(book)
 
-	return m, err
+	return book, err
 
 }
 
 //根据项目标识查询项目
-func (m *Book) FindByIdentify(identify string) (*Book, error) {
+func (book *Book) FindByIdentify(identify string) (*Book, error) {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("identify", identify).One(m)
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify", identify).One(book)
 
-	return m, err
+	return book, err
 }
 
 //分页查询指定用户的项目
-func (m *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
+func (book *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
 
 	relationship := NewRelationship()
 
 	o := orm.NewOrm()
 
-	sql1 := "SELECT COUNT(book.book_id) AS total_count FROM " + m.TableNameWithPrefix() + " AS book LEFT JOIN " +
+	sql1 := "SELECT COUNT(book.book_id) AS total_count FROM " + book.TableNameWithPrefix() + " AS book LEFT JOIN " +
 		relationship.TableNameWithPrefix() + " AS rel ON book.book_id=rel.book_id AND rel.member_id = ? WHERE rel.relationship_id > 0 "
 
 	err = o.Raw(sql1, memberId).QueryRow(&totalCount)
@@ -203,7 +203,7 @@ func (m *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResu
 
 	offset := (pageIndex - 1) * pageSize
 
-	sql2 := "SELECT book.*,rel.member_id,rel.role_id,m.account as create_name FROM " + m.TableNameWithPrefix() + " AS book" +
+	sql2 := "SELECT book.*,rel.member_id,rel.role_id,m.account as create_name FROM " + book.TableNameWithPrefix() + " AS book" +
 		" LEFT JOIN " + relationship.TableNameWithPrefix() + " AS rel ON book.book_id=rel.book_id AND rel.member_id = ?" +
 		" LEFT JOIN " + relationship.TableNameWithPrefix() + " AS rel1 ON book.book_id=rel1.book_id  AND rel1.role_id=0" +
 		" LEFT JOIN " + NewMember().TableNameWithPrefix() + " AS m ON rel1.member_id=m.member_id " +
@@ -242,13 +242,13 @@ func (m *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResu
 }
 
 // 彻底删除项目.
-func (m *Book) ThoroughDeleteBook(id int) error {
+func (book *Book) ThoroughDeleteBook(id int) error {
 	if id <= 0 {
 		return ErrInvalidParameter
 	}
 	o := orm.NewOrm()
 
-	m,err := m.Find(id);
+	book,err := book.Find(id);
 	if err != nil {
 		return err
 	}
@@ -256,15 +256,15 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 
 	sql2 := "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_, err = o.Raw(sql2, m.BookId).Exec()
+	_, err = o.Raw(sql2, book.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
 		return err
 	}
-	sql3 := "DELETE FROM " + m.TableNameWithPrefix() + " WHERE book_id = ?"
+	sql3 := "DELETE FROM " + book.TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_, err = o.Raw(sql3, m.BookId).Exec()
+	_, err = o.Raw(sql3, book.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
@@ -272,15 +272,15 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 	}
 	sql4 := "DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_, err = o.Raw(sql4, m.BookId).Exec()
+	_, err = o.Raw(sql4, book.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
 		return err
 	}
 
-	if m.Label != "" {
-		NewLabel().InsertOrUpdateMulti(m.Label)
+	if book.Label != "" {
+		NewLabel().InsertOrUpdateMulti(book.Label)
 	}
 
 	os.RemoveAll(filepath.Join(conf.WorkingDirectory,"uploads","books",strconv.Itoa(id)))
@@ -290,7 +290,7 @@ func (m *Book) ThoroughDeleteBook(id int) error {
 }
 
 //分页查找系统首页数据.
-func (m *Book) FindForHomeToPager(pageIndex, pageSize, member_id int) (books []*BookResult, totalCount int, err error) {
+func (book *Book) FindForHomeToPager(pageIndex, pageSize, member_id int) (books []*BookResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
 	offset := (pageIndex - 1) * pageSize
@@ -311,7 +311,7 @@ func (m *Book) FindForHomeToPager(pageIndex, pageSize, member_id int) (books []*
 		_, err = o.Raw(sql2, member_id, offset, pageSize).QueryRows(&books)
 
 	} else {
-		count, err1 := o.QueryTable(m.TableNameWithPrefix()).Filter("privately_owned", 0).Count()
+		count, err1 := o.QueryTable(book.TableNameWithPrefix()).Filter("privately_owned", 0).Count()
 
 		if err1 != nil {
 			err = err1
@@ -333,7 +333,7 @@ func (m *Book) FindForHomeToPager(pageIndex, pageSize, member_id int) (books []*
 }
 
 //分页全局搜索.
-func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
+func (book *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
 	keyword = "%" + keyword + "%"
@@ -378,7 +378,7 @@ func (m *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, memberId
 }
 
 //重置文档数量
-func (m *Book) ResetDocumentNumber(bookId int) {
+func (book *Book) ResetDocumentNumber(bookId int) {
 	o := orm.NewOrm()
 
 	totalCount, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).Count()
@@ -398,7 +398,7 @@ func (book *Book)ImportBook(zipPath string) error {
 	w := md5.New()
 	io.WriteString(w, zipPath)                    //将str写入到w中
 	io.WriteString(w, time.Now().String())
-	io.WriteString(w,book.BookName)
+	io.WriteString(w, book.BookName)
 	md5str := fmt.Sprintf("%x", w.Sum(nil)) //w.Sum(nil)将w的hash转成[]byte格式
 
 	tempPath := strings.Replace(filepath.Join(os.TempDir(), md5str),"\\","/",-1)
@@ -409,6 +409,9 @@ func (book *Book)ImportBook(zipPath string) error {
 		return err
 	}
 
+	docMap := make(map[string]int,0)
+
+	book.Insert()
 
 	err := filepath.Walk(tempPath, func(path string, info os.FileInfo, err error) error {
 		path = strings.Replace(path,"\\","/",-1)
@@ -417,9 +420,11 @@ func (book *Book)ImportBook(zipPath string) error {
 		}
 		if !info.IsDir() {
 			ext := filepath.Ext(info.Name())
+			//如果是Markdown文件
 			if strings.EqualFold(ext ,".md") || strings.EqualFold(ext , ".markdown" ) {
 				doc := NewDocument()
 				doc.BookId = book.BookId
+				doc.MemberId = book.MemberId
 				docIdentify := strings.Replace(strings.TrimPrefix(path, tempPath+"/"), "/", "-", -1)
 
 				if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
@@ -427,7 +432,7 @@ func (book *Book)ImportBook(zipPath string) error {
 				}
 
 				doc.Identify = docIdentify
-
+				//匹配图片，如果图片语法是在代码块中，这里同样会处理
 				re := regexp.MustCompile(`!\[(.*?)\]\((.*?)\)`)
 				markdown, err := ioutil.ReadFile(path);
 				if err != nil {
@@ -439,8 +444,8 @@ func (book *Book)ImportBook(zipPath string) error {
 					if len(images) <= 0 || len(images[0]) < 3 {
 						return image
 					}
-					originalImageUrl :=  string(images[0][2])
-					imageUrl := strings.Replace(string(originalImageUrl),"\\","/",-1)
+					originalImageUrl := string(images[0][2])
+					imageUrl := strings.Replace(string(originalImageUrl), "\\", "/", -1)
 
 					//如果是本地路径，则需要将图片复制到项目目录
 					if !strings.HasPrefix(imageUrl, "http://") && !strings.HasPrefix(imageUrl, "https://") {
@@ -453,60 +458,111 @@ func (book *Book)ImportBook(zipPath string) error {
 						} else {
 							imageUrl = filepath.Join(filepath.Dir(path), imageUrl)
 						}
-						imageUrl = strings.Replace(imageUrl,"\\","/",-1)
-						dstFile := filepath.Join(conf.WorkingDirectory,"uploads",time.Now().Format("200601"),strings.TrimPrefix(imageUrl,tempPath))
+						imageUrl = strings.Replace(imageUrl, "\\", "/", -1)
+						dstFile := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"), strings.TrimPrefix(imageUrl, tempPath))
 
 						if filetil.FileExists(imageUrl) {
-							filetil.CopyFile(imageUrl,dstFile)
+							filetil.CopyFile(imageUrl, dstFile)
 
-							imageUrl = strings.TrimPrefix(dstFile,conf.WorkingDirectory)
+							imageUrl = strings.TrimPrefix(dstFile, conf.WorkingDirectory)
 
-							if !strings.HasPrefix(imageUrl,"/") && !strings.HasPrefix(imageUrl,"\\"){
+							if !strings.HasPrefix(imageUrl, "/") && !strings.HasPrefix(imageUrl, "\\") {
 								imageUrl = "/" + imageUrl
 							}
 						}
 
-					}else{
+					} else {
 						imageExt := cryptil.Md5Crypt(imageUrl) + filepath.Ext(imageUrl)
 
-						dstFile := filepath.Join(conf.WorkingDirectory,"uploads",time.Now().Format("200601"),imageExt)
+						dstFile := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"), imageExt)
 
-						if err := requests.DownloadAndSaveFile(imageUrl,dstFile) ;err == nil {
-							imageUrl =  strings.TrimPrefix(strings.Replace(dstFile,"\\","/",-1),strings.Replace(conf.WorkingDirectory,"\\","/",-1))
-							if !strings.HasPrefix(imageUrl,"/") && !strings.HasPrefix(imageUrl,"\\"){
+						if err := requests.DownloadAndSaveFile(imageUrl, dstFile); err == nil {
+							imageUrl = strings.TrimPrefix(strings.Replace(dstFile, "\\", "/", -1), strings.Replace(conf.WorkingDirectory, "\\", "/", -1))
+							if !strings.HasPrefix(imageUrl, "/") && !strings.HasPrefix(imageUrl, "\\") {
 								imageUrl = "/" + imageUrl
 							}
 						}
 					}
 
-					imageUrl = strings.Replace(strings.TrimSuffix(image,originalImageUrl + ")") + imageUrl + ")","\\","/",-1)
-					beego.Info(imageUrl)
+					imageUrl = strings.Replace(strings.TrimSuffix(image, originalImageUrl+")")+imageUrl+")", "\\", "/", -1)
 					return imageUrl
 				})
 				doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
 				doc.Release = doc.Content
+				doc.Version = time.Now().Unix()
 
-				//beego.Info(content)
-				//images := re.FindAllSubmatch(markdown,-1);
-				//
-				//for _,image := range images {
-				//	originalImageUrl :=  string(image[1])
-				//	imageUrl := string(originalImageUrl)
-				//
-				//	if !strings.HasPrefix(imageUrl,"http://") && !strings.HasPrefix(imageUrl,"https://") {
-				//		if strings.HasPrefix(imageUrl, "/") {
-				//			imageUrl = filepath.Join(tempPath, imageUrl)
-				//		} else if strings.HasPrefix(imageUrl, "./") {
-				//			imageUrl = filepath.Join(filepath.Dir(path), strings.TrimPrefix(imageUrl, "./"))
-				//		} else if strings.HasPrefix(imageUrl, "../") {
-				//			imageUrl = filepath.Join(filepath.Dir(path), imageUrl)
-				//		}else{
-				//			imageUrl = filepath.Join(filepath.Dir(path), imageUrl)
-				//		}
-				//
-				//	}
-				//	beego.Info(imageUrl)
-				//}
+				//解析文档名称，默认使用第一个h标签为标题
+				docName := strings.TrimSuffix(info.Name(), ext)
+
+				for _, line := range strings.Split(doc.Markdown, "\n") {
+					if strings.HasPrefix(line, "#") {
+						docName = strings.TrimLeft(line, "#")
+						break
+					}
+				}
+
+				doc.DocumentName = docName
+
+				parentId := 0
+
+				parentIdentify := strings.Replace(strings.Trim(strings.TrimSuffix(strings.TrimPrefix(path, tempPath), info.Name()), "/"), "/", "-", -1)
+
+				if parentIdentify != "" {
+					if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, parentIdentify); !ok || err != nil {
+						parentIdentify = "import-" + parentIdentify
+					}
+					if id, ok := docMap[parentIdentify]; ok {
+						parentId = id
+					}
+				}
+				isInsert := false
+				//如果当前文件是README.md，则将内容更新到父级
+				if strings.EqualFold(info.Name(), "README.md") && parentId != 0{
+					doc.DocumentId = parentId
+					beego.Info(path,"|",parentId)
+				} else {
+					doc.ParentId = parentId
+					isInsert = true
+				}
+				if err := doc.InsertOrUpdate("document_name","markdown","release","content");err != nil {
+					beego.Error(doc.DocumentId,err)
+				}
+				if isInsert {
+					docMap[docIdentify] = doc.DocumentId
+				}
+			}
+		}else{
+			//如果当前目录下存在Markdown文件，则需要创建此节点
+			if filetil.HasFileOfExt(path,[]string{".md",".markdown"}) {
+
+				identify := strings.Replace(strings.Trim(strings.TrimPrefix(path,tempPath),"/"),"/","-",-1)
+				if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, identify); !ok || err != nil {
+					identify = "import-" + identify
+				}
+				parentDoc := NewDocument()
+
+				parentDoc.MemberId = book.MemberId
+				parentDoc.BookId = book.BookId
+				parentDoc.Identify = identify
+				parentDoc.Version = time.Now().Unix()
+				parentDoc.DocumentName = "空白文档"
+
+				parentId := 0
+				parentIdentify := strings.TrimSuffix(identify,info.Name())
+
+				if id,ok := docMap[parentIdentify];ok {
+					parentId = id
+				}
+
+				parentDoc.ParentId = parentId
+
+
+				if err := parentDoc.InsertOrUpdate();err != nil {
+					beego.Error(err)
+				}
+
+				docMap[identify] = parentDoc.DocumentId
+				beego.Info(path,"|",parentDoc.DocumentId)
 			}
 		}
 

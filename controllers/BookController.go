@@ -518,6 +518,8 @@ func (c *BookController) Import() {
 
 	bookName := strings.TrimSpace(c.GetString("book_name"))
 	identify := strings.TrimSpace(c.GetString("identify"))
+	description := strings.TrimSpace(c.GetString("description", ""))
+	privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
 
 	if bookName == "" {
 		c.JsonResult(6001, "项目名称不能为空")
@@ -535,8 +537,6 @@ func (c *BookController) Import() {
 		c.JsonResult(6004, "文档标识不能超过50字")
 	}
 
-	beego.Info(moreFile.Filename)
-
 	ext := filepath.Ext(moreFile.Filename)
 
 	if !strings.EqualFold(ext, ".zip") {
@@ -551,7 +551,26 @@ func (c *BookController) Import() {
 
 	err = c.SaveToFile("import-file", tempPath)
 
-	go models.NewBook().ImportBook(tempPath)
+	book := models.NewBook()
+
+	book.MemberId = c.Member.MemberId
+	book.Cover = conf.GetDefaultCover()
+	book.BookName = bookName
+	book.Description = description
+	book.CommentCount = 0
+	book.PrivatelyOwned = privatelyOwned
+	book.CommentStatus = "closed"
+	book.Identify = identify
+	book.DocCount = 0
+	book.MemberId = c.Member.MemberId
+	book.CommentCount = 0
+	book.Version = time.Now().Unix()
+
+	book.Editor = "markdown"
+	book.Theme = "default"
+
+
+	go book.ImportBook(tempPath)
 
 	c.JsonResult(0, "项目正在后台转换中，请稍后查看")
 }

@@ -32,14 +32,14 @@ func (c *SearchController) Index() {
 
 	if keyword != "" {
 		c.Data["Keyword"] = keyword
-		member_id := 0
+		memberId := 0
 		if c.Member != nil {
-			member_id = c.Member.MemberId
+			memberId = c.Member.MemberId
 		}
-		search_result, totalCount, err := models.NewDocumentSearchResult().FindToPager(keyword, pageIndex, conf.PageSize, member_id)
+		searchResult, totalCount, err := models.NewDocumentSearchResult().FindToPager(keyword, pageIndex, conf.PageSize, memberId)
 
 		if err != nil {
-			beego.Error(err)
+			beego.Error("查询搜索结果失败 => ",err)
 			return
 		}
 		if totalCount > 0 {
@@ -48,8 +48,8 @@ func (c *SearchController) Index() {
 		} else {
 			c.Data["PageHtml"] = ""
 		}
-		if len(search_result) > 0 {
-			for _, item := range search_result {
+		if len(searchResult) > 0 {
+			for _, item := range searchResult {
 				item.DocumentName = strings.Replace(item.DocumentName, keyword, "<em>"+keyword+"</em>", -1)
 
 				if item.Description != "" {
@@ -73,7 +73,7 @@ func (c *SearchController) Index() {
 				}
 			}
 		}
-		c.Data["Lists"] = search_result
+		c.Data["Lists"] = searchResult
 	}
 }
 

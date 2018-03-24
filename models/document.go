@@ -87,7 +87,7 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 	o := orm.NewOrm()
 	var err error
 	if m.DocumentId > 0 {
-		_, err = o.Update(m)
+		_, err = o.Update(m,cols...)
 	} else {
 		_, err = o.Insert(m)
 		NewBook().ResetDocumentNumber(m.BookId)

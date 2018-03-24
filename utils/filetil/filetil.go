@@ -199,3 +199,23 @@ func Round(val float64, places int) float64 {
 
 	return t
 }
+
+//判断指定目录下是否存在指定后缀的文件
+func HasFileOfExt(path string,exts []string) bool {
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+
+			ext := filepath.Ext(info.Name())
+
+			for _,item := range exts {
+				if strings.EqualFold(ext,item) {
+					return os.ErrExist
+				}
+			}
+
+		}
+		return nil
+	})
+
+	return err == os.ErrExist
+}
