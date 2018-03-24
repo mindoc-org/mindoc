@@ -39,6 +39,12 @@ type Document struct {
 	AttachList []*Attachment `orm:"-" json:"attach"`
 }
 
+// 多字段唯一键
+func (m *Document) TableUnique() [][]string {
+	return [][]string{
+		[]string{"book_id", "identify"},
+	}
+}
 // TableName 获取对应数据库表名.
 func (m *Document) TableName() string {
 	return "documents"
@@ -93,15 +99,6 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 	return nil
 }
 
-////根据指定字段查询一条文档.
-//func (m *Document) FindByFieldFirst(field string, v interface{}) (*Document, error) {
-//
-//	o := orm.NewOrm()
-//
-//	err := o.QueryTable(m.TableNameWithPrefix()).Filter(field, v).One(m)
-//
-//	return m, err
-//}
 //根据文档识别编号和项目id获取一篇文档
 func (m *Document) FindByIdentityFirst(identify string,bookId int) (*Document,error) {
 	o := orm.NewOrm()
@@ -120,11 +117,6 @@ func (m *Document) RecursiveDocument(docId int) error {
 		o.Delete(doc)
 		NewDocumentHistory().Clear(doc.DocumentId)
 	}
-	//
-	//var docs []*Document
-	//
-	//_, err := o.QueryTable(m.TableNameWithPrefix()).Filter("parent_id", doc_id).All(&docs)
-
 	var maps []orm.Params
 
 	_, err := o.Raw("SELECT document_id FROM " + m.TableNameWithPrefix() + " WHERE parent_id=" + strconv.Itoa(docId)).Values(&maps)
@@ -255,6 +247,7 @@ func (m *Document) FromCacheById(id int) (*Document,error) {
 	}()
 	return m.Find(id)
 }
+
 //根据文档标识从缓存中查询文档
 func (m *Document) FromCacheByIdentify(identify string,bookId int) (*Document,error) {
 	b := cache.Get(fmt.Sprintf("Document.BookId.%d.Identify.%s",bookId , identify))
@@ -280,3 +273,4 @@ func (m *Document) FindListByBookId(bookId int) (docs []*Document, err error) {
 
 	return
 }
+

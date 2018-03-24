@@ -18,11 +18,11 @@ textarea{
     font-weight: 200;
 }
 .error-message{
-    color: red;
+    color: #d9534f;
     font-size: 12px;
 }
 .success-message{
-    color: green;
+    color: #5cb85c;
     font-size: 12px;
 }
 .input-readonly{
@@ -220,12 +220,17 @@ textarea{
     position: relative;
 }
 
-.manual-body .page-right .box-body label{
+.manual-body .page-right .box-body label, .text-label{
     font-family: "Microsoft Yahei","Helvetica Neue",Helvetica,Arial,sans-serif;
     color: #222222;
     font-weight: 300;
 }
-
+.required>.text-label:after{
+    color: #db2828;
+    content: "*";
+    vertical-align: middle;
+    margin: -.2em 0 0 .2em;
+}
 .manual-body .page-right .box-body .form-right{
     position: absolute;
     right: 0;

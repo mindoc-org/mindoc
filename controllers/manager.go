@@ -6,16 +6,18 @@ import (
 	"regexp"
 	"strings"
 
+	"math"
+	"path/filepath"
+	"strconv"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
-	"path/filepath"
-	"strconv"
+	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"math"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -52,7 +54,7 @@ func (c *ManagerController) Users() {
 	}
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize,c.BaseUrl())
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -110,7 +112,7 @@ func (c *ManagerController) CreateMember() {
 	member.Avatar = conf.GetDefaultAvatar()
 	member.CreateAt = c.Member.MemberId
 	member.Email = email
-	member.RealName = strings.TrimSpace(c.GetString("real_name",""))
+	member.RealName = strings.TrimSpace(c.GetString("real_name", ""))
 	if phone != "" {
 		member.Phone = phone
 	}
@@ -290,13 +292,13 @@ func (c *ManagerController) Books() {
 	if totalCount > 0 {
 		//html := utils.GetPagerHtml(c.Ctx.Request.RequestURI, pageIndex, 8, totalCount)
 
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize, c.BaseUrl())
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
 	}
-	for i,book := range books {
+	for i, book := range books {
 		books[i].Description = utils.StripTags(string(blackfriday.Run([]byte(book.Description))))
 		books[i].ModifyTime = book.ModifyTime.Local()
 		books[i].CreateTime = book.CreateTime.Local()
@@ -328,10 +330,10 @@ func (c *ManagerController) EditBook() {
 		orderIndex, _ := c.GetInt("order_index", 0)
 		isDownload := strings.TrimSpace(c.GetString("is_download")) == "on"
 		enableShare := strings.TrimSpace(c.GetString("enable_share")) == "on"
-		isUseFirstDocument :=  strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
+		isUseFirstDocument := strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
 		autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 		publisher := strings.TrimSpace(c.GetString("publisher"))
-		historyCount,_ := c.GetInt("history_count",0)
+		historyCount, _ := c.GetInt("history_count", 0)
 
 		if strings.Count(description, "") > 500 {
 			c.JsonResult(6004, "项目描述不能大于500字")
@@ -360,17 +362,17 @@ func (c *ManagerController) EditBook() {
 		}
 		if isDownload {
 			book.IsDownload = 0
-		}else{
+		} else {
 			book.IsDownload = 1
 		}
 		if enableShare {
 			book.IsEnableShare = 0
-		}else{
+		} else {
 			book.IsEnableShare = 1
 		}
 		if isUseFirstDocument {
 			book.IsUseFirstDocument = 1
-		}else{
+		} else {
 			book.IsUseFirstDocument = 0
 		}
 
@@ -613,7 +615,7 @@ func (c *ManagerController) AttachList() {
 
 		p := filepath.Join(conf.WorkingDirectory, item.FilePath)
 
-		item.IsExist = utils.FileExists(p)
+		item.IsExist = filetil.FileExists(p)
 
 	}
 	c.Data["Lists"] = attachList
@@ -643,7 +645,7 @@ func (c *ManagerController) AttachDetailed() {
 	attach.FilePath = filepath.Join(conf.WorkingDirectory, attach.FilePath)
 	attach.HttpPath = conf.URLForWithCdnImage(attach.HttpPath)
 
-	attach.IsExist = utils.FileExists(attach.FilePath)
+	attach.IsExist = filetil.FileExists(attach.FilePath)
 
 	c.Data["Model"] = attach
 }
@@ -691,43 +693,27 @@ func (c *ManagerController) LabelList() {
 
 	c.Data["Lists"] = labels
 }
+
 //删除标签
-func (c *ManagerController) LabelDelete(){
-	labelId,err := strconv.Atoi(c.Ctx.Input.Param(":id"))
+func (c *ManagerController) LabelDelete() {
+	labelId, err := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
 	if err != nil {
-		beego.Error("获取删除标签参数时出错:",err)
-		c.JsonResult(50001,"参数错误")
+		beego.Error("获取删除标签参数时出错:", err)
+		c.JsonResult(50001, "参数错误")
 	}
 	if labelId <= 0 {
-		c.JsonResult(50001,"参数错误")
+		c.JsonResult(50001, "参数错误")
 	}
 
-	label,err := models.NewLabel().FindFirst("label_id",labelId)
+	label, err := models.NewLabel().FindFirst("label_id", labelId)
 	if err != nil {
-		beego.Error("查询标签时出错:",err)
-		c.JsonResult(50001,"查询标签时出错:" + err.Error())
+		beego.Error("查询标签时出错:", err)
+		c.JsonResult(50001, "查询标签时出错:"+err.Error())
 	}
-	if err := label.Delete();err != nil {
-		c.JsonResult(50002,"删除失败:" + err.Error())
-	}else{
-		c.JsonResult(0,"ok")
+	if err := label.Delete(); err != nil {
+		c.JsonResult(50002, "删除失败:"+err.Error())
+	} else {
+		c.JsonResult(0, "ok")
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

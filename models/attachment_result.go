@@ -1,9 +1,10 @@
 package models
 
 import (
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/utils"
 	"strings"
+
+	"github.com/astaxie/beego/orm"
+	"github.com/lifei6671/mindoc/utils/filetil"
 )
 
 type AttachmentResult struct {
@@ -54,7 +55,7 @@ func (m *AttachmentResult) Find(id int) (*AttachmentResult, error) {
 			m.Account = member.Account
 		}
 	}
-	m.FileShortSize = utils.FormatBytes(int64(attach.FileSize))
+	m.FileShortSize = filetil.FormatBytes(int64(attach.FileSize))
 	m.LocalHttpPath = strings.Replace(m.FilePath, "\\", "/", -1)
 
 	return m, nil

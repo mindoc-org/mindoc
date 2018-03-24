@@ -10,7 +10,8 @@
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet" type="text/css">
-
+    <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/css/fileinput.min.css"}}" rel="stylesheet" type="text/css">
+    <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/themes/explorer-fa/theme.css"}}" rel="stylesheet" type="text/css">
     <link href="{{cdncss "/static/css/main.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -33,7 +34,9 @@
                 <div class="m-box">
                     <div class="box-head">
                         <strong class="box-title">项目列表</strong>
+                        &nbsp;
                         <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">添加项目</button>
+                        <button type="button" data-toggle="modal" data-target="#importBookDialogModal" class="btn btn-primary btn-sm pull-right" style="margin-right: 5px;">导入项目</button>
                     </div>
                 </div>
                 <div class="box-body" id="bookList">
@@ -176,7 +179,65 @@
         </div>
         </form>
     </div>
-</div><!--END Modal-->
+</div>
+<!--END Modal-->
+<!-- importBookDialogModal -->
+<div class="modal fade" id="importBookDialogModal" tabindex="-1" role="dialog" aria-labelledby="importBookDialogModalLabel">
+    <div class="modal-dialog" role="document" style="min-width: 900px;">
+        <form method="post" autocomplete="off" action="{{urlfor "BookController.Import"}}" id="importBookDialogForm" enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">导入项目</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <div class="form-group required">
+                            <label class="text-label">项目标题</label>
+                            <input type="text" class="form-control" placeholder="项目标题(不超过100字)" name="book_name" maxlength="100" value="导入测试">
+                        </div>
+                        <div class="form-group required">
+                            <label class="text-label">项目标识</label>
+                            <input type="text" class="form-control"  placeholder="项目唯一标识(不超过50字)" name="identify" value="import">
+                            <div class="clearfix"></div>
+                            <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-label">项目描述</label>
+                            <textarea name="description" id="description" class="form-control" placeholder="描述信息不超过500个字符" style="height: 90px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-6">
+                                <label>
+                                    <input type="radio" name="privately_owned" value="0" checked> 公开<span class="text">(任何人都可以访问)</span>
+                                </label>
+                            </div>
+                            <div class="col-lg-6">
+                                <label>
+                                    <input type="radio" name="privately_owned" value="1"> 私有<span class="text">(只要参与者或使用令牌才能访问)</span>
+                                </label>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="form-group">
+                            <div class="file-loading">
+                                <input id="import-book-upload" name="import-file" type="file" accept=".zip">
+                            </div>
+                            <div id="kartik-file-errors"></div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-footer">
+                    <span id="import-book-form-error-message" style="background-color: #ffffff;border: none;margin: 0;padding: 0;"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-success" id="btnImportBook" data-loading-text="创建中...">创建</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!--END importBookDialogModal-->
 <!-- Delete Book Modal -->
 <div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel">
     <div class="modal-dialog" role="document">
@@ -206,6 +267,8 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/js/fileinput.min.js"}}"></script>
+<script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/js/locales/zh.js"}}"></script>
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     /**
@@ -315,6 +378,7 @@
         $("#btnSaveDocument").on("click",function () {
             var $this = $(this);
 
+
             var bookName = $.trim($("#bookName").val());
             if (bookName === "") {
                 return showError("项目标题不能为空")
@@ -401,6 +465,38 @@
             }
         });
 
+        $("#btnImportBook").on("click",function () {
+            var $this = $(this);
+            var $then = $(this).parents("#importBookDialogForm");
+
+
+            var bookName = $.trim($then.find("input[name='book_name']").val());
+
+            if (bookName === "") {
+                return showError("项目标题不能为空","#import-book-form-error-message");
+            }
+            if (bookName.length > 100) {
+                return showError("项目标题必须小于100字符","#import-book-form-error-message");
+            }
+
+            var identify = $.trim($then.find("input[name='identify']").val());
+            if (identify === "") {
+                return showError("项目标识不能为空","#import-book-form-error-message");
+            }
+            var description = $.trim($then.find('textarea[name="description"]').val());
+            if (description.length > 500) {
+                return showError("描述信息不超过500个字符","#import-book-form-error-message");
+            }
+            var filesCount = $('#import-book-upload').fileinput('getFilesCount');
+            console.log(filesCount)
+            if (filesCount <= 0) {
+                return showError("请选择需要上传的文件","#import-book-form-error-message");
+            }
+           //$("#importBookDialogForm").submit();
+            $("#btnImportBook").button("loading");
+            $('#import-book-upload').fileinput('upload');
+
+        });
         window.app = new Vue({
             el : "#bookList",
             data : {
@@ -412,6 +508,38 @@
         });
         Vue.nextTick(function () {
             $("[data-toggle='tooltip']").tooltip();
+        });
+
+        $("#import-book-upload").fileinput({
+            'uploadUrl':"{{urlfor "BookController.Import"}}",
+            'theme': 'fa',
+            'showPreview': false,
+            'showUpload' : false,
+            'required': true,
+            'validateInitialCount': true,
+            "language" : "zh",
+            'allowedFileExtensions': ['zip'],
+            'msgPlaceholder' : '请选择Zip文件',
+            'elErrorContainer' : "#import-book-form-error-message",
+            'uploadExtraData' : function () {
+                var book = {};
+                var $then = $("#importBookDialogForm");
+                book.book_name = $then.find("input[name='book_name']").val();
+                book.identify = $then.find("input[name='identify']").val();
+                book.description = $then.find('textarea[name="description"]').val()
+
+                return book;
+            }
+        });
+        $("#import-book-upload").on("fileuploaded",function (event, data, previewId, index){
+
+            if(data.response.errcode === 0 || data.response.errcode === '0'){
+                showSuccess(data.response.message,"#import-book-form-error-message");
+            }else{
+                showError(data.response.message,"#import-book-form-error-message");
+            }
+            $("#btnImportBook").button("reset");
+            return true;
         });
     });
 </script>

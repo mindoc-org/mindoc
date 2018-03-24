@@ -6,7 +6,7 @@ function showError($msg,$id) {
     if(!$id){
         $id = "#form-error-message"
     }
-    $($id).addClass("error-message").removeClass("success-message").text($msg);
+    $($id).addClass("error-message").removeClass("success-message").text($msg).show();
     return false;
 }
 
@@ -14,7 +14,7 @@ function showSuccess($msg,$id) {
     if(!$id){
         $id = "#form-error-message"
     }
-    $($id).addClass("success-message").removeClass("error-message").text($msg);
+    $($id).addClass("success-message").removeClass("error-message").text($msg).show();
     return true;
 }
 

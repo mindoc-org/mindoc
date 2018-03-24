@@ -11,6 +11,17 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"crypto/md5"
+	"io"
+	"errors"
+	"github.com/lifei6671/mindoc/utils/filetil"
+	"github.com/lifei6671/mindoc/utils/ziptil"
+	"strings"
+	"regexp"
+	"io/ioutil"
+	"github.com/lifei6671/mindoc/utils/cryptil"
+	"github.com/lifei6671/mindoc/utils/requests"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 // Book struct .
@@ -77,6 +88,7 @@ func NewBook() *Book {
 	return &Book{}
 }
 
+//添加一个项目
 func (m *Book) Insert() error {
 	o := orm.NewOrm()
 	//	o.Begin()
@@ -124,7 +136,7 @@ func (m *Book) Find(id int) (*Book, error) {
 
 	return m, err
 }
-
+//更新一个项目
 func (m *Book) Update(cols ...string) error {
 	o := orm.NewOrm()
 
@@ -164,6 +176,7 @@ func (m *Book) FindByFieldFirst(field string, value interface{}) (*Book, error) 
 
 }
 
+//根据项目标识查询项目
 func (m *Book) FindByIdentify(identify string) (*Book, error) {
 	o := orm.NewOrm()
 
@@ -374,4 +387,132 @@ func (m *Book) ResetDocumentNumber(bookId int) {
 	} else {
 		beego.Error(err)
 	}
+}
+
+func (book *Book)ImportBook(zipPath string) error {
+	if !filetil.FileExists(zipPath) {
+		return  errors.New("文件不存在 => " + zipPath)
+	}
+
+
+	w := md5.New()
+	io.WriteString(w, zipPath)                    //将str写入到w中
+	io.WriteString(w, time.Now().String())
+	io.WriteString(w,book.BookName)
+	md5str := fmt.Sprintf("%x", w.Sum(nil)) //w.Sum(nil)将w的hash转成[]byte格式
+
+	tempPath := strings.Replace(filepath.Join(os.TempDir(), md5str),"\\","/",-1)
+
+	os.MkdirAll(tempPath, 0766)
+	//如果加压缩失败
+	if err := ziptil.Unzip(zipPath,tempPath);err != nil {
+		return err
+	}
+
+
+	err := filepath.Walk(tempPath, func(path string, info os.FileInfo, err error) error {
+		path = strings.Replace(path,"\\","/",-1)
+		if path == tempPath {
+			return nil
+		}
+		if !info.IsDir() {
+			ext := filepath.Ext(info.Name())
+			if strings.EqualFold(ext ,".md") || strings.EqualFold(ext , ".markdown" ) {
+				doc := NewDocument()
+				doc.BookId = book.BookId
+				docIdentify := strings.Replace(strings.TrimPrefix(path, tempPath+"/"), "/", "-", -1)
+
+				if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
+					docIdentify = "import-" + docIdentify
+				}
+
+				doc.Identify = docIdentify
+
+				re := regexp.MustCompile(`!\[(.*?)\]\((.*?)\)`)
+				markdown, err := ioutil.ReadFile(path);
+				if err != nil {
+					return err
+				}
+				doc.Markdown = re.ReplaceAllStringFunc(string(markdown), func(image string) string {
+
+					images := re.FindAllSubmatch([]byte(image), -1);
+					if len(images) <= 0 || len(images[0]) < 3 {
+						return image
+					}
+					originalImageUrl :=  string(images[0][2])
+					imageUrl := strings.Replace(string(originalImageUrl),"\\","/",-1)
+
+					//如果是本地路径，则需要将图片复制到项目目录
+					if !strings.HasPrefix(imageUrl, "http://") && !strings.HasPrefix(imageUrl, "https://") {
+						if strings.HasPrefix(imageUrl, "/") {
+							imageUrl = filepath.Join(tempPath, imageUrl)
+						} else if strings.HasPrefix(imageUrl, "./") {
+							imageUrl = filepath.Join(filepath.Dir(path), strings.TrimPrefix(imageUrl, "./"))
+						} else if strings.HasPrefix(imageUrl, "../") {
+							imageUrl = filepath.Join(filepath.Dir(path), imageUrl)
+						} else {
+							imageUrl = filepath.Join(filepath.Dir(path), imageUrl)
+						}
+						imageUrl = strings.Replace(imageUrl,"\\","/",-1)
+						dstFile := filepath.Join(conf.WorkingDirectory,"uploads",time.Now().Format("200601"),strings.TrimPrefix(imageUrl,tempPath))
+
+						if filetil.FileExists(imageUrl) {
+							filetil.CopyFile(imageUrl,dstFile)
+
+							imageUrl = strings.TrimPrefix(dstFile,conf.WorkingDirectory)
+
+							if !strings.HasPrefix(imageUrl,"/") && !strings.HasPrefix(imageUrl,"\\"){
+								imageUrl = "/" + imageUrl
+							}
+						}
+
+					}else{
+						imageExt := cryptil.Md5Crypt(imageUrl) + filepath.Ext(imageUrl)
+
+						dstFile := filepath.Join(conf.WorkingDirectory,"uploads",time.Now().Format("200601"),imageExt)
+
+						if err := requests.DownloadAndSaveFile(imageUrl,dstFile) ;err == nil {
+							imageUrl =  strings.TrimPrefix(strings.Replace(dstFile,"\\","/",-1),strings.Replace(conf.WorkingDirectory,"\\","/",-1))
+							if !strings.HasPrefix(imageUrl,"/") && !strings.HasPrefix(imageUrl,"\\"){
+								imageUrl = "/" + imageUrl
+							}
+						}
+					}
+
+					imageUrl = strings.Replace(strings.TrimSuffix(image,originalImageUrl + ")") + imageUrl + ")","\\","/",-1)
+					beego.Info(imageUrl)
+					return imageUrl
+				})
+				doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
+				doc.Release = doc.Content
+
+				//beego.Info(content)
+				//images := re.FindAllSubmatch(markdown,-1);
+				//
+				//for _,image := range images {
+				//	originalImageUrl :=  string(image[1])
+				//	imageUrl := string(originalImageUrl)
+				//
+				//	if !strings.HasPrefix(imageUrl,"http://") && !strings.HasPrefix(imageUrl,"https://") {
+				//		if strings.HasPrefix(imageUrl, "/") {
+				//			imageUrl = filepath.Join(tempPath, imageUrl)
+				//		} else if strings.HasPrefix(imageUrl, "./") {
+				//			imageUrl = filepath.Join(filepath.Dir(path), strings.TrimPrefix(imageUrl, "./"))
+				//		} else if strings.HasPrefix(imageUrl, "../") {
+				//			imageUrl = filepath.Join(filepath.Dir(path), imageUrl)
+				//		}else{
+				//			imageUrl = filepath.Join(filepath.Dir(path), imageUrl)
+				//		}
+				//
+				//	}
+				//	beego.Info(imageUrl)
+				//}
+			}
+		}
+
+
+		return nil
+	})
+
+	return err
 }

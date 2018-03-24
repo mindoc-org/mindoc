@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"net/http"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -20,8 +22,6 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"net/http"
-	"github.com/lifei6671/mindoc/converter"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -42,14 +42,14 @@ func (c *BookController) Index() {
 		c.Abort("500")
 	}
 
-	for i,book := range books {
+	for i, book := range books {
 		books[i].Description = utils.StripTags(string(blackfriday.Run([]byte(book.Description))))
 		books[i].ModifyTime = book.ModifyTime.Local()
 		books[i].CreateTime = book.CreateTime.Local()
 	}
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize,c.BaseUrl())
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -140,10 +140,10 @@ func (c *BookController) SaveBook() {
 	editor := strings.TrimSpace(c.GetString("editor"))
 	autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 	publisher := strings.TrimSpace(c.GetString("publisher"))
-	historyCount,_ := c.GetInt("history_count",0)
+	historyCount, _ := c.GetInt("history_count", 0)
 	isDownload := strings.TrimSpace(c.GetString("is_download")) == "on"
 	enableShare := strings.TrimSpace(c.GetString("enable_share")) == "on"
-	isUseFirstDocument :=  strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
+	isUseFirstDocument := strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
@@ -177,17 +177,17 @@ func (c *BookController) SaveBook() {
 	}
 	if isDownload {
 		book.IsDownload = 0
-	}else{
+	} else {
 		book.IsDownload = 1
 	}
 	if enableShare {
 		book.IsEnableShare = 0
-	}else{
+	} else {
 		book.IsEnableShare = 1
 	}
 	if isUseFirstDocument {
 		book.IsUseFirstDocument = 1
-	}else{
+	} else {
 		book.IsUseFirstDocument = 0
 	}
 	if err := book.Update(); err != nil {
@@ -397,7 +397,7 @@ func (c *BookController) Users() {
 	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, 15)
 
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request,totalCount,conf.PageSize,c.BaseUrl())
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -410,7 +410,6 @@ func (c *BookController) Users() {
 		c.Data["Result"] = template.JS(string(b))
 	}
 }
-
 
 // Create 创建项目.
 func (c *BookController) Create() {
@@ -446,9 +445,8 @@ func (c *BookController) Create() {
 		book := models.NewBook()
 		book.Cover = conf.GetDefaultCover()
 
-
 		//如果客户端上传了项目封面则直接保存
-		if file, moreFile, err := c.GetFile("image-file");err == nil {
+		if file, moreFile, err := c.GetFile("image-file"); err == nil {
 			defer file.Close()
 
 			ext := filepath.Ext(moreFile.Filename)
@@ -458,7 +456,7 @@ func (c *BookController) Create() {
 
 				fileName := "cover_" + strconv.FormatInt(time.Now().UnixNano(), 16)
 
-				filePath := filepath.Join("uploads", time.Now().Format("200601"), fileName + ext)
+				filePath := filepath.Join("uploads", time.Now().Format("200601"), fileName+ext)
 
 				path := filepath.Dir(filePath)
 
@@ -474,8 +472,6 @@ func (c *BookController) Create() {
 				}
 			}
 		}
-
-
 
 		if books, _ := book.FindByField("identify", identify); len(books) > 0 {
 			c.JsonResult(6006, "项目标识已存在")
@@ -495,9 +491,7 @@ func (c *BookController) Create() {
 		book.Editor = "markdown"
 		book.Theme = "default"
 
-
-
-		if err := book.Insert();err != nil {
+		if err := book.Insert(); err != nil {
 			logs.Error("Insert => ", err)
 			c.JsonResult(6005, "保存项目失败")
 		}
@@ -512,7 +506,7 @@ func (c *BookController) Create() {
 	c.JsonResult(6001, "error")
 }
 
-//导入
+//导入zip压缩包
 func (c *BookController) Import() {
 
 	file, moreFile, err := c.GetFile("import-file")
@@ -522,24 +516,44 @@ func (c *BookController) Import() {
 
 	defer file.Close()
 
+	bookName := strings.TrimSpace(c.GetString("book_name"))
+	identify := strings.TrimSpace(c.GetString("identify"))
+
+	if bookName == "" {
+		c.JsonResult(6001, "项目名称不能为空")
+	}
+	if len([]rune(bookName)) > 500 {
+		c.JsonResult(6002, "项目名称不能大于500字")
+	}
+	if identify == "" {
+		c.JsonResult(6002, "项目标识不能为空")
+	}
+	if ok, err := regexp.MatchString(`^[a-z]+[a-zA-Z0-9_\-]*$`, identify); !ok || err != nil {
+		c.JsonResult(6003, "项目标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
+	}
+	if strings.Count(identify, "") > 50 {
+		c.JsonResult(6004, "文档标识不能超过50字")
+	}
+
 	beego.Info(moreFile.Filename)
 
 	ext := filepath.Ext(moreFile.Filename)
 
-	if !strings.EqualFold(ext,".doc") || !strings.EqualFold(ext,".docx") {
-		c.JsonResult(6004,"不支持的文件类型")
+	if !strings.EqualFold(ext, ".zip") {
+		c.JsonResult(6004, "不支持的文件类型")
 	}
 
-	tempPath := filepath.Join(os.TempDir(),c.CruSession.SessionID())
+	tempPath := filepath.Join(os.TempDir(), c.CruSession.SessionID())
 
-	os.MkdirAll(tempPath,0766)
+	os.MkdirAll(tempPath, 0766)
 
-	tempPath = filepath.Join(tempPath,moreFile.Filename)
+	tempPath = filepath.Join(tempPath, moreFile.Filename)
 
 	err = c.SaveToFile("import-file", tempPath)
 
-	converter.Resolve(tempPath)
+	go models.NewBook().ImportBook(tempPath)
 
+	c.JsonResult(0, "项目正在后台转换中，请稍后查看")
 }
 
 // CreateToken 创建访问来令牌.

@@ -2,24 +2,24 @@ package models
 
 import (
 	"bytes"
-	"time"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"encoding/base64"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/converter"
-	"github.com/lifei6671/mindoc/utils"
-	"gopkg.in/russross/blackfriday.v2"
-	"github.com/lifei6671/mindoc/utils/ziptil"
 	"github.com/lifei6671/mindoc/utils/filetil"
+	"github.com/lifei6671/mindoc/utils/ziptil"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type BookResult struct {
@@ -36,7 +36,7 @@ type BookResult struct {
 	CommentCount   int       `json:"comment_count"`
 	CreateTime     time.Time `json:"create_time"`
 	CreateName     string    `json:"create_name"`
-	RealName	   string 	 `json:"real_name"`
+	RealName       string    `json:"real_name"`
 	ModifyTime     time.Time `json:"modify_time"`
 	Cover          string    `json:"cover"`
 	Theme          string    `json:"theme"`
@@ -44,18 +44,18 @@ type BookResult struct {
 	MemberId       int       `json:"member_id"`
 	Editor         string    `json:"editor"`
 	AutoRelease    bool      `json:"auto_release"`
-	HistoryCount   int 		 `json:"history_count"`
+	HistoryCount   int       `json:"history_count"`
 
-	RelationshipId int    `json:"relationship_id"`
-	RoleId         int    `json:"role_id"`
-	RoleName       string `json:"role_name"`
-	Status         int		`json:"status"`
-	IsEnableShare  bool 	`json:"is_enable_share"`
-	IsUseFirstDocument bool	 `json:"is_use_first_document"`
+	RelationshipId     int    `json:"relationship_id"`
+	RoleId             int    `json:"role_id"`
+	RoleName           string `json:"role_name"`
+	Status             int    `json:"status"`
+	IsEnableShare      bool   `json:"is_enable_share"`
+	IsUseFirstDocument bool   `json:"is_use_first_document"`
 
 	LastModifyText   string `json:"last_modify_text"`
 	IsDisplayComment bool   `json:"is_display_comment"`
-	IsDownload bool			`json:"is_download"`
+	IsDownload       bool   `json:"is_download"`
 }
 
 func NewBookResult() *BookResult {
@@ -211,7 +211,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	convertBookResult := ConvertBookResult{}
 
-	outputPath := filepath.Join(conf.WorkingDirectory,"uploads","books", strconv.Itoa(m.BookId))
+	outputPath := filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(m.BookId))
 	viewPath := beego.BConfig.WebConfig.ViewsPath
 
 	pdfpath := filepath.Join(outputPath, "book.pdf")
@@ -220,7 +220,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	docxpath := filepath.Join(outputPath, "book.docx")
 
 	//先将转换的文件储存到临时目录
-	tempOutputPath :=  filepath.Join(os.TempDir(),sessionId,m.Identify) //filepath.Abs(filepath.Join("cache", sessionId))
+	tempOutputPath := filepath.Join(os.TempDir(), sessionId, m.Identify) //filepath.Abs(filepath.Join("cache", sessionId))
 
 	os.MkdirAll(outputPath, 0766)
 	os.MkdirAll(tempOutputPath, 0766)
@@ -229,14 +229,13 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		os.RemoveAll(p)
 	}(tempOutputPath)
 
-	if utils.FileExists(pdfpath) && utils.FileExists(epubpath) && utils.FileExists(mobipath) && utils.FileExists(docxpath) {
+	if filetil.FileExists(pdfpath) && filetil.FileExists(epubpath) && filetil.FileExists(mobipath) && filetil.FileExists(docxpath) {
 		convertBookResult.EpubPath = epubpath
 		convertBookResult.MobiPath = mobipath
 		convertBookResult.PDFPath = pdfpath
 		convertBookResult.WordPath = docxpath
 		return convertBookResult, nil
 	}
-
 
 	docs, err := NewDocument().FindListByBookId(m.BookId)
 	if err != nil {
@@ -293,7 +292,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		More:         []string{},
 	}
 	if m.Publisher != "" {
-		ebookConfig.Footer = "<p style='color:#8E8E8E;font-size:12px;'>本文档由 <span style='text-decoration:none;color:#1abc9c;font-weight:bold;'>"+ m.Publisher +"</span> 生成<span style='float:right'>- _PAGENUM_ -</span></p>"
+		ebookConfig.Footer = "<p style='color:#8E8E8E;font-size:12px;'>本文档由 <span style='text-decoration:none;color:#1abc9c;font-weight:bold;'>" + m.Publisher + "</span> 生成<span style='float:right'>- _PAGENUM_ -</span></p>"
 	}
 	if m.RealName != "" {
 		ebookConfig.Creator = m.RealName
@@ -354,23 +353,20 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		f.Close()
 	}
 
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","css","kancloud.css"),filepath.Join(tempOutputPath,"styles","css","kancloud.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","css","export.css"),filepath.Join(tempOutputPath,"styles","css","export.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","editor.md","css","editormd.preview.css"),filepath.Join(tempOutputPath,"styles","editor.md","css","editormd.preview.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","prettify","themes","prettify.css"),filepath.Join(tempOutputPath,"styles","prettify","themes","prettify.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","css,","markdown.preview.css"),filepath.Join(tempOutputPath,"styles","css","markdown.preview.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","highlight","styles","vs.css"),filepath.Join(tempOutputPath,"styles","highlight","styles","vs.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory,"static","katex","katex.min.css"),filepath.Join(tempOutputPath,"styles","katex","katex.min.css"))
-
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "kancloud.css"), filepath.Join(tempOutputPath, "styles", "css", "kancloud.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "export.css"), filepath.Join(tempOutputPath, "styles", "css", "export.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "editor.md", "css", "editormd.preview.css"), filepath.Join(tempOutputPath, "styles", "editor.md", "css", "editormd.preview.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "prettify", "themes", "prettify.css"), filepath.Join(tempOutputPath, "styles", "prettify", "themes", "prettify.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css,", "markdown.preview.css"), filepath.Join(tempOutputPath, "styles", "css", "markdown.preview.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "highlight", "styles", "vs.css"), filepath.Join(tempOutputPath, "styles", "highlight", "styles", "vs.css"))
+	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "katex", "katex.min.css"), filepath.Join(tempOutputPath, "styles", "katex", "katex.min.css"))
 
 	eBookConverter := &converter.Converter{
-		BasePath: tempOutputPath,
-		OutputPath: strings.TrimSuffix(tempOutputPath,"sources"),
-		Config:   ebookConfig,
-		Debug:    true,
+		BasePath:   tempOutputPath,
+		OutputPath: strings.TrimSuffix(tempOutputPath, "sources"),
+		Config:     ebookConfig,
+		Debug:      true,
 	}
-
-
 
 	if err := eBookConverter.Convert(); err != nil {
 		beego.Error("转换文件错误：" + m.BookName + " => " + err.Error())
@@ -378,11 +374,10 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	}
 	beego.Info("文档转换完成：" + m.BookName)
 
-
-	utils.CopyFile(mobipath, filepath.Join(tempOutputPath, "output", "book.mobi"))
-	utils.CopyFile(pdfpath, filepath.Join(tempOutputPath, "output", "book.pdf"))
-	utils.CopyFile(epubpath, filepath.Join(tempOutputPath, "output", "book.epub"))
-	utils.CopyFile(docxpath, filepath.Join(tempOutputPath, "output", "book.docx"))
+	filetil.CopyFile(mobipath, filepath.Join(tempOutputPath, "output", "book.mobi"))
+	filetil.CopyFile(pdfpath, filepath.Join(tempOutputPath, "output", "book.pdf"))
+	filetil.CopyFile(epubpath, filepath.Join(tempOutputPath, "output", "book.epub"))
+	filetil.CopyFile(docxpath, filepath.Join(tempOutputPath, "output", "book.docx"))
 
 	convertBookResult.MobiPath = mobipath
 	convertBookResult.PDFPath = pdfpath
@@ -393,45 +388,45 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 }
 
 //导出Markdown原始文件
-func (m *BookResult) ExportMarkdown(sessionId string)(string, error){
-	outputPath := filepath.Join(conf.WorkingDirectory,"uploads","books", strconv.Itoa(m.BookId), "book.zip")
+func (m *BookResult) ExportMarkdown(sessionId string) (string, error) {
+	outputPath := filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(m.BookId), "book.zip")
 
-	os.MkdirAll(filepath.Dir(outputPath),0644)
+	os.MkdirAll(filepath.Dir(outputPath), 0644)
 
-	tempOutputPath := filepath.Join(os.TempDir(),sessionId,"markdown")
+	tempOutputPath := filepath.Join(os.TempDir(), sessionId, "markdown")
 
 	defer os.RemoveAll(tempOutputPath)
 
-	err := exportMarkdown(tempOutputPath,0,m.BookId)
+	err := exportMarkdown(tempOutputPath, 0, m.BookId)
 
 	if err != nil {
-		return "",err
+		return "", err
 	}
 
-	if err := ziptil.Compress(outputPath,tempOutputPath);err != nil {
-		beego.Error("导出Markdown失败=>",err)
-		return "",err
+	if err := ziptil.Compress(outputPath, tempOutputPath); err != nil {
+		beego.Error("导出Markdown失败=>", err)
+		return "", err
 	}
-	return outputPath,nil
+	return outputPath, nil
 }
 
-func exportMarkdown(p string,parentId int,bookId int) (error){
+func exportMarkdown(p string, parentId int, bookId int) error {
 	o := orm.NewOrm()
 
 	var docs []*Document
 
-	_,err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id",bookId).Filter("parent_id",parentId).All(&docs)
+	_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).Filter("parent_id", parentId).All(&docs)
 
 	if err != nil {
-		beego.Error("导出Markdown失败=>",err)
+		beego.Error("导出Markdown失败=>", err)
 		return err
 	}
-	for _,doc := range docs {
+	for _, doc := range docs {
 		//获取当前文档的子文档数量，如果数量不为0，则将当前文档命名为READMD.md并设置成目录。
-		subDocCount,err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("parent_id",doc.DocumentId).Count()
+		subDocCount, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("parent_id", doc.DocumentId).Count()
 
 		if err != nil {
-			beego.Error("导出Markdown失败=>",err)
+			beego.Error("导出Markdown失败=>", err)
 			return err
 		}
 
@@ -439,27 +434,27 @@ func exportMarkdown(p string,parentId int,bookId int) (error){
 
 		if subDocCount > 0 {
 			if doc.Identify != "" {
-				docPath = filepath.Join(p, doc.Identify,"README.md")
+				docPath = filepath.Join(p, doc.Identify, "README.md")
 			} else {
-				docPath = filepath.Join(p, strconv.Itoa(doc.DocumentId),"README.md")
+				docPath = filepath.Join(p, strconv.Itoa(doc.DocumentId), "README.md")
 			}
-		}else{
+		} else {
 			if doc.Identify != "" {
-				docPath = filepath.Join(p, doc.Identify + ".md")
+				docPath = filepath.Join(p, doc.Identify+".md")
 			} else {
-				docPath = filepath.Join(p, doc.DocumentName + ".md")
+				docPath = filepath.Join(p, doc.DocumentName+".md")
 			}
 		}
-		dirPath := filepath.Dir(docPath);
+		dirPath := filepath.Dir(docPath)
 
-		os.MkdirAll(dirPath,0766)
+		os.MkdirAll(dirPath, 0766)
 
-		if err := ioutil.WriteFile(docPath,[]byte(doc.Markdown),0644);err != nil {
-			beego.Error("导出Markdown失败=>",err)
+		if err := ioutil.WriteFile(docPath, []byte(doc.Markdown), 0644); err != nil {
+			beego.Error("导出Markdown失败=>", err)
 			return err
 		}
 		if subDocCount > 0 {
-			if err = exportMarkdown(dirPath,doc.DocumentId,bookId);err != nil {
+			if err = exportMarkdown(dirPath, doc.DocumentId, bookId); err != nil {
 				return err
 			}
 		}
@@ -468,36 +463,13 @@ func exportMarkdown(p string,parentId int,bookId int) (error){
 }
 
 //查询项目的第一篇文档
-func (m *BookResult) FindFirstDocumentByBookId(bookId int) (*Document,error) {
+func (m *BookResult) FindFirstDocumentByBookId(bookId int) (*Document, error) {
 
 	o := orm.NewOrm()
 
 	doc := NewDocument()
 
-	err := o.QueryTable(doc.TableNameWithPrefix()).Filter("book_id", bookId).Filter("parent_id",0).OrderBy("order_sort").One(doc)
+	err := o.QueryTable(doc.TableNameWithPrefix()).Filter("book_id", bookId).Filter("parent_id", 0).OrderBy("order_sort").One(doc)
 
-	return doc,err
+	return doc, err
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

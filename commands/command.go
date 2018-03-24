@@ -2,28 +2,29 @@ package commands
 
 import (
 	"encoding/gob"
+	"flag"
 	"fmt"
+	"log"
 	"net/url"
 	"os"
-	"time"
-	"log"
-	"flag"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"encoding/json"
+
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/gocaptcha"
-	"github.com/lifei6671/mindoc/commands/migrate"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
-	"github.com/lifei6671/mindoc/cache"
 	beegoCache "github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/memcache"
 	_ "github.com/astaxie/beego/cache/redis"
+	"github.com/astaxie/beego/logs"
+	"github.com/astaxie/beego/orm"
+	"github.com/lifei6671/gocaptcha"
+	"github.com/lifei6671/mindoc/cache"
+	"github.com/lifei6671/mindoc/commands/migrate"
+	"github.com/lifei6671/mindoc/conf"
+	"github.com/lifei6671/mindoc/models"
+	"github.com/lifei6671/mindoc/utils/filetil"
 )
 
 // RegisterDataBase 注册数据库
@@ -42,16 +43,15 @@ func RegisterDataBase() {
 		if err == nil {
 			orm.DefaultTimeLoc = location
 		} else {
-			beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量:",err)
+			beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量:", err)
 		}
-
 
 		port := beego.AppConfig.String("db_port")
 
 		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
 
 		if err := orm.RegisterDataBase("default", "mysql", dataSource); err != nil {
-			beego.Error("注册默认数据库失败:",err)
+			beego.Error("注册默认数据库失败:", err)
 			os.Exit(1)
 		}
 	} else if adapter == "sqlite3" {
@@ -67,9 +67,9 @@ func RegisterDataBase() {
 		err := orm.RegisterDataBase("default", "sqlite3", database)
 
 		if err != nil {
-			beego.Error("注册默认数据库失败:",err)
+			beego.Error("注册默认数据库失败:", err)
 		}
-	}else{
+	} else {
 		beego.Error("不支持的数据库类型.")
 		os.Exit(1)
 	}
@@ -150,15 +150,15 @@ func RegisterFunction() {
 		}
 		//如果没有设置cdn，则使用baseURL拼接
 		if cdn == "" {
-			baseUrl := beego.AppConfig.DefaultString("baseurl","")
+			baseUrl := beego.AppConfig.DefaultString("baseurl", "")
 
-			if strings.HasPrefix(p,"/") && strings.HasSuffix(baseUrl,"/") {
+			if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 				return baseUrl + p[1:]
 			}
-			if !strings.HasPrefix(p,"/") && !strings.HasSuffix(baseUrl,"/") {
+			if !strings.HasPrefix(p, "/") && !strings.HasSuffix(baseUrl, "/") {
 				return baseUrl + "/" + p
 			}
-			return  baseUrl + p
+			return baseUrl + p
 		}
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(cdn, "/") {
 			return cdn + string(p[1:])
@@ -169,12 +169,12 @@ func RegisterFunction() {
 		return cdn + p
 	})
 
-	beego.AddFuncMap("cdnjs",conf.URLForWithCdnJs)
-	beego.AddFuncMap("cdncss",conf.URLForWithCdnCss)
+	beego.AddFuncMap("cdnjs", conf.URLForWithCdnJs)
+	beego.AddFuncMap("cdncss", conf.URLForWithCdnCss)
 	beego.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
 	//重写url生成，支持配置域名以及域名前缀
 	beego.AddFuncMap("urlfor", conf.URLFor)
-	beego.AddFuncMap("date_format", func(t time.Time,format string) string {
+	beego.AddFuncMap("date_format", func(t time.Time, format string) string {
 		return t.Local().Format(format)
 	})
 }
@@ -199,8 +199,8 @@ func ResolveCommand(args []string) {
 	if conf.ConfigurationFile == "" {
 		conf.ConfigurationFile = filepath.Join(conf.WorkingDirectory, "conf", "app.conf")
 		config := filepath.Join(conf.WorkingDirectory, "conf", "app.conf.example")
-		if !utils.FileExists(conf.ConfigurationFile) && utils.FileExists(config) {
-			utils.CopyFile(conf.ConfigurationFile, config)
+		if !filetil.FileExists(conf.ConfigurationFile) && filetil.FileExists(config) {
+			filetil.CopyFile(conf.ConfigurationFile, config)
 		}
 	}
 	gocaptcha.ReadFonts(filepath.Join(conf.WorkingDirectory, "static", "fonts"), ".ttf")
@@ -221,7 +221,7 @@ func ResolveCommand(args []string) {
 
 	fonts := filepath.Join(conf.WorkingDirectory, "static", "fonts")
 
-	if !utils.FileExists(fonts) {
+	if !filetil.FileExists(fonts) {
 		log.Fatal("Font path not exist.")
 	}
 	gocaptcha.ReadFonts(filepath.Join(conf.WorkingDirectory, "static", "fonts"), ".ttf")
@@ -233,31 +233,30 @@ func ResolveCommand(args []string) {
 }
 
 //注册缓存管道
-func RegisterCache()  {
-	isOpenCache := beego.AppConfig.DefaultBool("cache",false)
+func RegisterCache() {
+	isOpenCache := beego.AppConfig.DefaultBool("cache", false)
 	if !isOpenCache {
 		cache.Init(&cache.NullCache{})
 	}
 	beego.Info("正常初始化缓存配置.")
 	cacheProvider := beego.AppConfig.String("cache_provider")
 	if cacheProvider == "file" {
-		cacheFilePath := beego.AppConfig.DefaultString("cache_file_path","./runtime/cache/")
+		cacheFilePath := beego.AppConfig.DefaultString("cache_file_path", "./runtime/cache/")
 		if strings.HasPrefix(cacheFilePath, "./") {
 			cacheFilePath = filepath.Join(conf.WorkingDirectory, string(cacheFilePath[1:]))
 		}
 		fileCache := beegoCache.NewFileCache()
 
+		fileConfig := make(map[string]string, 0)
 
-		fileConfig := make(map[string]string,0)
+		fileConfig["CachePath"] = cacheFilePath
+		fileConfig["DirectoryLevel"] = beego.AppConfig.DefaultString("cache_file_dir_level", "2")
+		fileConfig["EmbedExpiry"] = beego.AppConfig.DefaultString("cache_file_expiry", "120")
+		fileConfig["FileSuffix"] = beego.AppConfig.DefaultString("cache_file_suffix", ".bin")
 
-		fileConfig["CachePath"] =  cacheFilePath
-		fileConfig["DirectoryLevel"] = beego.AppConfig.DefaultString("cache_file_dir_level","2")
-		fileConfig["EmbedExpiry"] = beego.AppConfig.DefaultString("cache_file_expiry","120")
-		fileConfig["FileSuffix"] = beego.AppConfig.DefaultString("cache_file_suffix",".bin")
-
-		bc,err := json.Marshal(&fileConfig)
+		bc, err := json.Marshal(&fileConfig)
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:",err)
+			beego.Error("初始化Redis缓存失败:", err)
 			os.Exit(1)
 		}
 
@@ -265,61 +264,61 @@ func RegisterCache()  {
 
 		cache.Init(fileCache)
 
-	}else if cacheProvider == "memory" {
-		cacheInterval := beego.AppConfig.DefaultInt("cache_memory_interval",60)
+	} else if cacheProvider == "memory" {
+		cacheInterval := beego.AppConfig.DefaultInt("cache_memory_interval", 60)
 		memory := beegoCache.NewMemoryCache()
 		beegoCache.DefaultEvery = cacheInterval
 		cache.Init(memory)
-	}else if cacheProvider == "redis"{
-		var redisConfig struct{
-			Conn string `json:"conn"`
+	} else if cacheProvider == "redis" {
+		var redisConfig struct {
+			Conn     string `json:"conn"`
 			Password string `json:"password"`
-			DbNum int `json:"dbNum"`
+			DbNum    int    `json:"dbNum"`
 		}
 		redisConfig.DbNum = 0
-		redisConfig.Conn = beego.AppConfig.DefaultString("cache_redis_host","")
-		if pwd := beego.AppConfig.DefaultString("cache_redis_password","");pwd != "" {
+		redisConfig.Conn = beego.AppConfig.DefaultString("cache_redis_host", "")
+		if pwd := beego.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
 			redisConfig.Password = pwd
 		}
-		if dbNum := beego.AppConfig.DefaultInt("cache_redis_db",0); dbNum > 0 {
+		if dbNum := beego.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
 			redisConfig.DbNum = dbNum
 		}
 
-		bc,err := json.Marshal(&redisConfig)
+		bc, err := json.Marshal(&redisConfig)
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:",err)
+			beego.Error("初始化Redis缓存失败:", err)
 			os.Exit(1)
 		}
-		redisCache,err := beegoCache.NewCache("redis",string(bc))
+		redisCache, err := beegoCache.NewCache("redis", string(bc))
 
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:",err)
+			beego.Error("初始化Redis缓存失败:", err)
 			os.Exit(1)
 		}
 
 		cache.Init(redisCache)
-	}else if cacheProvider == "memcache" {
+	} else if cacheProvider == "memcache" {
 
-		var memcacheConfig struct{
+		var memcacheConfig struct {
 			Conn string `json:"conn"`
 		}
-		memcacheConfig.Conn = beego.AppConfig.DefaultString("cache_memcache_host","")
+		memcacheConfig.Conn = beego.AppConfig.DefaultString("cache_memcache_host", "")
 
-		bc,err := json.Marshal(&memcacheConfig)
+		bc, err := json.Marshal(&memcacheConfig)
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:",err)
+			beego.Error("初始化Redis缓存失败:", err)
 			os.Exit(1)
 		}
-		memcache,err := beegoCache.NewCache("memcache",string(bc))
+		memcache, err := beegoCache.NewCache("memcache", string(bc))
 
 		if err != nil {
-			beego.Error("初始化Memcache缓存失败:",err)
+			beego.Error("初始化Memcache缓存失败:", err)
 			os.Exit(1)
 		}
 
 		cache.Init(memcache)
 
-	}else {
+	} else {
 		cache.Init(&cache.NullCache{})
 		beego.Warn("不支持的缓存管道,缓存将禁用.")
 		return
@@ -329,7 +328,7 @@ func RegisterCache()  {
 
 func init() {
 
-	if configPath ,err := filepath.Abs(conf.ConfigurationFile); err == nil {
+	if configPath, err := filepath.Abs(conf.ConfigurationFile); err == nil {
 		conf.ConfigurationFile = configPath
 	}
 	gocaptcha.ReadFonts("./static/fonts", ".ttf")

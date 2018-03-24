@@ -6,11 +6,12 @@ import (
 
 	"os"
 
+	"strings"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/utils"
-	"strings"
+	"github.com/lifei6671/mindoc/utils/filetil"
 )
 
 // Attachment struct .
@@ -97,7 +98,7 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 
 	if err != nil {
 
-		return nil,0,err
+		return nil, 0, err
 	}
 	totalCount = int(total)
 	offset := (pageIndex - 1) * pageSize
@@ -113,7 +114,7 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 	for _, item := range list {
 		attach := &AttachmentResult{}
 		attach.Attachment = *item
-		attach.FileShortSize = utils.FormatBytes(int64(attach.FileSize))
+		attach.FileShortSize = filetil.FormatBytes(int64(attach.FileSize))
 
 		book := NewBook()
 
