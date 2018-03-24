@@ -505,9 +505,10 @@ func (book *Book)ImportBook(zipPath string) error {
 
 				parentId := 0
 
-				parentIdentify := strings.Replace(strings.Trim(strings.TrimSuffix(strings.TrimPrefix(path, tempPath), info.Name()), "/"), "/", "-", -1)
+				parentIdentify := strings.Replace(strings.Trim(strings.TrimSuffix(strings.TrimPrefix(path, tempPath),info.Name()), "/"), "/", "-", -1)
 
 				if parentIdentify != "" {
+
 					if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, parentIdentify); !ok || err != nil {
 						parentIdentify = "import-" + parentIdentify
 					}
@@ -515,12 +516,17 @@ func (book *Book)ImportBook(zipPath string) error {
 						parentId = id
 					}
 				}
+				if strings.EqualFold(info.Name(), "README.md") {
+					beego.Info(path,"|",info.Name(),"|",parentIdentify,"|",parentId)
+				}
 				isInsert := false
 				//如果当前文件是README.md，则将内容更新到父级
-				if strings.EqualFold(info.Name(), "README.md") && parentId != 0{
+				if strings.EqualFold(info.Name(), "README.md") && parentId != 0 {
+
 					doc.DocumentId = parentId
-					beego.Info(path,"|",parentId)
+					//beego.Info(path,"|",parentId)
 				} else {
+					//beego.Info(path,"|",parentIdentify)
 					doc.ParentId = parentId
 					isInsert = true
 				}
@@ -539,6 +545,7 @@ func (book *Book)ImportBook(zipPath string) error {
 				if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, identify); !ok || err != nil {
 					identify = "import-" + identify
 				}
+
 				parentDoc := NewDocument()
 
 				parentDoc.MemberId = book.MemberId
@@ -548,7 +555,8 @@ func (book *Book)ImportBook(zipPath string) error {
 				parentDoc.DocumentName = "空白文档"
 
 				parentId := 0
-				parentIdentify := strings.TrimSuffix(identify,info.Name())
+
+				parentIdentify := strings.TrimSuffix(identify, "-" + info.Name())
 
 				if id,ok := docMap[parentIdentify];ok {
 					parentId = id
@@ -562,7 +570,7 @@ func (book *Book)ImportBook(zipPath string) error {
 				}
 
 				docMap[identify] = parentDoc.DocumentId
-				beego.Info(path,"|",parentDoc.DocumentId)
+				beego.Info(path,"|",parentDoc.DocumentId,"|",identify,"|",info.Name(),"|",parentIdentify)
 			}
 		}
 
