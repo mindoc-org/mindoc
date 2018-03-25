@@ -172,7 +172,7 @@
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
-<script src="/static/jquery/plugins/imgbox/jquery.imgbox.pack.js"></script>
+<script src="{{cdnjs "/static/jquery/plugins/imgbox/jquery.imgbox.pack.js"}}"></script>
 <script type="text/javascript">
     $(function () {
         $("#sidebar").jstree({

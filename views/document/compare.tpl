@@ -5,22 +5,22 @@
     <meta charset="utf-8" />
     <title>文档比较 - Powered by MinDoc</title>
     <link rel="shortcut icon" href="{{cdnimg "/favicon.ico"}}" />
-    <link href="/static/fonts/notosans.css" rel='stylesheet' type='text/css' />
-    <script type="text/javascript" src="/static/jquery/1.12.4/jquery.min.js"></script>
-    <link type='text/css' rel='stylesheet' href='/static/mergely/editor/lib/wicked-ui.css' />
-    <script type="text/javascript" src="/static/mergely/editor/lib/wicked-ui.js"></script>
+    <link href="{{cdncss "/static/fonts/notosans.css"}}" rel='stylesheet' type='text/css' />
+    <link type='text/css' rel='stylesheet' href="{{cdncss "/static/mergely/editor/lib/wicked-ui.css"}}" />
+    <link type='text/css' rel='stylesheet' href="{{cdncss "/static/mergely/editor/lib/tipsy/tipsy.css"}}" />
+    <link type="text/css" rel="stylesheet" href="{{cdncss "/static/mergely/editor/lib/farbtastic/farbtastic.css"}}" />
+    <link type="text/css" rel="stylesheet" href="{{cdncss "/static/mergely/lib/codemirror.css"}}" />
+    <link type="text/css" rel="stylesheet" href="{{cdncss "/static/mergely/lib/mergely.css"}}" />
+    <link type='text/css' rel='stylesheet' href="{{cdncss "/static/mergely/editor/editor.css"}}" />
 
-    <link type='text/css' rel='stylesheet' href='/static/mergely/editor/lib/tipsy/tipsy.css' />
-    <script type="text/javascript" src="/static/mergely/editor/lib/tipsy/jquery.tipsy.js"></script>
-    <script type="text/javascript" src="/static/mergely/editor/lib/farbtastic/farbtastic.js"></script>
-    <link type="text/css" rel="stylesheet" href="/static/mergely/editor/lib/farbtastic/farbtastic.css" />
-    <script type="text/javascript" src="/static/mergely/lib/codemirror.min.js"></script>
-    <script type="text/javascript" src="/static/mergely/lib/mergely.min.js"></script>
-    <script type="text/javascript" src="/static/mergely/editor/editor.js"></script>
-    <link type="text/css" rel="stylesheet" href="/static/mergely/lib/codemirror.css" />
-    <link type="text/css" rel="stylesheet" href="/static/mergely/lib/mergely.css" />
-    <link type='text/css' rel='stylesheet' href='/static/mergely/editor/editor.css' />
-    <script type="text/javascript" src="/static/mergely/lib/searchcursor.js"></script>
+    <script type="text/javascript" src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
+    <script type="text/javascript" src="{{cdnjs "/static/mergely/editor/lib/wicked-ui.js"}}"></script>
+    <script type="text/javascript" src="{{cdnjs "/static/mergely/editor/lib/tipsy/jquery.tipsy.js"}}"></script>
+    <script type="text/javascript" src="{{cdnjs "/static/mergely/editor/lib/farbtastic/farbtastic.js"}}"></script>
+    <script type="text/javascript" src="{{cdnjs "/static/mergely/lib/codemirror.min.js"}}"></script>
+    <script type="text/javascript" src="{{cdnjs "/static/mergely/lib/mergely.min.js"}}"></script>
+    <script type="text/javascript" src="{{cdnjs "/static/mergely/editor/editor.js"}}"></script>
+    <script type="text/javascript" src="{{cdnjs "/static/mergely/lib/searchcursor.js"}}"></script>
     <script type="text/javascript">
         var key = '';
        // var isSample = key === 'usaindep';

@@ -56,6 +56,10 @@ func (c *ManagerController) Users() {
 	if totalCount > 0 {
 		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
+
+		for _,item := range members {
+			item.Avatar = conf.URLForWithCdnImage(item.Avatar)
+		}
 	} else {
 		c.Data["PageHtml"] = ""
 	}

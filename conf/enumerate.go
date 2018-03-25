@@ -80,7 +80,7 @@ func GetDatabasePrefix() string {
 
 //获取默认头像
 func GetDefaultAvatar() string {
-	return beego.AppConfig.DefaultString("avatar", "/static/images/headimgurl.jpg")
+	return URLForWithCdnImage(beego.AppConfig.DefaultString("avatar", "/static/images/headimgurl.jpg"))
 }
 
 //获取阅读令牌长度.
@@ -90,7 +90,7 @@ func GetTokenSize() int {
 
 //获取默认文档封面.
 func GetDefaultCover() string {
-	return beego.AppConfig.DefaultString("cover", "/static/images/book.jpg")
+	return URLForWithCdnImage(beego.AppConfig.DefaultString("cover", "/static/images/book.jpg"))
 }
 
 //获取允许的商城文件的类型.

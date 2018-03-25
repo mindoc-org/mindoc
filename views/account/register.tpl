@@ -7,12 +7,12 @@
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="SmartWiki" />
-    <title>用户登录 - Powered by MinDoc</title>
+    <title>用户注册 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
-    <link href="/static/css/main.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/main.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -26,7 +26,7 @@
 <header class="navbar navbar-static-top smart-nav navbar-fixed-top manual-header" role="banner">
     <div class="container">
         <div class="navbar-header col-sm-12 col-md-6 col-lg-5">
-            <a href="/" class="navbar-brand">{{.SITE_NAME}}</a>
+            <a href="{{.BaseUrl}}" class="navbar-brand">{{.SITE_NAME}}</a>
         </div>
     </div>
 </header>

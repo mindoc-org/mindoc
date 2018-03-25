@@ -24,7 +24,7 @@ func init() {
 
 				ctx.ResponseWriter.Write(returnJSON)
 			} else {
-				ctx.Redirect(302, beego.URLFor("AccountController.Login") + "?url=" + url.PathEscape(ctx.Request.URL.RequestURI()))
+				ctx.Redirect(302, conf.URLFor("AccountController.Login") + "?url=" +  url.PathEscape(conf.BaseUrl + ctx.Request.URL.RequestURI()))
 			}
 		}
 	}
