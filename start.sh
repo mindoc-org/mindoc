@@ -76,6 +76,10 @@ if [ ! -z $CACHE_REDIS_PASSWROD ]; then
     sed -i "s#cache_redis_password=.*#cache_redis_password=$CACHE_REDIS_PASSWROD#g" conf/app.conf
 fi
 
+if [ ! -z $BASEURL ]; then
+    sed -i "s#baseurl=.*#baseurl=$BASEURL#g" conf/app.conf
+fi
+
 sed -i 's/^runmode.*/runmode=prod/g' conf/app.conf
 
 /go/src/github.com/lifei6671/mindoc/mindoc_linux_amd64 install
