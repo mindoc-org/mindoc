@@ -620,7 +620,11 @@ func (book *Book) ImportBook(zipPath string) error {
 					return link
 				})
 
-				doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
+				doc.Content = string(blackfriday.Run([]byte(doc.Markdown),
+							blackfriday.WithExtensions(blackfriday.Tables),
+							blackfriday.WithExtensions(blackfriday.HeadingIDs),
+								blackfriday.WithExtensions(blackfriday.FencedCode),
+								blackfriday.WithExtensions(blackfriday.AutoHeadingIDs)))
 
 				doc.Version = time.Now().Unix()
 
