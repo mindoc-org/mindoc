@@ -1,26 +1,28 @@
 package models
 
 import (
+	"bytes"
+	"crypto/md5"
+	"errors"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
-	"fmt"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
-	"os"
-	"path/filepath"
-	"strconv"
-	"crypto/md5"
-	"io"
-	"errors"
-	"github.com/lifei6671/mindoc/utils/filetil"
-	"github.com/lifei6671/mindoc/utils/ziptil"
-	"strings"
-	"regexp"
-	"io/ioutil"
 	"github.com/lifei6671/mindoc/utils/cryptil"
+	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/requests"
+	"github.com/lifei6671/mindoc/utils/ziptil"
 	"gopkg.in/russross/blackfriday.v2"
 )
 
@@ -35,12 +37,12 @@ type Book struct {
 	AutoRelease int `orm:"column(auto_release);type(int);default(0)" json:"auto_release"`
 	//是否开启下载功能 0 是/1 否
 	IsDownload int `orm:"column(is_download);type(int);default(0)" json:"is_download"`
-	OrderIndex  int `orm:"column(order_index);type(int);default(0)" json:"order_index"`
+	OrderIndex int `orm:"column(order_index);type(int);default(0)" json:"order_index"`
 	// Description 项目描述.
 	Description string `orm:"column(description);size(2000)" json:"description"`
 	//发行公司
 	Publisher string `orm:"column(publisher);size(500)" json:"publisher"`
-	Label        string `orm:"column(label);size(500)" json:"label"`
+	Label     string `orm:"column(label);size(500)" json:"label"`
 	// PrivatelyOwned 项目私有： 0 公开/ 1 私有
 	PrivatelyOwned int `orm:"column(privately_owned);type(int);default(0)" json:"privately_owned"`
 	// 当项目是私有时的访问Token.
@@ -61,12 +63,12 @@ type Book struct {
 	// CreateTime 创建时间 .
 	CreateTime time.Time `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
 	//每个文档保存的历史记录数量，0 为不限制
-	HistoryCount int	 `orm:"column(history_count);type(int);default(0)" json:"history_count"`
+	HistoryCount int `orm:"column(history_count);type(int);default(0)" json:"history_count"`
 	//是否启用分享，0启用/1不启用
-	IsEnableShare int `orm:"column(is_enable_share);type(int);default(0)" json:"is_enable_share"`
-	MemberId   int       `orm:"column(member_id);size(100)" json:"member_id"`
-	ModifyTime time.Time `orm:"type(datetime);column(modify_time);null;auto_now" json:"modify_time"`
-	Version    int64     `orm:"type(bigint);column(version)" json:"version"`
+	IsEnableShare int       `orm:"column(is_enable_share);type(int);default(0)" json:"is_enable_share"`
+	MemberId      int       `orm:"column(member_id);size(100)" json:"member_id"`
+	ModifyTime    time.Time `orm:"type(datetime);column(modify_time);null;auto_now" json:"modify_time"`
+	Version       int64     `orm:"type(bigint);column(version)" json:"version"`
 	//是否使用第一篇文章项目为默认首页,0 否/1 是
 	IsUseFirstDocument int `orm:"column(is_use_first_document);type(int);default(0)" json:"is_use_first_document"`
 }
@@ -136,6 +138,7 @@ func (book *Book) Find(id int) (*Book, error) {
 
 	return book, err
 }
+
 //更新一个项目
 func (book *Book) Update(cols ...string) error {
 	o := orm.NewOrm()
@@ -147,7 +150,7 @@ func (book *Book) Update(cols ...string) error {
 		return err
 	}
 
-	if book.Label != "" || temp.Label != ""{
+	if book.Label != "" || temp.Label != "" {
 
 		go NewLabel().InsertOrUpdateMulti(book.Label + "," + temp.Label)
 	}
@@ -157,11 +160,11 @@ func (book *Book) Update(cols ...string) error {
 }
 
 //根据指定字段查询结果集.
-func (book *Book) FindByField(field string, value interface{}) ([]*Book, error) {
+func (book *Book) FindByField(field string, value interface{},cols ...string) ([]*Book, error) {
 	o := orm.NewOrm()
 
 	var books []*Book
-	_, err := o.QueryTable(book.TableNameWithPrefix()).Filter(field, value).All(&books)
+	_, err := o.QueryTable(book.TableNameWithPrefix()).Filter(field, value).All(&books,cols...)
 
 	return books, err
 }
@@ -248,7 +251,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 	}
 	o := orm.NewOrm()
 
-	book,err := book.Find(id);
+	book, err := book.Find(id)
 	if err != nil {
 		return err
 	}
@@ -283,7 +286,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		NewLabel().InsertOrUpdateMulti(book.Label)
 	}
 
-	os.RemoveAll(filepath.Join(conf.WorkingDirectory,"uploads","books",strconv.Itoa(id)))
+	os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(id)))
 
 	return o.Commit()
 
@@ -377,6 +380,72 @@ func (book *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, membe
 	}
 }
 
+//发布文档
+func (book *Book) ReleaseContent(bookId int) {
+
+	o := orm.NewOrm()
+
+	var docs []*Document
+	_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).All(&docs, "document_id", "identify", "content")
+
+	if err != nil {
+		beego.Error("发布失败 => ", err)
+		return
+	}
+	for _, item := range docs {
+		if item.Content != "" {
+			item.Release = item.Content
+			bufio := bytes.NewReader([]byte(item.Content))
+			//解析文档中非本站的链接，并设置为新窗口打开
+			if content, err := goquery.NewDocumentFromReader(bufio); err == nil {
+
+				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
+					if src, ok := contentSelection.Attr("href"); ok {
+						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
+							//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
+							if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
+								contentSelection.SetAttr("target", "_blank")
+								if html, err := content.Html(); err == nil {
+									item.Release = html
+								}
+							}
+						}
+
+					}
+				})
+			}
+		}
+
+		attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
+		if err == nil && len(attachList) > 0 {
+			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
+			for _, attach := range attachList {
+				if strings.HasPrefix(attach.HttpPath, "/") {
+					attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
+				}
+				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
+
+				content.WriteString(li)
+			}
+			content.WriteString("</ul></div>")
+			item.Release += content.String()
+		}
+		_, err = o.Update(item, "release")
+		if err != nil {
+			beego.Error(fmt.Sprintf("发布失败 => %+v", item), err)
+		} else {
+			//当文档发布后，需要清除已缓存的转换文档和文档缓存
+			if doc, err := NewDocument().Find(item.DocumentId); err == nil {
+				doc.PutToCache()
+			} else {
+				doc.RemoveCache()
+			}
+
+			os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId)))
+		}
+	}
+}
+
 //重置文档数量
 func (book *Book) ResetDocumentNumber(bookId int) {
 	o := orm.NewOrm()
@@ -389,39 +458,64 @@ func (book *Book) ResetDocumentNumber(bookId int) {
 	}
 }
 
-func (book *Book)ImportBook(zipPath string) error {
+func (book *Book) ImportBook(zipPath string) error {
 	if !filetil.FileExists(zipPath) {
-		return  errors.New("文件不存在 => " + zipPath)
+		return errors.New("文件不存在 => " + zipPath)
 	}
 
-
 	w := md5.New()
-	io.WriteString(w, zipPath)                    //将str写入到w中
+	io.WriteString(w, zipPath) //将str写入到w中
 	io.WriteString(w, time.Now().String())
 	io.WriteString(w, book.BookName)
 	md5str := fmt.Sprintf("%x", w.Sum(nil)) //w.Sum(nil)将w的hash转成[]byte格式
 
-	tempPath := strings.Replace(filepath.Join(os.TempDir(), md5str),"\\","/",-1)
+	tempPath := filepath.Join(os.TempDir(), md5str)
 
 	os.MkdirAll(tempPath, 0766)
 	//如果加压缩失败
-	if err := ziptil.Unzip(zipPath,tempPath);err != nil {
+	if err := ziptil.Unzip(zipPath, tempPath); err != nil {
 		return err
 	}
+	//当导入结束后，删除临时文件
+	defer os.RemoveAll(tempPath)
 
-	docMap := make(map[string]int,0)
+	for {
+		//如果当前目录下只有一个目录，则重置根目录
+		if entries, err := ioutil.ReadDir(tempPath); err == nil && len(entries) == 1 {
+			dir := entries[0]
+			if dir.IsDir() && dir.Name() != "." && dir.Name() != ".." {
+				tempPath = filepath.Join(tempPath, dir.Name())
+				break
+			}
 
-	book.Insert()
+		} else {
+			break
+		}
+	}
+
+	tempPath = strings.Replace(tempPath, "\\", "/", -1)
+
+	docMap := make(map[string]int, 0)
+
+	o := orm.NewOrm()
+
+	o.Insert(book)
+	relationship := NewRelationship()
+	relationship.BookId = book.BookId
+	relationship.RoleId = 0
+	relationship.MemberId = book.MemberId
+	relationship.Insert()
 
 	err := filepath.Walk(tempPath, func(path string, info os.FileInfo, err error) error {
-		path = strings.Replace(path,"\\","/",-1)
+		path = strings.Replace(path, "\\", "/", -1)
 		if path == tempPath {
 			return nil
 		}
 		if !info.IsDir() {
 			ext := filepath.Ext(info.Name())
 			//如果是Markdown文件
-			if strings.EqualFold(ext ,".md") || strings.EqualFold(ext , ".markdown" ) {
+			if strings.EqualFold(ext, ".md") || strings.EqualFold(ext, ".markdown") {
+				beego.Info("正在处理 =>",path,info.Name())
 				doc := NewDocument()
 				doc.BookId = book.BookId
 				doc.MemberId = book.MemberId
@@ -434,14 +528,14 @@ func (book *Book)ImportBook(zipPath string) error {
 				doc.Identify = docIdentify
 				//匹配图片，如果图片语法是在代码块中，这里同样会处理
 				re := regexp.MustCompile(`!\[(.*?)\]\((.*?)\)`)
-				markdown, err := ioutil.ReadFile(path);
+				markdown, err := ioutil.ReadFile(path)
 				if err != nil {
 					return err
 				}
 				//处理图片
 				doc.Markdown = re.ReplaceAllStringFunc(string(markdown), func(image string) string {
 
-					images := re.FindAllSubmatch([]byte(image), -1);
+					images := re.FindAllSubmatch([]byte(image), -1)
 					if len(images) <= 0 || len(images[0]) < 3 {
 						return image
 					}
@@ -492,24 +586,33 @@ func (book *Book)ImportBook(zipPath string) error {
 				linkRegexp := regexp.MustCompile(`\[(.*?)\]\((.*?)\)`)
 
 				doc.Markdown = linkRegexp.ReplaceAllStringFunc(doc.Markdown, func(link string) string {
-					links := linkRegexp.FindAllStringSubmatch(link,-1)
-					originalLink := links[0][2];
+					links := linkRegexp.FindAllStringSubmatch(link, -1)
+					originalLink := links[0][2]
 
-					linkPath,err := filepath.Abs(filepath.Join(filepath.Dir(path),originalLink))
+					linkPath, err := filepath.Abs(filepath.Join(filepath.Dir(path), originalLink))
 					if err == nil {
 						//如果本地存在该链接
 						if filetil.FileExists(linkPath) {
 							ext := filepath.Ext(linkPath)
 							//如果链接是Markdown文件，则生成文档标识,否则，将目标文件复制到项目目录
-							if strings.EqualFold(ext ,".md") || strings.EqualFold(ext , ".markdown" ) {
-								docIdentify := strings.Replace(strings.TrimPrefix(linkPath, tempPath+"/"), "/", "-", -1)
-
+							if strings.EqualFold(ext, ".md") || strings.EqualFold(ext, ".markdown") {
+								docIdentify := strings.Replace(strings.TrimPrefix(strings.Replace(linkPath, "\\", "/", -1), tempPath+"/"), "/", "-", -1)
+								//beego.Info(originalLink, "|", linkPath, "|", docIdentify)
 								if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
 									docIdentify = "import-" + docIdentify
 								}
-								link = strings.TrimSuffix(link,originalLink + ")") + conf.URLFor("DocumentController.Read",":key",book.Identify,":id",docIdentify) + ")"
-							}else{
-								//filetil.CopyFile(linkPath,)
+								docIdentify = strings.TrimSuffix(docIdentify, "-README.md")
+
+								link = strings.TrimSuffix(link, originalLink+")") + conf.URLFor("DocumentController.Read", ":key", book.Identify, ":id", docIdentify) + ")"
+							} else {
+								dstPath := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"), originalLink)
+
+								filetil.CopyFile(linkPath, dstPath)
+
+								link = strings.TrimPrefix(strings.Replace(dstPath, "\\", "/", -1), strings.Replace(conf.WorkingDirectory, "\\", "/", -1))
+
+								link = strings.TrimSuffix(link, originalLink+")") + link + ")"
+
 							}
 						}
 					}
@@ -517,9 +620,8 @@ func (book *Book)ImportBook(zipPath string) error {
 					return link
 				})
 
-
 				doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
-				doc.Release = doc.Content
+
 				doc.Version = time.Now().Unix()
 
 				//解析文档名称，默认使用第一个h标签为标题
@@ -536,7 +638,7 @@ func (book *Book)ImportBook(zipPath string) error {
 
 				parentId := 0
 
-				parentIdentify := strings.Replace(strings.Trim(strings.TrimSuffix(strings.TrimPrefix(path, tempPath),info.Name()), "/"), "/", "-", -1)
+				parentIdentify := strings.Replace(strings.Trim(strings.TrimSuffix(strings.TrimPrefix(path, tempPath), info.Name()), "/"), "/", "-", -1)
 
 				if parentIdentify != "" {
 
@@ -548,7 +650,7 @@ func (book *Book)ImportBook(zipPath string) error {
 					}
 				}
 				if strings.EqualFold(info.Name(), "README.md") {
-					beego.Info(path,"|",info.Name(),"|",parentIdentify,"|",parentId)
+					beego.Info(path, "|", info.Name(), "|", parentIdentify, "|", parentId)
 				}
 				isInsert := false
 				//如果当前文件是README.md，则将内容更新到父级
@@ -561,18 +663,18 @@ func (book *Book)ImportBook(zipPath string) error {
 					doc.ParentId = parentId
 					isInsert = true
 				}
-				if err := doc.InsertOrUpdate("document_name","markdown","release","content");err != nil {
-					beego.Error(doc.DocumentId,err)
+				if err := doc.InsertOrUpdate("document_name", "markdown", "content"); err != nil {
+					beego.Error(doc.DocumentId, err)
 				}
 				if isInsert {
 					docMap[docIdentify] = doc.DocumentId
 				}
 			}
-		}else{
+		} else {
 			//如果当前目录下存在Markdown文件，则需要创建此节点
-			if filetil.HasFileOfExt(path,[]string{".md",".markdown"}) {
-
-				identify := strings.Replace(strings.Trim(strings.TrimPrefix(path,tempPath),"/"),"/","-",-1)
+			if filetil.HasFileOfExt(path, []string{".md", ".markdown"}) {
+				beego.Info("正在处理 =>",path,info.Name())
+				identify := strings.Replace(strings.Trim(strings.TrimPrefix(path, tempPath), "/"), "/", "-", -1)
 				if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, identify); !ok || err != nil {
 					identify = "import-" + identify
 				}
@@ -587,27 +689,30 @@ func (book *Book)ImportBook(zipPath string) error {
 
 				parentId := 0
 
-				parentIdentify := strings.TrimSuffix(identify, "-" + info.Name())
+				parentIdentify := strings.TrimSuffix(identify, "-"+info.Name())
 
-				if id,ok := docMap[parentIdentify];ok {
+				if id, ok := docMap[parentIdentify]; ok {
 					parentId = id
 				}
 
 				parentDoc.ParentId = parentId
 
-
-				if err := parentDoc.InsertOrUpdate();err != nil {
+				if err := parentDoc.InsertOrUpdate(); err != nil {
 					beego.Error(err)
 				}
 
 				docMap[identify] = parentDoc.DocumentId
-				beego.Info(path,"|",parentDoc.DocumentId,"|",identify,"|",info.Name(),"|",parentIdentify)
+				//beego.Info(path,"|",parentDoc.DocumentId,"|",identify,"|",info.Name(),"|",parentIdentify)
 			}
 		}
-
 
 		return nil
 	})
 
+	if err != nil {
+		beego.Error("导入项目异常 => ", err)
+		book.Description = "【项目导入存在错误：" + err.Error() + "】"
+	}
+	book.ReleaseContent(book.BookId)
 	return err
 }

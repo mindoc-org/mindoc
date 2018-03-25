@@ -2,18 +2,15 @@ package models
 
 import (
 	"time"
-	"bytes"
+
+	"encoding/json"
 	"fmt"
+	"strconv"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
-	"strings"
-	"os"
-	"path/filepath"
-	"strconv"
-	"github.com/PuerkitoBio/goquery"
 	"github.com/lifei6671/mindoc/cache"
-	"encoding/json"
+	"github.com/lifei6671/mindoc/conf"
 )
 
 // Document struct.
@@ -45,6 +42,7 @@ func (m *Document) TableUnique() [][]string {
 		[]string{"book_id", "identify"},
 	}
 }
+
 // TableName 获取对应数据库表名.
 func (m *Document) TableName() string {
 	return "documents"
@@ -87,7 +85,7 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 	o := orm.NewOrm()
 	var err error
 	if m.DocumentId > 0 {
-		_, err = o.Update(m,cols...)
+		_, err = o.Update(m, cols...)
 	} else {
 		_, err = o.Insert(m)
 		NewBook().ResetDocumentNumber(m.BookId)
@@ -100,10 +98,10 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 }
 
 //根据文档识别编号和项目id获取一篇文档
-func (m *Document) FindByIdentityFirst(identify string,bookId int) (*Document,error) {
+func (m *Document) FindByIdentityFirst(identify string, bookId int) (*Document, error) {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",bookId).Filter("identify", identify).One(m)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", bookId).Filter("identify", identify).One(m)
 
 	return m, err
 }
@@ -126,8 +124,8 @@ func (m *Document) RecursiveDocument(docId int) error {
 	}
 
 	for _, item := range maps {
-		if docId,ok := item["document_id"].(string); ok{
-			id,_ := strconv.Atoi(docId)
+		if docId, ok := item["document_id"].(string); ok {
+			id, _ := strconv.Atoi(docId)
 			o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", id).Delete()
 			m.RecursiveDocument(id)
 		}
@@ -136,108 +134,43 @@ func (m *Document) RecursiveDocument(docId int) error {
 	return nil
 }
 
-//发布文档
-func (m *Document) ReleaseContent(bookId int) {
-
-	o := orm.NewOrm()
-
-	var docs []*Document
-	_, err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", bookId).All(&docs, "document_id","identify", "content")
-
-	if err != nil {
-		beego.Error("发布失败 => ", err)
-		return
-	}
-	for _, item := range docs {
-		if item.Content != "" {
-			item.Release = item.Content
-			bufio := bytes.NewReader([]byte(item.Content))
-			//解析文档中非本站的链接，并设置为新窗口打开
-			if content, err := goquery.NewDocumentFromReader(bufio);err == nil {
-
-				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
-					if src, ok := contentSelection.Attr("href"); ok{
-						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src,"https://") {
-							//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
-							if conf.BaseUrl != "" && !strings.HasPrefix(src,conf.BaseUrl) {
-								contentSelection.SetAttr("target", "_blank")
-								if html, err := content.Html();err == nil {
-									item.Release = html
-								}
-							}
-						}
-
-					}
-				})
-			}
-		}
-
-		attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
-		if err == nil && len(attachList) > 0 {
-			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
-			for _, attach := range attachList {
-				if strings.HasPrefix(attach.HttpPath, "/") {
-					attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
-				}
-				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
-
-				content.WriteString(li)
-			}
-			content.WriteString("</ul></div>")
-			item.Release += content.String()
-		}
-		_, err = o.Update(item, "release")
-		if err != nil {
-			beego.Error(fmt.Sprintf("发布失败 => %+v", item), err)
-		}else {
-			//当文档发布后，需要清除已缓存的转换文档和文档缓存
-			if doc,err := NewDocument().Find(item.DocumentId); err == nil {
-				doc.PutToCache()
-			}else{
-				doc.RemoveCache()
-			}
-
-			os.RemoveAll(filepath.Join(conf.WorkingDirectory,"uploads","books",strconv.Itoa(bookId)))
-		}
-	}
-}
-
 //将文档写入缓存
-func (m *Document) PutToCache(){
+func (m *Document) PutToCache() {
 	go func(m Document) {
-		if v,err := json.Marshal(&m);err == nil {
+		if v, err := json.Marshal(&m); err == nil {
 			if m.Identify == "" {
 
-				if err := cache.Put("Document.Id." + strconv.Itoa(m.DocumentId), v, time.Second*3600); err != nil {
+				if err := cache.Put("Document.Id."+strconv.Itoa(m.DocumentId), v, time.Second*3600); err != nil {
 					beego.Info("文档缓存失败:", m.DocumentId)
 				}
-			}else{
-				if err := cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s",m.BookId , m.Identify), v, time.Second*3600); err != nil {
+			} else {
+				if err := cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s", m.BookId, m.Identify), v, time.Second*3600); err != nil {
 					beego.Info("文档缓存失败:", m.DocumentId)
 				}
 			}
 		}
 	}(*m)
 }
+
 //清除缓存
 func (m *Document) RemoveCache() {
 	go func(m Document) {
-		cache.Put("Document.Id." + strconv.Itoa(m.DocumentId), m, time.Second*3600);
+		cache.Put("Document.Id."+strconv.Itoa(m.DocumentId), m, time.Second*3600)
 
 		if m.Identify != "" {
-			cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s",m.BookId , m.Identify), m, time.Second*3600);
+			cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s", m.BookId, m.Identify), m, time.Second*3600)
 		}
 	}(*m)
 }
 
 //从缓存获取
-func (m *Document) FromCacheById(id int) (*Document,error) {
+func (m *Document) FromCacheById(id int) (*Document, error) {
 	b := cache.Get("Document.Id." + strconv.Itoa(id))
-	if v,ok := b.([]byte); ok {
+	if v, ok := b.([]byte); ok {
 
-		if err := json.Unmarshal(v,m);err == nil{
-			beego.Info("从缓存中获取文档信息成功",m.DocumentId)
-			return m,nil
+		if err := json.Unmarshal(v, m); err == nil {
+			beego.Info("从缓存中获取文档信息成功", m.DocumentId)
+			return m, nil
 		}
 	}
 	defer func() {
@@ -249,12 +182,12 @@ func (m *Document) FromCacheById(id int) (*Document,error) {
 }
 
 //根据文档标识从缓存中查询文档
-func (m *Document) FromCacheByIdentify(identify string,bookId int) (*Document,error) {
-	b := cache.Get(fmt.Sprintf("Document.BookId.%d.Identify.%s",bookId , identify))
-	if v,ok := b.([]byte); ok {
-		if err := json.Unmarshal(v,m);err == nil{
-			beego.Info("从缓存中获取文档信息成功",m.DocumentId,identify)
-			return m,nil
+func (m *Document) FromCacheByIdentify(identify string, bookId int) (*Document, error) {
+	b := cache.Get(fmt.Sprintf("Document.BookId.%d.Identify.%s", bookId, identify))
+	if v, ok := b.([]byte); ok {
+		if err := json.Unmarshal(v, m); err == nil {
+			beego.Info("从缓存中获取文档信息成功", m.DocumentId, identify)
+			return m, nil
 		}
 	}
 	defer func() {
@@ -262,7 +195,7 @@ func (m *Document) FromCacheByIdentify(identify string,bookId int) (*Document,er
 			m.PutToCache()
 		}
 	}()
-	return m.FindByIdentityFirst(identify,bookId)
+	return m.FindByIdentityFirst(identify, bookId)
 }
 
 //根据项目ID查询文档列表.
@@ -273,4 +206,3 @@ func (m *Document) FindListByBookId(bookId int) (docs []*Document, err error) {
 
 	return
 }
-

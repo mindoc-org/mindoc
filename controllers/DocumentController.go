@@ -766,7 +766,7 @@ func (c *DocumentController) Content() {
 		//如果启用了自动发布
 		if autoRelease {
 			go func(identify string) {
-				models.NewDocument().ReleaseContent(bookId)
+				models.NewBook().ReleaseContent(bookId)
 
 			}(identify)
 		}

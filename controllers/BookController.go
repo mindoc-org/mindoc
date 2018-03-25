@@ -473,7 +473,7 @@ func (c *BookController) Create() {
 			}
 		}
 
-		if books, _ := book.FindByField("identify", identify); len(books) > 0 {
+		if books, _ := book.FindByField("identify", identify,"book_id"); len(books) > 0 {
 			c.JsonResult(6006, "项目标识已存在")
 		}
 
@@ -541,6 +541,10 @@ func (c *BookController) Import() {
 
 	if !strings.EqualFold(ext, ".zip") {
 		c.JsonResult(6004, "不支持的文件类型")
+	}
+
+	if books, _ := models.NewBook().FindByField("identify", identify,"book_id"); len(books) > 0 {
+		c.JsonResult(6006, "项目标识已存在")
 	}
 
 	tempPath := filepath.Join(os.TempDir(), c.CruSession.SessionID())
@@ -676,7 +680,7 @@ func (c *BookController) Release() {
 		bookId = book.BookId
 	}
 	go func(identify string) {
-		models.NewDocument().ReleaseContent(bookId)
+		models.NewBook().ReleaseContent(bookId)
 
 		//当文档发布后，需要删除已缓存的转换项目
 		outputPath := filepath.Join(beego.AppConfig.DefaultString("book_output_path", "cache"), strconv.Itoa(bookId))

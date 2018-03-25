@@ -194,11 +194,11 @@
                     <div class="form-group">
                         <div class="form-group required">
                             <label class="text-label">项目标题</label>
-                            <input type="text" class="form-control" placeholder="项目标题(不超过100字)" name="book_name" maxlength="100" value="导入测试">
+                            <input type="text" class="form-control" placeholder="项目标题(不超过100字)" name="book_name" maxlength="100" value="">
                         </div>
                         <div class="form-group required">
                             <label class="text-label">项目标识</label>
-                            <input type="text" class="form-control"  placeholder="项目唯一标识(不超过50字)" name="identify" value="import">
+                            <input type="text" class="form-control"  placeholder="项目唯一标识(不超过50字)" name="identify" value="">
                             <div class="clearfix"></div>
                             <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
                         </div>
