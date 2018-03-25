@@ -7,6 +7,7 @@
 
     <title>编辑文档 - Powered by MinDoc</title>
     <script type="text/javascript">
+        window.baseUrl = "{{.BaseUrl}}";
         window.editor = null;
         window.imageUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
         window.fileUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
@@ -303,7 +304,7 @@
                     window.uploader = WebUploader.create({
                         auto: true,
                         dnd : true,
-                        swf: '/static/webuploader/Uploader.swf',
+                        swf: '{{.BaseUrl}}/static/webuploader/Uploader.swf',
                         server: '{{urlfor "DocumentController.Upload"}}',
                         formData : { "identify" : {{.Model.Identify}},"doc_id" :  window.selectNode.id },
                         pick: "#filePicker",

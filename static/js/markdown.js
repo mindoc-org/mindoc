@@ -1,13 +1,13 @@
 $(function () {
     editormd.katexURL = {
-        js  : "/static/katex/katex",
-        css : "/static/katex/katex"
+        js  : window.baseUrl + "/static/katex/katex",
+        css : window.baseUrl + "/static/katex/katex"
     };
     window.addDocumentModalFormHtml = $(this).find("form").html();
     window.editor = editormd("docEditor", {
         width: "100%",
         height: "100%",
-        path: "/static/editor.md/lib/",
+        path: window.baseUrl + "/static/editor.md/lib/",
         toolbar: true,
         placeholder: "本编辑器支持 Markdown 编辑，左边编写，右边预览。",
         imageUpload: true,
