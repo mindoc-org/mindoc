@@ -438,6 +438,7 @@ func (book *Book)ImportBook(zipPath string) error {
 				if err != nil {
 					return err
 				}
+				//处理图片
 				doc.Markdown = re.ReplaceAllStringFunc(string(markdown), func(image string) string {
 
 					images := re.FindAllSubmatch([]byte(image), -1);
@@ -487,6 +488,36 @@ func (book *Book)ImportBook(zipPath string) error {
 					imageUrl = strings.Replace(strings.TrimSuffix(image, originalImageUrl+")")+imageUrl+")", "\\", "/", -1)
 					return imageUrl
 				})
+
+				linkRegexp := regexp.MustCompile(`\[(.*?)\]\((.*?)\)`)
+
+				doc.Markdown = linkRegexp.ReplaceAllStringFunc(doc.Markdown, func(link string) string {
+					links := linkRegexp.FindAllStringSubmatch(link,-1)
+					originalLink := links[0][2];
+
+					linkPath,err := filepath.Abs(filepath.Join(filepath.Dir(path),originalLink))
+					if err == nil {
+						//如果本地存在该链接
+						if filetil.FileExists(linkPath) {
+							ext := filepath.Ext(linkPath)
+							//如果链接是Markdown文件，则生成文档标识,否则，将目标文件复制到项目目录
+							if strings.EqualFold(ext ,".md") || strings.EqualFold(ext , ".markdown" ) {
+								docIdentify := strings.Replace(strings.TrimPrefix(linkPath, tempPath+"/"), "/", "-", -1)
+
+								if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
+									docIdentify = "import-" + docIdentify
+								}
+								link = strings.TrimSuffix(link,originalLink + ")") + conf.URLFor("DocumentController.Read",":key",book.Identify,":id",docIdentify) + ")"
+							}else{
+								//filetil.CopyFile(linkPath,)
+							}
+						}
+					}
+
+					return link
+				})
+
+
 				doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
 				doc.Release = doc.Content
 				doc.Version = time.Now().Unix()
