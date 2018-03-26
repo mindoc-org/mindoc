@@ -400,11 +400,14 @@ func (m *BookResult) ExportMarkdown(sessionId string) (string, error) {
 
 	defer os.RemoveAll(tempOutputPath)
 
-	err := exportMarkdown(tempOutputPath, 0, m.BookId,tempOutputPath)
+	bookUrl := conf.URLFor("DocumentController.Index",":key" , m.Identify) + "/"
+
+	err := exportMarkdown(tempOutputPath, 0, m.BookId,tempOutputPath,bookUrl)
 
 	if err != nil {
 		return "", err
 	}
+
 
 	if err := ziptil.Compress(outputPath, tempOutputPath); err != nil {
 		beego.Error("导出Markdown失败=>", err)
@@ -413,7 +416,8 @@ func (m *BookResult) ExportMarkdown(sessionId string) (string, error) {
 	return outputPath, nil
 }
 
-func exportMarkdown(p string, parentId int, bookId int,baseDir string) error {
+//递归导出Markdown文档
+func exportMarkdown(p string, parentId int, bookId int,baseDir string,bookUrl string) error {
 	o := orm.NewOrm()
 
 	var docs []*Document
@@ -443,9 +447,13 @@ func exportMarkdown(p string, parentId int, bookId int,baseDir string) error {
 			}
 		} else {
 			if doc.Identify != "" {
-				docPath = filepath.Join(p, doc.Identify+".md")
+				if strings.HasSuffix(doc.Identify,".md") || strings.HasSuffix(doc.Identify,".markdown") {
+					docPath = filepath.Join(p, doc.Identify)
+				}else {
+					docPath = filepath.Join(p, doc.Identify+".md")
+				}
 			} else {
-				docPath = filepath.Join(p, doc.DocumentName+".md")
+				docPath = filepath.Join(p, strings.TrimSpace(doc.DocumentName)+".md")
 			}
 		}
 		dirPath := filepath.Dir(docPath)
@@ -493,7 +501,31 @@ func exportMarkdown(p string, parentId int, bookId int,baseDir string) error {
 				if len(links) > 0 && len(links[0]) >= 3 {
 					originalLink := links[0][2]
 
-					link = strings.TrimSuffix(link, originalLink+")") + strings.TrimPrefix(originalLink, conf.BaseUrl) + ")"
+					//如果当前链接位于当前项目内
+					if strings.HasPrefix(originalLink,bookUrl) {
+						docIdentify := strings.TrimSpace(strings.TrimPrefix(originalLink, bookUrl))
+						tempDoc := NewDocument()
+						if id,err := strconv.Atoi(docIdentify);err == nil && id > 0 {
+							err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("document_id",id).One(tempDoc,"identify","parent_id","document_id")
+							if err != nil {
+								beego.Error(err)
+								return link
+							}
+						}else{
+							err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("identify",docIdentify).One(tempDoc,"identify","parent_id","document_id")
+							if err != nil {
+								beego.Error(err)
+								return link
+							}
+						}
+						tempLink := recursiveJoinDocumentIdentify(tempDoc.ParentId,"") + strings.TrimPrefix(originalLink, bookUrl)
+
+						if !strings.HasSuffix(tempLink,".md") && !strings.HasSuffix(doc.Identify,".markdown") {
+							tempLink = tempLink + ".md"
+						}
+
+						link = strings.TrimSuffix(link, originalLink+")") + tempLink + ")"
+					}
 				}
 
 				return link
@@ -508,12 +540,35 @@ func exportMarkdown(p string, parentId int, bookId int,baseDir string) error {
 		}
 
 		if subDocCount > 0 {
-			if err = exportMarkdown(dirPath, doc.DocumentId, bookId,baseDir); err != nil {
+			if err = exportMarkdown(dirPath, doc.DocumentId, bookId,baseDir,bookUrl); err != nil {
 				return err
 			}
 		}
 	}
 	return nil
+}
+
+func recursiveJoinDocumentIdentify(parentDocId int,identify string) string {
+	o := orm.NewOrm()
+
+	doc := NewDocument()
+
+	err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("document_id",parentDocId).One(doc,"identify","parent_id","document_id")
+
+	if err != nil {
+		beego.Error(err)
+		return identify
+	}
+
+	if doc.Identify == "" {
+		identify = strconv.Itoa(doc.DocumentId) + "/" + identify
+	}else{
+		identify = doc.Identify + "/" + identify
+	}
+	if doc.ParentId > 0 {
+		identify = recursiveJoinDocumentIdentify(doc.ParentId,identify)
+	}
+	return identify
 }
 
 //查询项目的第一篇文档
