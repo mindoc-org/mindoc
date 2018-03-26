@@ -523,6 +523,14 @@ func exportMarkdown(p string, parentId int, bookId int,baseDir string,bookUrl st
 						if !strings.HasSuffix(tempLink,".md") && !strings.HasSuffix(doc.Identify,".markdown") {
 							tempLink = tempLink + ".md"
 						}
+						relative := strings.TrimPrefix(strings.Replace(p,"\\","/",-1),strings.Replace(baseDir,"\\","/",-1))
+						repeat := 0
+						if relative != "" {
+							relative = strings.TrimSuffix(strings.TrimPrefix(relative,"/"),"/")
+							repeat = strings.Count(relative,"/") + 1
+						}
+						beego.Info(repeat,"|",relative,"|",p,"|",baseDir)
+						tempLink = strings.Repeat("../",repeat) + tempLink
 
 						link = strings.TrimSuffix(link, originalLink+")") + tempLink + ")"
 					}
