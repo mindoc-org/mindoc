@@ -545,6 +545,11 @@ func (book *Book) ImportBook(zipPath string) error {
 
 					//如果是本地路径，则需要将图片复制到项目目录
 					if !strings.HasPrefix(imageUrl, "http://") && !strings.HasPrefix(imageUrl, "https://") {
+						//如果路径中存在参数
+						if l := strings.Index(imageUrl,"?"); l > 0 {
+							imageUrl = imageUrl[:l]
+						}
+
 						if strings.HasPrefix(imageUrl, "/") {
 							imageUrl = filepath.Join(tempPath, imageUrl)
 						} else if strings.HasPrefix(imageUrl, "./") {
@@ -560,7 +565,7 @@ func (book *Book) ImportBook(zipPath string) error {
 						if filetil.FileExists(imageUrl) {
 							filetil.CopyFile(imageUrl, dstFile)
 
-							imageUrl = strings.TrimPrefix(dstFile, conf.WorkingDirectory)
+							imageUrl = strings.TrimPrefix(strings.Replace(dstFile,"\\","/",-1), strings.Replace(conf.WorkingDirectory,"\\","/",-1))
 
 							if !strings.HasPrefix(imageUrl, "/") && !strings.HasPrefix(imageUrl, "\\") {
 								imageUrl = "/" + imageUrl
@@ -642,7 +647,7 @@ func (book *Book) ImportBook(zipPath string) error {
 					}
 				}
 
-				doc.DocumentName = docName
+				doc.DocumentName = strings.TrimSpace(docName)
 
 				parentId := 0
 
