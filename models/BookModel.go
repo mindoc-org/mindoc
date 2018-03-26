@@ -620,11 +620,14 @@ func (book *Book) ImportBook(zipPath string) error {
 					return link
 				})
 
-				doc.Content = string(blackfriday.Run([]byte(doc.Markdown),
-							blackfriday.WithExtensions(blackfriday.Tables),
-							blackfriday.WithExtensions(blackfriday.HeadingIDs),
-								blackfriday.WithExtensions(blackfriday.FencedCode),
-								blackfriday.WithExtensions(blackfriday.AutoHeadingIDs)))
+				//codeRe := regexp.MustCompile("```\\w+")
+
+				//doc.Markdown = codeRe.ReplaceAllStringFunc(doc.Markdown, func(s string) string {
+				//	//beego.Info(s)
+				//	return strings.Replace(s,"```","``` ",-1)
+				//})
+
+				doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
 
 				doc.Version = time.Now().Unix()
 

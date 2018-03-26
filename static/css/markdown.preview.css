@@ -56,8 +56,11 @@
     border-radius:0;
     line-height: 1.4em;
 }
-.editormd-preview-container pre.prettyprint, .editormd-html-preview pre.prettyprint{
+.editormd-preview-container pre.prettyprint, .editormd-html-preview pre.prettyprint {
     padding: 0;
+}
+.hljs{
+    padding: 10px 15px !important;
 }
 .editormd-preview-container ol.linenums, .editormd-html-preview ol.linenums{
     color: #999;
