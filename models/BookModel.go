@@ -615,9 +615,9 @@ func (book *Book) ImportBook(zipPath string) error {
 
 								filetil.CopyFile(linkPath, dstPath)
 
-								link = strings.TrimPrefix(strings.Replace(dstPath, "\\", "/", -1), strings.Replace(conf.WorkingDirectory, "\\", "/", -1))
+								tempLink := strings.TrimPrefix(strings.Replace(dstPath, "\\", "/", -1), strings.Replace(conf.WorkingDirectory, "\\", "/", -1))
 
-								link = strings.TrimSuffix(link, originalLink+")") + link + ")"
+								link = strings.TrimSuffix(tempLink, originalLink+")") + link + ")"
 
 							}
 						}
