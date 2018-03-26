@@ -451,53 +451,57 @@ func exportMarkdown(p string, parentId int, bookId int,baseDir string) error {
 		dirPath := filepath.Dir(docPath)
 
 		os.MkdirAll(dirPath, 0766)
+		markdown := doc.Markdown
+		//如果当前文档不为空
+		if strings.TrimSpace(doc.Markdown) != "" {
+			re := regexp.MustCompile(`!\[(.*?)\]\((.*?)\)`)
 
-
-		re := regexp.MustCompile(`!\[(.*?)\]\((.*?)\)`)
-
-		//处理文档中图片
-		markdown := re.ReplaceAllStringFunc(doc.Markdown, func(image string) string {
-			images := re.FindAllSubmatch([]byte(image), -1)
-			if len(images) <= 0 || len(images[0]) < 3 {
-				return image
-			}
-			originalImageUrl := string(images[0][2])
-			imageUrl := strings.Replace(string(originalImageUrl), "\\", "/", -1)
-
-			//如果是本地路径，则需要将图片复制到项目目录
-			if strings.HasPrefix(imageUrl, "http://") || strings.HasPrefix(imageUrl, "https://") {
-				imageExt := cryptil.Md5Crypt(imageUrl) + filepath.Ext(imageUrl)
-
-				dstFile := filepath.Join(baseDir, "uploads", time.Now().Format("200601"), imageExt)
-
-				if err := requests.DownloadAndSaveFile(imageUrl, dstFile); err == nil {
-					imageUrl = strings.TrimPrefix(strings.Replace(dstFile, "\\", "/", -1), strings.Replace(baseDir, "\\", "/", -1))
-					if !strings.HasPrefix(imageUrl, "/") && !strings.HasPrefix(imageUrl, "\\") {
-						imageUrl = "/" + imageUrl
-					}
+			//处理文档中图片
+			markdown = re.ReplaceAllStringFunc(doc.Markdown, func(image string) string {
+				images := re.FindAllSubmatch([]byte(image), -1)
+				if len(images) <= 0 || len(images[0]) < 3 {
+					return image
 				}
-			}else if strings.HasPrefix(imageUrl,"/"){
-				filetil.CopyFile(filepath.Join(conf.WorkingDirectory,imageUrl),filepath.Join(baseDir,imageUrl))
-			}
+				originalImageUrl := string(images[0][2])
+				imageUrl := strings.Replace(string(originalImageUrl), "\\", "/", -1)
 
-			imageUrl = strings.Replace(strings.TrimSuffix(image, originalImageUrl+")")+imageUrl+")", "\\", "/", -1)
+				//如果是本地路径，则需要将图片复制到项目目录
+				if strings.HasPrefix(imageUrl, "http://") || strings.HasPrefix(imageUrl, "https://") {
+					imageExt := cryptil.Md5Crypt(imageUrl) + filepath.Ext(imageUrl)
 
-			return imageUrl
-		})
+					dstFile := filepath.Join(baseDir, "uploads", time.Now().Format("200601"), imageExt)
 
-		linkRe := regexp.MustCompile(`\[(.*?)\]\((.*?)\)`)
+					if err := requests.DownloadAndSaveFile(imageUrl, dstFile); err == nil {
+						imageUrl = strings.TrimPrefix(strings.Replace(dstFile, "\\", "/", -1), strings.Replace(baseDir, "\\", "/", -1))
+						if !strings.HasPrefix(imageUrl, "/") && !strings.HasPrefix(imageUrl, "\\") {
+							imageUrl = "/" + imageUrl
+						}
+					}
+				} else if strings.HasPrefix(imageUrl, "/") {
+					filetil.CopyFile(filepath.Join(conf.WorkingDirectory, imageUrl), filepath.Join(baseDir, imageUrl))
+				}
 
-		markdown = linkRe.ReplaceAllStringFunc(markdown, func(link string) string {
-			links := linkRe.FindAllStringSubmatch(link, -1)
-			if len(links) > 0 && len(links[0]) >= 3 {
-				originalLink := links[0][2]
+				imageUrl = strings.Replace(strings.TrimSuffix(image, originalImageUrl+")")+imageUrl+")", "\\", "/", -1)
 
-				link = strings.TrimSuffix(link, originalLink+")") + strings.TrimPrefix(originalLink,conf.BaseUrl) + ")"
-			}
+				return imageUrl
+			})
 
-			return link
+			linkRe := regexp.MustCompile(`\[(.*?)\]\((.*?)\)`)
 
-		})
+			markdown = linkRe.ReplaceAllStringFunc(markdown, func(link string) string {
+				links := linkRe.FindAllStringSubmatch(link, -1)
+				if len(links) > 0 && len(links[0]) >= 3 {
+					originalLink := links[0][2]
+
+					link = strings.TrimSuffix(link, originalLink+")") + strings.TrimPrefix(originalLink, conf.BaseUrl) + ")"
+				}
+
+				return link
+
+			})
+		}else{
+			markdown = "# " + doc.DocumentName + "\n"
+		}
 		if err := ioutil.WriteFile(docPath, []byte(markdown), 0644); err != nil {
 			beego.Error("导出Markdown失败=>", err)
 			return err
