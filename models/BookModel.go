@@ -528,10 +528,11 @@ func (book *Book) ImportBook(zipPath string) error {
 				doc.Identify = docIdentify
 				//匹配图片，如果图片语法是在代码块中，这里同样会处理
 				re := regexp.MustCompile(`!\[(.*?)\]\((.*?)\)`)
-				markdown, err := ioutil.ReadFile(path)
+				markdown, err := filetil.ReadFileAndIgnoreUTF8BOM(path)
 				if err != nil {
 					return err
 				}
+
 				//处理图片
 				doc.Markdown = re.ReplaceAllStringFunc(string(markdown), func(image string) string {
 
@@ -720,6 +721,7 @@ func (book *Book) ImportBook(zipPath string) error {
 		beego.Error("导入项目异常 => ", err)
 		book.Description = "【项目导入存在错误：" + err.Error() + "】"
 	}
+	beego.Info("项目导入完毕 => ",book.BookName)
 	book.ReleaseContent(book.BookId)
 	return err
 }

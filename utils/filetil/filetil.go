@@ -7,6 +7,8 @@ import (
 	"io"
 	"fmt"
 	"math"
+	"io/ioutil"
+	"bytes"
 )
 
 //==================================
@@ -217,4 +219,39 @@ func HasFileOfExt(path string,exts []string) bool {
 	})
 
 	return err == os.ErrExist
+}
+//忽略字符串中的BOM头
+func ReadFileAndIgnoreUTF8BOM(filename string) ([]byte,error) {
+
+	data,err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil,err
+	}
+	if data == nil {
+		return nil,nil
+	}
+	data = bytes.Replace(data,[]byte("\r"),[]byte(""),-1)
+	if len(data) >= 3 && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf {
+		return data[3:],err
+	}
+
+
+	return data,nil
+
+	//fd, err := os.Open(filename)
+	//
+	//if err != nil {
+	//	return nil,err
+	//}
+	//bom := [3]byte{}
+	//
+	//_, err = io.ReadFull(fd, bom[:])
+	//if err != nil {
+	//	return nil,err
+	//}
+	//if bom[0] != 0xef || bom[1] != 0xbb || bom[2] != 0xbf {
+	//	_, err = fd.Seek(0, 0)
+	//}
+	//
+	//return ioutil.ReadAll(fd)
 }
