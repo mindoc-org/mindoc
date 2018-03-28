@@ -70,6 +70,9 @@ function loadDocument($url, $id, $callback) {
  */
 function initHighlighting() {
     $('pre,pre.ql-syntax').each(function (i, block) {
+        if($(this).hasClass('prettyprinted')){
+            return;
+        }
         hljs.highlightBlock(block);
     });
     hljs.initLineNumbersOnLoad();
