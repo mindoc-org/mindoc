@@ -87,6 +87,14 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 	if m.DocumentId > 0 {
 		_, err = o.Update(m, cols...)
 	} else {
+		if m.Identify == "" {
+			book := NewBook()
+			identify := "docs"
+			if err := o.QueryTable(book.TableNameWithPrefix()).One(book,"identify");err == nil {
+				identify = book.Identify
+			}
+			m.Identify = fmt.Sprintf("%s-%d%d",identify,m.BookId,time.Now().Unix())
+		}
 		_, err = o.Insert(m)
 		NewBook().ResetDocumentNumber(m.BookId)
 	}

@@ -223,7 +223,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	docxpath := filepath.Join(outputPath, "book.docx")
 
 	//先将转换的文件储存到临时目录
-	tempOutputPath := filepath.Join(os.TempDir(), sessionId, m.Identify) //filepath.Abs(filepath.Join("cache", sessionId))
+	tempOutputPath := filepath.Join(os.TempDir(), sessionId, m.Identify,"source") //filepath.Abs(filepath.Join("cache", sessionId))
 
 	os.MkdirAll(outputPath, 0766)
 	os.MkdirAll(tempOutputPath, 0766)
@@ -366,10 +366,12 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	eBookConverter := &converter.Converter{
 		BasePath:   tempOutputPath,
-		OutputPath: strings.TrimSuffix(tempOutputPath, "sources"),
+		OutputPath: filepath.Join(strings.TrimSuffix(tempOutputPath, "source"),"output"),
 		Config:     ebookConfig,
 		Debug:      true,
 	}
+
+	os.MkdirAll(eBookConverter.OutputPath,0766)
 
 	if err := eBookConverter.Convert(); err != nil {
 		beego.Error("转换文件错误：" + m.BookName + " => " + err.Error())
@@ -377,10 +379,10 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	}
 	beego.Info("文档转换完成：" + m.BookName)
 
-	filetil.CopyFile(mobipath, filepath.Join(tempOutputPath, "output", "book.mobi"))
-	filetil.CopyFile(pdfpath, filepath.Join(tempOutputPath, "output", "book.pdf"))
-	filetil.CopyFile(epubpath, filepath.Join(tempOutputPath, "output", "book.epub"))
-	filetil.CopyFile(docxpath, filepath.Join(tempOutputPath, "output", "book.docx"))
+	filetil.CopyFile(filepath.Join(eBookConverter.OutputPath,"output", "book.mobi"),mobipath,)
+	filetil.CopyFile(filepath.Join(eBookConverter.OutputPath,"output", "book.pdf"),pdfpath)
+	filetil.CopyFile(filepath.Join(eBookConverter.OutputPath,"output", "book.epub"),epubpath)
+	filetil.CopyFile(filepath.Join(eBookConverter.OutputPath,"output", "book.docx"),docxpath)
 
 	convertBookResult.MobiPath = mobipath
 	convertBookResult.PDFPath = pdfpath
