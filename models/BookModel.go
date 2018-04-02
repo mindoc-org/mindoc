@@ -279,6 +279,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 
 	if err != nil {
 		o.Rollback()
+
 		return err
 	}
 
@@ -389,7 +390,7 @@ func (book *Book) ReleaseContent(bookId int) {
 	_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).All(&docs, "document_id", "identify", "content")
 
 	if err != nil {
-		beego.Error("发布失败 => ", err)
+		beego.Error("发布失败 =>",bookId, err)
 		return
 	}
 	for _, item := range docs {
@@ -441,7 +442,10 @@ func (book *Book) ReleaseContent(bookId int) {
 				doc.RemoveCache()
 			}
 
-			os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId)))
+			if err := os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId))); err != nil {
+				beego.Error("删除已缓存的文档目录失败 => ",filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId)))
+			}
+
 		}
 	}
 }
@@ -452,9 +456,12 @@ func (book *Book) ResetDocumentNumber(bookId int) {
 
 	totalCount, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).Count()
 	if err == nil {
-		o.Raw("UPDATE md_books SET doc_count = ? WHERE book_id = ?", int(totalCount), bookId).Exec()
+		_,err = o.Raw("UPDATE md_books SET doc_count = ? WHERE book_id = ?", int(totalCount), bookId).Exec()
+		if err != nil {
+			beego.Error("重置文档数量失败 =>",bookId,err)
+		}
 	} else {
-		beego.Error(err)
+		beego.Error("获取文档数量失败 =>",bookId,err)
 	}
 }
 
@@ -471,7 +478,9 @@ func (book *Book) ImportBook(zipPath string) error {
 
 	tempPath := filepath.Join(os.TempDir(), md5str)
 
-	os.MkdirAll(tempPath, 0766)
+	if err := os.MkdirAll(tempPath, 0766); err != nil {
+		beego.Error("创建导入目录出错 => ",err)
+	}
 	//如果加压缩失败
 	if err := ziptil.Unzip(zipPath, tempPath); err != nil {
 		return err
