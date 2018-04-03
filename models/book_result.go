@@ -232,9 +232,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		beego.Error("创建目录失败 => ",tempOutputPath,err)
 	}
 
-	defer func(p string) {
-		os.RemoveAll(p)
-	}(tempOutputPath)
+	defer os.RemoveAll(strings.TrimSuffix(tempOutputPath,"source"))
 
 	if filetil.FileExists(pdfpath) && filetil.FileExists(epubpath) && filetil.FileExists(mobipath) && filetil.FileExists(docxpath) {
 		convertBookResult.EpubPath = epubpath

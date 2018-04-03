@@ -458,15 +458,15 @@ func (this *Converter) convertToEpub() (err error) {
 		filepath.Join(this.OutputPath, "content.epub"),
 		filepath.Join(this.OutputPath, output, "book.epub"),
 	}
-	cmd := exec.Command(ebookConvert, args...)
+	//cmd := exec.Command(ebookConvert, args...)
+	//
+	//if this.Debug {
+	//	fmt.Println(cmd.Args)
+	//}
+	//fmt.Println("正在转换EPUB文件", args[0])
+	//return cmd.Run()
 
-	if this.Debug {
-		fmt.Println(cmd.Args)
-	}
-	fmt.Println("正在转换EPUB文件", args[0])
-	return cmd.Run()
-
-	//return filetil.CopyFile(filepath.Join(this.OutputPath, "content.epub"),filepath.Join(this.OutputPath, output, "book.epub"))
+	return filetil.CopyFile(args[0],args[1])
 }
 
 //转成mobi
