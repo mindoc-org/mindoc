@@ -16,7 +16,7 @@ RUN   go get -u github.com/golang/dep/cmd/dep && dep ensure && \
       rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock
 
 ################
-# docker build -t trydofor/mindoc:0.10 .
+# docker build -t trydofor/mindoc:0.10.1 .
 ################
 
 FROM alpine:3.7
@@ -37,5 +37,4 @@ VOLUME $MINDOC_ROOT/conf
 VOLUME $MINDOC_ROOT/uploads
 EXPOSE $HTTP_PORT
 
-ENTRYPOINT ["./start.sh"]
-CMD [""]
+CMD ["./start.sh"]
