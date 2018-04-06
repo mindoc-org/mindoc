@@ -223,14 +223,16 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	docxpath := filepath.Join(outputPath, "book.docx")
 
 	//先将转换的文件储存到临时目录
-	tempOutputPath := filepath.Join(os.TempDir(), sessionId, m.Identify) //filepath.Abs(filepath.Join("cache", sessionId))
+	tempOutputPath := filepath.Join(os.TempDir(), sessionId, m.Identify,"source") //filepath.Abs(filepath.Join("cache", sessionId))
 
-	os.MkdirAll(outputPath, 0766)
-	os.MkdirAll(tempOutputPath, 0766)
+	if err := os.MkdirAll(outputPath, 0766); err != nil {
+		beego.Error("创建目录失败 => ",outputPath,err)
+	}
+	if err := os.MkdirAll(tempOutputPath, 0766);err != nil {
+		beego.Error("创建目录失败 => ",tempOutputPath,err)
+	}
 
-	defer func(p string) {
-		os.RemoveAll(p)
-	}(tempOutputPath)
+	defer os.RemoveAll(strings.TrimSuffix(tempOutputPath,"source"))
 
 	if filetil.FileExists(pdfpath) && filetil.FileExists(epubpath) && filetil.FileExists(mobipath) && filetil.FileExists(docxpath) {
 		convertBookResult.EpubPath = epubpath
@@ -356,20 +358,36 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		f.Close()
 	}
 
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "kancloud.css"), filepath.Join(tempOutputPath, "styles", "css", "kancloud.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "export.css"), filepath.Join(tempOutputPath, "styles", "css", "export.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "editor.md", "css", "editormd.preview.css"), filepath.Join(tempOutputPath, "styles", "editor.md", "css", "editormd.preview.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "prettify", "themes", "prettify.css"), filepath.Join(tempOutputPath, "styles", "prettify", "themes", "prettify.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css,", "markdown.preview.css"), filepath.Join(tempOutputPath, "styles", "css", "markdown.preview.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "highlight", "styles", "vs.css"), filepath.Join(tempOutputPath, "styles", "highlight", "styles", "vs.css"))
-	filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "katex", "katex.min.css"), filepath.Join(tempOutputPath, "styles", "katex", "katex.min.css"))
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "kancloud.css"), filepath.Join(tempOutputPath, "styles", "css", "kancloud.css")); err != nil {
+		beego.Error("复制CSS样式出错 => static/css/kancloud.css",err)
+	}
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "export.css"), filepath.Join(tempOutputPath, "styles", "css", "export.css"));err != nil {
+		beego.Error("复制CSS样式出错 => static/css/export.css",err)
+	}
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "editor.md", "css", "editormd.preview.css"), filepath.Join(tempOutputPath, "styles", "editor.md", "css", "editormd.preview.css"));err != nil {
+		beego.Error("复制CSS样式出错 => static/editor.md/css/editormd.preview.css",err)
+	}
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "prettify", "themes", "prettify.css"), filepath.Join(tempOutputPath, "styles", "prettify", "themes", "prettify.css")); err != nil {
+		beego.Error("复制CSS样式出错 => static/prettify/themes/prettify.css",err)
+	}
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css,", "markdown.preview.css"), filepath.Join(tempOutputPath, "styles", "css", "markdown.preview.css"));err != nil {
+		beego.Error("复制CSS样式出错 => static/css/markdown.preview.css",err)
+	}
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "highlight", "styles", "vs.css"), filepath.Join(tempOutputPath, "styles", "highlight", "styles", "vs.css")); err != nil {
+		beego.Error("复制CSS样式出错 => static/highlight/styles/vs.css",err)
+	}
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "katex", "katex.min.css"), filepath.Join(tempOutputPath, "styles", "katex", "katex.min.css")); err != nil {
+		beego.Error("复制CSS样式出错 => static/katex/katex.min.css",err)
+	}
 
 	eBookConverter := &converter.Converter{
 		BasePath:   tempOutputPath,
-		OutputPath: strings.TrimSuffix(tempOutputPath, "sources"),
+		OutputPath: filepath.Join(strings.TrimSuffix(tempOutputPath, "source"),"output"),
 		Config:     ebookConfig,
 		Debug:      true,
 	}
+
+	os.MkdirAll(eBookConverter.OutputPath,0766)
 
 	if err := eBookConverter.Convert(); err != nil {
 		beego.Error("转换文件错误：" + m.BookName + " => " + err.Error())
@@ -377,10 +395,18 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	}
 	beego.Info("文档转换完成：" + m.BookName)
 
-	filetil.CopyFile(mobipath, filepath.Join(tempOutputPath, "output", "book.mobi"))
-	filetil.CopyFile(pdfpath, filepath.Join(tempOutputPath, "output", "book.pdf"))
-	filetil.CopyFile(epubpath, filepath.Join(tempOutputPath, "output", "book.epub"))
-	filetil.CopyFile(docxpath, filepath.Join(tempOutputPath, "output", "book.docx"))
+	if err := filetil.CopyFile(filepath.Join(eBookConverter.OutputPath,"output", "book.mobi"),mobipath,);err != nil {
+		beego.Error("复制文档失败 => ",filepath.Join(eBookConverter.OutputPath,"output", "book.mobi"),err)
+	}
+	if err := filetil.CopyFile(filepath.Join(eBookConverter.OutputPath,"output", "book.pdf"),pdfpath);err != nil {
+		beego.Error("复制文档失败 => ",filepath.Join(eBookConverter.OutputPath,"output", "book.pdf"),err)
+	}
+	if err := filetil.CopyFile(filepath.Join(eBookConverter.OutputPath,"output", "book.epub"),epubpath); err != nil{
+		beego.Error("复制文档失败 => ",filepath.Join(eBookConverter.OutputPath,"output", "book.epub"),err)
+	}
+	if err := filetil.CopyFile(filepath.Join(eBookConverter.OutputPath,"output", "book.docx"),docxpath); err != nil {
+		beego.Error("复制文档失败 => ",filepath.Join(eBookConverter.OutputPath,"output", "book.docx"),err)
+	}
 
 	convertBookResult.MobiPath = mobipath
 	convertBookResult.PDFPath = pdfpath

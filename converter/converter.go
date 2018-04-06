@@ -17,6 +17,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/ziptil"
 	"github.com/lifei6671/mindoc/utils/cryptil"
+	"sync"
 )
 
 type Converter struct {
@@ -131,32 +132,52 @@ func (this *Converter) Convert() (err error) {
 		os.Mkdir(this.BasePath+"/"+output, os.ModePerm)
 		if len(this.Config.Format) > 0 {
 			var errs []string
+			group := sync.WaitGroup{}
+
 			for _, v := range this.Config.Format {
 				fmt.Println("convert to " + v)
 				switch strings.ToLower(v) {
 				case "epub":
-					if err = this.convertToEpub(); err != nil {
-						errs = append(errs, err.Error())
-						fmt.Println("转换EPUB文档失败：" + err.Error())
-					}
-				case "mobi":
-					if err = this.convertToMobi(); err != nil {
-						errs = append(errs, err.Error())
-						fmt.Println("转换MOBI文档失败：" + err.Error())
-					}
-				case "pdf":
-					if err = this.convertToPdf(); err != nil {
-						fmt.Println("转换PDF文档失败：" + err.Error())
-						errs = append(errs, err.Error())
+					group.Add(1)
+					go func(group *sync.WaitGroup) {
+						if err = this.convertToEpub(); err != nil {
+							errs = append(errs, err.Error())
+							fmt.Println("转换EPUB文档失败：" + err.Error())
+						}
+						group.Done()
+					}(&group)
 
-					}
+				case "mobi":
+					group.Add(1)
+					go func(group *sync.WaitGroup) {
+						if err = this.convertToMobi(); err != nil {
+							errs = append(errs, err.Error())
+							fmt.Println("转换MOBI文档失败：" + err.Error())
+						}
+						group.Done()
+					}(&group)
+				case "pdf":
+					group.Add(1)
+					go func(group *sync.WaitGroup) {
+						if err = this.convertToPdf(); err != nil {
+							fmt.Println("转换PDF文档失败：" + err.Error())
+							errs = append(errs, err.Error())
+						}
+						group.Done()
+					}(&group)
 				case "docx":
-					if err = this.convertToDocx(); err != nil {
-						fmt.Println("转换WORD文档失败：" + err.Error())
-						errs = append(errs, err.Error())
-					}
+					group.Add(1)
+					go func(group *sync.WaitGroup) {
+						if err = this.convertToDocx(); err != nil {
+							fmt.Println("转换WORD文档失败：" + err.Error())
+							errs = append(errs, err.Error())
+						}
+
+						group.Done()
+					}(&group)
 				}
 			}
+			group.Wait()
 			if len(errs) > 0 {
 				err = errors.New(strings.Join(errs, "\n"))
 			}
@@ -437,14 +458,15 @@ func (this *Converter) convertToEpub() (err error) {
 		filepath.Join(this.OutputPath, "content.epub"),
 		filepath.Join(this.OutputPath, output, "book.epub"),
 	}
-	cmd := exec.Command(ebookConvert, args...)
+	//cmd := exec.Command(ebookConvert, args...)
+	//
+	//if this.Debug {
+	//	fmt.Println(cmd.Args)
+	//}
+	//fmt.Println("正在转换EPUB文件", args[0])
+	//return cmd.Run()
 
-	if this.Debug {
-		fmt.Println(cmd.Args)
-	}
-	return cmd.Run()
-
-	//return filetil.CopyFile(filepath.Join(this.OutputPath, "content.epub"),filepath.Join(this.OutputPath, output, "book.epub"))
+	return filetil.CopyFile(args[0],args[1])
 }
 
 //转成mobi
@@ -457,7 +479,7 @@ func (this *Converter) convertToMobi() (err error) {
 	if this.Debug {
 		fmt.Println(cmd.Args)
 	}
-
+	fmt.Println("正在转换 MOBI 文件", args[0])
 	return cmd.Run()
 }
 
@@ -508,7 +530,7 @@ func (this *Converter) convertToPdf() (err error) {
 	if this.Debug {
 		fmt.Println(cmd.Args)
 	}
-
+	fmt.Println("正在转换 PDF 文件", args[0])
 	return cmd.Run()
 }
 
@@ -542,6 +564,7 @@ func (this *Converter) convertToDocx() (err error) {
 	if this.Debug {
 		fmt.Println(cmd.Args)
 	}
+	fmt.Println("正在转换 DOCX 文件", args[0])
 	return cmd.Run()
 }
 

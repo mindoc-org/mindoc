@@ -487,6 +487,10 @@ func (c *BookController) Create() {
 		book.MemberId = c.Member.MemberId
 		book.CommentCount = 0
 		book.Version = time.Now().Unix()
+		book.IsEnableShare = 0
+		book.IsUseFirstDocument = 1
+		book.IsDownload = 1
+		book.AutoRelease = 0
 
 		book.Editor = "markdown"
 		book.Theme = "default"

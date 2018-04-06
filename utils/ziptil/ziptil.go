@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"fmt"
 )
 
 //解压zip文件
@@ -71,7 +70,6 @@ func Zip(source, target string) error {
 		}
 
 		header.Name = strings.TrimPrefix(strings.TrimPrefix(strings.Replace(path, "\\", "/", -1), source), "/")
-		fmt.Println(header.Name)
 
 		if info.IsDir() {
 			header.Name += "/"
