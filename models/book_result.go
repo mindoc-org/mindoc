@@ -370,7 +370,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "prettify", "themes", "prettify.css"), filepath.Join(tempOutputPath, "styles", "prettify", "themes", "prettify.css")); err != nil {
 		beego.Error("复制CSS样式出错 => static/prettify/themes/prettify.css",err)
 	}
-	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css,", "markdown.preview.css"), filepath.Join(tempOutputPath, "styles", "css", "markdown.preview.css"));err != nil {
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "markdown.preview.css"), filepath.Join(tempOutputPath, "styles", "css", "markdown.preview.css"));err != nil {
 		beego.Error("复制CSS样式出错 => static/css/markdown.preview.css",err)
 	}
 	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "highlight", "styles", "vs.css"), filepath.Join(tempOutputPath, "styles", "highlight", "styles", "vs.css")); err != nil {
