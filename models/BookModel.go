@@ -66,6 +66,8 @@ type Book struct {
 	HistoryCount int `orm:"column(history_count);type(int);default(0)" json:"history_count"`
 	//是否启用分享，0启用/1不启用
 	IsEnableShare int       `orm:"column(is_enable_share);type(int);default(0)" json:"is_enable_share"`
+	//是否锁定，锁定状态下不能编辑,0 否/1 是
+	IsLock 		  int 		`orm:"column(is_lock);type(int);default(0)" json:"is_lock"`
 	MemberId      int       `orm:"column(member_id);size(100)" json:"member_id"`
 	ModifyTime    time.Time `orm:"type(datetime);column(modify_time);null;auto_now" json:"modify_time"`
 	Version       int64     `orm:"type(bigint);column(version)" json:"version"`

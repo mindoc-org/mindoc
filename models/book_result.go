@@ -59,6 +59,7 @@ type BookResult struct {
 	LastModifyText   string `json:"last_modify_text"`
 	IsDisplayComment bool   `json:"is_display_comment"`
 	IsDownload       bool   `json:"is_download"`
+	IsLock			 bool	`json:"is_lock"`
 }
 
 func NewBookResult() *BookResult {
@@ -162,29 +163,30 @@ func (m *BookResult) FindToPager(pageIndex, pageSize int) (books []*BookResult, 
 //实体转换
 func (m *BookResult) ToBookResult(book Book) *BookResult {
 
-	m.BookId = book.BookId
-	m.BookName = book.BookName
-	m.Identify = book.Identify
-	m.OrderIndex = book.OrderIndex
-	m.Description = strings.Replace(book.Description, "\r\n", "<br/>", -1)
-	m.PrivatelyOwned = book.PrivatelyOwned
-	m.PrivateToken = book.PrivateToken
-	m.DocCount = book.DocCount
-	m.CommentStatus = book.CommentStatus
-	m.CommentCount = book.CommentCount
-	m.CreateTime = book.CreateTime
-	m.ModifyTime = book.ModifyTime
-	m.Cover = book.Cover
-	m.Label = book.Label
-	m.Status = book.Status
-	m.Editor = book.Editor
-	m.Theme = book.Theme
-	m.AutoRelease = book.AutoRelease == 1
-	m.IsEnableShare = book.IsEnableShare == 0
+	m.BookId 			= book.BookId
+	m.BookName 			= book.BookName
+	m.Identify 			= book.Identify
+	m.OrderIndex 		= book.OrderIndex
+	m.Description 		= strings.Replace(book.Description, "\r\n", "<br/>", -1)
+	m.PrivatelyOwned 	= book.PrivatelyOwned
+	m.PrivateToken 		= book.PrivateToken
+	m.DocCount 			= book.DocCount
+	m.CommentStatus 	= book.CommentStatus
+	m.CommentCount 		= book.CommentCount
+	m.CreateTime 		= book.CreateTime
+	m.ModifyTime 		= book.ModifyTime
+	m.Cover		 		= book.Cover
+	m.Label 			= book.Label
+	m.Status 			= book.Status
+	m.Editor 			= book.Editor
+	m.Theme 			= book.Theme
+	m.AutoRelease 		= book.AutoRelease == 1
+	m.IsEnableShare 	= book.IsEnableShare == 0
+	m.Publisher 		= book.Publisher
+	m.HistoryCount 		= book.HistoryCount
+	m.IsDownload 		= book.IsDownload == 0
+	m.IsLock 			= book.IsLock == 1
 	m.IsUseFirstDocument = book.IsUseFirstDocument == 1
-	m.Publisher = book.Publisher
-	m.HistoryCount = book.HistoryCount
-	m.IsDownload = book.IsDownload == 0
 
 	if book.Theme == "" {
 		m.Theme = "default"

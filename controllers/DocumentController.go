@@ -587,7 +587,9 @@ func (c *DocumentController) RemoveAttachment() {
 		beego.Error(err)
 		c.JsonResult(6003, "文档不存在")
 	}
-
+	if document.IsLock == 1 {
+		c.JsonResult(6004,"不能编辑已锁定的文档")
+	}
 	if c.Member.Role != conf.MemberSuperRole {
 		rel, err := models.NewRelationship().FindByBookIdAndMemberId(document.BookId, c.Member.MemberId)
 		if err != nil {
@@ -679,6 +681,8 @@ func (c *DocumentController) Content() {
 
 	bookId := 0
 	autoRelease := false
+	isLock := false
+
 
 	// 如果是超级管理员，则忽略权限
 	if c.Member.IsAdministrator() {
@@ -686,9 +690,9 @@ func (c *DocumentController) Content() {
 		if err != nil {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
-
 		bookId = book.BookId
 		autoRelease = book.AutoRelease == 1
+		isLock = book.IsLock == 1
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
@@ -696,9 +700,12 @@ func (c *DocumentController) Content() {
 			beego.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
-
+		if bookResult.IsLock {
+			c.JsonResult(6003,"锁定的项目不能编辑")
+		}
 		bookId = bookResult.BookId
 		autoRelease = bookResult.AutoRelease
+		isLock = bookResult.IsLock
 	}
 
 	if docId <= 0 {
@@ -706,6 +713,11 @@ func (c *DocumentController) Content() {
 	}
 
 	if c.Ctx.Input.IsPost() {
+		if isLock {
+			//如果项目锁定了,则不能编辑
+			c.JsonResult(6003,"锁定的项目不能编辑")
+		}
+
 		markdown := strings.TrimSpace(c.GetString("markdown", ""))
 		content := c.GetString("html")
 		version, _ := c.GetInt64("version", 0)

@@ -33,6 +33,8 @@ type Document struct {
 	ModifyTime time.Time     `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	ModifyAt   int           `orm:"column(modify_at);type(int)" json:"-"`
 	Version    int64         `orm:"type(bigint);column(version)" json:"version"`
+	//是否锁定，锁定状态下不能编辑,0 否/1 是
+	IsLock	   int			 `orm:"column(is_lock);type(int);default(0)" json:"is_lock"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
 }
 
