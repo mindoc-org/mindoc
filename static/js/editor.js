@@ -106,7 +106,7 @@ function openDeleteDocumentDialog($node) {
 function openEditCatalogDialog($node) {
     var $then =  $("#addDocumentModal");
     var doc_id = parseInt($node ? $node.id : 0);
-    var text = $node ? $node.text : '';
+    var text = $node ? $node.text.split('<span')[0] : '';
     var parentId = $node && $node.parent !== '#' ? $node.parent : 0;
 
     $then.find("input[name='doc_id']").val(doc_id);
@@ -150,6 +150,55 @@ function pushVueLists($lists) {
         var item = $lists[j];
         window.vueApp.lists.push(item);
     }
+}
+
+/**
+ * 锁定文档
+ * @param $node
+ */
+function lockDocumentAction($node) {
+    var index = layer.load(1, {
+        shade: [0.1, '#fff'] // 0.1 透明度的白色背景
+    });
+
+    $.post(window.lockURL,{"identify" : window.book.identify,"doc_id" : $node.id}).done(function (res) {
+        layer.close(index);
+        if(res.errcode === 0){
+            var node = {"id":$node.id};
+            var name = res.data.doc_name + "<span class='lock-text'> [锁定]</span>";
+            window.treeCatalog.rename_node(node, name);
+            window.treeCatalog.set_type(node,"lock");
+        }else{
+            layer.msg(res.message,{icon : 2})
+        }
+    }).fail(function () {
+        layer.close(index);
+        layer.msg("锁定失败",{icon : 2})
+    });
+}
+/**
+ * 解锁文档
+ * @param $node
+ */
+function unLockDocumentAction($node) {
+    var index = layer.load(1, {
+        shade: [0.1, '#fff'] // 0.1 透明度的白色背景
+    });
+
+    $.post(window.unLockURL,{"identify" : window.book.identify,"doc_id" : $node.id}).done(function (res) {
+        layer.close(index);
+        if(res.errcode === 0){
+            var node = {"id":$node.id};
+            var name = res.data.doc_name;
+            window.treeCatalog.rename_node(node,name);
+            window.treeCatalog.set_type(node,"unlock");
+        }else{
+            layer.msg("解锁失败",{icon : 2})
+        }
+    }).fail(function () {
+        layer.close(index);
+        layer.msg("解锁失败",{icon : 2})
+    });
 }
 
 /**

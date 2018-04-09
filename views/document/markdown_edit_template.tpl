@@ -20,6 +20,8 @@
         window.sortURL = "{{urlfor "BookController.SaveSort" ":key" .Model.Identify}}";
         window.historyURL = "{{urlfor "DocumentController.History"}}";
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
+        window.lockURL = "{{urlfor "DocumentController.Lock" ":key" .Model.Identify}}";
+        window.unLockURL = "{{urlfor "DocumentController.UnLock" ":key" .Model.Identify}}";
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">

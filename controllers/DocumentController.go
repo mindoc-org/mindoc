@@ -54,7 +54,7 @@ func (c *DocumentController) Index() {
 
 	bookResult := isReadable(identify, token, c)
 
-	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
+	c.TplName = fmt.Sprintf("document/%s_read.tpl",bookResult.Theme)
 
 	selected := 0
 
@@ -243,7 +243,7 @@ func (c *DocumentController) Edit() {
 	} else if bookResult.Editor == "html" {
 		c.TplName = "document/new_html_edit_template.tpl"
 	} else {
-		c.TplName = "document/" + bookResult.Editor + "_edit_template.tpl"
+		c.TplName = fmt.Sprintf("document/%s_edit_template.tpl", bookResult.Editor)
 	}
 
 	c.Data["Model"] = bookResult
@@ -260,6 +260,11 @@ func (c *DocumentController) Edit() {
 		beego.Error("FindDocumentTree => ", err)
 	} else {
 		if len(trees) > 0 {
+			for _,tree := range trees {
+				if tree.Type == "lock" {
+					tree.DocumentName = tree.DocumentName + "<span class='lock-text'> [锁定]</span>"
+				}
+			}
 			if jtree, err := json.Marshal(trees); err == nil {
 				c.Data["Result"] = template.JS(string(jtree))
 			}
@@ -297,6 +302,9 @@ func (c *DocumentController) Create() {
 			beego.Error(err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
+		if book.IsLock == 1 {
+			c.JsonResult(6004,"已锁定的项目不能创建文档")
+		}
 
 		bookId = book.BookId
 	} else {
@@ -306,7 +314,9 @@ func (c *DocumentController) Create() {
 			beego.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
-
+		if bookResult.IsLock  {
+			c.JsonResult(6004,"已锁定的项目不能创建文档")
+		}
 		bookId = bookResult.BookId
 	}
 
@@ -349,7 +359,7 @@ func (c *DocumentController) Create() {
 // 上传附件或图片
 func (c *DocumentController) Upload() {
 	identify := c.GetString("identify")
-	doc_id, _ := c.GetInt("doc_id")
+	docId, _ := c.GetInt("doc_id")
 	is_attach := true
 
 	if identify == "" {
@@ -402,6 +412,9 @@ func (c *DocumentController) Upload() {
 		if err != nil {
 			c.JsonResult(6006, "文档不存在或权限不足")
 		}
+		if book.IsLock == 1 {
+			c.JsonResult(6004,"已锁定的项目不能上传文件")
+		}
 
 		bookId = book.BookId
 	} else {
@@ -421,17 +434,23 @@ func (c *DocumentController) Upload() {
 			c.JsonResult(6006, "权限不足")
 		}
 
+		if book.IsLock  {
+			c.JsonResult(6004,"已锁定的项目不能上传文件")
+		}
 		bookId = book.BookId
 	}
 
-	if doc_id > 0 {
-		doc, err := models.NewDocument().Find(doc_id)
+	if docId > 0 {
+		doc, err := models.NewDocument().Find(docId)
 		if err != nil {
 			c.JsonResult(6007, "文档不存在")
 		}
 
 		if doc.BookId != bookId {
 			c.JsonResult(6008, "文档不属于指定的项目")
+		}
+		if doc.IsLock == 1 {
+			c.JsonResult(6004,"已锁定的文档不能上传文件")
 		}
 	}
 
@@ -456,14 +475,14 @@ func (c *DocumentController) Upload() {
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
 	attachment.FilePath = strings.TrimPrefix(filePath, conf.WorkingDirectory)
-	attachment.DocumentId = doc_id
+	attachment.DocumentId = docId
 
 	if fileInfo, err := os.Stat(filePath); err == nil {
 		attachment.FileSize = float64(fileInfo.Size())
 	}
 
-	if doc_id > 0 {
-		attachment.DocumentId = doc_id
+	if docId > 0 {
+		attachment.DocumentId = docId
 	}
 
 	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
@@ -568,13 +587,13 @@ func (c *DocumentController) DownloadAttachment() {
 // 删除附件
 func (c *DocumentController) RemoveAttachment() {
 	c.Prepare()
-	attach_id, _ := c.GetInt("attach_id")
+	attachId, _ := c.GetInt("attach_id")
 
-	if attach_id <= 0 {
+	if attachId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	attach, err := models.NewAttachment().Find(attach_id)
+	attach, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
 		beego.Error(err)
@@ -587,8 +606,11 @@ func (c *DocumentController) RemoveAttachment() {
 		beego.Error(err)
 		c.JsonResult(6003, "文档不存在")
 	}
+	if document.IsLockBook(document.DocumentId) {
+		c.JsonResult(6004,"已锁定的项目不能删除附件")
+	}
 	if document.IsLock == 1 {
-		c.JsonResult(6004,"不能编辑已锁定的文档")
+		c.JsonResult(6004,"已锁定的文档不能删除附件")
 	}
 	if c.Member.Role != conf.MemberSuperRole {
 		rel, err := models.NewRelationship().FindByBookIdAndMemberId(document.BookId, c.Member.MemberId)
@@ -737,6 +759,9 @@ func (c *DocumentController) Content() {
 			beego.Info("%d|", version, doc.Version)
 			c.JsonResult(6005, "文档已被修改确定要覆盖吗？")
 		}
+		if doc.IsLock == 1 {
+			c.JsonResult(6003,"锁定的项目不能编辑")
+		}
 
 		history := models.NewDocumentHistory()
 		history.DocumentId = docId
@@ -798,23 +823,6 @@ func (c *DocumentController) Content() {
 
 	c.JsonResult(0, "ok", doc)
 }
-//
-//func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
-//	doc = models.NewDocument()
-//	if doc_id, err := strconv.Atoi(id); err == nil {
-//		doc, err = doc.Find(doc_id)
-//		if err != nil {
-//			return nil, err
-//		}
-//	} else {
-//		doc, err = doc.FindByFieldFirst("identify", id)
-//		if err != nil {
-//			return nil, err
-//		}
-//	}
-//
-//	return doc, nil
-//}
 
 // 导出
 func (c *DocumentController) Export() {
@@ -1043,6 +1051,7 @@ func (c *DocumentController) History() {
 	}
 }
 
+//删除文档历史
 func (c *DocumentController) DeleteHistory() {
 	c.Prepare()
 
@@ -1101,6 +1110,7 @@ func (c *DocumentController) DeleteHistory() {
 	c.JsonResult(0, "ok")
 }
 
+//重置文档历史
 func (c *DocumentController) RestoreHistory() {
 	c.Prepare()
 
@@ -1158,6 +1168,7 @@ func (c *DocumentController) RestoreHistory() {
 	c.JsonResult(0, "ok", doc)
 }
 
+//比较文档
 func (c *DocumentController) Compare() {
 	c.Prepare()
 
@@ -1219,6 +1230,92 @@ func (c *DocumentController) Compare() {
 		c.Data["HistoryContent"] = template.HTML(history.Content)
 		c.Data["Content"] = template.HTML(doc.Content)
 	}
+}
+
+//锁定文档
+func (c *DocumentController) Lock() {
+	docId, _ := c.GetInt("doc_id", 0)
+	identify := c.GetString("identify")
+	// 如果是超级管理员则不判断权限
+	if c.Member.IsAdministrator() {
+		book, err := models.NewBook().FindByFieldFirst("identify", identify)
+		if err != nil {
+			beego.Error(err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+
+		if book.IsLock == 1 {
+			c.JsonResult(6001,"项目已锁定")
+		}
+	} else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		if bookResult.IsLock {
+			c.JsonResult(6001,"项目已锁定")
+		}
+	}
+	document, err := models.NewDocument().Find(docId)
+
+	if err != nil {
+		beego.Error("获取文档失败 =>",err)
+		c.JsonResult(6004,"文档不存在")
+	}
+	if document.IsLock == 1 {
+		c.JsonResult(6005,"文档已锁定")
+	}
+	document.IsLock = 1
+	if err := document.InsertOrUpdate();err != nil {
+		beego.Error("锁定文档失败 =>",err)
+		c.JsonResult(6006,"锁定文档失败")
+	}
+	c.JsonResult(0, "文档已锁定", document)
+}
+
+// 解锁文档
+func (c *DocumentController) UnLock()  {
+	docId, _ := c.GetInt("doc_id", 0)
+	identify := c.GetString("identify")
+	// 如果是超级管理员则不判断权限
+	if c.Member.IsAdministrator() {
+		book, err := models.NewBook().FindByFieldFirst("identify", identify)
+		if err != nil {
+			beego.Error(err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+
+		if book.IsLock == 1 {
+			c.JsonResult(6001,"项目已锁定")
+		}
+	} else {
+		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+		if err != nil || bookResult.RoleId == conf.BookObserver {
+			beego.Error("FindByIdentify => ", err)
+			c.JsonResult(6002, "项目不存在或权限不足")
+		}
+		if bookResult.IsLock {
+			c.JsonResult(6001,"项目已锁定")
+		}
+	}
+	document, err := models.NewDocument().Find(docId)
+
+	if err != nil {
+		beego.Error("获取文档失败 =>",err)
+		c.JsonResult(6004,"文档不存在")
+	}
+	if document.IsLock == 1 {
+		document.IsLock = 0
+		if err := document.InsertOrUpdate();err != nil {
+			beego.Error("文档解锁失败 =>",err)
+			c.JsonResult(6006,"文档解锁失败")
+		}
+	}
+
+	c.JsonResult(0, "文档已解锁", document)
 }
 
 // 递归生成文档序列数组

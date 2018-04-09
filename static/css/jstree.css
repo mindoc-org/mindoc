@@ -198,3 +198,8 @@
     line-height: 30px;
     height: 30px;
 }
+
+.jstree .lock-text{
+    color: #c00;
+    font-size: 12px;
+}

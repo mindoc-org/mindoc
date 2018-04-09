@@ -75,6 +75,9 @@ $(function () {
      * 实现标题栏操作
      */
     $("#editormd-tools").on("click", "a[class!='disabled']", function () {
+        if($(this).hasClass('disabled')){
+            return false;
+        }
        var name = $(this).find("i").attr("name");
        if (name === "attachment") {
            $("#uploadAttachModal").modal("show");
@@ -148,6 +151,15 @@ $(function () {
             layer.close(index);
 
             if (res.errcode === 0) {
+                var node = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id, "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
+                if(res.data.is_lock){
+                    node.type = "lock";
+                    node.text = node.text + "<span class='lock-text'> [锁定]</span>";
+                    // window.editor.config('readOnly',true);
+                }else{
+                    node.type = "unlock";
+                    window.editor.config('readOnly',false);
+                }
                 window.isLoad = true;
                 try {
                     window.editor.clear();
@@ -156,10 +168,11 @@ $(function () {
                 }catch(e){
                     console.log(e);
                 }
-                var node = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id, "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
+
                 pushDocumentCategory(node);
                 window.selectNode = node;
                 pushVueLists(res.data.attach);
+
             } else {
                 layer.msg("文档加载失败");
             }
@@ -244,6 +257,10 @@ $(function () {
      */
     function resetEditorChanged($is_change) {
         if ($is_change && !window.isLoad) {
+            var type = window.treeCatalog.get_type(window.selectNode);
+            if(type === "lock"){
+                return;
+            }
             $("#markdown-save").removeClass('disabled').addClass('change');
         } else {
             $("#markdown-save").removeClass('change').addClass('disabled');
@@ -265,8 +282,11 @@ $(function () {
         },
         success: function (res) {
             if (res.errcode === 0) {
-                var data = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id , "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
+                var data = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id , "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version ,"type": res.data.is_lock ? "lock" : "unlock"};
 
+                if(res.data.is_lock){
+                    data.text = data.text + "<span class='lock-text'> [锁定]</span>";
+                }
                 var node = window.treeCatalog.get_node(data.id);
                 if (node) {
                     window.treeCatalog.rename_node({ "id": data.id }, data.text);
@@ -293,6 +313,12 @@ $(function () {
         "types": {
             "default": {
                 "icon": false  // 删除默认图标
+            },
+            "lock" : {
+                "icon" : false
+            },
+            "unlock" : {
+                "icon" : false
             }
         },
         'core': {
@@ -304,45 +330,78 @@ $(function () {
         "contextmenu": {
             show_at_node: false,
             select_node: false,
-            "items": {
-                "添加文档": {
-                    "separator_before": false,
-                    "separator_after": true,
-                    "_disabled": false,
-                    "label": "添加文档",
-                    "icon": "fa fa-plus",
-                    "action": function (data) {
-                        var inst = $.jstree.reference(data.reference),
-                            node = inst.get_node(data.reference);
+            'items' : function(node) {
+                var items = {
+                    "添加文档": {
+                        "separator_before": false,
+                        "separator_after": true,
+                        "_disabled": false,
+                        "label": "添加文档",
+                        "icon": "fa fa-plus",
+                        "action": function (data) {
+                            var inst = $.jstree.reference(data.reference),
+                                node = inst.get_node(data.reference);
 
-                        openCreateCatalogDialog(node);
+                            openCreateCatalogDialog(node);
+                        }
+                    },
+                    "编辑": {
+                        "separator_before": false,
+                        "separator_after": true,
+                        "_disabled": false,
+                        "label": "编辑",
+                        "icon": "fa fa-edit",
+                        "action": function (data) {
+                            var inst = $.jstree.reference(data.reference);
+                            var node = inst.get_node(data.reference);
+                            openEditCatalogDialog(node);
+                        }
+                    },
+                    "删除": {
+                        "separator_before": false,
+                        "separator_after": true,
+                        "_disabled": false,
+                        "label": "删除",
+                        "icon": "fa fa-trash-o",
+                        "action": function (data) {
+                            var inst = $.jstree.reference(data.reference);
+                            var node = inst.get_node(data.reference);
+                            openDeleteDocumentDialog(node);
+                        }
+                    },
+                    "unlock" : {
+                        "separator_before": false,
+                        "separator_after": true,
+                        "_disabled": false,
+                        "label": "解锁",
+                        "icon": "fa fa-unlock",
+                        "action": function (data) {
+                            var inst = $.jstree.reference(data.reference);
+                            var node = inst.get_node(data.reference);
+                            unLockDocumentAction(node);
+                        }
+                    },
+                    "lock" : {
+                        "separator_before": false,
+                        "separator_after": true,
+                        "_disabled": false,
+                        "label": "锁定",
+                        "icon": "fa fa-lock",
+                        "action": function (data) {
+                            var inst = $.jstree.reference(data.reference);
+                            var node = inst.get_node(data.reference);
+                            lockDocumentAction(node);
+                        }
                     }
-                },
-                "编辑": {
-                    "separator_before": false,
-                    "separator_after": true,
-                    "_disabled": false,
-                    "label": "编辑",
-                    "icon": "fa fa-edit",
-                    "action": function (data) {
-                        var inst = $.jstree.reference(data.reference);
-                        var node = inst.get_node(data.reference);
-                        openEditCatalogDialog(node);
-                    }
-                },
-                "删除": {
-                    "separator_before": false,
-                    "separator_after": true,
-                    "_disabled": false,
-                    "label": "删除",
-                    "icon": "fa fa-trash-o",
-                    "action": function (data) {
-                        var inst = $.jstree.reference(data.reference);
-                        var node = inst.get_node(data.reference);
-                        openDeleteDocumentDialog(node);
-                    }
+                };
+                console.log(this.get_type(node));
+                if(this.get_type(node) === "lock") {
+                    delete items.lock;
+                }else{
+                    delete items.unlock;
                 }
-            }
+                return items;
+            },
         }
     }).on('loaded.jstree', function () {
         window.treeCatalog = $(this).jstree();

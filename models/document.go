@@ -216,3 +216,25 @@ func (m *Document) FindListByBookId(bookId int) (docs []*Document, err error) {
 
 	return
 }
+
+//判断项目是否锁定
+func (m *Document) IsLockBook(docId int) bool {
+	document := NewDocument()
+	book := NewBook()
+
+	o := orm.NewOrm()
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("document_id",docId).One(document,"book_id")
+	if err != nil {
+		beego.Error("查询文档失败 =>",err)
+		return false
+	}
+	err = o.QueryTable(book.TableNameWithPrefix()).Filter("book_id",document.BookId).One(book,"is_lock")
+
+	if err != nil {
+		beego.Error("查询项目失败 =>",err)
+		return false
+	}
+
+	return book.IsLock == 1
+}
