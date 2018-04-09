@@ -163,6 +163,14 @@
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="autoRelease">锁定项目</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="isLock" name="is_lock"{{if .Model.IsLock }} checked{{end}} data-size="small" placeholder="锁定项目">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
                     <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
                     <span id="form-error-message" class="error-message"></span>
                 </div>
@@ -325,7 +333,7 @@
         }).on("show.bs.modal",function () {
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
         });
-        $("#autoRelease,#enableShare,#isDownload,#is_use_first_document").bootstrapSwitch();
+        $("#autoRelease,#enableShare,#isDownload,#is_use_first_document,#isLock").bootstrapSwitch();
 
         $('input[name="label"]').tagsinput({
             confirmKeys: [13,44],

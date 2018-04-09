@@ -237,6 +237,9 @@ func (c *DocumentController) Edit() {
 		}
 	}
 
+	if bookResult.IsLock {
+		c.ShowErrorPage(403,"已锁定的项目无法编辑")
+	}
 	// 根据不同编辑器类型加载编辑器
 	if bookResult.Editor == "markdown" {
 		c.TplName = "document/markdown_edit_template.tpl"
