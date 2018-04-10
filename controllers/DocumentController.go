@@ -1252,8 +1252,8 @@ func (c *DocumentController) Lock() {
 		}
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
-
-		if err != nil || bookResult.RoleId == conf.BookObserver {
+		//只有创始人和管理员才能锁定文档
+		if err != nil || (bookResult.RoleId != conf.BookAdmin && bookResult.RoleId != conf.BookFounder) {
 			beego.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
@@ -1295,8 +1295,8 @@ func (c *DocumentController) UnLock()  {
 		}
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
-
-		if err != nil || bookResult.RoleId == conf.BookObserver {
+		//只有创始人或管理员才能解锁文档
+		if err != nil || (bookResult.RoleId != conf.BookAdmin && bookResult.RoleId != conf.BookFounder) {
 			beego.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}

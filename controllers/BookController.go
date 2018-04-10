@@ -121,6 +121,7 @@ func (c *BookController) Setting() {
 
 //保存项目信息
 func (c *BookController) SaveBook() {
+	c.Prepare()
 	bookResult, err := c.IsPermission()
 
 	if err != nil {
