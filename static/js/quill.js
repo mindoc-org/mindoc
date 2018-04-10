@@ -128,10 +128,17 @@ $(function () {
             if(res.errcode === 0){
                 window.isLoad = true;
                 window.editor.root.innerHTML = res.data.content;
+                var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
+
+                if(res.data.is_lock){
+                    node.type = "lock";
+                    node.text = node.text + "<span class='lock-text'> [锁定]</span>";
+                }else{
+                    node.type = "unlock";
+                }
 
                 // 将原始内容备份
                 window.source = res.data.content;
-                var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
                 pushDocumentCategory(node);
                 window.selectNode = node;
                 window.isLoad = true;

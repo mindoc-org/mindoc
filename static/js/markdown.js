@@ -155,7 +155,7 @@ $(function () {
                 if(res.data.is_lock){
                     node.type = "lock";
                     node.text = node.text + "<span class='lock-text'> [锁定]</span>";
-                    // window.editor.config('readOnly',true);
+                     window.editor.config('readOnly',true);
                 }else{
                     node.type = "unlock";
                     window.editor.config('readOnly',false);
