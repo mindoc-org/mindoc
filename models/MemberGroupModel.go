@@ -48,8 +48,44 @@ func (m *MemberGroup) FindFirst(id int) (*MemberGroup,error){
 	return m,nil
 }
 
+//删除指定用户组
+func (m *MemberGroup) Delete(id int) error {
+	o := orm.NewOrm()
 
+	_,err := o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",id).Delete()
 
+	if err != nil {
+		beego.Error("删除用户组失败 =>",err)
+	}
+	return err
+}
+
+//分页查询用户组
+func (m *MemberGroup) FindByPager(pageIndex, pageSize int) ([]*MemberGroup,int,error){
+	o := orm.NewOrm()
+
+	if pageIndex <= 0 {
+		pageIndex = 1
+	}
+
+	offset := (pageIndex - 1) * pageSize
+	var memberGroups []*MemberGroup
+	totalCount := 0
+	_,err := o.QueryTable(m.TableNameWithPrefix()).Offset(offset).Limit(pageSize).All(&memberGroups)
+
+	if err != nil {
+		beego.Error("分页查询用户组失败 =>",err)
+	}else{
+		i,err := o.QueryTable(m.TableNameWithPrefix()).Count()
+		if err != nil {
+			beego.Error("分页查询用户组失败 =>",err)
+		}else {
+			totalCount = int(i)
+		}
+	}
+
+	return memberGroups,totalCount,err
+}
 
 
 

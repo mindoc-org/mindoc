@@ -722,9 +722,77 @@ func (c *ManagerController) LabelDelete() {
 	}
 }
 
+// 用户组列表
+func (c *ManagerController) MemberGroupList() {
+	c.Prepare()
+	c.TplName = "manager/member_group_list.gohtml"
+	pageIndex, _ := c.GetInt("page", 1)
 
+	memberGroupList ,totalCount,err := models.NewMemberGroup().FindByPager(pageIndex,conf.PageSize)
 
+	if err != nil {
+		c.ShowErrorPage(50001,"获取用户组失败")
+	}
+	if totalCount > 0 {
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
+		c.Data["PageHtml"] = pager.HtmlPages()
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(conf.PageSize)))
 
+	c.Data["Lists"] = memberGroupList
+}
+//编辑或添加用户组
+func (c *ManagerController) MemberGroupEdit() {
+	c.Prepare()
+	c.TplName = "manager/member_group_edit.gohtml"
+
+	if c.Ctx.Input.IsPost() {
+
+	}
+	groupId,_ := c.GetInt("group_id",0)
+
+	memberGroup := models.NewMemberGroup()
+	var err error
+	if groupId > 0 {
+		memberGroup,err = memberGroup.FindFirst(groupId)
+		if err != nil {
+			c.ShowErrorPage(500,"查询用户组失败")
+		}
+	}
+
+	c.Data["Model"] = memberGroup
+
+}
+
+//用户组成员列表
+func (c *ManagerController) MemberGroupMemberList() {
+	c.Prepare()
+	c.TplName = "manager/member_group_member_list.gohtml"
+
+	pageIndex, _ := c.GetInt("page", 1)
+	groupId,_ := c.GetInt("group_id",0)
+
+	if groupId <= 0 {
+		c.ShowErrorPage(404,"用户组参数不能为空")
+	}
+	memberGroupMemberList ,totalCount,err := models.NewMemberGroupMembers().FindToPager(pageIndex,conf.PageSize,groupId)
+
+	if err != nil {
+		c.ShowErrorPage(50001,"获取用户组失败")
+	}
+	if totalCount > 0 {
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
+		c.Data["PageHtml"] = pager.HtmlPages()
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(conf.PageSize)))
+
+	c.Data["Lists"] = memberGroupMemberList
+
+}
 
 
 
