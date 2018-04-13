@@ -29,23 +29,16 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li><a href="{{urlfor "ManagerController.Index"}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 仪表盘</a> </li>
-                    <li class="active"><a href="{{urlfor "ManagerController.Users" }}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 用户管理</a> </li>
-                    <li><a href="{{urlfor "ManagerController.Books" }}" class="item"><i class="fa fa-book" aria-hidden="true"></i> 项目管理</a> </li>
-                {{/*<li><a href="{{urlfor "ManagerController.Comments" }}" class="item"><i class="fa fa-comments-o" aria-hidden="true"></i> 评论管理</a> </li>*/}}
-                    <li><a href="{{urlfor "ManagerController.Setting" }}" class="item"><i class="fa fa-cogs" aria-hidden="true"></i> 配置管理</a> </li>
-                    <li><a href="{{urlfor "ManagerController.AttachList" }}" class="item"><i class="fa fa-cloud-upload" aria-hidden="true"></i> 附件管理</a> </li>
-                    <li><a href="{{urlfor "ManagerController.LabelList" }}" class="item"><i class="fa fa-bookmark" aria-hidden="true"></i> 标签管理</a> </li>
-
+                {{template "manager/manager_widgets.tpl.tpl" .}}
                 </ul>
 
             </div>
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 成员管理</strong>
+                        <strong class="box-title"> 用户组管理</strong>
                     {{if eq .Member.Role 0}}
-                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> 添加成员</button>
+                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addMemberGroupDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> 添加用户组</button>
                     {{end}}
                     </div>
                 </div>
@@ -59,68 +52,28 @@
                                 <thead>
                                 <tr>
                                     <th width="80">ID</th>
-                                    <th width="80">头像</th>
-                                    <th>账号</th>
-                                    <th>姓名</th>
-                                    <th>角色</th>
-                                    <th>类型</th>
-                                    <th>状态</th>
+                                    <th>用户组名称</th>
+                                    <th>成员数量</th>
+                                    <th>创建时间</th>
+                                    <th>创建人</th>
+                                    <th>修改时间</th>
                                     <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr v-for="item in lists">
-                                    <td>${item.member_id}</td>
-                                    <td><img :src="item.avatar" onerror="this.src='{{cdnimg "/static/images/middle.gif"}}'" class="img-circle" width="34" height="34"></td>
-                                    <td>${item.account}</td>
-                                    <td>${item.real_name}</td>
+                                    <td>${item.group_id}</td>
+                                    <td>${item.group_name}</td>
+                                    <td>${item.group_number}</td>
+                                    <td>${item.create_time}</td>
+                                    <td>${item.create_at}</td>
+                                    <td>${modify_time}</td>
                                     <td>
-                                        <template v-if="item.role == 0">
-                                            超级管理员
-                                        </template>
-                                        <template v-else-if="item.member_id == {{.Member.MemberId}}">
-                                            ${item.role_name}
-                                        </template>
-                                        <template v-else>
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    ${item.role_name}
-                                                    <span class="caret"></span></button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a href="javascript:;" @click="setMemberRole(item.member_id,1)">管理员</a> </li>
-                                                    <li><a href="javascript:;" @click="setMemberRole(item.member_id,2)">普通用户</a> </li>
-                                                </ul>
-                                            </div>
-                                        </template>
-                                    </td>
-                                    <td>
-                                        ${item.auth_method}
-                                    </td>
-                                    <td>
-                                        <template v-if="item.status == 0">
-                                            <span class="label label-success">正常</span>
-                                        </template>
-                                        <template v-else>
-                                            <span class="label label-danger">禁用</span>
-                                        </template>
-                                    </td>
-
-                                    <td>
-                                        <template v-if="item.member_id == {{.Member.MemberId}}">
-
-                                        </template>
-                                        <template v-else-if="item.role != 0">
                                             <a :href="'{{urlfor "ManagerController.EditMember" ":id" ""}}' + item.member_id" class="btn btn-sm btn-default" @click="editMember(item.member_id)">
                                                 编辑
                                             </a>
-                                            <template v-if="item.status == 0">
-                                                <button type="button" class="btn btn-danger btn-sm" @click="setMemberStatus(item.member_id,1,$event)" data-loading-text="启用中...">禁用</button>
-                                            </template>
-                                            <template v-else>
-                                                <button type="button" class="btn btn-success btn-sm" @click="setMemberStatus(item.member_id,0,$event)" data-loading-text="禁用中...">启用</button>
-                                            </template>
                                             <button type="button" class="btn btn-danger btn-sm" @click="deleteMember(item.member_id,$event)" data-loading-text="删除中">删除</button>
-                                        </template>
+
                                     </td>
                                 </tr>
                                 </tbody>
@@ -137,13 +90,13 @@
 {{template "widgets/footer.tpl" .}}
 </div>
 <!-- Modal -->
-<div class="modal fade" id="addMemberDialogModal" tabindex="-1" role="dialog" aria-labelledby="addMemberDialogModalLabel">
+<div class="modal fade" id="addMemberDialogModal" tabindex="-1" role="dialog" aria-labelledby="addMemberGroupDialogModalLabel">
     <div class="modal-dialog" role="document">
-        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "ManagerController.CreateMember"}}" id="addMemberDialogForm">
+        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "ManagerController.MemberGroupEdit"}}" id="addMemberGroupDialogForm">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">创建用户</h4>
+                    <h4 class="modal-title" id="myModalLabel">创建用户组</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
@@ -212,8 +165,8 @@
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        $("#addMemberDialogModal").on("show.bs.modal",function () {
-            window.addMemberDialogModalHtml = $(this).find("form").html();
+        $("#addMemberGroupDialogModal").on("show.bs.modal",function () {
+            window.addMemberGroupDialogModalHtml = $(this).find("form").html();
         }).on("hidden.bs.modal",function () {
             $(this).find("form").html(window.addMemberDialogModalHtml);
         });

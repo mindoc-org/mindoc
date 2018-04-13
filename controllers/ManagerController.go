@@ -34,6 +34,7 @@ func (c *ManagerController) Prepare() {
 }
 
 func (c *ManagerController) Index() {
+	c.Prepare()
 	c.TplName = "manager/index.tpl"
 
 	c.Data["Model"] = models.NewDashboard().Query()
@@ -249,13 +250,13 @@ func (c *ManagerController) EditMember() {
 //删除一个用户，并将该用户的所有信息转移到超级管理员上.
 func (c *ManagerController) DeleteMember() {
 	c.Prepare()
-	member_id, _ := c.GetInt("id", 0)
+	memberId, _ := c.GetInt("id", 0)
 
-	if member_id <= 0 {
+	if memberId <= 0 {
 		c.JsonResult(404, "参数错误")
 	}
 
-	member, err := models.NewMember().Find(member_id)
+	member, err := models.NewMember().Find(memberId)
 
 	if err != nil {
 		beego.Error(err)
@@ -271,7 +272,7 @@ func (c *ManagerController) DeleteMember() {
 		c.JsonResult(5001, "未能找到超级管理员")
 	}
 
-	err = models.NewMember().Delete(member_id, superMember.MemberId)
+	err = models.NewMember().Delete(memberId, superMember.MemberId)
 
 	if err != nil {
 		beego.Error(err)
@@ -657,12 +658,12 @@ func (c *ManagerController) AttachDetailed() {
 //删除附件.
 func (c *ManagerController) AttachDelete() {
 	c.Prepare()
-	attach_id, _ := c.GetInt("attach_id")
+	attachId, _ := c.GetInt("attach_id")
 
-	if attach_id <= 0 {
+	if attachId <= 0 {
 		c.Abort("404")
 	}
-	attach, err := models.NewAttachment().Find(attach_id)
+	attach, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
 		beego.Error("AttachDelete => ", err)
@@ -725,7 +726,7 @@ func (c *ManagerController) LabelDelete() {
 // 用户组列表
 func (c *ManagerController) MemberGroupList() {
 	c.Prepare()
-	c.TplName = "manager/member_group_list.gohtml"
+	c.TplName = "manager/member_group_list.tpl"
 	pageIndex, _ := c.GetInt("page", 1)
 
 	memberGroupList ,totalCount,err := models.NewMemberGroup().FindByPager(pageIndex,conf.PageSize)
@@ -746,7 +747,7 @@ func (c *ManagerController) MemberGroupList() {
 //编辑或添加用户组
 func (c *ManagerController) MemberGroupEdit() {
 	c.Prepare()
-	c.TplName = "manager/member_group_edit.gohtml"
+	c.TplName = "manager/member_group_edit.tpl"
 
 	if c.Ctx.Input.IsPost() {
 
@@ -794,6 +795,9 @@ func (c *ManagerController) MemberGroupMemberList() {
 
 }
 
+func (c *ManagerController) MemberGroupMemberEdit() {
+	c.Prepare()
+}
 
 
 

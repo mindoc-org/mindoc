@@ -35,6 +35,10 @@ func init() {
 	beego.Router("/manager/attach/delete", &controllers.ManagerController{}, "post:AttachDelete")
 	beego.Router("/manager/label/list", &controllers.ManagerController{},"get:LabelList")
 	beego.Router("/manager/label/delete/:id", &controllers.ManagerController{},"post:LabelDelete")
+	beego.Router("/manager/user_groups", &controllers.ManagerController{},"*:MemberGroupList")
+	beego.Router("/manager/user_groups/edit/?:id", &controllers.ManagerController{},"*:MemberGroupEdit")
+	beego.Router("/manager/user_group_member", &controllers.ManagerController{},"*:MemberGroupMemberList")
+	beego.Router("/manager/user_group_member/edit/?:id", &controllers.ManagerController{},"*:MemberGroupMemberEdit")
 
 	beego.Router("/setting", &controllers.SettingController{}, "*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{}, "*:Password")

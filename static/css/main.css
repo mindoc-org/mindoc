@@ -195,6 +195,11 @@ textarea{
 .manual-body .page-left .menu li.active .item{
     background-color: #DDB;
 }
+.manual-body .page-left .menu li a>i{
+    display: inline-block;
+    width: 14px;
+    text-align: center;
+}
 .manual-body .page-right {
     padding: 15px 0 15px 24px;
     margin-left: 200px;

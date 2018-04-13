@@ -90,6 +90,8 @@ func RegisterModel() {
 		new(models.DocumentHistory),
 		new(models.Migration),
 		new(models.Label),
+		new(models.MemberGroup),
+		new(models.MemberGroupMembers),
 	)
 	//migrate.RegisterMigration()
 }
@@ -136,6 +138,8 @@ func RegisterCommand() {
 	} else if len(os.Args) >= 2 && os.Args[1] == "migrate" {
 		ResolveCommand(os.Args[2:])
 		migrate.RunMigration()
+	} else if len(os.Args) >= 2 && os.Args[1] == "password" {
+		ResolveCommand(os.Args[2:])
 	}
 }
 
@@ -185,6 +189,11 @@ func ResolveCommand(args []string) {
 	flagSet.StringVar(&conf.ConfigurationFile, "config", "", "MinDoc configuration file.")
 	flagSet.StringVar(&conf.WorkingDirectory, "dir", "", "MinDoc working directory.")
 	flagSet.StringVar(&conf.LogFile, "log", "", "MinDoc log file path.")
+	var account string
+	var password string
+
+	flagSet.StringVar(&account, "account", "", "Member account.")
+	flagSet.StringVar(&password, "password", "", "Member password.")
 
 	flagSet.Parse(args)
 
@@ -230,6 +239,10 @@ func ResolveCommand(args []string) {
 	RegisterCache()
 	RegisterModel()
 	RegisterLogger(conf.LogFile)
+	//账号和密码需要解析参数后才能获取
+	if len(os.Args) >= 2 && os.Args[1] == "password" {
+		ModifyPassword(account,password)
+	}
 }
 
 //注册缓存管道
