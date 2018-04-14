@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="box-body">
-                    <div class="users-list" id="userList">
+                    <div class="users-list" id="memberGroupList">
                         <template v-if="lists.length <= 0">
                             <div class="text-center">暂无数据</div>
                         </template>
@@ -65,15 +65,13 @@
                                     <td>${item.group_id}</td>
                                     <td>${item.group_name}</td>
                                     <td>${item.group_number}</td>
-                                    <td>${item.create_time}</td>
-                                    <td>${item.create_at}</td>
-                                    <td>${modify_time}</td>
+                                    <td>${(new Date(item.create_time)).format("yyyy-MM-dd hh:mm:ss")}</td>
+                                    <td>${item.create_name}</td>
+                                    <td>${(new Date(item.modify_time)).format("yyyy-MM-dd hh:mm:ss")}</td>
                                     <td>
-                                            <a :href="'{{urlfor "ManagerController.EditMember" ":id" ""}}' + item.member_id" class="btn btn-sm btn-default" @click="editMember(item.member_id)">
-                                                编辑
-                                            </a>
-                                            <button type="button" class="btn btn-danger btn-sm" @click="deleteMember(item.member_id,$event)" data-loading-text="删除中">删除</button>
-
+                                        <a :href="'{{urlfor "ManagerController.MemberGroupMemberList" ":id" ""}}' + item.group_id" class="btn btn-sm btn-success">成员</a>
+                                         <a :href="'{{urlfor "ManagerController.MemberGroupEdit" ":id" ""}}' + item.group_id" class="btn btn-sm btn-default">编辑</a>
+                                         <button type="button" class="btn btn-danger btn-sm" @click="deleteMemberGroup(item.group_id,$event)" data-loading-text="删除中">删除</button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -90,7 +88,7 @@
 {{template "widgets/footer.tpl" .}}
 </div>
 <!-- Modal -->
-<div class="modal fade" id="addMemberDialogModal" tabindex="-1" role="dialog" aria-labelledby="addMemberGroupDialogModalLabel">
+<div class="modal fade" id="addMemberGroupDialogModal" tabindex="-1" role="dialog" aria-labelledby="addMemberGroupDialogModalLabel">
     <div class="modal-dialog" role="document">
         <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "ManagerController.MemberGroupEdit"}}" id="addMemberGroupDialogForm">
             <div class="modal-content">
@@ -100,64 +98,25 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="account">账号<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="text" name="account" class="form-control" placeholder="用户账号" id="account" maxlength="50">
+                        <label class="col-sm-3 control-label" for="group_name">用户组名称<span class="error-message">*</span></label>
+                        <div class="col-sm-9">
+                            <input type="text" name="group_name" class="form-control" placeholder="用户组名称" id="group_name" maxlength="50">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="password1">密码<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="password" class="form-control" placeholder="用户密码" name="password1" id="password1" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="password2">确认密码<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="password" class="form-control" placeholder="确认密码" name="password2" id="password2" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="email">邮箱<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="email" class="form-control" placeholder="邮箱" name="email" id="email" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">真实姓名</label>
-                        <div class="col-sm-10">
-                            <input type="text" name="real_name" class="form-control" value="" placeholder="真实姓名">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">手机号</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" placeholder="手机号" name="phone" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">角色</label>
-                        <div class="col-sm-10">
-                            <select name="role" class="form-control">
-                                <option value="1">管理员</option>
-                                <option value="2">普通用户</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-
-                    </div>
+                    <div class="form-group"></div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddMember">保存</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddMemberGroup">保存</button>
                 </div>
             </div>
         </form>
     </div>
-</div><!--END Modal-->
+</div>
+<!--END Modal-->
+
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}"></script>
@@ -170,114 +129,50 @@
         }).on("hidden.bs.modal",function () {
             $(this).find("form").html(window.addMemberDialogModalHtml);
         });
-        $("#addMemberDialogForm").ajaxForm({
+        $("#addMemberGroupDialogForm").ajaxForm({
             beforeSubmit : function () {
-                var account = $.trim($("#account").val());
-                if(account === ""){
-                    return showError("账号不能为空");
+                var group_name = $.trim($("#group_name").val());
+                if(group_name === ""){
+                    return showError("用户组名称不能为空");
                 }
-                var password1 = $.trim($("#password1").val());
-                var password2 = $("#password2").val();
-                if (password1 === "") {
-                    return showError("密码不能为空");
-                }
-                if (password1 !== password2) {
-                    return showError("确认密码不正确");
-                }
-                var email = $.trim($("#email").val());
-
-                if (email === "") {
-                    return showError("邮箱不能为空");
-                }
-                $("#btnAddMember").button("loading");
+                $("#btnAddMemberGroup").button("loading");
                 return true;
             },
             success : function (res) {
                 if(res.errcode === 0){
                     app.lists.splice(0,0,res.data);
-                    $("#addMemberDialogModal").modal("hide");
+                    $("#addMemberGroupDialogModal").modal("hide");
                 }else{
                     showError(res.message);
                 }
-                $("#btnAddMember").button("reset");
+                $("#btnAddMemberGroup").button("reset");
             },
             error : function () {
                 showError("服务器异常");
-                $("#btnAddMember").button("reset");
+                $("#btnAddMemberGroup").button("reset");
             }
         });
 
-        var app = new Vue({
-            el : "#userList",
+        window.app = new Vue({
+            el : "#memberGroupList",
             data : {
                 lists : {{.Result}}
             },
             delimiters : ['${','}'],
             methods : {
-                setMemberStatus : function (id,status,e) {
+                deleteMemberGroup : function (id,status,e) {
                     var $this = this;
                     $.ajax({
-                        url : "{{urlfor "ManagerController.UpdateMemberStatus"}}",
+                        url : "{{urlfor "ManagerController.MemberGroupDelete"}}",
                         type : "post",
-                        data : { "member_id":id,"status" : status},
+                        data : { "group_id":id },
                         dataType : "json",
                         success : function (res) {
                             if (res.errcode === 0) {
 
                                 for (var index in $this.lists) {
                                     var item = $this.lists[index];
-
-                                    if (item.member_id === id) {
-                                        console.log(item);
-                                        $this.lists[index].status = status;
-                                        break;
-                                        //$this.lists.splice(index,1,item);
-                                    }
-                                }
-                            } else {
-                                alert("操作失败：" + res.message);
-                            }
-                        }
-                    })
-
-                },
-                setMemberRole : function (member_id, role) {
-                    var $this = this;
-                    $.ajax({
-                        url :"{{urlfor "ManagerController.ChangeMemberRole"}}",
-                        dataType :"json",
-                        type :"post",
-                        data : { "member_id" : member_id,"role" : role },
-                        success : function (res) {
-                            if(res.errcode === 0){
-                                for (var index in $this.lists) {
-                                    var item = $this.lists[index];
-
-                                    if (item.member_id === member_id) {
-
-                                        $this.lists.splice(index,1,res.data);
-                                        break;
-                                    }
-                                }
-                            }else{
-                                alert("操作失败：" + res.message);
-                            }
-                        }
-                    })
-                },
-                deleteMember : function (id, e) {
-                    var $this = this;
-                    $.ajax({
-                        url : "{{urlfor "ManagerController.DeleteMember"}}",
-                        type : "post",
-                        data : { "id":id },
-                        dataType : "json",
-                        success : function (res) {
-                            if (res.errcode === 0) {
-
-                                for (var index in $this.lists) {
-                                    var item = $this.lists[index];
-                                    if (item.member_id == id) {
+                                    if (item.group_id == id) {
                                         console.log(item);
                                         $this.lists.splice(index,1);
                                         break;
@@ -288,7 +183,6 @@
                             }
                         }
                     });
-
                 }
             }
         });

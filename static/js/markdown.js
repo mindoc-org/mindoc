@@ -1,4 +1,5 @@
 $(function () {
+    window.isLoad = true;
     editormd.katexURL = {
         js  : window.baseUrl + "/static/katex/katex",
         css : window.baseUrl + "/static/katex/katex"
@@ -163,7 +164,11 @@ $(function () {
                 window.isLoad = true;
                 try {
                     window.editor.clear();
-                    window.editor.insertValue(res.data.markdown);
+                    if(res.data.markdown !== ""){
+                        window.editor.insertValue(res.data.markdown);
+                    }else{
+                        window.isLoad = true;
+                    }
                     window.editor.setCursor({line: 0, ch: 0});
                 }catch(e){
                     console.log(e);
@@ -256,6 +261,8 @@ $(function () {
      * @param $is_change
      */
     function resetEditorChanged($is_change) {
+        // console.log($is_change);
+        // console.log(window.isLoad);
         if ($is_change && !window.isLoad) {
             var type = window.treeCatalog.get_type(window.selectNode);
             if(type === "lock"){

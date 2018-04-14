@@ -19,6 +19,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/pagination"
 	"gopkg.in/russross/blackfriday.v2"
+	"time"
 )
 
 type ManagerController struct {
@@ -29,7 +30,7 @@ func (c *ManagerController) Prepare() {
 	c.BaseController.Prepare()
 
 	if !c.Member.IsAdministrator() {
-		c.Abort("403")
+		c.ShowErrorPage(403,"用户权限不足")
 	}
 }
 
@@ -742,20 +743,66 @@ func (c *ManagerController) MemberGroupList() {
 	}
 	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(conf.PageSize)))
 
-	c.Data["Lists"] = memberGroupList
+	b, err := json.Marshal(memberGroupList)
+
+	if err != nil {
+		c.Data["Result"] = template.JS("[]")
+	} else {
+		c.Data["Result"] = template.JS(string(b))
+	}
 }
+
 //编辑或添加用户组
 func (c *ManagerController) MemberGroupEdit() {
 	c.Prepare()
 	c.TplName = "manager/member_group_edit.tpl"
 
-	if c.Ctx.Input.IsPost() {
-
+	if c.Member.Role != 0 {
+		c.ShowErrorPage(500,"只有超级管理员才能编辑或添加用户组")
 	}
-	groupId,_ := c.GetInt("group_id",0)
 
+	groupId,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 	memberGroup := models.NewMemberGroup()
 	var err error
+
+	if c.Ctx.Input.IsPost() {
+		groupId,_ := c.GetInt("group_id",0)
+
+		groupName := strings.TrimSpace(c.GetString("group_name"))
+		if groupName == "" {
+			if c.Ctx.Input.IsAjax() {
+				c.JsonResult(6002,"用户组名称不能为空")
+			}else{
+				c.ShowErrorPage(500,"用户组名称不能为空")
+			}
+		}
+		if groupId > 0 {
+			memberGroup,err = models.NewMemberGroup().FindFirst(groupId)
+			if err != nil {
+				beego.Error("查询用户组失败",err)
+				if c.Ctx.Input.IsAjax() {
+					c.JsonResult(6001,"未查到指定的用户组信息")
+				}else{
+					c.ShowErrorPage(500,"用户组名称不能为空")
+				}
+			}
+
+			memberGroup.GroupName = groupName
+			memberGroup.ModifyAt = c.Member.MemberId
+		}else{
+			memberGroup.GroupName = groupName
+			memberGroup.CreateTime = time.Now()
+			memberGroup.CreateAt = c.Member.MemberId
+		}
+		if err := memberGroup.InsertOrUpdate(); err != nil {
+			beego.Error("保存用户组失败 =>",err)
+			c.JsonResult(500,"保存失败")
+		}else{
+			c.JsonResult(0,"保存成功",memberGroup)
+		}
+
+	}
+
 	if groupId > 0 {
 		memberGroup,err = memberGroup.FindFirst(groupId)
 		if err != nil {
@@ -767,16 +814,42 @@ func (c *ManagerController) MemberGroupEdit() {
 
 }
 
+//删除用户组
+func (c *ManagerController) MemberGroupDelete() {
+	c.Prepare()
+
+	if c.Member.Role != 0 {
+		c.JsonResult(5001,"只有超级管理员才能删除用户组")
+	}
+
+	groupId,err := c.GetInt("group_id",0)
+
+	if err != nil {
+		beego.Error("获取参数失败 =>",err)
+		c.JsonResult(5001,"获取用户组参数失败")
+	}
+	err = models.NewMemberGroup().Delete(groupId)
+	if err != nil {
+		beego.Error("删除用户组失败 =>",err)
+		c.JsonResult(5001,"删除用户组失败")
+	}
+	c.JsonResult(0,"删除成功")
+}
+
 //用户组成员列表
 func (c *ManagerController) MemberGroupMemberList() {
 	c.Prepare()
-	c.TplName = "manager/member_group_member_list.gohtml"
+	c.TplName = "manager/member_group_member_list.tpl"
 
 	pageIndex, _ := c.GetInt("page", 1)
-	groupId,_ := c.GetInt("group_id",0)
+	groupId,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
 	if groupId <= 0 {
 		c.ShowErrorPage(404,"用户组参数不能为空")
+	}
+	memberGroup,err := models.NewMemberGroup().FindFirst(groupId)
+	if err != nil {
+		c.ShowErrorPage(404,"用户组不存在")
 	}
 	memberGroupMemberList ,totalCount,err := models.NewMemberGroupMembers().FindToPager(pageIndex,conf.PageSize,groupId)
 
@@ -791,10 +864,17 @@ func (c *ManagerController) MemberGroupMemberList() {
 	}
 	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(conf.PageSize)))
 
-	c.Data["Lists"] = memberGroupMemberList
+	b, err := json.Marshal(memberGroupMemberList)
 
+	if err != nil {
+		c.Data["Result"] = template.JS("[]")
+	} else {
+		c.Data["Result"] = template.JS(string(b))
+	}
+	c.Data["Model"] = memberGroup
 }
 
+//添加用户组成员
 func (c *ManagerController) MemberGroupMemberEdit() {
 	c.Prepare()
 }

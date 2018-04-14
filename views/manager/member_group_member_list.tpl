@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>用户管理 - Powered by MinDoc</title>
+    <title>{{.Model.GroupName}} - 用户组成员管理 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -24,7 +24,7 @@
 </head>
 <body>
 <div class="manual-reader">
-    {{template "widgets/header.tpl" .}}
+{{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
             <div class="page-left">
@@ -36,10 +36,10 @@
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 成员管理</strong>
-                        {{if eq .Member.Role 0}}
+                        <strong class="box-title">{{.Model.GroupName}} - 用户组成员管理</strong>
+                    {{if eq .Member.Role 0}}
                         <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> 添加成员</button>
-                        {{end}}
+                    {{end}}
                     </div>
                 </div>
                 <div class="box-body">
@@ -76,13 +76,13 @@
                                         </template>
                                         <template v-else>
                                             <div class="btn-group">
-                                            <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                ${item.role_name}
-                                                <span class="caret"></span></button>
-                                            <ul class="dropdown-menu">
-                                                <li><a href="javascript:;" @click="setMemberRole(item.member_id,1)">管理员</a> </li>
-                                                <li><a href="javascript:;" @click="setMemberRole(item.member_id,2)">普通用户</a> </li>
-                                            </ul>
+                                                <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    ${item.role_name}
+                                                    <span class="caret"></span></button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="javascript:;" @click="setMemberRole(item.member_id,1)">管理员</a> </li>
+                                                    <li><a href="javascript:;" @click="setMemberRole(item.member_id,2)">普通用户</a> </li>
+                                                </ul>
                                             </div>
                                         </template>
                                     </td>
@@ -120,14 +120,14 @@
                             </table>
                         </template>
                         <nav class="pagination-container">
-                            {{.PageHtml}}
+                        {{.PageHtml}}
                         </nav>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {{template "widgets/footer.tpl" .}}
+{{template "widgets/footer.tpl" .}}
 </div>
 <!-- Modal -->
 <div class="modal fade" id="addMemberDialogModal" tabindex="-1" role="dialog" aria-labelledby="addMemberDialogModalLabel">

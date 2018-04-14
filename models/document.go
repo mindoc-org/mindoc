@@ -92,7 +92,7 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 		if m.Identify == "" {
 			book := NewBook()
 			identify := "docs"
-			if err := o.QueryTable(book.TableNameWithPrefix()).One(book,"identify");err == nil {
+			if err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id",m.BookId).One(book,"identify");err == nil {
 				identify = book.Identify
 			}
 			m.Identify = fmt.Sprintf("%s-%d%d",identify,m.BookId,time.Now().Unix())
