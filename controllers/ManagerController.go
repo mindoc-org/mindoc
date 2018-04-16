@@ -757,7 +757,7 @@ func (c *ManagerController) MemberGroupEdit() {
 	c.Prepare()
 	c.TplName = "manager/member_group_edit.tpl"
 
-	if c.Member.Role != 0 {
+	if !c.Member.IsSuperAdministrator() {
 		c.ShowErrorPage(500,"只有超级管理员才能编辑或添加用户组")
 	}
 
@@ -818,7 +818,7 @@ func (c *ManagerController) MemberGroupEdit() {
 func (c *ManagerController) MemberGroupDelete() {
 	c.Prepare()
 
-	if c.Member.Role != 0 {
+	if !c.Member.IsSuperAdministrator() {
 		c.JsonResult(5001,"只有超级管理员才能删除用户组")
 	}
 
@@ -877,10 +877,102 @@ func (c *ManagerController) MemberGroupMemberList() {
 //添加用户组成员
 func (c *ManagerController) MemberGroupMemberEdit() {
 	c.Prepare()
+	if !c.Member.IsSuperAdministrator() {
+		c.JsonResult(5000,"只有超级管理员才能添加用户")
+	}
+	if c.Ctx.Input.IsPost() {
+		memberId, err := c.GetInt("member_id", 0)
+
+		if err != nil || memberId <= 0 {
+			c.JsonResult(6001, "用户参数错误")
+		}
+		groupId, err := c.GetInt("group_id", 0)
+
+		if err != nil || groupId <= 0 {
+			c.JsonResult(6002, "用户组参数错误")
+		}
+
+		if ! models.NewMember().Exist("member_id", memberId) {
+			beego.Error("用户不存在 =>", err)
+			c.JsonResult(6001, "用户不存在")
+		}
+
+		if models.NewMemberGroupMembers().IsJoin(groupId, memberId) {
+			c.JsonResult(6003, "用户已加入当前用户组")
+		}
+		if !models.NewMember().Exist("member_id", memberId) {
+			c.JsonResult(6004, "用户不存在")
+		}
+
+		memberGroupMember := models.NewMemberGroupMembers()
+
+		memberGroupMember.MemberId = memberId
+		memberGroupMember.CreateAt = c.Member.MemberId
+		memberGroupMember.GroupId = groupId
+		memberGroupMember.CreateTime = time.Now()
+
+		if err := memberGroupMember.InsertOrUpdate(); err != nil {
+			beego.Error("添加用户失败 =>", err)
+			c.JsonResult(6005, "添加用户失败")
+		} else {
+			c.JsonResult(0, "添加成功",memberGroupMember.ToMemberRelationshipResult())
+		}
+	} else {
+		c.ShowErrorPage(405, "不支持的请求方式")
+	}
 }
 
+//删除用户组中的成员
+func (c *ManagerController) MemberGroupMemberDelete() {
+	c.Prepare()
+	if !c.Member.IsSuperAdministrator() {
+		c.JsonResult(5000,"只有超级管理员才能删除用户")
+	}
+	if c.Ctx.Input.IsPost() {
 
+		memberGroupId,err := c.GetInt("id",0)
 
+		if err != nil || memberGroupId <= 0 {
+			c.JsonResult(500,"参数错误")
+		}
+
+		if err := models.NewMemberGroupMembers().Delete(memberGroupId);err != nil {
+			beego.Error("添加用户失败 =>",err)
+			c.JsonResult(6005,"删除用户失败")
+		}else{
+			c.JsonResult(0,"删除成功")
+		}
+	}else{
+		c.ShowErrorPage(405,"不支持的请求方式")
+	}
+}
+
+func (c *ManagerController) MemberGroupMemberSearch() {
+	c.Prepare()
+	groupId,err := c.GetInt("group_id",0)
+
+	if err != nil || groupId <= 0 {
+		c.JsonResult(6002,"用户组参数错误")
+	}
+	q := strings.TrimSpace(c.GetString("q"))
+
+	members,err := models.NewMemberGroupMembers().FindMemberGroupMemberNoJoinSearchResult(groupId,q)
+
+	result := models.SelectMemberResult{}
+	items := make([]models.KeyValueItem, 0)
+
+	for _, member := range members {
+		item := models.KeyValueItem{}
+		item.Id = member.MemberId
+		item.Text = member.Account
+		items = append(items, item)
+	}
+
+	result.Result = items
+
+	c.JsonResult(0, "OK", result)
+
+}
 
 
 

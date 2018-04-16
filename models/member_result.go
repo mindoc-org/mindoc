@@ -73,9 +73,9 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(bookId, pageIndex, pageS
 
 	sql2 := "SELECT count(*) AS total_count FROM md_relationship AS rel LEFT JOIN md_members as member ON rel.member_id = member.member_id WHERE rel.book_id = ?"
 
-	var total_count int
+	var totalCount int
 
-	err := o.Raw(sql2, bookId).QueryRow(&total_count)
+	err := o.Raw(sql2, bookId).QueryRow(&totalCount)
 
 	if err != nil {
 		return members, 0, err
@@ -92,7 +92,7 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(bookId, pageIndex, pageS
 	for _, item := range members {
 		item.ResolveRoleName()
 	}
-	return members, total_count, nil
+	return members, totalCount, nil
 }
 
 // 查询指定文档中不存在的用户列表

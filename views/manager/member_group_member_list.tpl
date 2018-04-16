@@ -10,7 +10,7 @@
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
-
+    <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -56,39 +56,17 @@
                                     <th>账号</th>
                                     <th>姓名</th>
                                     <th>角色</th>
-                                    <th>类型</th>
                                     <th>状态</th>
                                     <th>操作</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr v-for="item in lists">
-                                    <td>${item.member_id}</td>
+                                    <td>${item.group_member_id}</td>
                                     <td><img :src="item.avatar" onerror="this.src='{{cdnimg "/static/images/middle.gif"}}'" class="img-circle" width="34" height="34"></td>
                                     <td>${item.account}</td>
                                     <td>${item.real_name}</td>
-                                    <td>
-                                        <template v-if="item.role == 0">
-                                            超级管理员
-                                        </template>
-                                        <template v-else-if="item.member_id == {{.Member.MemberId}}">
-                                            ${item.role_name}
-                                        </template>
-                                        <template v-else>
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    ${item.role_name}
-                                                    <span class="caret"></span></button>
-                                                <ul class="dropdown-menu">
-                                                    <li><a href="javascript:;" @click="setMemberRole(item.member_id,1)">管理员</a> </li>
-                                                    <li><a href="javascript:;" @click="setMemberRole(item.member_id,2)">普通用户</a> </li>
-                                                </ul>
-                                            </div>
-                                        </template>
-                                    </td>
-                                    <td>
-                                        ${item.auth_method}
-                                    </td>
+                                    <td>${item.role_name}</td>
                                     <td>
                                         <template v-if="item.status == 0">
                                             <span class="label label-success">正常</span>
@@ -99,21 +77,7 @@
                                     </td>
 
                                     <td>
-                                        <template v-if="item.member_id == {{.Member.MemberId}}">
-
-                                        </template>
-                                        <template v-else-if="item.role != 0">
-                                            <a :href="'{{urlfor "ManagerController.EditMember" ":id" ""}}' + item.member_id" class="btn btn-sm btn-default" @click="editMember(item.member_id)">
-                                                编辑
-                                            </a>
-                                            <template v-if="item.status == 0">
-                                                <button type="button" class="btn btn-danger btn-sm" @click="setMemberStatus(item.member_id,1,$event)" data-loading-text="启用中...">禁用</button>
-                                            </template>
-                                            <template v-else>
-                                                <button type="button" class="btn btn-success btn-sm" @click="setMemberStatus(item.member_id,0,$event)" data-loading-text="禁用中...">启用</button>
-                                            </template>
-                                            <button type="button" class="btn btn-danger btn-sm" @click="deleteMember(item.member_id,$event)" data-loading-text="删除中">删除</button>
-                                        </template>
+                                        <button type="button" class="btn btn-danger btn-sm" @click="deleteMember(item.group_member_id,$event)" data-loading-text="删除中">删除</button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -132,60 +96,19 @@
 <!-- Modal -->
 <div class="modal fade" id="addMemberDialogModal" tabindex="-1" role="dialog" aria-labelledby="addMemberDialogModalLabel">
     <div class="modal-dialog" role="document">
-        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "ManagerController.CreateMember"}}" id="addMemberDialogForm">
+        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "ManagerController.MemberGroupMemberEdit"}}" id="addMemberDialogForm">
+            <input type="hidden" name="group_id" value="{{.Model.GroupId}}">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">创建用户</h4>
+                    <h4 class="modal-title" id="myModalLabel">添加用户组成员</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="account">账号<span class="error-message">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text" name="account" class="form-control" placeholder="用户账号" id="account" maxlength="50">
+                            <select class="js-data-example-ajax form-control" multiple="multiple" name="member_id" id="member_id"></select>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="password1">密码<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="password" class="form-control" placeholder="用户密码" name="password1" id="password1" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="password2">确认密码<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="password" class="form-control" placeholder="确认密码" name="password2" id="password2" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="email">邮箱<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="email" class="form-control" placeholder="邮箱" name="email" id="email" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">真实姓名</label>
-                        <div class="col-sm-10">
-                            <input type="text" name="real_name" class="form-control" value="" placeholder="真实姓名">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">手机号</label>
-                        <div class="col-sm-10">
-                            <input type="text" class="form-control" placeholder="手机号" name="phone" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">角色</label>
-                        <div class="col-sm-10">
-                            <select name="role" class="form-control">
-                                <option value="1">管理员</option>
-                                <option value="2">普通用户</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -202,32 +125,43 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/select2.full.min.js"}}"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/i18n/zh-CN.js"}}"></script>
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#addMemberDialogModal").on("show.bs.modal",function () {
             window.addMemberDialogModalHtml = $(this).find("form").html();
+            $('#member_id').select2({
+                language: "zh-CN",
+                minimumInputLength : 1,
+                minimumResultsForSearch: Infinity,
+                maximumSelectionLength:1,
+                width : "100%",
+                ajax: {
+                    url: '{{urlfor "ManagerController.MemberGroupMemberSearch" "group_id" .Model.GroupId}}',
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results : data.data.results
+                        }
+                    }
+                }
+            });
         }).on("hidden.bs.modal",function () {
             $(this).find("form").html(window.addMemberDialogModalHtml);
         });
         $("#addMemberDialogForm").ajaxForm({
             beforeSubmit : function () {
-                var account = $.trim($("#account").val());
-                if(account === ""){
+                var member_id = $.trim($("#member_id").val());
+                if(member_id <= 0){
                     return showError("账号不能为空");
-                }
-                var password1 = $.trim($("#password1").val());
-                var password2 = $("#password2").val();
-                if (password1 === "") {
-                    return showError("密码不能为空");
-                }
-                if (password1 !== password2) {
-                    return showError("确认密码不正确");
-                }
-                var email = $.trim($("#email").val());
-
-                if (email === "") {
-                    return showError("邮箱不能为空");
                 }
                 $("#btnAddMember").button("loading");
                 return true;
@@ -254,61 +188,10 @@
             },
             delimiters : ['${','}'],
             methods : {
-                setMemberStatus : function (id,status,e) {
-                    var $this = this;
-                    $.ajax({
-                        url : "{{urlfor "ManagerController.UpdateMemberStatus"}}",
-                        type : "post",
-                        data : { "member_id":id,"status" : status},
-                        dataType : "json",
-                        success : function (res) {
-                            if (res.errcode === 0) {
-
-                                for (var index in $this.lists) {
-                                    var item = $this.lists[index];
-
-                                    if (item.member_id === id) {
-                                        console.log(item);
-                                        $this.lists[index].status = status;
-                                        break;
-                                        //$this.lists.splice(index,1,item);
-                                    }
-                                }
-                            } else {
-                                alert("操作失败：" + res.message);
-                            }
-                        }
-                    })
-
-                },
-                setMemberRole : function (member_id, role) {
-                    var $this = this;
-                    $.ajax({
-                        url :"{{urlfor "ManagerController.ChangeMemberRole"}}",
-                        dataType :"json",
-                        type :"post",
-                        data : { "member_id" : member_id,"role" : role },
-                        success : function (res) {
-                            if(res.errcode === 0){
-                                for (var index in $this.lists) {
-                                    var item = $this.lists[index];
-
-                                    if (item.member_id === member_id) {
-
-                                        $this.lists.splice(index,1,res.data);
-                                        break;
-                                    }
-                                }
-                            }else{
-                                alert("操作失败：" + res.message);
-                            }
-                        }
-                    })
-                },
                 deleteMember : function (id, e) {
                     var $this = this;
                     $.ajax({
-                        url : "{{urlfor "ManagerController.DeleteMember"}}",
+                        url : "{{urlfor "ManagerController.MemberGroupMemberDelete"}}",
                         type : "post",
                         data : { "id":id },
                         dataType : "json",
@@ -317,7 +200,7 @@
 
                                 for (var index in $this.lists) {
                                     var item = $this.lists[index];
-                                    if (item.member_id == id) {
+                                    if (item.group_member_id == id) {
                                         console.log(item);
                                         $this.lists.splice(index,1);
                                         break;

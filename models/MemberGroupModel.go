@@ -160,8 +160,26 @@ func (m *MemberGroup) InsertOrUpdate(cols...string) error {
 	return err
 }
 
+//重置用户组数量
+func (m *MemberGroup) ResetMemberGroupNumber(groupId int) error {
+	o := orm.NewOrm()
 
-
+	i,err := o.QueryTable(NewMemberGroupMembers().TableNameWithPrefix()).Filter("group_id",groupId).Count()
+	if err != nil {
+		beego.Error("重置用户组用户数量失败 =>",err)
+	}else{
+		err := o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",groupId).One(m)
+		if err != nil {
+			beego.Error("重置用户组用户数量失败 =>",err)
+			return err
+		}else{
+			m.GroupNumber  = int(i)
+			_,err = o.Update(m)
+			return err
+		}
+	}
+	return  nil
+}
 
 
 

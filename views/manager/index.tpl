@@ -47,9 +47,14 @@
                         <span class="fa-class">{{.Model.DocumentNumber}}</span>
                     </div>
                     <a href="{{urlfor "ManagerController.Users"}}" class="dashboard-item">
-                            <span class="fa fa-users" aria-hidden="true"></span>
+                            <span class="fa fa-user" aria-hidden="true"></span>
                             <span class="fa-class">会员数量</span>
                             <span class="fa-class">{{.Model.MemberNumber}}</span>
+                    </a>
+                    <a href="{{urlfor "ManagerController.MemberGroupList"}}" class="dashboard-item">
+                        <span class="fa fa-users" aria-hidden="true"></span>
+                        <span class="fa-class">用户组数量</span>
+                        <span class="fa-class">{{.Model.MemberGroupNumber}}</span>
                     </a>
                     <!--
                     {{/*
@@ -64,6 +69,7 @@
                         <span class="fa-class">附件数量</span>
                         <span class="fa-class">{{.Model.AttachmentNumber}}</span>
                     </a>
+
                 </div>
             </div>
         </div>

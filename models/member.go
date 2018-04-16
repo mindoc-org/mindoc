@@ -236,6 +236,7 @@ func (m *Member) FindByAccount(account string) (*Member, error) {
 	}
 	return m, err
 }
+
 //批量查询用户
 func (m *Member) FindByAccountList(accounts ...string) ([]*Member,error) {
 	o := orm.NewOrm()
@@ -277,11 +278,25 @@ func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int, error) {
 	return members, int(totalCount), nil
 }
 
+//指定的用户是否存在
+func (m *Member) Exist(field string,value interface{}) bool {
+	o := orm.NewOrm()
+
+	return o.QueryTable(m.TableNameWithPrefix()).Filter(field,value).Exist()
+}
+//是否是管理员
 func (c *Member) IsAdministrator() bool {
 	if c == nil || c.MemberId <= 0 {
 		return false
 	}
 	return c.Role == 0 || c.Role == 1
+}
+//是否是超级管理员
+func (c *Member) IsSuperAdministrator() bool {
+	if c == nil || c.MemberId <= 0 {
+		return false
+	}
+	return c.Role == 0
 }
 
 //根据指定字段查找用户.
@@ -294,7 +309,7 @@ func (m *Member) FindByFieldFirst(field string, value interface{}) (*Member, err
 }
 
 //校验用户.
-func (m *Member) Valid(is_hash_password bool) error {
+func (m *Member) Valid(isHashPassword bool) error {
 
 	//邮箱不能为空
 	if m.Email == "" {
@@ -315,7 +330,7 @@ func (m *Member) Valid(is_hash_password bool) error {
 		return ErrMemberEmailFormatError
 	}
 	//如果是未加密密码，需要校验密码格式
-	if !is_hash_password {
+	if !isHashPassword {
 		if l := strings.Count(m.Password, ""); m.Password == "" || l > 50 || l < 6 {
 			return ErrMemberPasswordFormatError
 		}

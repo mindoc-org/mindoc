@@ -190,7 +190,6 @@
                         };
                     },
                     processResults: function (data, params) {
-                        console.log(data)
                         return {
                             results : data.data.results
                         }

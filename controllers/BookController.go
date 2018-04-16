@@ -705,13 +705,13 @@ func (c *BookController) SaveSort() {
 		c.Abort("404")
 	}
 
-	book_id := 0
+	bookId := 0
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 
 		}
-		book_id = book.BookId
+		bookId = book.BookId
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil {
@@ -722,7 +722,7 @@ func (c *BookController) SaveSort() {
 		if bookResult.RoleId == conf.BookObserver {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 	}
 
 	content := c.Ctx.Input.RequestBody
@@ -743,7 +743,7 @@ func (c *BookController) SaveSort() {
 				beego.Error(err)
 				continue
 			}
-			if doc.BookId != book_id {
+			if doc.BookId != bookId {
 				logs.Info("%s", "权限错误")
 				continue
 			}
@@ -758,7 +758,7 @@ func (c *BookController) SaveSort() {
 				continue
 			}
 			if parent_id > 0 {
-				if parent, err := models.NewDocument().Find(int(parent_id)); err != nil || parent.BookId != book_id {
+				if parent, err := models.NewDocument().Find(int(parent_id)); err != nil || parent.BookId != bookId {
 					continue
 				}
 			}

@@ -69,8 +69,8 @@
                                     <td>${item.create_name}</td>
                                     <td>${(new Date(item.modify_time)).format("yyyy-MM-dd hh:mm:ss")}</td>
                                     <td>
-                                        <a :href="'{{urlfor "ManagerController.MemberGroupMemberList" ":id" ""}}' + item.group_id" class="btn btn-sm btn-success">成员</a>
-                                         <a :href="'{{urlfor "ManagerController.MemberGroupEdit" ":id" ""}}' + item.group_id" class="btn btn-sm btn-default">编辑</a>
+                                        <a :href="'{{urlfor "ManagerController.MemberGroupMemberList" ":id" "0"}}' + item.group_id" class="btn btn-sm btn-success">成员</a>
+                                         <a :href="'{{urlfor "ManagerController.MemberGroupEdit" ":id" "0"}}' + item.group_id" class="btn btn-sm btn-default">编辑</a>
                                          <button type="button" class="btn btn-danger btn-sm" @click="deleteMemberGroup(item.group_id,$event)" data-loading-text="删除中">删除</button>
                                     </td>
                                 </tr>

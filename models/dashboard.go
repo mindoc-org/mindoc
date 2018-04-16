@@ -8,6 +8,7 @@ type Dashboard struct {
 	MemberNumber     int64 `json:"member_number"`
 	CommentNumber    int64 `json:"comment_number"`
 	AttachmentNumber int64 `json:"attachment_number"`
+	MemberGroupNumber int64 `json:"member_group_number"`
 }
 
 func NewDashboard() *Dashboard {
@@ -30,9 +31,13 @@ func (m *Dashboard) Query() *Dashboard {
 	//comment_number,_ := o.QueryTable(NewComment().TableNameWithPrefix()).Count()
 	m.CommentNumber = 0
 
-	attachment_number, _ := o.QueryTable(NewAttachment().TableNameWithPrefix()).Count()
+	attachmentNumber, _ := o.QueryTable(NewAttachment().TableNameWithPrefix()).Count()
 
-	m.AttachmentNumber = attachment_number
+	m.AttachmentNumber = attachmentNumber
+
+	memberGroupNumber,_ := o.QueryTable(NewMemberGroup().TableNameWithPrefix()).Count()
+
+	m.MemberGroupNumber = memberGroupNumber
 
 	return m
 }
