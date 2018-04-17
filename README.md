@@ -21,12 +21,12 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 
 对于没有Golang使用经验的用户，可以从 [https://github.com/lifei6671/mindoc/releases](https://github.com/lifei6671/mindoc/releases) 这里下载编译完的程序。
 
-如果有Golang开发经验，建议通过编译安装。
+如果有Golang开发经验，建议通过编译安装，在此之前，您需要先安装Golang官方包管理工具，详见[Install dep](https://golang.github.io/dep/docs/installation.html)。
 
 ```bash
 git clone https://github.com/lifei6671/mindoc.git
 
-glide update
+dep ensure
 
 go build -ldflags "-w"
 
