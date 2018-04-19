@@ -40,6 +40,7 @@
                         <strong class="box-title"> 成员管理</strong>
                         {{if eq .Model.RoleId 0 1}}
                         <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addBookMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> 添加成员</button>
+                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addBookMemberGroupDialogModal" style="margin-right: 5px;"><i class="fa fa-users" aria-hidden="true"></i> 添加用户组</button>
                         {{end}}
                     </div>
                 </div>
@@ -137,7 +138,49 @@
             </div>
         </form>
     </div>
-</div><!--END Modal-->
+</div>
+<!--END Modal-->
+<!-- Modal -->
+<div class="modal fade" id="addBookMemberGroupDialogModal" tabindex="-1" role="dialog" aria-labelledby="addBookMemberGroupDialogModalLabel">
+    <div class="modal-dialog" role="document" style="width: 600px;">
+        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "BookMemberController.AddMemberGroup"}}" id="addBookMemberGroupDialogForm">
+            <input type="hidden" name="identify" value="{{.Model.Identify}}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">添加用户组</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">用户组名称</label>
+                        <div class="col-sm-9">
+                            <select class="js-data-example-ajax form-control" multiple="multiple" name="group_id" id="member_group_name"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">角色</label>
+                        <div class="col-sm-9">
+                            <select name="role_id" class="form-control">
+                                <option value="1">管理员</option>
+                                <option value="2">编辑者</option>
+                                <option value="3">观察者</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="clearfix"></div>
+                </div>
+                <div class="modal-footer">
+                    <span id="form-error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddMemberGroup">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!--END Modal-->
+
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}"></script>
@@ -171,10 +214,11 @@
                 $("#btnAddMember").button("reset");
             }
         });
+
         $("#addBookMemberDialogModal").on("hidden.bs.modal",function () {
             $(this).find("form").html(modalCache);
         }).on("show.bs.modal",function () {
-            $('.js-data-example-ajax').select2({
+            $('#account').select2({
                 language: "zh-CN",
                 minimumInputLength : 1,
                 minimumResultsForSearch: Infinity,
@@ -182,6 +226,56 @@
                 width : "100%",
                 ajax: {
                     url: '{{urlfor "SearchController.User" ":key" .Model.Identify}}',
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results : data.data.results
+                        }
+                    }
+                }
+            });
+        });
+        /**
+         * 添加用户组
+         */
+        $("#addBookMemberGroupDialogForm").ajaxForm({
+            beforeSubmit : function () {
+                var member_group_name = $.trim($("#member_group_name").val());
+                if(member_group_name === ""){
+                    return showError("用户组名称不能为空");
+                }
+                $("#btnAddMemberGroup").button("loading");
+            },
+            success : function (res) {
+                if(res.errcode === 0){
+                    // app.lists.splice(0,0,res.data);
+                    window.document.location = document.location;
+
+                    $("#addBookMemberGroupDialogModal").modal("hide");
+                }else{
+                    showError(res.message);
+                }
+                $("#btnAddMemberGroup").button("reset");
+            }
+        });
+
+        $("#addBookMemberGroupDialogModal").on("hidden.bs.modal",function () {
+
+        }).on("show.bs.modal",function () {
+            $('#member_group_name').select2({
+                language: "zh-CN",
+                minimumInputLength : 1,
+                minimumResultsForSearch: Infinity,
+                maximumSelectionLength:1,
+                width : "100%",
+                ajax: {
+                    url: '{{urlfor "BookMemberController.MemberGroupList"}}',
                     dataType: 'json',
                     data: function (params) {
                         return {

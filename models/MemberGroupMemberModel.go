@@ -60,7 +60,7 @@ func NewMemberGroupMembers() *MemberGroupMembers {
 }
 
 // 查询用户组成员
-func (m *MemberGroupMembers) FindByGroupId(groupId int) ([]*MemberGroupMemberResult,error) {
+func (m *MemberGroupMembers) FindResultByGroupId(groupId int) ([]*MemberGroupMemberResult,error) {
 	o := orm.NewOrm()
 	var groupMembers []*MemberGroupMemberResult
 	_,err := o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",groupId).All(&groupMembers);
@@ -89,6 +89,17 @@ func (m *MemberGroupMembers) FindByGroupId(groupId int) ([]*MemberGroupMemberRes
 				groupMember.RealName = member.RealName
 			}
 		}
+	}
+	return groupMembers,nil
+}
+
+func (m *MemberGroupMembers) FindByGroupId(groupId int) ([]*MemberGroupMembers,error) {
+	o := orm.NewOrm()
+	var groupMembers []*MemberGroupMembers
+	_,err := o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",groupId).All(&groupMembers);
+	if err != nil {
+		beego.Error("获取用户组成员出错 =>",err)
+		return nil,err
 	}
 	return groupMembers,nil
 }

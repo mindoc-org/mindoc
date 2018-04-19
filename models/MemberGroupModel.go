@@ -181,8 +181,18 @@ func (m *MemberGroup) ResetMemberGroupNumber(groupId int) error {
 	return  nil
 }
 
+func (m *MemberGroup) Exist(groupId int) bool {
+	o := orm.NewOrm()
+	return o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",groupId).Exist()
+}
 
+func (m *MemberGroup) FindMemberGroupList(keyword string) ([]*MemberGroup,error) {
+	o := orm.NewOrm()
+	var memberGroups []*MemberGroup
+	_,err := o.QueryTable(m.TableNameWithPrefix()).Filter("group_name__icontains",keyword).All(&memberGroups)
 
+	return memberGroups,err
+}
 
 
 

@@ -69,10 +69,11 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 			logs.Info("转入LDAP登陆")
 			return member.ldapLogin(account, password)
 		} else {
-			logs.Error("用户登录 => ", err)
+			logs.Error("用户登录 => ", err, account)
 			return member, ErrMemberNoExist
 		}
 	}
+	beego.Info(member)
 
 	switch member.AuthMethod {
 	case "":
@@ -81,6 +82,8 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 		if ok && err == nil {
 			m.ResolveRoleName()
 			return member, nil
+		}else{
+			beego.Error("密码校验错误 =>",ok,err)
 		}
 	case "ldap":
 		return member.ldapLogin(account, password)

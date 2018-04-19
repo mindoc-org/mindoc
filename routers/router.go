@@ -56,6 +56,8 @@ func init() {
 
 	beego.Router("/book/create", &controllers.BookController{}, "*:Create")
 	beego.Router("/book/users/create", &controllers.BookMemberController{}, "post:AddMember")
+	beego.Router("/book/users/add-member-group", &controllers.BookMemberController{}, "post:AddMemberGroup")
+	beego.Router("/book/users/search-member-group", &controllers.BookMemberController{}, "*:MemberGroupList")
 	beego.Router("/book/users/change", &controllers.BookMemberController{}, "post:ChangeRole")
 	beego.Router("/book/users/delete", &controllers.BookMemberController{}, "post:RemoveMember")
 	beego.Router("/book/users/import", &controllers.BookController{},"post:Import")
