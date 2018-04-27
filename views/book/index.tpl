@@ -188,7 +188,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">导入项目</h4>
+                    <h4 class="modal-title">导入项目 <a href="https://github.com/lifei6671/mindoc/wiki/MinDoc%E9%A1%B9%E7%9B%AE%E5%AF%BC%E5%85%A5%E5%8A%9F%E8%83%BD%E7%AE%80%E4%BB%8B" target="_blank" title="导入帮助">?</a> </h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">

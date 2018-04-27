@@ -15,6 +15,7 @@ func init() {
 	beego.Router("/valid_email", &controllers.AccountController{}, "post:ValidEmail")
 	beego.Router("/captcha", &controllers.AccountController{}, "*:Captcha")
 
+	//超级管理员管理
 	beego.Router("/manager", &controllers.ManagerController{}, "*:Index")
 	beego.Router("/manager/users", &controllers.ManagerController{}, "*:Users")
 	beego.Router("/manager/users/edit/:id", &controllers.ManagerController{}, "*:EditMember")
@@ -42,6 +43,9 @@ func init() {
 	beego.Router("/manager/user_group_member/delete", &controllers.ManagerController{},"post:MemberGroupMemberDelete")
 	beego.Router("/manager/user_group_member/search", &controllers.ManagerController{},"*:MemberGroupMemberSearch")
 	beego.Router("/manager/user_group_member/list/:id:int", &controllers.ManagerController{},"*:MemberGroupMemberList")
+
+	//权限资源管理
+	beego.Router("/resource/add", &controllers.ResourcesController{},"*:AddResource")
 
 	beego.Router("/setting", &controllers.SettingController{}, "*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{}, "*:Password")

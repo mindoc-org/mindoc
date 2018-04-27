@@ -5,23 +5,27 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego"
+	"strings"
+	"errors"
+	"strconv"
 )
 
 type MemberGroup struct {
-	GroupId int 		`orm:"column(group_id);pk;auto;unique;" json:"group_id"`
-	GroupName string	`orm:"column(group_name);size(255);" json:"group_name"`
-	GroupNumber int		`orm:"column(group_number);default(0)" json:"group_number"`
-	CreateTime    time.Time `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
-	CreateAt      int       `orm:"type(int);column(create_at)" json:"create_at"`
-	CreateName 	string 		`orm:"-" json:"create_name"`
-	CreateRealName string 	 `orm:"-" json:"create_real_name"`
-	ModifyTime time.Time     `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
-	ModifyAt   int           `orm:"column(modify_at);type(int)" json:"-"`
-	ModifyName string 		 `orm:"-" json:"modify_name"`
-	ModifyRealName string 	 `orm:"-" json:"modify_real_name"`
+	GroupId int 				`orm:"column(group_id);pk;auto;unique;" json:"group_id"`
+	GroupName string			`orm:"column(group_name);size(255);" json:"group_name"`
+	GroupNumber int				`orm:"column(group_number);default(0)" json:"group_number"`
+	CreateTime    time.Time 	`orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
+	CreateAt      int       	`orm:"type(int);column(create_at)" json:"create_at"`
+	CreateName 	string 			`orm:"-" json:"create_name"`
+	CreateRealName string 	 	`orm:"-" json:"create_real_name"`
+	ModifyTime time.Time     	`orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
+	Resources string		 	`orm:"column(resources);type(text);null" json:"-"`
+	IsDelete bool				`orm:"column(is_delete);type(bool);default(false)" json:"is_delete"`
+	ResourceList []*Resource	`orm:"-" json:"resource_list"`
+	ModifyAt   int           	`orm:"column(modify_at);type(int)" json:"-"`
+	ModifyName string 		 	`orm:"-" json:"modify_name"`
+	ModifyRealName string 	 	`orm:"-" json:"modify_real_name"`
 }
-
-
 
 // TableName 获取对应数据库表名.
 func (m *MemberGroup) TableName() string {
@@ -151,6 +155,14 @@ func (m *MemberGroup) FindByPager(pageIndex, pageSize int) ([]*MemberGroup,int,e
 //添加或更新用户组信息
 func (m *MemberGroup) InsertOrUpdate(cols...string) error {
 	o := orm.NewOrm()
+
+	if m.ResourceList != nil && len(m.ResourceList) > 0 {
+		for _,resource := range m.ResourceList {
+			m.Resources = m.Resources + strconv.Itoa(resource.ResourceId) + ","
+		}
+		m.Resources = strings.Trim(m.Resources,",")
+	}
+
 	var err error
 	if m.GroupId > 0 {
 		_,err = o.Update(m, cols...)
@@ -181,11 +193,13 @@ func (m *MemberGroup) ResetMemberGroupNumber(groupId int) error {
 	return  nil
 }
 
+//判断用户组是否存在
 func (m *MemberGroup) Exist(groupId int) bool {
 	o := orm.NewOrm()
 	return o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",groupId).Exist()
 }
 
+//模糊查询用户组列表
 func (m *MemberGroup) FindMemberGroupList(keyword string) ([]*MemberGroup,error) {
 	o := orm.NewOrm()
 	var memberGroups []*MemberGroup
@@ -193,6 +207,34 @@ func (m *MemberGroup) FindMemberGroupList(keyword string) ([]*MemberGroup,error)
 
 	return memberGroups,err
 }
+
+//查询指定用户组的资源列表
+func (m *MemberGroupMembers) FindMemberGroupResourceList(groupId int) ([]*Resource,error) {
+	o := orm.NewOrm()
+
+	var memberGroup *MemberGroup
+
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",groupId).One(memberGroup)
+
+	if err != nil {
+		beego.Error("查询用户组资源时出错 =>", err)
+		return nil,err
+	}
+
+	if memberGroup.Resources != "" {
+		resourceIds := strings.Split(strings.Trim(memberGroup.Resources,","),",")
+
+		var resources []*Resource
+		_,err = o.QueryTable(NewResource().TableNameWithPrefix()).Filter("resource_id__in",resourceIds).All(resources)
+		if err != nil {
+			beego.Error("查询用户组资源时出错 =>", err)
+		}
+		return resources,err
+	}
+	return nil,errors.New("当前用户组未设置资源")
+}
+
+
 
 
 

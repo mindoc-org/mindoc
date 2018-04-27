@@ -92,6 +92,7 @@ func RegisterModel() {
 		new(models.Label),
 		new(models.MemberGroup),
 		new(models.MemberGroupMembers),
+		new(models.Resource),
 	)
 	//migrate.RegisterMigration()
 }
