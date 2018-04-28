@@ -30,12 +30,14 @@ type Member struct {
 	Phone       string `orm:"size(255);column(phone);null;default(null)" json:"phone"`
 	Avatar      string `orm:"size(1000);column(avatar)" json:"avatar"`
 	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户 .
-	Role          int       `orm:"column(role);type(int);default(1);index" json:"role"`
-	RoleName      string    `orm:"-" json:"role_name"`
-	Status        int       `orm:"column(status);type(int);default(0)" json:"status"` //用户状态：0 正常/1 禁用
-	CreateTime    time.Time `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
-	CreateAt      int       `orm:"type(int);column(create_at)" json:"create_at"`
-	LastLoginTime time.Time `orm:"type(datetime);column(last_login_time);null" json:"last_login_time"`
+	Role          int        `orm:"column(role);type(int);default(1);index" json:"role"`
+	RoleName      string     `orm:"-" json:"role_name"`
+	Status        int        `orm:"column(status);type(int);default(0)" json:"status"` //用户状态：0 正常/1 禁用
+	CreateTime    time.Time  `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
+	CreateAt      int        `orm:"type(int);column(create_at)" json:"create_at"`
+	LastLoginTime time.Time  `orm:"type(datetime);column(last_login_time);null" json:"last_login_time"`
+	//用户权限列表
+	ResourceList []*Resource `orm:"-" json:"resource_list"`
 }
 
 // TableName 获取对应数据库表名.
@@ -287,6 +289,7 @@ func (m *Member) Exist(field string,value interface{}) bool {
 
 	return o.QueryTable(m.TableNameWithPrefix()).Filter(field,value).Exist()
 }
+
 //是否是管理员
 func (c *Member) IsAdministrator() bool {
 	if c == nil || c.MemberId <= 0 {
@@ -294,6 +297,7 @@ func (c *Member) IsAdministrator() bool {
 	}
 	return c.Role == 0 || c.Role == 1
 }
+
 //是否是超级管理员
 func (c *Member) IsSuperAdministrator() bool {
 	if c == nil || c.MemberId <= 0 {
@@ -368,7 +372,6 @@ func (m *Member) Valid(isHashPassword bool) error {
 }
 
 //删除一个用户.
-
 func (m *Member) Delete(oldId int, newId int) error {
 	o := orm.NewOrm()
 

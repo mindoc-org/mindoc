@@ -45,6 +45,7 @@ func init() {
 	beego.Router("/manager/user_group_member/list/:id:int", &controllers.ManagerController{},"*:MemberGroupMemberList")
 
 	//权限资源管理
+	beego.Router("/resource/list", &controllers.ResourcesController{},"*:ResourceList")
 	beego.Router("/resource/add", &controllers.ResourcesController{},"*:AddResource")
 
 	beego.Router("/setting", &controllers.SettingController{}, "*:Index")

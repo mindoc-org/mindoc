@@ -34,6 +34,9 @@ db_port=3306
 db_database=mindoc_db
 db_username=root
 db_password=123456
+#其他连接参数请参考https://github.com/go-sql-driver/mysql
+parameters=allowAllFiles=false
+
 
 ####################sqlite3 数据库配置###########################
 #db_adapter=sqlite3

@@ -47,8 +47,13 @@ func RegisterDataBase() {
 		}
 
 		port := beego.AppConfig.String("db_port")
+		parameters := beego.AppConfig.String("parameters")
 
 		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
+
+		if parameters != "" {
+			dataSource += "&" + parameters
+		}
 
 		if err := orm.RegisterDataBase("default", "mysql", dataSource); err != nil {
 			beego.Error("注册默认数据库失败:", err)

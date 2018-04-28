@@ -20,7 +20,7 @@ type MemberGroup struct {
 	CreateRealName string 	 	`orm:"-" json:"create_real_name"`
 	ModifyTime time.Time     	`orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	Resources string		 	`orm:"column(resources);type(text);null" json:"-"`
-	IsDelete bool				`orm:"column(is_delete);type(bool);default(false)" json:"is_delete"`
+	IsEnableDelete bool			`orm:"column(is_enable_delete);type(bool);default(true)" json:"is_enable_delete"`
 	ResourceList []*Resource	`orm:"-" json:"resource_list"`
 	ModifyAt   int           	`orm:"column(modify_at);type(int)" json:"-"`
 	ModifyName string 		 	`orm:"-" json:"modify_name"`
@@ -209,10 +209,10 @@ func (m *MemberGroup) FindMemberGroupList(keyword string) ([]*MemberGroup,error)
 }
 
 //查询指定用户组的资源列表
-func (m *MemberGroupMembers) FindMemberGroupResourceList(groupId int) ([]*Resource,error) {
+func (m *MemberGroup) FindMemberGroupResourceList(groupId int) ([]*Resource,error) {
 	o := orm.NewOrm()
 
-	var memberGroup *MemberGroup
+	memberGroup := NewMemberGroup()
 
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",groupId).One(memberGroup)
 

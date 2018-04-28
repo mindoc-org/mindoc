@@ -120,4 +120,14 @@ func initialization() {
 			os.Exit(0)
 		}
 	}
+
+	group := models.NewMemberGroup()
+	group.GroupId = 1
+	group.GroupName = "管理员组"
+	group.GroupNumber = 1
+	group.CreateTime = time.Now()
+	group.CreateAt = 1
+	group.IsEnableDelete = false
+
+
 }

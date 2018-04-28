@@ -91,7 +91,3 @@ func (m *Resource) Delete(resourceId int) (err error) {
 
 
 
-
-
-
-

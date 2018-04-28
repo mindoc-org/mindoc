@@ -17,6 +17,7 @@ import (
 type BaseController struct {
 	beego.Controller
 	Member                *models.Member
+	MemberResourceList	  []*models.Resource
 	Option                map[string]string
 	EnableAnonymous       bool
 	EnableDocumentHistory bool
@@ -77,6 +78,25 @@ func (c *BaseController) Prepare() {
 			}
 		}
 	}
+	roleId := 4
+	if c.Member != nil && c.Member.MemberId > 0 {
+		roleId = c.Member.Role
+	}
+
+	resourceList,err := models.NewMemberGroup().FindMemberGroupResourceList(roleId)
+	if err != nil {
+		beego.Error("获取用户许可资源时出错 =>", err)
+		c.ShowErrorPage(500,"获取用户许可资源时出错")
+	}
+	c.MemberResourceList = resourceList
+	c.Data["MemberResource"] = resourceList
+
+	for _,resource := range resourceList {
+		if resource.ControllerName == controller && resource.ActionName == action && resource.HttpMethod == c.Ctx.Input.Method() {
+			return
+		}
+	}
+	c.ShowErrorPage(403,"权限不足")
 }
 
 // SetMember 获取或设置当前登录用户信息,如果 MemberId 小于 0 则标识删除 Session
@@ -154,7 +174,7 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 
 	var buf bytes.Buffer
 
-	if err := beego.ExecuteViewPathTemplate(&buf, "document/export.tpl", beego.BConfig.WebConfig.ViewsPath, map[string]interface{}{"ErrorMessage": errMsg, "errCode": errCode, "BaseUrl": conf.BaseUrl}); err != nil {
+	if err := beego.ExecuteViewPathTemplate(&buf, "errors/error.tpl", beego.BConfig.WebConfig.ViewsPath, map[string]interface{}{"ErrorMessage": errMsg, "errCode": errCode, "BaseUrl": conf.BaseUrl}); err != nil {
 		c.Abort("500")
 	}
 
