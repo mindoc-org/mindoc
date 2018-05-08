@@ -7,7 +7,7 @@ import (
 	"github.com/astaxie/beego"
 )
 
-type Resource struct {
+type ResourceModel struct {
 	//主键
 	ResourceId int		 		`orm:"column(resource_id);pk;auto;unique;" json:"resource_id"`
 	//分组ID
@@ -22,41 +22,53 @@ type Resource struct {
 }
 
 // TableName 获取对应数据库表名.
-func (m *Resource) TableName() string {
+func (m *ResourceModel) TableName() string {
 	return "resource"
 }
 
 // TableEngine 获取数据使用的引擎.
-func (m *Resource) TableEngine() string {
+func (m *ResourceModel) TableEngine() string {
 	return "INNODB"
 }
 
 // 多字段唯一键
-func (m *Resource) TableUnique() [][]string {
+func (m *ResourceModel) TableUnique() [][]string {
 	return [][]string{{"resource_group_id", "resource_name","action_name","http_method"}}
 }
 
-func (m *Resource) TableNameWithPrefix() string {
+func (m *ResourceModel) TableNameWithPrefix() string {
 	return conf.GetDatabasePrefix() + m.TableName()
 }
 
-func NewResource() *Resource {
-	return &Resource{}
+func NewResource() *ResourceModel {
+	return &ResourceModel{}
 }
 //添加或更新资源
-func (m *Resource) InsertOrUpdate(cols ...string) (err error) {
+func (m *ResourceModel) InsertOrUpdate(cols ...string) (err error) {
 	if m.ControllerName == "" || m.ActionName == "" || m.ResourceGroupId <= 0 || m.ResourceName == ""{
 		return errors.New("参数错误")
 	}
 	if m.HttpMethod == "" {
-		m.HttpMethod = "GET"
+		m.HttpMethod = "*"
 	}
 	o := orm.NewOrm()
-
+	resource := &ResourceModel{}
+	//如果设置了资源id，需要先查询是否真实存在
 	if m.ResourceId > 0 {
-		_,err = o.Update(m,cols...)
-	}else{
+		err = o.QueryTable(m.TableNameWithPrefix()).Filter("resource_id",m.ResourceId).One(resource)
+	}
+	//如果资源不存在，需要查询是否存在相同的资源
+	if err == nil {
+		err = o.QueryTable(m.TableNameWithPrefix()).Filter("controller_name",m.ControllerName).Filter("action_name",m.ActionName).Filter("http_method__in",[]string{"*",m.HttpMethod}).One(resource)
+		if err == nil {
+			return errors.New("资源已存在")
+		}
+	}
+
+	if err == orm.ErrNoRows {
 		_,err = o.Insert(m)
+	}else{
+		_,err = o.Update(m,cols...)
 	}
 	if err != nil {
 		beego.Error("添加或更新资源时出错 =>",err)
@@ -65,7 +77,7 @@ func (m *Resource) InsertOrUpdate(cols ...string) (err error) {
 }
 
 //删除资源
-func (m *Resource) Delete(resourceId int) (err error) {
+func (m *ResourceModel) Delete(resourceId int) (err error) {
 	o := orm.NewOrm()
 
 	_,err = o.QueryTable(m.TableNameWithPrefix()).Filter("resource_id",resourceId).Delete()

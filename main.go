@@ -12,6 +12,7 @@ import (
 	"github.com/lifei6671/mindoc/commands"
 	"github.com/lifei6671/mindoc/commands/daemon"
 	_ "github.com/lifei6671/mindoc/routers"
+	_ "github.com/lifei6671/mindoc/acl"
 	_ "github.com/mattn/go-sqlite3"
 )
 

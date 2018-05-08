@@ -53,7 +53,7 @@
                 </div>
                 <div class="box-body" style="padding-right: 200px;">
                     <div class="form-left">
-                        <form method="post" id="bookEditForm" action="{{urlfor "BookController.SaveBook"}}">
+                        <form method="post" id="bookEditForm" action="{{urlfor "BookController.Setting"}}">
                             <input type="hidden" name="identify" value="{{.Model.Identify}}">
                             <div class="form-group">
                                 <label>标题</label>

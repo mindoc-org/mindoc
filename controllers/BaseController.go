@@ -12,12 +12,12 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
+	"github.com/lifei6671/mindoc/acl"
 )
 
 type BaseController struct {
 	beego.Controller
 	Member                *models.Member
-	MemberResourceList	  []*models.Resource
 	Option                map[string]string
 	EnableAnonymous       bool
 	EnableDocumentHistory bool
@@ -78,25 +78,12 @@ func (c *BaseController) Prepare() {
 			}
 		}
 	}
-	roleId := 4
-	if c.Member != nil && c.Member.MemberId > 0 {
-		roleId = c.Member.Role
-	}
+	//如果没有访问权限
+	if !(acl.IsAllow("anonymous",strings.TrimSuffix(controller,"Controller"),action,c.Ctx.Input.Method())  ||
+		(c.Member != nil && c.Member.Role > 0 && acl.IsAllow(c.Member.Account,strings.TrimSuffix(controller,"Controller"),action,c.Ctx.Input.Method()))) {
 
-	resourceList,err := models.NewMemberGroup().FindMemberGroupResourceList(roleId)
-	if err != nil {
-		beego.Error("获取用户许可资源时出错 =>", err)
-		c.ShowErrorPage(500,"获取用户许可资源时出错")
+		c.ShowErrorPage(403,"权限不足")
 	}
-	c.MemberResourceList = resourceList
-	c.Data["MemberResource"] = resourceList
-
-	for _,resource := range resourceList {
-		if resource.ControllerName == controller && resource.ActionName == action && resource.HttpMethod == c.Ctx.Input.Method() {
-			return
-		}
-	}
-	c.ShowErrorPage(403,"权限不足")
 }
 
 // SetMember 获取或设置当前登录用户信息,如果 MemberId 小于 0 则标识删除 Session
@@ -109,6 +96,9 @@ func (c *BaseController) SetMember(member models.Member) {
 	} else {
 		c.SetSession(conf.LoginSessionName, member)
 		c.SetSession("uid", member.MemberId)
+		for _,resource := range acl.Modules["MemberCommon"].Resources {
+			acl.AddMemberPermission(member.Account,*resource)
+		}
 	}
 }
 

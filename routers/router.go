@@ -54,7 +54,7 @@ func init() {
 
 	beego.Router("/book", &controllers.BookController{}, "*:Index")
 	beego.Router("/book/:key/dashboard", &controllers.BookController{}, "*:Dashboard")
-	beego.Router("/book/:key/setting", &controllers.BookController{}, "*:Setting")
+	beego.Router("/book/:key/setting", &controllers.BookController{}, "get:Setting")
 	beego.Router("/book/:key/users", &controllers.BookController{}, "*:Users")
 	beego.Router("/book/:key/release", &controllers.BookController{}, "post:Release")
 	beego.Router("/book/:key/sort", &controllers.BookController{}, "post:SaveSort")
@@ -67,7 +67,7 @@ func init() {
 	beego.Router("/book/users/delete", &controllers.BookMemberController{}, "post:RemoveMember")
 	beego.Router("/book/users/import", &controllers.BookController{},"post:Import")
 
-	beego.Router("/book/setting/save", &controllers.BookController{}, "post:SaveBook")
+	beego.Router("/book/setting/save", &controllers.BookController{}, "post:Setting")
 	beego.Router("/book/setting/open", &controllers.BookController{}, "post:PrivatelyOwned")
 	beego.Router("/book/setting/transfer", &controllers.BookController{}, "post:Transfer")
 	beego.Router("/book/setting/upload", &controllers.BookController{}, "post:UploadCover")

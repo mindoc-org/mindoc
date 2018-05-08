@@ -21,7 +21,7 @@ type MemberGroup struct {
 	ModifyTime time.Time     	`orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	Resources string		 	`orm:"column(resources);type(text);null" json:"-"`
 	IsEnableDelete bool			`orm:"column(is_enable_delete);type(bool);default(true)" json:"is_enable_delete"`
-	ResourceList []*Resource	`orm:"-" json:"resource_list"`
+	ResourceList []*ResourceModel	`orm:"-" json:"resource_list"`
 	ModifyAt   int           	`orm:"column(modify_at);type(int)" json:"-"`
 	ModifyName string 		 	`orm:"-" json:"modify_name"`
 	ModifyRealName string 	 	`orm:"-" json:"modify_real_name"`
@@ -164,7 +164,13 @@ func (m *MemberGroup) InsertOrUpdate(cols...string) error {
 	}
 
 	var err error
+	//如果用户组已存在
 	if m.GroupId > 0 {
+		group := &MemberGroup{}
+
+		err = o.QueryTable(m.TableNameWithPrefix()).Filter("group_id",m.GroupId).One(group)
+	}
+	if err == nil {
 		_,err = o.Update(m, cols...)
 	}else{
 		_,err = o.Insert(m)
@@ -209,7 +215,7 @@ func (m *MemberGroup) FindMemberGroupList(keyword string) ([]*MemberGroup,error)
 }
 
 //查询指定用户组的资源列表
-func (m *MemberGroup) FindMemberGroupResourceList(groupId int) ([]*Resource,error) {
+func (m *MemberGroup) FindMemberGroupResourceList(groupId int) ([]*ResourceModel,error) {
 	o := orm.NewOrm()
 
 	memberGroup := NewMemberGroup()
@@ -224,7 +230,7 @@ func (m *MemberGroup) FindMemberGroupResourceList(groupId int) ([]*Resource,erro
 	if memberGroup.Resources != "" {
 		resourceIds := strings.Split(strings.Trim(memberGroup.Resources,","),",")
 
-		var resources []*Resource
+		var resources []*ResourceModel
 		_,err = o.QueryTable(NewResource().TableNameWithPrefix()).Filter("resource_id__in",resourceIds).All(resources)
 		if err != nil {
 			beego.Error("查询用户组资源时出错 =>", err)

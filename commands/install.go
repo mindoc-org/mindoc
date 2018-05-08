@@ -9,6 +9,7 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
+	"github.com/astaxie/beego"
 )
 
 //系统安装.
@@ -79,24 +80,32 @@ func initialization() {
 	err := models.NewOption().Init()
 
 	if err != nil {
-		panic(err.Error())
+		beego.Error("初始化全局配置失败 => ",err.Error())
 		os.Exit(1)
 	}
 
+
+	InitMemberGroup()
+
+
 	member, err := models.NewMember().FindByFieldFirst("account", "admin")
+
+	//如果用户不存在，则添加用户，否则需要批量更新用户角色
 	if err == orm.ErrNoRows {
+		beego.Info("正在创建默认用户.")
 
 		member.Account = "admin"
 		member.Avatar = "/static/images/headimgurl.jpg"
 		member.Password = "123456"
 		member.AuthMethod = "local"
-		member.Role = 0
+		member.Role = 1
 		member.Email = "admin@iminho.me"
 
 		if err := member.Add(); err != nil {
-			panic("Member.Add => " + err.Error())
+			beego.Error("创建默认用户失败 => " + err.Error())
 			os.Exit(0)
 		}
+		beego.Info("正在创建默认项目.")
 
 		book := models.NewBook()
 
@@ -116,18 +125,60 @@ func initialization() {
 		book.Theme = "default"
 
 		if err := book.Insert(); err != nil {
-			panic("Book.Insert => " + err.Error())
-			os.Exit(0)
+			beego.Error("创建默认项目失败 => " , err)
+			os.Exit(1)
 		}
+
 	}
+}
+
+//初始化用户组
+func InitMemberGroup()  {
+	beego.Info("正在创建用户组.")
 
 	group := models.NewMemberGroup()
+
 	group.GroupId = 1
 	group.GroupName = "管理员组"
-	group.GroupNumber = 1
+	group.GroupNumber = 0
 	group.CreateTime = time.Now()
 	group.CreateAt = 1
 	group.IsEnableDelete = false
 
+	group.InsertOrUpdate()
+
+	if err := group.InsertOrUpdate();err != nil{
+		beego.Error("创建用户组失败 ",group.GroupName,err)
+		os.Exit(1)
+	}
+
+
+	group.GroupId = 2
+	group.GroupName = "普通用户组"
+	group.GroupNumber = 0
+	group.CreateTime = time.Now()
+	group.CreateAt = 1
+	group.IsEnableDelete = false
+
+	group.InsertOrUpdate()
+
+	if err := group.InsertOrUpdate();err != nil{
+		beego.Error("创建用户组失败 ",group.GroupName,err)
+		os.Exit(1)
+	}
+
+
+	group.GroupId = 3
+	group.GroupName = "匿名用户组"
+	group.GroupNumber = 0
+	group.CreateTime = time.Now()
+	group.CreateAt = 1
+	group.IsEnableDelete = false
+	group.Resources = "1,2,3,4,5"
+
+	if err := group.InsertOrUpdate();err != nil{
+		beego.Error("创建用户组失败 ",group.GroupName,err)
+		os.Exit(1)
+	}
 
 }

@@ -337,7 +337,7 @@ func (c *AccountController) ValidEmail() {
 	password2 := c.GetString("password2")
 	captcha := c.GetString("code")
 	token := c.GetString("token")
-	mail := c.GetString("mail")
+	email := c.GetString("mail")
 
 	if password1 == "" {
 		c.JsonResult(6001, "密码不能为空")
@@ -368,7 +368,7 @@ func (c *AccountController) ValidEmail() {
 	}
 	sub_time := member_token.SendTime.Sub(time.Now())
 
-	if !strings.EqualFold(member_token.Email, mail) || sub_time.Minutes() > float64(mail_conf.MailExpired) || !member_token.ValidTime.IsZero() {
+	if !strings.EqualFold(member_token.Email, email) || sub_time.Minutes() > float64(mail_conf.MailExpired) || !member_token.ValidTime.IsZero() {
 
 		c.JsonResult(6008, "验证码已过期，请重新操作。")
 	}

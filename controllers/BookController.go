@@ -92,6 +92,9 @@ func (c *BookController) Setting() {
 	c.Prepare()
 	c.TplName = "book/setting.tpl"
 
+	if c.Ctx.Input.IsPost() {
+		saveBook(c)
+	}
 	key := c.Ctx.Input.Param(":key")
 
 	if key == "" {
@@ -120,7 +123,7 @@ func (c *BookController) Setting() {
 }
 
 //保存项目信息
-func (c *BookController) SaveBook() {
+func saveBook(c *BookController) {
 	c.Prepare()
 	bookResult, err := c.IsPermission()
 
