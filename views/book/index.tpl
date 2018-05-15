@@ -375,7 +375,7 @@
         /**
          * 创建项目
          */
-        $("#btnSaveDocument").on("click",function () {
+        $("body").on("click","#btnSaveDocument",function () {
             var $this = $(this);
 
 
