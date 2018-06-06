@@ -61,6 +61,9 @@ function loadDocument($url, $id, $callback) {
         },
         complete : function () {
             NProgress.done();
+        },
+        error : function () {
+            layer.msg("加载失败");
         }
     });
 }

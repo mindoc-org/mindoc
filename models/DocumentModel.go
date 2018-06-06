@@ -90,10 +90,15 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 		if m.Identify == "" {
 			book := NewBook()
 			identify := "docs"
-			if err := o.QueryTable(book.TableNameWithPrefix()).One(book,"identify");err == nil {
+			if err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id",m.BookId).One(book,"identify");err == nil {
 				identify = book.Identify
 			}
-			m.Identify = fmt.Sprintf("%s-%d%d",identify,m.BookId,time.Now().Unix())
+
+			m.Identify = fmt.Sprintf("%s-%s",identify,strconv.FormatInt(time.Now().UnixNano(), 32))
+		}
+		if m.OrderSort == 0{
+			sort,_ := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",m.BookId).Filter("parent_id",m.ParentId).Count()
+			m.OrderSort = int(sort) + 1
 		}
 		_, err = o.Insert(m)
 		NewBook().ResetDocumentNumber(m.BookId)
