@@ -15,7 +15,7 @@ RUN go get -u github.com/golang/dep/cmd/dep && dep ensure && \
     CGO_ENABLE=1 go build -v -o mindoc_linux_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" && \
         rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock
 
-FROM nginx:alpine
+FROM alpine:latest
 LABEL maintainer="ehlxr.me@gmail.com"
 WORKDIR /mindoc
 COPY --from=0 /go/src/github.com/lifei6671/mindoc .
