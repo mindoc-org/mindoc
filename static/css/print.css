@@ -1,0 +1,6 @@
+body {font-size: 12pt !important;}
+.m-manual .manual-left,.navbar {display: none;}
+.m-manual .manual-right{left: 0;}
+pre, code {white-space: pre-wrap !important;word-wrap: break-word !important;}
+a:link, a:visited {color: blue !important;text-decoration: underline !important;}
+body a:link:after, body a:visited:after {content: " (" attr(href) ") ";}

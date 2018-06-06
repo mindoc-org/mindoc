@@ -15,7 +15,7 @@
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
+
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/nprogress/nprogress.css"}}" rel="stylesheet">
@@ -26,6 +26,8 @@
     <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/highlight/styles/vs.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/print.css"}}" media="print" rel="stylesheet">
+    <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
 
@@ -44,6 +46,7 @@
                 <span style="font-size: 12px;font-weight: 100;"></span>
             </div>
             <div class="navbar-header pull-right manual-menu">
+                <button id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> 打印</button>
                 {{if gt .Member.MemberId 0}}
                 {{if gt .Model.RelationshipId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
@@ -59,7 +62,7 @@
                 <div class="dropdown pull-right" style="margin-right: 10px;">
                 {{if eq .Model.PrivatelyOwned 0}}
                 {{if .Model.IsEnableShare}}
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#shareProject"><i class="fa fa-share-alt" aria-hidden="true"></i> 分享</button>
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#shareProject"><i class="fa fa-share-square" aria-hidden="true"></i> 分享</button>
                 {{end}}
                 {{end}}
                 </div>
@@ -292,7 +295,14 @@ $(function () {
             return $(body).highlight(window.keyword);
         });
     });
-
+    //打印设置
+    $("#printSinglePage").on("click",function () {
+        var body = $("body");
+        var bodyContent = body.html();
+        body.html($(".manual-right").html());
+       window.print();
+        body.html(bodyContent);
+    });
 });
 
 </script>

@@ -139,6 +139,7 @@ table>tbody>tr:hover{
     border-right: 1px solid #ddd;
     background-color: #fafafa;
 }
+
 .m-manual .manual-tab .tab-navg {
     zoom:1;border-bottom: 1px solid #ddd
 }
@@ -467,6 +468,7 @@ table>tbody>tr:hover{
         min-width: inherit;
     }
 }
+
 .manual-article .article-content .article-body{
     min-height: 90px;
     padding: 5px;
