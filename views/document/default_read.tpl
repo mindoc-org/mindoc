@@ -46,7 +46,7 @@
                 <span style="font-size: 12px;font-weight: 100;"></span>
             </div>
             <div class="navbar-header pull-right manual-menu">
-                <button id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> 打印</button>
+                <a href="javascript:window.print();" id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> 打印</a>
                 {{if gt .Member.MemberId 0}}
                 {{if gt .Model.RelationshipId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
@@ -294,14 +294,6 @@ $(function () {
         loadDocument(url,id,function (body) {
             return $(body).highlight(window.keyword);
         });
-    });
-    //打印设置
-    $("#printSinglePage").on("click",function () {
-        var body = $("body");
-        var bodyContent = body.html();
-        body.html($(".manual-right").html());
-       window.print();
-        body.html(bodyContent);
     });
 });
 
