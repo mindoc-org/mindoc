@@ -256,7 +256,7 @@ func RegisterCache() {
 
 		bc, err := json.Marshal(&fileConfig)
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:", err)
+			beego.Error("初始化file缓存失败:", err)
 			os.Exit(1)
 		}
 
