@@ -19,6 +19,7 @@ FROM alpine:latest
 LABEL maintainer="ehlxr.me@gmail.com"
 WORKDIR /mindoc
 COPY --from=0 /go/src/github.com/lifei6671/mindoc .
+ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
 RUN chmod +x start.sh
 
 CMD ["./start.sh"]
