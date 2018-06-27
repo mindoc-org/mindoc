@@ -113,6 +113,7 @@ mail_expired=30
 在启动镜像时需要提供如下的环境变量：
 
 ```ini
+DB_ADAPTER                  制定 DB
 MYSQL_PORT_3306_TCP_ADDR    MySQL地址
 MYSQL_PORT_3306_TCP_PORT    MySQL端口号
 MYSQL_INSTANCE_NAME         MySQL数据库名称
