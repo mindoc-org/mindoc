@@ -230,6 +230,9 @@ func ResolveCommand(args []string) {
 	RegisterCache()
 	RegisterModel()
 	RegisterLogger(conf.LogFile)
+
+	ModifyPassword()
+
 }
 
 //注册缓存管道
