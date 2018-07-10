@@ -135,6 +135,33 @@ func GetUploadFileSize() int64 {
 	}
 	return 0
 }
+//同一项目导出线程的并发数
+func GetExportProcessNum() int {
+	exportProcessNum := beego.AppConfig.DefaultInt("export_process_num",1)
+
+	if exportProcessNum <= 0 || exportProcessNum > 4 {
+		exportProcessNum = 1
+	}
+	return exportProcessNum;
+}
+//导出项目队列的并发数量
+func GetExportLimitNum() int {
+	exportLimitNum := beego.AppConfig.DefaultInt("export_limit_num",1)
+
+	if exportLimitNum < 0 {
+		exportLimitNum = 1
+	}
+	return exportLimitNum;
+}
+//等待导出队列的长度
+func GetExportQueueLimitNum() int {
+	exportQueueLimitNum := beego.AppConfig.DefaultInt("export_queue_limit_num",10)
+
+	if exportQueueLimitNum <= 0 {
+		exportQueueLimitNum = 100
+	}
+	return exportQueueLimitNum
+}
 
 //判断是否是允许商城的文件类型.
 func IsAllowUploadFileExt(ext string) bool {

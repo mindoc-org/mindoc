@@ -1,4 +1,7 @@
 /*************表格样式****************/
+.markdown-body{
+    font-family: "Montserrat", sans-serif !important;
+}
 .editormd-preview-container table {
     margin-top: 0;
     margin-bottom: 24px;

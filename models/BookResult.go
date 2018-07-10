@@ -9,8 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"encoding/base64"
-
 	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
@@ -23,6 +21,13 @@ import (
 	"regexp"
 	"github.com/lifei6671/mindoc/utils/cryptil"
 	"github.com/lifei6671/mindoc/utils/requests"
+	"github.com/lifei6671/mindoc/utils/gopool"
+	"encoding/base64"
+	"net/http"
+)
+
+var(
+	exportLimitWorkerChannel = gopool.NewChannelPool(conf.GetExportProcessNum(),conf.GetExportQueueLimitNum())
 )
 
 type BookResult struct {
@@ -209,6 +214,14 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	return m
 }
 
+//后台转换
+func BackgroupConvert(sessionId string,bookResult *BookResult){
+	exportLimitWorkerChannel.LoadOrStore(bookResult.Identify, func() {
+		bookResult.Converter(sessionId)
+	})
+	exportLimitWorkerChannel.Start()
+}
+
 //导出PDF、word等格式
 func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
@@ -232,7 +245,14 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		beego.Error("创建目录失败 => ",tempOutputPath,err)
 	}
 
-	defer os.RemoveAll(strings.TrimSuffix(tempOutputPath,"source"))
+	//defer os.RemoveAll(strings.TrimSuffix(tempOutputPath,"source"))
+	sourceDir := strings.TrimSuffix(tempOutputPath,"source");
+
+	if filetil.FileExists(sourceDir) {
+		if err := os.MkdirAll(sourceDir,0755); err != nil {
+			beego.Error("删除临时目录失败 ->", sourceDir , err)
+		}
+	}
 
 	if filetil.FileExists(pdfpath) && filetil.FileExists(epubpath) && filetil.FileExists(mobipath) && filetil.FileExists(docxpath) {
 		convertBookResult.EpubPath = epubpath
@@ -333,18 +353,46 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 		doc, err := goquery.NewDocumentFromReader(bufio)
 		doc.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
-			if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/") {
-				//contentSelection.SetAttr("src", baseUrl + src)
-				spath := filepath.Join(conf.WorkingDirectory, src)
+			if src, ok := contentSelection.Attr("src"); ok {
+				var encodeString string
 
-				if ff, e := ioutil.ReadFile(spath); e == nil {
+				//如果是本地路径则直接读取文件内容
+				if strings.HasPrefix(src, "/") {
+					spath := filepath.Join(conf.WorkingDirectory, src)
 
-					encodeString := base64.StdEncoding.EncodeToString(ff)
+					if ff, e := ioutil.ReadFile(spath); e == nil {
+						encodeString = base64.StdEncoding.EncodeToString(ff)
+					}else{
+						return
+					}
+				}else{
+					client := &http.Client{}
+					if req,err := http.NewRequest("GET",src,nil); err == nil {
+						req.Header.Set("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36")
+						req.Header.Set("Referer",src)
+						//10秒连接超时时间
+						client.Timeout = time.Second * 10
 
-					src = "data:image/" + filepath.Ext(src) + ";base64," + encodeString
+						if resp ,err := client.Do(req);err == nil {
 
-					contentSelection.SetAttr("src", src)
+							defer resp.Body.Close()
+
+							if body, err := ioutil.ReadAll(resp.Body);err == nil {
+								encodeString = base64.StdEncoding.EncodeToString(body)
+							}else{
+								return
+							}
+						}else{
+							return
+						}
+					}else{
+						return
+					}
 				}
+
+				src = "data:image/" + filepath.Ext(src) + ";base64," + encodeString
+
+				contentSelection.SetAttr("src", src)
 
 			}
 		})
@@ -385,6 +433,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		OutputPath: filepath.Join(strings.TrimSuffix(tempOutputPath, "source"),"output"),
 		Config:     ebookConfig,
 		Debug:      true,
+		ProcessNum: conf.GetExportProcessNum(),
 	}
 
 	os.MkdirAll(eBookConverter.OutputPath,0766)
@@ -616,3 +665,4 @@ func (m *BookResult) FindFirstDocumentByBookId(bookId int) (*Document, error) {
 
 	return doc, err
 }
+

@@ -74,7 +74,12 @@ mail_expired=30
 secure=LOGIN
 
 ###############配置PDF生成工具地址###################
-wkhtmltopdf=D:/Program Files/wkhtmltopdf/bin/wkhtmltopdf.exe
+#同一个项目同时运行导出程序的并行数量，取值1-4之间，取值越大导出速度越快，越占用资源
+export_process_num=1
+#并发导出的项目限制，指同一时间限制的导出项目数量，如果为0则不限制。设置的越大，越占用资源
+export_limit_num=1
+#指同时等待导出的任务数量
+export_queue_limit_num=100
 
 ###############配置CDN加速##################
 cdn=

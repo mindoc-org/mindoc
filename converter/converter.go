@@ -18,6 +18,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/ziptil"
 	"github.com/lifei6671/mindoc/utils/cryptil"
 	"sync"
+	"html"
 )
 
 type Converter struct {
@@ -26,6 +27,9 @@ type Converter struct {
 	Config         Config
 	Debug          bool
 	GeneratedCover string
+	ProcessNum	 	int		//并发的任务数量
+	process 	chan func()
+	limitChan		chan bool
 }
 
 //目录结构
@@ -93,6 +97,9 @@ func NewConverter(configFile string, debug ...bool) (converter *Converter, err e
 				Config:   cfg,
 				BasePath: basepath,
 				Debug:    db,
+				ProcessNum: 1,
+				process: make(chan func(),4),
+				limitChan: make(chan bool,1),
 			}
 		}
 	}
@@ -100,89 +107,113 @@ func NewConverter(configFile string, debug ...bool) (converter *Converter, err e
 }
 
 //执行文档转换
-func (this *Converter) Convert() (err error) {
-	if !this.Debug { //调试模式下不删除生成的文件
-		defer this.converterDefer() //最后移除创建的多余而文件
+func (convert *Converter) Convert() (err error) {
+	if !convert.Debug { //调试模式下不删除生成的文件
+		defer convert.converterDefer() //最后移除创建的多余而文件
+	}
+	if convert.process == nil{
+		convert.process = make(chan func(),4)
+	}
+	if convert.limitChan == nil {
+		if convert.ProcessNum <= 0 {
+			convert.ProcessNum = 1
+		}
+		convert.limitChan = make(chan bool,convert.ProcessNum)
+		for i := 0; i < convert.ProcessNum;i++{
+			convert.limitChan <- true
+		}
 	}
 
-	if err = this.generateMimeType(); err != nil {
+	if err = convert.generateMimeType(); err != nil {
 		return
 	}
-	if err = this.generateMetaInfo(); err != nil {
+	if err = convert.generateMetaInfo(); err != nil {
 		return
 	}
-	if err = this.generateTocNcx(); err != nil { //生成目录
+	if err = convert.generateTocNcx(); err != nil { //生成目录
 		return
 	}
-	if err = this.generateSummary(); err != nil { //生成文档内目录
+	if err = convert.generateSummary(); err != nil { //生成文档内目录
 		return
 	}
-	if err = this.generateTitlePage(); err != nil { //生成封面
+	if err = convert.generateTitlePage(); err != nil { //生成封面
 		return
 	}
-	if err = this.generateContentOpf(); err != nil { //这个必须是generate*系列方法的最后一个调用
+	if err = convert.generateContentOpf(); err != nil { //这个必须是generate*系列方法的最后一个调用
 		return
 	}
 
 	//将当前文件夹下的所有文件压缩成zip包，然后直接改名成content.epub
-	f := filepath.Join(this.OutputPath, "content.epub")
+	f := filepath.Join(convert.OutputPath, "content.epub")
 	os.Remove(f) //如果原文件存在了，则删除;
-	if err = ziptil.Zip(this.BasePath,f); err == nil {
+	if err = ziptil.Zip(convert.BasePath,f); err == nil {
 		//创建导出文件夹
-		os.Mkdir(this.BasePath+"/"+output, os.ModePerm)
-		if len(this.Config.Format) > 0 {
+		os.Mkdir(convert.BasePath+"/"+output, os.ModePerm)
+		if len(convert.Config.Format) > 0 {
 			var errs []string
-			group := sync.WaitGroup{}
 
-			for _, v := range this.Config.Format {
-				fmt.Println("convert to " + v)
-				switch strings.ToLower(v) {
-				case "epub":
-					group.Add(1)
-					go func(group *sync.WaitGroup) {
-						if err = this.convertToEpub(); err != nil {
-							errs = append(errs, err.Error())
-							fmt.Println("转换EPUB文档失败：" + err.Error())
-						}
-						group.Done()
-					}(&group)
-
-				case "mobi":
-					group.Add(1)
-					go func(group *sync.WaitGroup) {
-						if err = this.convertToMobi(); err != nil {
-							errs = append(errs, err.Error())
-							fmt.Println("转换MOBI文档失败：" + err.Error())
-						}
-						group.Done()
-					}(&group)
-				case "pdf":
-					group.Add(1)
-					go func(group *sync.WaitGroup) {
-						if err = this.convertToPdf(); err != nil {
-							fmt.Println("转换PDF文档失败：" + err.Error())
-							errs = append(errs, err.Error())
-						}
-						group.Done()
-					}(&group)
-				case "docx":
-					group.Add(1)
-					go func(group *sync.WaitGroup) {
-						if err = this.convertToDocx(); err != nil {
-							fmt.Println("转换WORD文档失败：" + err.Error())
-							errs = append(errs, err.Error())
+			go func(convert *Converter) {
+				for _, v := range convert.Config.Format {
+					fmt.Println("convert to " + v)
+					switch strings.ToLower(v) {
+					case "epub":
+						convert.process  <- func() {
+							if err = convert.convertToEpub(); err != nil {
+								errs = append(errs, err.Error())
+								fmt.Println("转换EPUB文档失败：" + err.Error())
+							}
 						}
 
-						group.Done()
-					}(&group)
+					case "mobi":
+						convert.process <- func() {
+							if err = convert.convertToMobi(); err != nil {
+								errs = append(errs, err.Error())
+								fmt.Println("转换MOBI文档失败：" + err.Error())
+							}
+						}
+					case "pdf":
+						convert.process <- func() {
+							if err = convert.convertToPdf(); err != nil {
+								fmt.Println("转换PDF文档失败：" + err.Error())
+								errs = append(errs, err.Error())
+							}
+						}
+					case "docx":
+						convert.process <- func() {
+							if err = convert.convertToDocx(); err != nil {
+								fmt.Println("转换WORD文档失败：" + err.Error())
+								errs = append(errs, err.Error())
+							}
+						}
+					}
 				}
+				close(convert.process)
+			}(convert)
+
+			group :=  sync.WaitGroup{}
+			for {
+				action, isClosed := <-convert.process
+				fmt.Println(action,isClosed)
+				if action == nil && !isClosed {
+					break;
+				}
+				group.Add(1)
+				<- convert.limitChan
+				fmt.Println("正在处理")
+				go func(group *sync.WaitGroup) {
+					action()
+					group.Done()
+					convert.limitChan <- true
+				}(&group)
 			}
+
 			group.Wait()
+
 			if len(errs) > 0 {
 				err = errors.New(strings.Join(errs, "\n"))
 			}
 		} else {
-			err = this.convertToPdf()
+			err = convert.convertToPdf()
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -272,7 +303,7 @@ func (this *Converter) generateTocNcx() (err error) {
 			</ncx>
 	`
 	codes, _ := this.tocToXml(0, 1)
-	ncx = fmt.Sprintf(ncx, this.Config.Language, this.Config.Title, strings.Join(codes, ""))
+	ncx = fmt.Sprintf(ncx, this.Config.Language, html.EscapeString(this.Config.Title), strings.Join(codes, ""))
 	return ioutil.WriteFile(filepath.Join(this.BasePath, "toc.ncx"), []byte(ncx), os.ModePerm)
 }
 
@@ -327,11 +358,11 @@ func (this *Converter) tocToSummary(pid int) (summarys []string) {
 	summarys = append(summarys, "<ul>")
 	for _, toc := range this.Config.Toc {
 		if toc.Pid == pid {
-			summarys = append(summarys, fmt.Sprintf(`<li><a href="%v">%v</a></li>`, toc.Link, toc.Title))
+			summarys = append(summarys, fmt.Sprintf(`<li><a href="%v">%v</a></li>`, toc.Link, html.EscapeString(toc.Title)))
 			for _, item := range this.Config.Toc {
 
 				if item.Pid == toc.Id {
-					summarys = append(summarys, fmt.Sprintf(`<li><ul><li><a href="%v">%v</a></li>`, item.Link, item.Title))
+					summarys = append(summarys, fmt.Sprintf(`<li><ul><li><a href="%v">%v</a></li>`, item.Link, html.EscapeString(item.Title)))
 					summarys = append(summarys, "<li>")
 					summarys = append(summarys, this.tocToSummary(item.Id)...)
 					summarys = append(summarys, "</li></ul></li>")
@@ -352,7 +383,7 @@ func (this *Converter) getNavPoint(toc Toc, idx int) (navpoint string, nextidx i
 			<text>%v</text>
 		</navLabel>
 		<content src="%v"/>`
-	navpoint = fmt.Sprintf(navpoint, toc.Id, idx, toc.Title, toc.Link)
+	navpoint = fmt.Sprintf(navpoint, toc.Id, idx, html.EscapeString(toc.Title), toc.Link)
 	this.Config.Order = append(this.Config.Order, toc.Link)
 	nextidx = idx + 1
 	return
@@ -377,7 +408,7 @@ func (this *Converter) generateContentOpf() (err error) {
 			<dc:creator opf:file-as="Unknown" opf:role="aut">%v</dc:creator>
 			<meta name="calibre:timestamp" content="%v"/>
 	`
-	meta = fmt.Sprintf(meta, this.Config.Title, this.Config.Contributor, this.Config.Publisher, this.Config.Description, this.Config.Language, this.Config.Creator, this.Config.Timestamp)
+	meta = fmt.Sprintf(meta, html.EscapeString(this.Config.Title), html.EscapeString(this.Config.Contributor), html.EscapeString(this.Config.Publisher), html.EscapeString(this.Config.Description), this.Config.Language, html.EscapeString(this.Config.Creator), this.Config.Timestamp)
 	if len(this.Config.Cover) > 0 {
 		meta = meta + `<meta name="cover" content="cover"/>`
 		guide = `<reference href="titlepage.xhtml" title="Cover" type="cover"/>`

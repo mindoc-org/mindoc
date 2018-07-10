@@ -28,6 +28,7 @@ import (
 	"gopkg.in/russross/blackfriday.v2"
 	"github.com/lifei6671/mindoc/utils/cryptil"
 	"fmt"
+	"github.com/lifei6671/mindoc/utils/filetil"
 )
 
 // DocumentController struct
@@ -857,29 +858,32 @@ func (c *DocumentController) Export() {
 		return
 	}
 
-	eBookResult, err := bookResult.Converter(c.CruSession.SessionID())
+	outputPath := filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookResult.BookId))
 
-	if err != nil {
-		beego.Error("转换文档失败：" + bookResult.BookName + " -> " + err.Error())
-		c.Abort("500")
-	}
+	pdfpath := filepath.Join(outputPath, "book.pdf")
+	epubpath := filepath.Join(outputPath, "book.epub")
+	mobipath := filepath.Join(outputPath, "book.mobi")
+	docxpath := filepath.Join(outputPath, "book.docx")
 
-	if output == "pdf" {
-		c.Ctx.Output.Download(eBookResult.PDFPath, bookResult.BookName+".pdf")
+	if output == "pdf" && filetil.FileExists(pdfpath){
+		c.Ctx.Output.Download(pdfpath, bookResult.BookName+".pdf")
+		c.Abort("200")
+	} else if output == "epub"  && filetil.FileExists(epubpath){
+		c.Ctx.Output.Download(epubpath, bookResult.BookName+".epub")
 
 		c.Abort("200")
-	} else if output == "epub" {
-		c.Ctx.Output.Download(eBookResult.EpubPath, bookResult.BookName+".epub")
+	} else if output == "mobi" && filetil.FileExists(mobipath) {
+		c.Ctx.Output.Download(mobipath, bookResult.BookName+".mobi")
 
 		c.Abort("200")
-	} else if output == "mobi" {
-		c.Ctx.Output.Download(eBookResult.MobiPath, bookResult.BookName+".mobi")
+	} else if output == "docx"  && filetil.FileExists(docxpath){
+		c.Ctx.Output.Download(docxpath, bookResult.BookName+".docx")
 
 		c.Abort("200")
-	} else if output == "docx" {
-		c.Ctx.Output.Download(eBookResult.WordPath, bookResult.BookName+".docx")
 
-		c.Abort("200")
+	}else if output == "pdf" || output == "epub" || output == "docx" || output == "mobi"{
+		models.BackgroupConvert(c.CruSession.SessionID(),bookResult)
+		c.ShowErrorPage(200,"文档正在后台转换，请稍后再下载")
 	}else{
 		c.ShowErrorPage(200,"不支持的文件格式")
 	}
