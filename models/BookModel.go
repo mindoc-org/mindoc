@@ -159,6 +159,112 @@ func (book *Book) Update(cols ...string) error {
 	return err
 }
 
+//复制项目
+func (book *Book) Copy(identify string) error {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify",identify).One(book)
+
+	if err != nil {
+		beego.Error("查询项目时出错 -> ",err)
+		return err
+	}
+	if err := o.Begin();err != nil {
+		beego.Error("开启事物时出错 -> ",err)
+		return err
+	}
+
+	bookId := book.BookId
+	book.BookId = 0
+	book.Identify = book.Identify + fmt.Sprintf("%s-%s",identify,strconv.FormatInt(time.Now().UnixNano(), 32))
+	book.BookName = book.BookName + "[副本]"
+	book.CreateTime = time.Now()
+	book.CommentCount = 0
+	book.HistoryCount = 0
+
+	if _,err := o.Insert(book);err != nil {
+		beego.Error("复制项目时出错 -> ",err)
+		o.Rollback()
+		return err
+	}
+	var rels []*Relationship
+
+	if _,err := o.QueryTable(NewRelationship().TableNameWithPrefix()).Filter("book_id",bookId).All(&rels); err != nil {
+		beego.Error("复制项目关系时出错 -> ",err)
+		o.Rollback()
+		return err
+	}
+
+	for _,rel := range rels {
+		rel.BookId = book.BookId
+		rel.RelationshipId = 0
+		if _,err := o.Insert(rel);err != nil {
+			beego.Error("复制项目关系时出错 -> ",err)
+			o.Rollback()
+			return err
+		}
+	}
+
+	var docs []*Document
+
+	if _,err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id",bookId).Filter("parent_id",0).All(&docs);err != nil && err != orm.ErrNoRows {
+		beego.Error("读取项目文档时出错 -> ",err)
+		o.Rollback()
+		return err
+	}
+	if len(docs) > 0 {
+		if err := recursiveInsertDocument(docs,o,book.BookId,0);err != nil {
+			beego.Error("复制项目时出错 -> ",err)
+			o.Rollback()
+			return err
+		}
+	}
+
+	return o.Commit()
+}
+//递归的复制文档
+func recursiveInsertDocument(docs []*Document,o orm.Ormer,bookId int,parentId int) error {
+	for _,doc := range docs {
+
+		docId := doc.DocumentId
+		doc.DocumentId = 0
+		doc.ParentId = parentId
+		doc.BookId = bookId
+		doc.Version = time.Now().Unix()
+
+		if _,err := o.Insert(doc);err != nil {
+			beego.Error("插入项目时出错 -> ",err)
+			return err
+		}
+
+		var attachList []*Attachment
+		//读取所有附件列表
+		if _,err := o.QueryTable(NewAttachment().TableNameWithPrefix()).Filter("document_id",docId).All(&attachList); err == nil {
+			for _,attach := range attachList {
+				attach.BookId = bookId
+				attach.DocumentId = doc.DocumentId
+				attach.AttachmentId = 0
+				if _,err := o.Insert(attach);err != nil {
+					return err
+				}
+			}
+		}
+		var subDocs []*Document
+
+		if _,err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("parent_id",docId).All(&subDocs);err != nil && err != orm.ErrNoRows {
+			beego.Error("读取文档时出错 -> ",err)
+			return err
+		}
+		if len(subDocs) > 0{
+
+			if err := recursiveInsertDocument(subDocs,o,bookId,doc.DocumentId);err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 //根据指定字段查询结果集.
 func (book *Book) FindByField(field string, value interface{},cols ...string) ([]*Book, error) {
 	o := orm.NewOrm()
@@ -465,6 +571,7 @@ func (book *Book) ResetDocumentNumber(bookId int) {
 	}
 }
 
+//导入项目
 func (book *Book) ImportBook(zipPath string) error {
 	if !filetil.FileExists(zipPath) {
 		return errors.New("文件不存在 => " + zipPath)

@@ -25,11 +25,13 @@ func init() {
 	beego.Router("/manager/books", &controllers.ManagerController{}, "*:Books")
 	beego.Router("/manager/books/edit/:key", &controllers.ManagerController{}, "*:EditBook")
 	beego.Router("/manager/books/delete", &controllers.ManagerController{}, "*:DeleteBook")
+
 	beego.Router("/manager/comments", &controllers.ManagerController{}, "*:Comments")
-	beego.Router("/manager/books/token", &controllers.ManagerController{}, "post:CreateToken")
 	beego.Router("/manager/setting", &controllers.ManagerController{}, "*:Setting")
+	beego.Router("/manager/books/token", &controllers.ManagerController{}, "post:CreateToken")
 	beego.Router("/manager/books/transfer", &controllers.ManagerController{}, "post:Transfer")
 	beego.Router("/manager/books/open", &controllers.ManagerController{}, "post:PrivatelyOwned")
+
 	beego.Router("/manager/attach/list", &controllers.ManagerController{}, "*:AttachList")
 	beego.Router("/manager/attach/detailed/:id", &controllers.ManagerController{}, "*:AttachDetailed")
 	beego.Router("/manager/attach/delete", &controllers.ManagerController{}, "post:AttachDelete")
@@ -52,6 +54,7 @@ func init() {
 	beego.Router("/book/users/change", &controllers.BookMemberController{}, "post:ChangeRole")
 	beego.Router("/book/users/delete", &controllers.BookMemberController{}, "post:RemoveMember")
 	beego.Router("/book/users/import", &controllers.BookController{},"post:Import")
+	beego.Router("/book/users/copy", &controllers.BookController{},"post:Copy")
 
 	beego.Router("/book/setting/save", &controllers.BookController{}, "post:SaveBook")
 	beego.Router("/book/setting/open", &controllers.BookController{}, "post:PrivatelyOwned")

@@ -96,6 +96,7 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 
 			m.Identify = fmt.Sprintf("%s-%s",identify,strconv.FormatInt(time.Now().UnixNano(), 32))
 		}
+
 		if m.OrderSort == 0{
 			sort,_ := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",m.BookId).Filter("parent_id",m.ParentId).Count()
 			m.OrderSort = int(sort) + 1

@@ -415,13 +415,13 @@ func (c *BookController) Users() {
 func (c *BookController) Create() {
 
 	if c.Ctx.Input.IsPost() {
-		book_name := strings.TrimSpace(c.GetString("book_name", ""))
+		bookName := strings.TrimSpace(c.GetString("book_name", ""))
 		identify := strings.TrimSpace(c.GetString("identify", ""))
 		description := strings.TrimSpace(c.GetString("description", ""))
 		privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
-		comment_status := c.GetString("comment_status")
+		commentStatus := c.GetString("comment_status")
 
-		if book_name == "" {
+		if bookName == "" {
 			c.JsonResult(6001, "项目名称不能为空")
 		}
 		if identify == "" {
@@ -439,8 +439,8 @@ func (c *BookController) Create() {
 		if privatelyOwned != 0 && privatelyOwned != 1 {
 			privatelyOwned = 1
 		}
-		if comment_status != "open" && comment_status != "closed" && comment_status != "group_only" && comment_status != "registered_only" {
-			comment_status = "closed"
+		if commentStatus != "open" && commentStatus != "closed" && commentStatus != "group_only" && commentStatus != "registered_only" {
+			commentStatus = "closed"
 		}
 		book := models.NewBook()
 		book.Cover = conf.GetDefaultCover()
@@ -477,11 +477,11 @@ func (c *BookController) Create() {
 			c.JsonResult(6006, "项目标识已存在")
 		}
 
-		book.BookName = book_name
+		book.BookName = bookName
 		book.Description = description
 		book.CommentCount = 0
 		book.PrivatelyOwned = privatelyOwned
-		book.CommentStatus = comment_status
+		book.CommentStatus = commentStatus
 		book.Identify = identify
 		book.DocCount = 0
 		book.MemberId = c.Member.MemberId
@@ -508,6 +508,26 @@ func (c *BookController) Create() {
 		c.JsonResult(0, "ok", bookResult)
 	}
 	c.JsonResult(6001, "error")
+}
+//复制项目
+func (c *BookController) Copy(){
+	if c.Ctx.Input.IsPost() {
+		identify := strings.TrimSpace(c.GetString("identify", ""))
+		if identify == "" {
+			c.JsonResult(6001,"参数错误")
+		}
+		book := models.NewBook()
+		err := book.Copy(identify)
+		if err != nil {
+			c.JsonResult(6002,"复制项目出错")
+		}else{
+			bookResult, err := models.NewBookResult().FindByIdentify(book.Identify, c.Member.MemberId)
+			if err != nil {
+				beego.Error("查询失败")
+			}
+			c.JsonResult(0,"ok",bookResult)
+		}
+	}
 }
 
 //导入zip压缩包

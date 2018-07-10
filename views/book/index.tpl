@@ -74,6 +74,7 @@
                                             </template>
                                             <template v-if="item.role_id == 0">
                                             <li><a :href="'javascript:deleteBook(\''+item.identify+'\');'">删除</a></li>
+                                            <li><a :href="'javascript:copyBook(\''+item.identify+'\');'">复制</a></li>
                                             </template>
                                         </ul>
 
@@ -269,6 +270,7 @@
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/js/fileinput.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/js/locales/zh.js"}}"></script>
+<script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     /**
@@ -363,6 +365,28 @@
     function deleteBook($id) {
         $("#deleteBookModal").find("input[name='identify']").val($id);
         $("#deleteBookModal").modal("show");
+    }
+    function copyBook($id){
+        var index = layer.load()
+        $.ajax({
+           url : "{{urlfor "BookController.Copy"}}" ,
+            data : {"identify":$id},
+            type : "POST",
+            dataType : "json",
+            success : function ($res) {
+                layer.close(index);
+                if ($res.errcode === 0) {
+                    window.app.lists.splice(0, 0, $res.data);
+                    $("#addBookDialogModal").modal("hide");
+                } else {
+                    layer.msg($res.message);
+                }
+            },
+            error : function () {
+                layer.close(index);
+                layer.msg('服务器异常');
+            }
+        });
     }
 
     $(function () {
