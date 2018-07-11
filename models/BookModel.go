@@ -701,7 +701,7 @@ func (book *Book) ImportBook(zipPath string) error {
 						}
 					}
 
-					imageUrl = strings.Replace(strings.TrimSuffix(image, originalImageUrl+")")+imageUrl+")", "\\", "/", -1)
+					imageUrl = strings.Replace(strings.TrimSuffix(image, originalImageUrl+")")+ conf.URLForWithCdnImage(imageUrl) +")", "\\", "/", -1)
 					return imageUrl
 				})
 
