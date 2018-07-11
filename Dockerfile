@@ -1,4 +1,4 @@
-FROM golang:1.10-alpine3.7
+FROM golang:1.10.3-alpine3.7
 
 # add china aliyun repo  新增了 alpine 3.6 的阿里源
 RUN cp  /etc/apk/repositories /etc/apk/repositories.back && \
