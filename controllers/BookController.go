@@ -707,7 +707,7 @@ func (c *BookController) Release() {
 		models.NewBook().ReleaseContent(bookId)
 
 		//当文档发布后，需要删除已缓存的转换项目
-		outputPath := filepath.Join(beego.AppConfig.DefaultString("book_output_path", "cache"), strconv.Itoa(bookId))
+		outputPath := filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(bookId))
 		os.RemoveAll(outputPath)
 
 	}(identify)

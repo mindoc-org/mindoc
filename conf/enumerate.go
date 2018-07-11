@@ -6,6 +6,7 @@ import (
 
 	"github.com/astaxie/beego"
 	"strconv"
+	"path/filepath"
 )
 
 // 登录用户的Session名
@@ -65,7 +66,7 @@ var (
 var (
 	ConfigurationFile = "./conf/app.conf"
 	WorkingDirectory  = "./"
-	LogFile           = "./logs"
+	LogFile           = "./runtime/logs"
 	BaseUrl			  = ""
 )
 
@@ -90,6 +91,7 @@ func GetTokenSize() int {
 
 //获取默认文档封面.
 func GetDefaultCover() string {
+
 	return URLForWithCdnImage(beego.AppConfig.DefaultString("cover", "/static/images/book.jpg"))
 }
 
@@ -161,6 +163,12 @@ func GetExportQueueLimitNum() int {
 		exportQueueLimitNum = 100
 	}
 	return exportQueueLimitNum
+}
+//默认导出项目的缓存目录
+func GetExportOutputPath() string {
+	exportOutputPath := filepath.Join(beego.AppConfig.DefaultString("export_output_path", filepath.Join(WorkingDirectory,"cache")),"books")
+
+	return exportOutputPath
 }
 
 //判断是否是允许商城的文件类型.

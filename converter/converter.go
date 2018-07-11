@@ -193,13 +193,11 @@ func (convert *Converter) Convert() (err error) {
 			group :=  sync.WaitGroup{}
 			for {
 				action, isClosed := <-convert.process
-				fmt.Println(action,isClosed)
 				if action == nil && !isClosed {
 					break;
 				}
 				group.Add(1)
 				<- convert.limitChan
-				fmt.Println("正在处理")
 				go func(group *sync.WaitGroup) {
 					action()
 					group.Done()

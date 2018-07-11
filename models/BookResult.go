@@ -216,9 +216,12 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 
 //后台转换
 func BackgroupConvert(sessionId string,bookResult *BookResult){
-	exportLimitWorkerChannel.LoadOrStore(bookResult.Identify, func() {
+	err := exportLimitWorkerChannel.LoadOrStore(bookResult.Identify, func() {
 		bookResult.Converter(sessionId)
 	})
+	if err != nil {
+		beego.Error("将导出任务加入任务队列失败 -> ",err)
+	}
 	exportLimitWorkerChannel.Start()
 }
 
@@ -227,7 +230,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	convertBookResult := ConvertBookResult{}
 
-	outputPath := filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(m.BookId))
+	outputPath := filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(m.BookId))
 	viewPath := beego.BConfig.WebConfig.ViewsPath
 
 	pdfpath := filepath.Join(outputPath, "book.pdf")

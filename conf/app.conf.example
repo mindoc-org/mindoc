@@ -13,7 +13,7 @@ beegoserversessionkey=123456
 ########Session储存方式##############
 #以文件方式储存
 sessionprovider=file
-sessionproviderconfig=./logs
+sessionproviderconfig=./runtime/session
 #以redis方式储存
 #sessionprovider=redis
 #sessionproviderconfig=127.0.0.1:6379
@@ -73,13 +73,18 @@ mail_expired=30
 #加密类型NONE 无认证、SSL 加密、LOGIN 普通用户登录
 secure=LOGIN
 
-###############配置PDF生成工具地址###################
+###############配置导出项目###################
 #同一个项目同时运行导出程序的并行数量，取值1-4之间，取值越大导出速度越快，越占用资源
 export_process_num=1
+
 #并发导出的项目限制，指同一时间限制的导出项目数量，如果为0则不限制。设置的越大，越占用资源
 export_limit_num=1
+
 #指同时等待导出的任务数量
 export_queue_limit_num=100
+
+#导出项目的缓存目录配置
+export_output_path=./runtime/cache
 
 ###############配置CDN加速##################
 cdn=

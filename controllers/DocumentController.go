@@ -858,7 +858,7 @@ func (c *DocumentController) Export() {
 		return
 	}
 
-	outputPath := filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookResult.BookId))
+	outputPath := filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(bookResult.BookId))
 
 	pdfpath := filepath.Join(outputPath, "book.pdf")
 	epubpath := filepath.Join(outputPath, "book.epub")
@@ -1092,7 +1092,7 @@ func (c *DocumentController) DeleteHistory() {
 
 	c.JsonResult(0, "ok")
 }
-
+//通过文档历史恢复文档
 func (c *DocumentController) RestoreHistory() {
 	c.Prepare()
 
