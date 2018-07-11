@@ -6,8 +6,8 @@ import (
 	"fmt"
 )
 var (
-	HandlerIsExistErr = errors.New("指定的键已存在")
-	WorkerChanClosedErr = errors.New("队列已关闭")
+	ErrHandlerIsExist = errors.New("指定的键已存在")
+	ErrWorkerChanClosed = errors.New("队列已关闭")
 )
 type ChannelHandler func()
 
@@ -48,10 +48,10 @@ func NewChannelPool(maxWorkerNum, maxPoolNum int) (*ChannelPool) {
 
 func (pool *ChannelPool) LoadOrStore(key string,value ChannelHandler) error  {
 	if pool.isClosed {
-		return WorkerChanClosedErr
+		return ErrWorkerChanClosed
 	}
 	if _,loaded := pool.cache.LoadOrStore(key,false); loaded {
-		return HandlerIsExistErr
+		return ErrHandlerIsExist
 	}else{
 		pool.worker <- &entry{handler:value,key:key}
 		return  nil

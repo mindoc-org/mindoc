@@ -224,7 +224,9 @@ func BackgroupConvert(sessionId string,bookResult *BookResult) error {
 	err := exportLimitWorkerChannel.LoadOrStore(bookResult.Identify, func() {
 		bookResult.Converter(sessionId)
 	})
+
 	if err != nil {
+
 		beego.Error("将导出任务加入任务队列失败 -> ",err)
 		return err
 	}

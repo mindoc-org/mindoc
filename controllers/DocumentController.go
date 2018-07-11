@@ -29,6 +29,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/cryptil"
 	"fmt"
 	"github.com/lifei6671/mindoc/utils/filetil"
+	"github.com/lifei6671/mindoc/utils/gopool"
 )
 
 // DocumentController struct
@@ -882,7 +883,7 @@ func (c *DocumentController) Export() {
 		c.Abort("200")
 
 	}else if output == "pdf" || output == "epub" || output == "docx" || output == "mobi"{
-		if err := models.BackgroupConvert(c.CruSession.SessionID(),bookResult);err != nil {
+		if err := models.BackgroupConvert(c.CruSession.SessionID(),bookResult);err != nil && err != gopool.ErrHandlerIsExist{
 			c.ShowErrorPage(500,"导出失败，请查看系统日志")
 		}
 
