@@ -16,7 +16,7 @@ RUN go get -u github.com/golang/dep/cmd/dep && dep ensure && \
         rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock
 
 FROM alpine:latest
-LABEL maintainer="ehlxr.me@gmail.com"
+LABEL maintainer="longfei6671@163.com"
 WORKDIR /mindoc
 COPY --from=0 /go/src/github.com/lifei6671/mindoc .
 ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
