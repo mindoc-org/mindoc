@@ -61,6 +61,10 @@
   name = "gopkg.in/ldap.v2"
   version = "2.5.1"
 
+[[constraint]]
+  name = "gopkg.in/russross/blackfriday.v2"
+  version = "2.0.0"
+
 [prune]
   go-tests = true
   unused-packages = true
