@@ -76,10 +76,10 @@ func (pool *ChannelPool) Start() {
 				if limit {
 					pool.wait.Add(1)
 					go func(actual *entry) {
-						defer pool.wait.Done()
 						defer func() {
 							pool.cache.Delete(actual.key)
 							pool.limit <- true
+							pool.wait.Done()
 						}()
 
 						actual.handler()
