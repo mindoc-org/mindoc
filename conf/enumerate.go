@@ -290,3 +290,10 @@ func URLForWithCdnJs(p string) string {
 	}
 	return cdn + p
 }
+
+func WorkingDir(elem ...string) string {
+
+	elems := append([]string{ WorkingDirectory },elem...)
+
+	return filepath.Join(elems...)
+}

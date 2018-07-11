@@ -882,7 +882,10 @@ func (c *DocumentController) Export() {
 		c.Abort("200")
 
 	}else if output == "pdf" || output == "epub" || output == "docx" || output == "mobi"{
-		models.BackgroupConvert(c.CruSession.SessionID(),bookResult)
+		if err := models.BackgroupConvert(c.CruSession.SessionID(),bookResult);err != nil {
+			c.ShowErrorPage(500,"导出失败，请查看系统日志")
+		}
+
 		c.ShowErrorPage(200,"文档正在后台转换，请稍后再下载")
 	}else{
 		c.ShowErrorPage(200,"不支持的文件格式")

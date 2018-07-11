@@ -72,6 +72,13 @@ var (
 	ebookConvert = "ebook-convert"
 )
 
+func CheckConvertCommand() error {
+	args := []string{ "--version" }
+	cmd := exec.Command(ebookConvert, args...)
+
+	return cmd.Run()
+}
+
 // 接口文档 https://manual.calibre-ebook.com/generated/en/ebook-convert.html#table-of-contents
 //根据json配置文件，创建文档转化对象
 func NewConverter(configFile string, debug ...bool) (converter *Converter, err error) {

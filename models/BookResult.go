@@ -27,7 +27,7 @@ import (
 )
 
 var(
-	exportLimitWorkerChannel = gopool.NewChannelPool(conf.GetExportProcessNum(),conf.GetExportQueueLimitNum())
+	exportLimitWorkerChannel = gopool.NewChannelPool(conf.GetExportLimitNum(),conf.GetExportQueueLimitNum())
 )
 
 type BookResult struct {
@@ -215,14 +215,21 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 }
 
 //后台转换
-func BackgroupConvert(sessionId string,bookResult *BookResult){
+func BackgroupConvert(sessionId string,bookResult *BookResult) error {
+
+	if err := converter.CheckConvertCommand(); err != nil {
+		beego.Error("检查转换程序失败 -> ",err)
+		return err
+	}
 	err := exportLimitWorkerChannel.LoadOrStore(bookResult.Identify, func() {
 		bookResult.Converter(sessionId)
 	})
 	if err != nil {
 		beego.Error("将导出任务加入任务队列失败 -> ",err)
+		return err
 	}
 	exportLimitWorkerChannel.Start()
+	return nil
 }
 
 //导出PDF、word等格式

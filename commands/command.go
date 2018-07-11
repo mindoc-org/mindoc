@@ -194,32 +194,31 @@ func ResolveCommand(args []string) {
 		}
 	}
 	if conf.LogFile == "" {
-		conf.LogFile = filepath.Join(conf.WorkingDirectory, "logs")
+		conf.LogFile = conf.WorkingDir("runtime","logs")
 	}
 	if conf.ConfigurationFile == "" {
-		conf.ConfigurationFile = filepath.Join(conf.WorkingDirectory, "conf", "app.conf")
-		config := filepath.Join(conf.WorkingDirectory, "conf", "app.conf.example")
+		conf.ConfigurationFile = conf.WorkingDir( "conf", "app.conf")
+		config := conf.WorkingDir("conf", "app.conf.example")
 		if !filetil.FileExists(conf.ConfigurationFile) && filetil.FileExists(config) {
 			filetil.CopyFile(conf.ConfigurationFile, config)
 		}
 	}
-	gocaptcha.ReadFonts(filepath.Join(conf.WorkingDirectory, "static", "fonts"), ".ttf")
-
-	err := beego.LoadAppConfig("ini", conf.ConfigurationFile)
-
-	if err != nil {
-		log.Println("An error occurred:", err)
-		os.Exit(1)
+	if err := gocaptcha.ReadFonts(conf.WorkingDir( "static", "fonts"), ".ttf");err != nil {
+		log.Fatal("读取字体文件时出错 -> ",err)
 	}
-	uploads := filepath.Join(conf.WorkingDirectory, "uploads")
+
+	if err := beego.LoadAppConfig("ini", conf.ConfigurationFile);err != nil {
+		log.Fatal("An error occurred:", err)
+	}
+	uploads := conf.WorkingDir("uploads")
 
 	os.MkdirAll(uploads, 0666)
 
 	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
 	beego.BConfig.WebConfig.StaticDir["/uploads"] = uploads
-	beego.BConfig.WebConfig.ViewsPath = filepath.Join(conf.WorkingDirectory, "views")
+	beego.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")
 
-	fonts := filepath.Join(conf.WorkingDirectory, "static", "fonts")
+	fonts := conf.WorkingDir("static", "fonts")
 
 	if !filetil.FileExists(fonts) {
 		log.Fatal("Font path not exist.")
