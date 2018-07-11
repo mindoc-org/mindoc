@@ -21,7 +21,6 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/lifei6671/mindoc/cache"
-	"github.com/lifei6671/mindoc/commands/migrate"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils/filetil"
@@ -133,10 +132,8 @@ func RegisterCommand() {
 	} else if len(os.Args) >= 2 && os.Args[1] == "version" {
 		CheckUpdate()
 		os.Exit(0)
-	} else if len(os.Args) >= 2 && os.Args[1] == "migrate" {
-		ResolveCommand(os.Args[2:])
-		migrate.RunMigration()
 	}
+
 }
 
 //注册模板函数
