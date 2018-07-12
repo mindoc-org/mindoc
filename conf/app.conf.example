@@ -74,6 +74,7 @@ mail_expired=30
 secure=LOGIN
 
 ###############配置导出项目###################
+enable_export=true
 #同一个项目同时运行导出程序的并行数量，取值1-4之间，取值越大导出速度越快，越占用资源
 export_process_num=1
 

@@ -80,6 +80,11 @@ if [ ! -z $BASEURL ]; then
     sed -i "s#baseurl=.*#baseurl=$BASEURL#g" conf/app.conf
 fi
 
+if [ ! -z $ENABLE_EXPORT ]; then
+    sed -i "s#enable_export=.*#baseurl=$ENABLE_EXPORT#g" conf/app.conf
+fi
+
+
 sed -i 's/^runmode.*/runmode=prod/g' conf/app.conf
 
 /mindoc/mindoc_linux_amd64 install

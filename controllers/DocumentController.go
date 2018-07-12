@@ -823,6 +823,9 @@ func (c *DocumentController) Export() {
 		promptUserToLogIn(c)
 		return
 	}
+	if !conf.GetEnableExport() {
+		c.ShowErrorPage(500,"系统没有开启导出功能")
+	}
 
 	bookResult := models.NewBookResult()
 	if c.Member != nil && c.Member.IsAdministrator() {

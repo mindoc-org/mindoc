@@ -137,6 +137,10 @@ func GetUploadFileSize() int64 {
 	}
 	return 0
 }
+//是否启用导出
+func GetEnableExport() bool {
+	return beego.AppConfig.DefaultBool("enable_export",true)
+}
 //同一项目导出线程的并发数
 func GetExportProcessNum() int {
 	exportProcessNum := beego.AppConfig.DefaultInt("export_process_num",1)
