@@ -394,7 +394,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 					}
 				}
 				if encodeString != "" {
-					src = "data:image/" + strings.TrimSuffix(filepath.Ext(src),".") + ";base64," + encodeString
+					src = "data:image/" + strings.TrimPrefix(filepath.Ext(src),".") + ";base64," + encodeString
 
 					contentSelection.SetAttr("src", src)
 				}
