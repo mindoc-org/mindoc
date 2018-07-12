@@ -42,50 +42,6 @@ MinDoc 使用MySQL储存数据，且编码必须是`utf8mb4_general_ci`。请在
 
 **默认程序会自动初始化一个超级管理员用户：admin 密码：123456 。请登录后重新设置密码。**
 
-## Linux 下后台运行
-
-在 Linux 如果想让程序后台运行可以执行如下命令：
-
-```bash
-#使程序后台运行
-nohup ./mindoc &
-```
-
-该命令会使程序后台执行，但是服务器重启后不会自动启动服务。
-
-使用 supervisor 做服务，可以使服务器重启后自动重启 MinDoc。
-
-## Windows 下后台运行
-
-Windows 下后台运行需要借助 CMD 命令行命令：
-
-```bash
-#在MinDoc跟目录下新建一个slave.vbs文件：
-
-Set ws = CreateObject("Wscript.Shell")
-ws.run "cmd /c start.bat",vbhide
-
-#再建一个start.bat文件：
-@echo off
-
-mindoc_windows_amd64.exe
-
-```
-
-启动时双击slave.vbs即可，等待程序初始化完数据库会在该目录下创建一个install.lock文件，标识已安装成功。
-
-如果是自己编译，可以用以下命令即可编译出不依赖cmd命令的后台运行的程序：
-
-```bash
-go build -ldflags "-H=windowsgui"
-```
-通过该命令编译的Golang程序在Windows上默认后台运行。
-
-请将将 MinDoc 加入开机启动列表，使程序开机启动。
-
-## 密码找回功能
-
-密码找回功能依赖邮件服务，因此，需要配置邮件服务才能使用该功能,该配置位于 `conf/app.conf` 中：
 
 ```bash
 

@@ -510,6 +510,8 @@ func (this *Converter) convertToMobi() (err error) {
 	args := []string{
 		filepath.Join(this.OutputPath, "content.epub"),
 		filepath.Join(this.OutputPath, output, "book.mobi"),
+		"--debug-pipeline",
+		"--verbose",
 	}
 	cmd := exec.Command(ebookConvert, args...)
 	if this.Debug {
@@ -524,6 +526,8 @@ func (this *Converter) convertToPdf() (err error) {
 	args := []string{
 		filepath.Join(this.OutputPath, "content.epub"),
 		filepath.Join(this.OutputPath, output, "book.pdf"),
+		"--debug-pipeline",
+		"--verbose",
 	}
 	//页面大小
 	if len(this.Config.PaperSize) > 0 {
@@ -575,6 +579,8 @@ func (this *Converter) convertToDocx() (err error) {
 	args := []string{
 		filepath.Join(this.OutputPath , "content.epub"),
 		filepath.Join(this.OutputPath , output , "book.docx"),
+		"--debug-pipeline",
+		"--verbose",
 	}
 	args = append(args, "--docx-no-toc")
 

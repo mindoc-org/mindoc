@@ -263,7 +263,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	if err := os.MkdirAll(tempOutputPath, 0766);err != nil {
 		beego.Error("创建目录失败 => ",tempOutputPath,err)
 	}
-	os.MkdirAll(filepath.Join(tempOutputPath,"images"),0755)
+	os.MkdirAll(filepath.Join(tempOutputPath,"Images"),0755)
 
 	//defer os.RemoveAll(strings.TrimSuffix(tempOutputPath,"source"))
 
@@ -369,7 +369,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		doc.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
 			if src, ok := contentSelection.Attr("src"); ok {
 				//var encodeString string
-				dstSrcString := "images/"  + filepath.Base(src)
+				dstSrcString := "Images/"  + filepath.Base(src)
 
 				//如果是本地路径则直接读取文件内容
 				if strings.HasPrefix(src, "/") {
