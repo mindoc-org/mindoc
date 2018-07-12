@@ -22,7 +22,6 @@ import (
 	"github.com/lifei6671/mindoc/utils/cryptil"
 	"github.com/lifei6671/mindoc/utils/requests"
 	"github.com/lifei6671/mindoc/utils/gopool"
-	"encoding/base64"
 	"net/http"
 )
 
@@ -250,21 +249,24 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	//先将转换的文件储存到临时目录
 	tempOutputPath := filepath.Join(os.TempDir(), sessionId, m.Identify,"source") //filepath.Abs(filepath.Join("cache", sessionId))
 
+	sourceDir := strings.TrimSuffix(tempOutputPath,"source");
+
+	if filetil.FileExists(sourceDir) {
+		if err := os.RemoveAll(sourceDir); err != nil {
+			beego.Error("删除临时目录失败 ->", sourceDir , err)
+		}
+	}
+
 	if err := os.MkdirAll(outputPath, 0766); err != nil {
 		beego.Error("创建目录失败 => ",outputPath,err)
 	}
 	if err := os.MkdirAll(tempOutputPath, 0766);err != nil {
 		beego.Error("创建目录失败 => ",tempOutputPath,err)
 	}
+	os.MkdirAll(filepath.Join(tempOutputPath,"images"),0755)
 
 	//defer os.RemoveAll(strings.TrimSuffix(tempOutputPath,"source"))
-	sourceDir := strings.TrimSuffix(tempOutputPath,"source");
 
-	if filetil.FileExists(sourceDir) {
-		if err := os.MkdirAll(sourceDir,0755); err != nil {
-			beego.Error("删除临时目录失败 ->", sourceDir , err)
-		}
-	}
 
 	if filetil.FileExists(pdfpath) && filetil.FileExists(epubpath) && filetil.FileExists(mobipath) && filetil.FileExists(docxpath) {
 		convertBookResult.EpubPath = epubpath
@@ -366,38 +368,55 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		doc, err := goquery.NewDocumentFromReader(bufio)
 		doc.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
 			if src, ok := contentSelection.Attr("src"); ok {
-				var encodeString string
+				//var encodeString string
+				dstSrcString := "images/"  + filepath.Base(src)
 
 				//如果是本地路径则直接读取文件内容
 				if strings.HasPrefix(src, "/") {
 					spath := filepath.Join(conf.WorkingDirectory, src)
-
-					if ff, e := ioutil.ReadFile(spath); e == nil {
-						encodeString = base64.StdEncoding.EncodeToString(ff)
+					if filetil.CopyFile(spath,filepath.Join(tempOutputPath,dstSrcString));err != nil {
+						beego.Error("复制图片失败 -> ",err,src)
+						return
 					}
+					//if ff, e := ioutil.ReadFile(spath); e == nil {
+					//	encodeString = base64.StdEncoding.EncodeToString(ff)
+					//}
+
 				}else{
 					client := &http.Client{}
 					if req,err := http.NewRequest("GET",src,nil); err == nil {
 						req.Header.Set("User-Agent","Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36")
 						req.Header.Set("Referer",src)
 						//10秒连接超时时间
-						client.Timeout = time.Second * 10
+						client.Timeout = time.Second * 100
 
 						if resp ,err := client.Do(req);err == nil {
 
 							defer resp.Body.Close()
 
 							if body, err := ioutil.ReadAll(resp.Body);err == nil {
-								encodeString = base64.StdEncoding.EncodeToString(body)
+								//encodeString = base64.StdEncoding.EncodeToString(body)
+								if err := ioutil.WriteFile(filepath.Join(tempOutputPath,dstSrcString),body,0755);err != nil {
+									beego.Error("下载图片失败 -> ",err,src)
+									return
+								}
+							}else{
+								beego.Error("下载图片失败 -> ",err,src)
+								return
 							}
+						}else{
+							beego.Error("下载图片失败 -> ",err,src)
+							return
 						}
 					}
 				}
-				if encodeString != "" {
-					src = "data:image/" + strings.TrimPrefix(filepath.Ext(src),".") + ";base64," + encodeString
+				//if encodeString != "" {
+				//	src = "data:image/" + strings.TrimPrefix(filepath.Ext(src),".") + ";base64," + encodeString
+				//
+				//	contentSelection.SetAttr("src", src)
+				//}
 
-					contentSelection.SetAttr("src", src)
-				}
+				contentSelection.SetAttr("src", dstSrcString)
 			}
 		})
 
