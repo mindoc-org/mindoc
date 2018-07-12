@@ -374,8 +374,6 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 					if ff, e := ioutil.ReadFile(spath); e == nil {
 						encodeString = base64.StdEncoding.EncodeToString(ff)
-					}else{
-						return
 					}
 				}else{
 					client := &http.Client{}
@@ -391,21 +389,15 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 							if body, err := ioutil.ReadAll(resp.Body);err == nil {
 								encodeString = base64.StdEncoding.EncodeToString(body)
-							}else{
-								return
 							}
-						}else{
-							return
 						}
-					}else{
-						return
 					}
 				}
+				if encodeString != "" {
+					src = "data:image/" + strings.TrimSuffix(filepath.Ext(src),".") + ";base64," + encodeString
 
-				src = "data:image/" + filepath.Ext(src) + ";base64," + encodeString
-
-				contentSelection.SetAttr("src", src)
-
+					contentSelection.SetAttr("src", src)
+				}
 			}
 		})
 
