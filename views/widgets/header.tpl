@@ -13,6 +13,9 @@
                     <li {{if eq .ControllerName "HomeController"}}class="active"{{end}}>
                         <a href="{{urlfor "HomeController.Index" }}" title="首页">首页</a>
                     </li>
+                    <li {{if eq .ControllerName "BlogController"}}{{if eq  .ActionName "List"}}class="active"{{end}}{{end}}>
+                        <a href="{{urlfor "BlogController.List" }}" title="文章">文章</a>
+                    </li>
                     <li {{if eq .ControllerName "LabelController"}}class="active"{{end}}>
                         <a href="{{urlfor "LabelController.List" }}" title="标签">标签</a>
                     </li>
@@ -36,6 +39,9 @@
                             </li>
                             <li>
                                 <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
+                            </li>
+                            <li>
+                                <a href="{{urlfor "BlogController.ManageList"}}" title="我的文章"><i class="fa fa-file" aria-hidden="true"></i> 我的文章</a>
                             </li>
                             {{if eq .Member.Role 0 }}
                             <li>
@@ -71,6 +77,9 @@
                         </li>
                         <li>
                             <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
+                        </li>
+                        <li>
+                            <a href="{{urlfor "BlogController.ManageList"}}" title="我的文章"><i class="fa fa-file" aria-hidden="true"></i> 我的文章</a>
                         </li>
                         {{if eq .Member.Role 0  1}}
                         <li>

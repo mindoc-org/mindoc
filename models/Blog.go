@@ -17,7 +17,7 @@ type Blog struct {
 	//排序序号
 	OrderIndex int 		`orm:"column(order_index);type(int);default(0)" json:"order_index"`
 	//所属用户
-	MemberId  int		`orm:"column(member_id);type(int);default(0)" json:"member_id"`
+	MemberId  int		`orm:"column(member_id);type(int);default(0):index" json:"member_id"`
 	//文章类型:0 普通文章/1 链接文章
 	BlogType int		`orm:"column(blog_type);type(int);default(0)" json:"blog_type"`
 	//链接到的项目中的文档ID
@@ -80,6 +80,18 @@ func (b *Blog) Find(blogId int) (*Blog,error) {
 
 	return b,nil
 }
+//查找指定用户的指定文章
+func (b *Blog) FindByIdAndMemberId(blogId,memberId int) (*Blog,error) {
+	o := orm.NewOrm()
+
+	err := o.QueryTable(b.TableNameWithPrefix()).Filter("blog_id",blogId).Filter("member_id",memberId).One(b)
+	if err != nil {
+		beego.Error("查询文章时失败 -> ",err)
+		return nil,err
+	}
+
+	return b,nil
+}
 //根据文章标识查询文章
 func (b *Blog) FindByIdentify(identify string) (*Blog,error) {
 	o := orm.NewOrm()
@@ -91,7 +103,7 @@ func (b *Blog) FindByIdentify(identify string) (*Blog,error) {
 	}
 	return b,nil
 }
-
+//获取指定文章的链接内容
 func (b *Blog)Link() (*Blog,error)  {
 	o := orm.NewOrm()
 	//如果是链接文章，则需要从链接的项目中查找文章内容
@@ -109,3 +121,13 @@ func (b *Blog)Link() (*Blog,error)  {
 	return b,nil
 }
 
+//判断指定的文章标识是否存在
+func (b *Blog) IsExist(identify string) bool {
+	o := orm.NewOrm()
+
+	return o.QueryTable(b.TableNameWithPrefix()).Filter("blog_identify",identify).Exist()
+}
+
+func (b *Blog) FindToPager() {
+
+}

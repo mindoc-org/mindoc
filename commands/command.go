@@ -89,6 +89,7 @@ func RegisterModel() {
 		new(models.DocumentHistory),
 		new(models.Migration),
 		new(models.Label),
+		new(models.Blog),
 	)
 	//migrate.RegisterMigration()
 }
