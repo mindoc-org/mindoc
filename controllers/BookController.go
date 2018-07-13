@@ -512,6 +512,11 @@ func (c *BookController) Create() {
 //复制项目
 func (c *BookController) Copy(){
 	if c.Ctx.Input.IsPost() {
+		//检查是否有复制项目的权限
+		if _,err := c.IsPermission(); err != nil{
+			c.JsonResult(500,err.Error())
+		}
+
 		identify := strings.TrimSpace(c.GetString("identify", ""))
 		if identify == "" {
 			c.JsonResult(6001,"参数错误")
