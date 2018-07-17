@@ -23,12 +23,12 @@ type Blog struct {
 	//链接到的项目中的文档ID
 	DocumentId int		`orm:"column(document_id);type(int);default(0)" json:"document_id"`
 	//文章摘要
-	BlogExcerpt string	`orm:"column(blog_excerpt);size(1500);unique" json:"blog_excerpt"`
+	BlogExcerpt string	`orm:"column(blog_excerpt);size(1500)" json:"blog_excerpt"`
 	//文章内容
 	BlogContent string	`orm:"column(blog_content);type(text);null" json:"blog_content"`
 	//发布后的文章内容
 	BlogRelease string 	`orm:"column(blog_release);type(text);null" json:"blog_release"`
-	//文章当前的状态，枚举enum(’publish’,’draft’,’private’,’static’,’object’)值，publish为已 发表，draft为草稿，private为私人内容(不会被公开) ，static(不详)，object(不详)。默认为publish。
+	//文章当前的状态，枚举enum(’publish’,’draft’,’password’)值，publish为已 发表，draft为草稿，password 为私人内容(不会被公开) 。默认为publish。
 	BlogStatus string	`orm:"column(blog_status);size(100);default(publish)" json:"blog_status"`
 	//文章密码，varchar(100)值。文章编辑才可为文章设定一个密码，凭这个密码才能对文章进行重新强加或修改。
 	Password string		`orm:"column(password);size(100)" json:"-"`
@@ -36,9 +36,12 @@ type Blog struct {
 	Modified time.Time	`orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	//修改人id
 	ModifyAt int		`orm:"column(modify_at);type(int)" json:"-"`
+	ModifyRealName string `orm:"-" json:"modify_real_name"`
 	//创建时间
 	Created time.Time	`orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
-	Version    int64         `orm:"type(bigint);column(version)" json:"version"`
+	CreateName string 	`orm:"-" json:"create_name"`
+	//版本号
+	Version    int64    `orm:"type(bigint);column(version)" json:"version"`
 }
 
 // 多字段唯一键
@@ -64,7 +67,7 @@ func (m *Blog) TableNameWithPrefix() string {
 
 func NewBlog() *Blog {
 	return &Blog{
-		Version: time.Now().Unix(),
+		BlogStatus: "public",
 	}
 }
 
@@ -109,7 +112,7 @@ func (b *Blog)Link() (*Blog,error)  {
 	//如果是链接文章，则需要从链接的项目中查找文章内容
 	if b.BlogType == 1 && b.DocumentId > 0{
 		doc := NewDocument()
-		if err := o.QueryTable(doc.TableNameWithPrefix()).Filter("document_id",b.DocumentId).One(doc,"");err != nil {
+		if err := o.QueryTable(doc.TableNameWithPrefix()).Filter("document_id",b.DocumentId).One(doc,"release","markdown");err != nil {
 			beego.Error("查询文章链接对象时出错 -> ",err)
 		}else{
 			b.BlogRelease = doc.Release
@@ -127,7 +130,79 @@ func (b *Blog) IsExist(identify string) bool {
 
 	return o.QueryTable(b.TableNameWithPrefix()).Filter("blog_identify",identify).Exist()
 }
+//保存文章
+func (b *Blog) Save(cols ...string) error {
+	o := orm.NewOrm()
 
-func (b *Blog) FindToPager() {
+	if b.OrderIndex == 0 {
+		blog := NewBlog()
+		if err :=o.QueryTable(b.TableNameWithPrefix()).OrderBy("-blog_id").One(blog,"blog_id");err == nil{
+			b.OrderIndex = b.BlogId + 1;
+		}else{
+			c,_ := o.QueryTable(b.TableNameWithPrefix()).Count()
+			b.OrderIndex = int(c) + 1
+		}
+	}
+	var err error
+	b.Version = time.Now().Unix()
+	if b.BlogId > 0 {
+		b.Modified = time.Now()
+		_,err = o.Update(b,cols...)
+	}else{
+		b.Created = time.Now()
+		_,err = o.Insert(b)
+	}
+	return err
+}
+//分页查询文章列表
+func (b *Blog) FindToPager(pageIndex, pageSize int,memberId int,status string) (blogList []*Blog, totalCount int, err error) {
 
+	o := orm.NewOrm()
+
+	offset := (pageIndex - 1) * pageSize
+
+	query := o.QueryTable(b.TableNameWithPrefix());
+
+	if memberId > 0 {
+		query = query.Filter("member_id",memberId)
+	}
+	if status != "" {
+		query = query.Filter("blog_status",status)
+	}
+
+
+	_,err = query.OrderBy("-order_index").Offset(offset).Limit(pageSize).All(&blogList)
+
+	if err != nil {
+		if err == orm.ErrNoRows {
+			return
+		}
+		beego.Error("获取文章列表时出错 ->",err)
+		return
+	}
+	count,err := query.Count()
+
+	if err != nil {
+		beego.Error("获取文章数量时出错 ->",err)
+		return nil,0,err
+	}
+	totalCount = int(count)
+	for _,blog := range blogList {
+		if blog.BlogType == 1 {
+			blog.Link()
+		}
+	}
+
+	return
+}
+
+//删除文章
+func (b *Blog) Delete(blogId int) error {
+	o := orm.NewOrm()
+
+	_,err := o.QueryTable(b.TableNameWithPrefix()).Filter("blog_id",blogId).Delete()
+	if err != nil {
+		beego.Error("删除文章失败 ->",err)
+	}
+	return err
 }

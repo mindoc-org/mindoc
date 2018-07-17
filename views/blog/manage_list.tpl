@@ -36,167 +36,69 @@
                     <div class="box-head">
                         <strong class="box-title">文章列表</strong>
                         &nbsp;
-                        <button type="button" data-toggle="modal" data-target="#addBlogDialogModal" class="btn btn-success btn-sm pull-right">添加文章</button>
+                        <a href="{{urlfor "BlogController.ManageSetting"}}" class="btn btn-success btn-sm pull-right">添加文章</a>
                     </div>
                 </div>
-                <div class="box-body" id="bookList">
-                    <div class="book-list">
-                        <template v-if="lists.length <= 0">
-                            <div class="text-center">暂无数据</div>
-                        </template>
-                        <template v-else>
-
-                            <div class="list-item" v-for="item in lists">
-                                <div class="book-title">
-                                    <div class="pull-left">
-                                        <a :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" title="项目概要" data-toggle="tooltip">
-                                            <template v-if="item.privately_owned == 0">
-                                                <i class="fa fa-unlock" aria-hidden="true"></i>
-                                            </template>
-                                            <template v-else-if="item.privately_owned == 1">
-                                                <i class="fa fa-lock" aria-hidden="true"></i>
-                                            </template>
-                                            ${item.book_name}
-                                        </a>
+                <div class="box-body" id="blogList">
+                    <div class="ui items">
+                        {{range $index,$item := .ModelList}}
+                            <div class="item blog-item">
+                                <div class="content">
+                                    <a class="header" href="{{urlfor "BlogController.Index" ":id" $item.BlogId}}" target="_blank">
+                                        {{if eq $item.BlogStatus "password"}}
+                                        <div class="ui teal label horizontal" data-tooltip="加密">密</div>
+                                        {{end}}
+                                        {{$item.BlogTitle}}
+                                    </a>
+                                    <div class="description">
+                                        <p class="line-clamp">{{$item.BlogExcerpt}}&nbsp;</p>
                                     </div>
-                                    <div class="pull-right">
-                                        <div class="btn-group">
-                                            <a  :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" class="btn btn-default">设置</a>
-
-                                            <a href="javascript:;" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <span class="caret"></span>
-                                                <span class="sr-only">Toggle Dropdown</span>
-                                            </a>
-                                            <ul class="dropdown-menu">
-                                                <li><a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" target="_blank">阅读</a></li>
-                                                <template v-if="item.role_id != 3">
-                                                    <li><a :href="'{{.BaseUrl}}/api/' + item.identify + '/edit'" target="_blank">编辑</a></li>
-                                                </template>
-                                                <template v-if="item.role_id == 0">
-                                                    <li><a :href="'javascript:deleteBook(\''+item.identify+'\');'">删除</a></li>
-                                                    <li><a :href="'javascript:copyBook(\''+item.identify+'\');'">复制</a></li>
-                                                </template>
-                                            </ul>
-
+                                    <div class="extra">
+                                        <div>
+                                            <div class="ui horizontal small list">
+                                                <div class="item"><i class="fa fa-clock-o"></i> {{date $item.Modified "Y-m-d H:i:s"}}</div>
+                                                <div class="item"><a href="{{urlfor "BlogController.ManageEdit" ":id" $item.BlogId}}" title="文章编辑"><i class="fa fa-edit"></i> 编辑</a></div>
+                                                <div class="item"><a class="delete-btn" title="删除文章" data-id="{{$item.BlogId}}"><i class="fa fa-trash"></i> 删除</a></div>
+                                                <div class="item"><a href="{{urlfor "BlogController.ManageSetting" ":id" $item.BlogId}}" title="文章设置" class="setting-btn"><i class="fa fa-gear"></i> 设置</a></div>
+                                            </div>
                                         </div>
-
-                                    {{/*<a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>*/}}
-                                    {{/*<template v-if="item.role_id != 3">*/}}
-                                    {{/*<a :href="'/api/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>*/}}
-                                    {{/*</template>*/}}
                                     </div>
-                                    <div class="clearfix"></div>
-                                </div>
-                                <div class="desc-text">
-                                    <template v-if="item.description === ''">
-                                        &nbsp;
-                                    </template>
-                                    <template v-else="">
-                                        <a :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" title="项目概要" style="font-size: 12px;">
-                                            ${item.description}
-                                        </a>
-                                    </template>
-                                </div>
-                                <div class="info">
-                                <span title="创建时间" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-clock-o"></i>
-                                    ${(new Date(item.create_time)).format("yyyy-MM-dd hh:mm:ss")}
-
-                                </span>
-                                    <span title="创建者" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user"></i> ${item.create_name}</span>
-                                    <span title="文档数量" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pie-chart"></i> ${item.doc_count}</span>
-                                    <span title="项目角色" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i> ${item.role_name}</span>
-                                    <template v-if="item.last_modify_text !== ''">
-                                        <span title="最后编辑" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pencil"></i> 最后编辑: ${item.last_modify_text}</span>
-                                    </template>
-
                                 </div>
                             </div>
-                        </template>
+                        {{else}}
+                        <div class="text-center">暂无文章</div>
+                        {{end}}
                     </div>
-                    <template v-if="lists.length >= 0">
-                        <nav class="pagination-container">
+                    <nav class="pagination-container">
                         {{.PageHtml}}
-                        </nav>
-                    </template>
+                    </nav>
                 </div>
             </div>
         </div>
     </div>
 {{template "widgets/footer.tpl" .}}
 </div>
-<!-- Modal -->
-<div class="modal fade" id="addBlogDialogModal" tabindex="-1" role="dialog" aria-labelledby="addBlogDialogModalLabel">
-    <div class="modal-dialog modal-lg" role="document" style="min-width: 900px;">
-        <form method="post" autocomplete="off" action="{{urlfor "BookController.Create"}}" id="addBookDialogForm" enctype="multipart/form-data">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">添加文章</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <div class="pull-left">
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName">
-                            </div>
-                            <div class="form-group">
-                                <div class="pull-left" style="padding: 7px 5px 6px 0">
-                                {{urlfor "DocumentController.Index" ":key" ""}}
-                                </div>
-                                <input type="text" class="form-control pull-left" style="width: 410px;vertical-align: middle" placeholder="项目唯一标识(不超过50字)" name="identify" id="identify">
-                                <div class="clearfix"></div>
-                                <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
-                            </div>
-                            <div class="form-group">
-                                <textarea name="description" id="description" class="form-control" placeholder="描述信息不超过500个字符" style="height: 90px;"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <div class="col-lg-6">
-                                    <label>
-                                        <input type="radio" name="privately_owned" value="0" checked> 公开<span class="text">(任何人都可以访问)</span>
-                                    </label>
-                                </div>
-                                <div class="col-lg-6">
-                                    <label>
-                                        <input type="radio" name="privately_owned" value="1"> 私有<span class="text">(只要参与者或使用令牌才能访问)</span>
-                                    </label>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="modal-footer">
-                    <span id="form-error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-success" id="btnSaveDocument" data-loading-text="保存中...">保存</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-<!--END Modal-->
+
 
 <!-- Delete Book Modal -->
-<div class="modal fade" id="deleteBookModal" tabindex="-1" role="dialog" aria-labelledby="deleteBookModalLabel">
+<div class="modal fade" id="deleteBlogModal" tabindex="-1" role="dialog" aria-labelledby="deleteBlogModalLabel">
     <div class="modal-dialog" role="document">
-        <form method="post" id="deleteBookForm" action="{{urlfor "BookController.Delete"}}">
-            <input type="hidden" name="identify" value="">
+        <form method="post" id="deleteBlogForm" action="{{urlfor "BlogController.ManageDelete"}}">
+            <input type="hidden" name="blog_id" value="">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">删除项目</h4>
+                    <h4 class="modal-title">删除文章</h4>
                 </div>
                 <div class="modal-body">
-                    <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
+                    <span style="font-size: 14px;font-weight: 400;">确定删除文章吗？</span>
                     <p></p>
-                    <p class="text error-message">删除项目后将无法找回。</p>
+                    <p class="text error-message">删除文章后将无法找回。</p>
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message2" class="error-message"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
+                    <button type="submit" id="btnDeleteBlog" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
                 </div>
             </div>
         </form>
@@ -212,98 +114,13 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
-    /**
-     * 绘制项目封面
-     * @param $id
-     * @param $font
-     */
-    function drawBookCover($id,$font) {
-        var draw = document.getElementById($id);
-        //确认浏览器是否支持<canvas>元素
-        if (draw.getContext) {
-            var context = draw.getContext('2d');
 
-            //绘制红色矩形,绿色描边
-            context.fillStyle = '#eee';
-            context.strokeStyle = '#d4d4d5';
-            context.strokeRect(0,0,170,230);
-            context.fillRect(0,0,170,230);
-
-            //设置字体样式
-            context.font = "bold 20px SimSun";
-            context.textAlign = "left";
-            //设置字体填充颜色
-            context.fillStyle = "#3E403E";
-
-            var font = $font;
-
-            var lineWidth = 0; //当前行的绘制的宽度
-            var lastTextIndex = 0; //已经绘制上canvas最后的一个字符的下标
-            var drawWidth = 155,lineHeight = 25,drawStartX = 15,drawStartY=65;
-            //由于改变canvas 的高度会导致绘制的纹理被清空，所以，不预先绘制，先放入到一个数组当中
-            var arr = [];
-            for(var i = 0; i<font.length; i++){
-                //获取当前的截取的字符串的宽度
-                lineWidth = context.measureText(font.substr(lastTextIndex,i-lastTextIndex)).width;
-
-                if(lineWidth > drawWidth){
-                    //判断最后一位是否是标点符号
-                    if(judgePunctuationMarks(font[i-1])){
-                        arr.push(font.substr(lastTextIndex,i-lastTextIndex));
-                        lastTextIndex = i;
-                    }else{
-                        arr.push(font.substr(lastTextIndex,i-lastTextIndex-1));
-                        lastTextIndex = i-1;
-                    }
-                }
-                //将最后多余的一部分添加到数组
-                if(i === font.length - 1){
-                    arr.push(font.substr(lastTextIndex,i-lastTextIndex+1));
-                }
-            }
-
-            for(var i =0; i<arr.length; i++){
-                context.fillText(arr[i],drawStartX,drawStartY+i*lineHeight);
-            }
-
-            //判断是否是需要避开的标签符号
-            function judgePunctuationMarks(value) {
-                var arr = [".",",",";","?","!",":","\"","，","。","？","！","；","：","、"];
-                for(var i = 0; i< arr.length; i++){
-                    if(value === arr[i]){
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-        }else{
-            console.log("浏览器不支持")
-        }
-    }
-
-    /**
-     * 将base64格式的图片转换为二进制
-     * @param dataURI
-     * @returns {Blob}
-     */
-    function dataURItoBlob(dataURI) {
-        var byteString = atob(dataURI.split(',')[1]);
-        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-        var ab = new ArrayBuffer(byteString.length);
-        var ia = new Uint8Array(ab);
-        for (var i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-        }
-
-        return new Blob([ab], {type: mimeString});
-    }
     /**
      * 删除项目
      */
-    function deleteBook($id) {
-        $("#deleteBookModal").find("input[name='identify']").val($id);
-        $("#deleteBookModal").modal("show");
+    function deleteBlog($id) {
+        $("#deleteBlogModal").find("input[name='blog_id']").val($id);
+        $("#deleteBlogModal").modal("show");
     }
     function copyBook($id){
         var index = layer.load()
@@ -329,180 +146,29 @@
     }
 
     $(function () {
-        $("#addBookDialogModal").on("show.bs.modal",function () {
-            window.bookDialogModal = $(this).find("#addBookDialogForm").html();
-            drawBookCover("bookCover","默认封面");
-        }).on("hidden.bs.modal",function () {
-            $(this).find("#addBookDialogForm").html(window.bookDialogModal);
-        });
-        /**
-         * 创建项目
-         */
-        $("body").on("click","#btnSaveDocument",function () {
-            var $this = $(this);
 
-
-            var bookName = $.trim($("#bookName").val());
-            if (bookName === "") {
-                return showError("项目标题不能为空")
-            }
-            if (bookName.length > 100) {
-                return showError("项目标题必须小于100字符");
-            }
-
-            var identify = $.trim($("#identify").val());
-            if (identify === "") {
-                return showError("项目标识不能为空");
-            }
-            if (identify.length > 50) {
-                return showError("项目标识必须小于50字符");
-            }
-            var description = $.trim($("#description").val());
-
-            if (description.length > 500) {
-                return showError("描述信息不超过500个字符");
-            }
-
-            $this.button("loading");
-
-            var draw = document.getElementById("bookCover");
-            var form = document.getElementById("addBookDialogForm");
-            var fd = new FormData(form);
-            if (draw.getContext) {
-                var dataURL = draw.toDataURL("png", 100);
-
-                var blob = dataURItoBlob(dataURL);
-
-                fd.append('image-file', blob,(new Date()).valueOf() + ".png");
-            }
-
-            $.ajax({
-                url : "{{urlfor "BookController.Create"}}",
-                data: fd,
-                type: "POST",
-                dataType :"json",
-                processData: false,
-                contentType: false
-            }).success(function (res) {
-                $this.button("reset");
-                if (res.errcode === 0) {
-                    window.app.lists.splice(0, 0, res.data);
-                    $("#addBookDialogModal").modal("hide");
-                } else {
-                    showError(res.message);
-                }
-                $this.button("reset");
-            }).error(function () {
-                $this.button("reset");
-                return showError("服务器异常");
-            });
-            return false;
-        });
-        /**
-         * 当填写项目标题后，绘制项目封面
-         */
-        $("#bookName").on("blur",function () {
-            var txt = $(this).val();
-            if(txt !== ""){
-                drawBookCover("bookCover",txt);
-            }
+        $("#blogList .delete-btn").click(function () {
+            deleteBlog($(this).attr("data-id"));
         });
         /**
          * 删除项目
          */
         $("#deleteBookForm").ajaxForm({
             beforeSubmit : function () {
-                $("#btnDeleteBook").button("loading");
+                $("#btnDeleteBlog").button("loading");
             },
-            success : function (res) {
-                if(res.errcode === 0){
+            success : function ($res) {
+                if($res.errcode === 0){
                     window.location = window.location.href;
                 }else{
                     showError(res.message,"#form-error-message2");
                 }
-                $("#btnDeleteBook").button("reset");
+                $("#btnDeleteBlog").button("reset");
             },
             error : function () {
                 showError("服务器异常","#form-error-message2");
-                $("#btnDeleteBook").button("reset");
+                $("#btnDeleteBlog").button("reset");
             }
-        });
-
-        $("#btnImportBook").on("click",function () {
-            var $this = $(this);
-            var $then = $(this).parents("#importBookDialogForm");
-
-
-            var bookName = $.trim($then.find("input[name='book_name']").val());
-
-            if (bookName === "") {
-                return showError("项目标题不能为空","#import-book-form-error-message");
-            }
-            if (bookName.length > 100) {
-                return showError("项目标题必须小于100字符","#import-book-form-error-message");
-            }
-
-            var identify = $.trim($then.find("input[name='identify']").val());
-            if (identify === "") {
-                return showError("项目标识不能为空","#import-book-form-error-message");
-            }
-            var description = $.trim($then.find('textarea[name="description"]').val());
-            if (description.length > 500) {
-                return showError("描述信息不超过500个字符","#import-book-form-error-message");
-            }
-            var filesCount = $('#import-book-upload').fileinput('getFilesCount');
-            console.log(filesCount)
-            if (filesCount <= 0) {
-                return showError("请选择需要上传的文件","#import-book-form-error-message");
-            }
-            //$("#importBookDialogForm").submit();
-            $("#btnImportBook").button("loading");
-            $('#import-book-upload').fileinput('upload');
-
-        });
-        window.app = new Vue({
-            el : "#bookList",
-            data : {
-                lists : {{.Result}}
-            },
-            delimiters : ['${','}'],
-            methods : {
-            }
-        });
-        Vue.nextTick(function () {
-            $("[data-toggle='tooltip']").tooltip();
-        });
-
-        $("#import-book-upload").fileinput({
-            'uploadUrl':"{{urlfor "BookController.Import"}}",
-            'theme': 'fa',
-            'showPreview': false,
-            'showUpload' : false,
-            'required': true,
-            'validateInitialCount': true,
-            "language" : "zh",
-            'allowedFileExtensions': ['zip'],
-            'msgPlaceholder' : '请选择Zip文件',
-            'elErrorContainer' : "#import-book-form-error-message",
-            'uploadExtraData' : function () {
-                var book = {};
-                var $then = $("#importBookDialogForm");
-                book.book_name = $then.find("input[name='book_name']").val();
-                book.identify = $then.find("input[name='identify']").val();
-                book.description = $then.find('textarea[name="description"]').val()
-
-                return book;
-            }
-        });
-        $("#import-book-upload").on("fileuploaded",function (event, data, previewId, index){
-
-            if(data.response.errcode === 0 || data.response.errcode === '0'){
-                showSuccess(data.response.message,"#import-book-form-error-message");
-            }else{
-                showError(data.response.message,"#import-book-form-error-message");
-            }
-            $("#btnImportBook").button("reset");
-            return true;
         });
     });
 </script>

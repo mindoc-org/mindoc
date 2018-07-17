@@ -657,17 +657,19 @@ func (c *ManagerController) AttachDetailed() {
 //删除附件.
 func (c *ManagerController) AttachDelete() {
 	c.Prepare()
-	attach_id, _ := c.GetInt("attach_id")
+	attachId, _ := c.GetInt("attach_id")
 
-	if attach_id <= 0 {
+	if attachId <= 0 {
 		c.Abort("404")
 	}
-	attach, err := models.NewAttachment().Find(attach_id)
+	attach, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
 		beego.Error("AttachDelete => ", err)
 		c.JsonResult(6001, err.Error())
 	}
+	attach.FilePath = filepath.Join(conf.WorkingDirectory,attach.FilePath)
+
 	if err := attach.Delete(); err != nil {
 		beego.Error("AttachDelete => ", err)
 		c.JsonResult(6002, err.Error())

@@ -82,11 +82,11 @@ func (m *Attachment) Find(id int) (*Attachment, error) {
 
 	return m, err
 }
-
-func (m *Attachment) FindListByDocumentId(doc_id int) (attaches []*Attachment, err error) {
+//查询指定文档的附件列表
+func (m *Attachment) FindListByDocumentId(docId int) (attaches []*Attachment, err error) {
 	o := orm.NewOrm()
 
-	_, err = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).OrderBy("-attachment_id").All(&attaches)
+	_, err = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", docId).Filter("book_id__gt",0).OrderBy("-attachment_id").All(&attaches)
 	return
 }
 
@@ -115,20 +115,31 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 		attach := &AttachmentResult{}
 		attach.Attachment = *item
 		attach.FileShortSize = filetil.FormatBytes(int64(attach.FileSize))
+		//当项目ID为0标识是文章的附件
+		if item.BookId == 0 && item.DocumentId > 0 {
+			blog := NewBlog()
+			if err := o.QueryTable(blog.TableNameWithPrefix()).Filter("blog_id",item.DocumentId).One(blog,"blog_title");err  == nil {
+				attach.BookName = blog.BlogTitle
+			}else{
+				attach.BookName = "[文章不存在]"
+			}
+		}else {
+			book := NewBook()
 
-		book := NewBook()
+			if e := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", item.BookId).One(book, "book_name"); e == nil {
+				attach.BookName = book.BookName
 
-		if e := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", item.BookId).One(book, "book_name"); e == nil {
-			attach.BookName = book.BookName
-		} else {
-			attach.BookName = "[不存在]"
-		}
-		doc := NewDocument()
+				doc := NewDocument()
 
-		if e := o.QueryTable(doc.TableNameWithPrefix()).Filter("document_id", item.DocumentId).One(doc, "document_name"); e == nil {
-			attach.DocumentName = doc.DocumentName
-		} else {
-			attach.DocumentName = "[不存在]"
+				if e := o.QueryTable(doc.TableNameWithPrefix()).Filter("document_id", item.DocumentId).One(doc, "document_name"); e == nil {
+					attach.DocumentName = doc.DocumentName
+				} else {
+					attach.DocumentName = "[文档不存在]"
+				}
+
+			} else {
+				attach.BookName = "[项目不存在]"
+			}
 		}
 		attach.LocalHttpPath = strings.Replace(item.FilePath, "\\", "/", -1)
 

@@ -55,13 +55,15 @@
                             {{end}}
                     </div>
                     <div class="form-group">
-                        <label>项目名称</label>
+                        <label>项目/文章名称</label>
                         <input type="text" value="{{.Model.BookName}}" class="form-control input-readonly" readonly placeholder="项目名称">
                     </div>
+                    {{if ne .Model.BookId 0}}
                     <div class="form-group">
                         <label>文档名称</label>
                         <input type="text" value="{{.Model.DocumentName}}" class="form-control input-readonly" readonly placeholder="文档名称">
                     </div>
+                    {{end}}
                     <div class="form-group">
                         <label>文件路径</label>
                         <input type="text" value="{{.Model.FilePath}}" class="form-control input-readonly" readonly placeholder="文件路径">

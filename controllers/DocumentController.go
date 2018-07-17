@@ -579,13 +579,13 @@ func (c *DocumentController) DownloadAttachment() {
 // 删除附件
 func (c *DocumentController) RemoveAttachment() {
 	c.Prepare()
-	attach_id, _ := c.GetInt("attach_id")
+	attachId, _ := c.GetInt("attach_id")
 
-	if attach_id <= 0 {
+	if attachId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	attach, err := models.NewAttachment().Find(attach_id)
+	attach, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
 		beego.Error(err)
