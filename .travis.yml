@@ -21,7 +21,7 @@ script:
 before_deploy:
   - sudo apt-get -qq update
   - dep ensure -v && CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go build -o mindoc_linux_amd64 -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=$TRAVIS_TAG -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`github.com/lifei6671/mindoc/go version`'"
-  - rm -rf commands controllers models modules data routers tasks vendor docs search utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile Gopkg.toml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
+  - rm -rf simsun.ttc start.sh commands controllers models modules data routers tasks vendor docs search utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile Gopkg.toml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
   - cp conf/app.conf.example conf/app.conf
   - zip -r mindoc_linux_amd64.zip conf static uploads views lib mindoc_linux_amd64
 
