@@ -179,8 +179,8 @@ func (b *Blog) Save(cols ...string) error {
 
 	if b.OrderIndex <= 0 {
 		blog := NewBlog()
-		if err :=o.QueryTable(b.TableNameWithPrefix()).OrderBy("-blog_id").One(blog,"blog_id");err == nil{
-			b.OrderIndex = b.BlogId + 1;
+		if err := o.QueryTable(blog.TableNameWithPrefix()).OrderBy("-blog_id").Limit(1).One(blog,"blog_id");err == nil{
+			b.OrderIndex = blog.BlogId + 1;
 		}else{
 			c,_ := o.QueryTable(b.TableNameWithPrefix()).Count()
 			b.OrderIndex = int(c) + 1
