@@ -157,6 +157,10 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 	if err := beego.ExecuteViewPathTemplate(&buf, "errors/error.tpl", beego.BConfig.WebConfig.ViewsPath, map[string]interface{}{"ErrorMessage": errMsg, "ErrorCode": errCode, "BaseUrl": conf.BaseUrl}); err != nil {
 		c.Abort("500")
 	}
+	if errCode >= 200 && errCode <= 510 {
+		c.CustomAbort(errCode, buf.String())
+	}else{
+		c.CustomAbort(200, buf.String())
+	}
 
-	c.CustomAbort(200, buf.String())
 }

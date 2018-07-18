@@ -69,6 +69,8 @@ func init() {
 	beego.Router("/blogs/edit/?:id",&controllers.BlogController{}, "*:ManageEdit")
 	beego.Router("/blogs/delete",&controllers.BlogController{}, "post:ManageDelete")
 	beego.Router("/blogs/upload",&controllers.BlogController{}, "post:Upload")
+	beego.Router("/blogs/attach/:id",&controllers.BlogController{}, "post:RemoveAttachment")
+
 
 	//读文章的路由
 	beego.Router("/blog", &controllers.BlogController{}, "*:List")

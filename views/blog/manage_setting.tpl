@@ -39,6 +39,8 @@
                     <form method="post" id="gloablEditForm" action="{{urlfor "BlogController.ManageSetting"}}">
                         <input type="hidden" name="id" id="blogId" value="{{.Model.BlogId}}">
                         <input type="hidden" name="identify" value="{{.Model.BlogIdentify}}">
+                        <input type="hidden" name="document_id" value="{{.Model.DocumentId}}">
+                        <input type="hidden" name="order_index" value="{{.Model.OrderIndex}}">
                         <div class="form-group">
                             <label>文章标题</label>
                             <input type="text" class="form-control" name="title" id="title" placeholder="文章标题" value="{{.Model.BlogTitle}}">
@@ -60,12 +62,13 @@
                             <label>关联文档</label>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" placeholder="请选择项目">
+                                    <input type="text" class="form-control" placeholder="请输入项目标识" name="bookIdentify" value="{{.Model.BookIdentify}}">
                                 </div>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" placeholder="请选择文档">
+                                    <input type="text" class="form-control" placeholder="请输入文档标识" name="documentIdentify" value="{{.Model.DocumentIdentify}}">
                                 </div>
                             </div>
+
                         </div>
                         <div class="form-group">
                             <label>文章状态</label>

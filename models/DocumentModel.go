@@ -220,6 +220,7 @@ func (m *Document) FindListByBookId(bookId int) (docs []*Document, err error) {
 
 	return
 }
+
 //判断文章是否存在
 func (m *Document) IsExist(documentId int) bool {
 	o := orm.NewOrm()

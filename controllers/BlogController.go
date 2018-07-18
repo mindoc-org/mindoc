@@ -13,25 +13,89 @@ import (
 	"net/http"
 	"path/filepath"
 	"github.com/astaxie/beego/orm"
+	"html/template"
+	"encoding/json"
 )
 
 type BlogController struct{
 	BaseController
 }
 
-
+//文章阅读
 func (c *BlogController) Index() {
 	c.Prepare()
 	c.TplName = "blog/index.tpl"
+	blogId,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+
+	if blogId <= 0{
+		c.ShowErrorPage(404,"页面不存在")
+	}
+	blogReadSession := fmt.Sprintf("blog:read:%d",blogId)
+
+	blog,err := models.NewBlog().Find(blogId)
+
+	if err != nil {
+		c.ShowErrorPage(404,"文章不存在")
+	}
+
+	if c.Ctx.Input.IsPost() {
+		password := c.GetString("password");
+
+		if blog.BlogStatus == "password" && password != blog.Password {
+			c.JsonResult(6001,"文章密码不正确")
+		}else if blog.BlogStatus == "password" && password == blog.Password {
+			//如果密码输入正确，则存入session中
+			c.CruSession.Set(blogReadSession,blogId)
+			c.JsonResult(0,"OK")
+		}
+		c.JsonResult(0,"OK")
+	}else if blog.BlogStatus == "password" && c.CruSession.Get(blogReadSession) == nil {
+		//如果不存在已输入密码的标记
+		c.TplName = "blog/index_password.tpl"
+	}
+	//加载文章附件
+	blog.LinkAttach();
+	c.Data["Model"] = blog
+	c.Data["Content"] = template.HTML(blog.BlogRelease)
+
+	if nextBlog,err := models.NewBlog().QueryNext(blogId);err == nil {
+		c.Data["Next"] = nextBlog
+	}
+	if preBlog,err := models.NewBlog().QueryPrevious(blogId);err == nil {
+		c.Data["Previous"] = preBlog
+	}
 }
 
+//文章列表
 func (c *BlogController) List() {
 	c.Prepare()
 	c.TplName = "blog/list.tpl"
+	pageIndex, _ := c.GetInt("page", 1)
 
+	var blogList []*models.Blog
+	var totalCount int
+	var  err error
+
+	blogList,totalCount,err = models.NewBlog().FindToPager(pageIndex,conf.PageSize,0,"")
+
+
+	if err != nil {
+		c.ShowErrorPage(500,err.Error())
+	}
+	if totalCount > 0 {
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
+		c.Data["PageHtml"] = pager.HtmlPages()
+		for _,blog := range blogList {
+			blog.Link()
+		}
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+
+	c.Data["Lists"] = blogList
 }
 
-//管理后台
+//管理后台文章列表
 func (c *BlogController) ManageList() {
 	c.Prepare()
 	c.TplName = "blog/manage_list.tpl"
@@ -40,7 +104,6 @@ func (c *BlogController) ManageList() {
 
 	blogList,totalCount,err := models.NewBlog().FindToPager(pageIndex,conf.PageSize,c.Member.MemberId,"")
 
-	beego.Info(totalCount)
 	if err != nil {
 		c.ShowErrorPage(500,err.Error())
 	}
@@ -66,14 +129,17 @@ func (c *BlogController) ManageSetting() {
 		blogIdentify := c.GetString("identify")
 		orderIndex,_ := c.GetInt("order_index",0)
 		blogType,_ := c.GetInt("blog_type",0)
-		documentId,_ := c.GetInt("document_id",0)
 		blogExcerpt := c.GetString("excerpt","")
 		blogStatus := c.GetString("status","publish")
 		blogPassword := c.GetString("password","")
+		documentIdentify := strings.TrimSpace(c.GetString("documentIdentify"))
+		bookIdentify := strings.TrimSpace(c.GetString("bookIdentify"))
+		documentId := 0
+
 		if blogTitle == "" {
 			c.JsonResult(6001,"文章标题不能为空")
 		}
-		if strings.Count(blogExcerpt,"") > 100 {
+		if strings.Count(blogExcerpt,"") > 500 {
 			c.JsonResult(6008,"文章摘要必须小于500字符")
 		}
 		if blogStatus != "public" && blogStatus != "password" && blogStatus != "draft" {
@@ -84,14 +150,33 @@ func (c *BlogController) ManageSetting() {
 		}
 		if blogType != 0 && blogType != 1 {
 			c.JsonResult(6005,"未知的文章类型")
-		}else if documentId <= 0 && blogType == 1 {
-			c.JsonResult(6006,"请选择链接的文章")
-		}else if blogType == 1 && documentId > 0 && !models.NewDocument().IsExist(documentId){
-			c.JsonResult(6007,"链接的文章不存在")
 		}
 		if strings.Count(blogTitle,"") > 200 {
 			c.JsonResult(6002,"文章标题不能大于200个字符")
 		}
+		//如果是关联文章，需要同步关联的文档
+		if blogType == 1 {
+			book,err := models.NewBook().FindByIdentify(bookIdentify)
+
+			if err != nil {
+				c.JsonResult(6011,"关联文档的项目不存在")
+			}
+			doc,err := models.NewDocument().FindByIdentityFirst(documentIdentify,book.BookId)
+			if  err != nil {
+				c.JsonResult(6003,"查询关联项目文档时出错")
+			}
+			documentId = doc.DocumentId
+
+			// 如果不是超级管理员，则校验权限
+			if !c.Member.IsAdministrator() {
+				bookResult, err := models.NewBookResult().FindByIdentify(book.Identify, c.Member.MemberId)
+
+				if err != nil || bookResult.RoleId == conf.BookObserver {
+					c.JsonResult(6002, "关联文档不存在或权限不足")
+				}
+			}
+		}
+
 		var blog *models.Blog
 		var err error
 		//如果文章ID存在，则从数据库中查询文章
@@ -157,11 +242,14 @@ func (c *BlogController) ManageSetting() {
 	}
 	blogId,err := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
+	c.Data["DocumentIdentify"] = "";
+
 	if err == nil {
 		blog,err := models.NewBlog().FindByIdAndMemberId(blogId,c.Member.MemberId)
 		if err != nil {
 			c.ShowErrorPage(500,err.Error())
 		}
+
 		c.Data["Model"] = blog
 	}else{
 		c.Data["Model"] = models.NewBlog()
@@ -199,12 +287,28 @@ func (c *BlogController) ManageEdit() {
 		if version > 0 && blog.Version != version && cover != "yes"{
 			c.JsonResult(6005,"文章已被修改")
 		}
+		//如果是关联文章，需要同步关联的文档
 		if blog.BlogType == 1 {
 			doc,err := models.NewDocument().Find(blog.DocumentId)
 			if err != nil {
 				beego.Error("查询关联项目文档时出错 ->", err)
 				c.JsonResult(6003,"查询关联项目文档时出错")
 			}
+			book, err := models.NewBook().Find(doc.BookId)
+			if err != nil {
+				c.JsonResult(6002, "项目不存在或权限不足")
+			}
+
+			// 如果不是超级管理员，则校验权限
+			if !c.Member.IsAdministrator() {
+				bookResult, err := models.NewBookResult().FindByIdentify(book.Identify, c.Member.MemberId)
+
+				if err != nil || bookResult.RoleId == conf.BookObserver {
+					beego.Error("FindByIdentify => ", err)
+					c.JsonResult(6002, "关联文档不存在或权限不足")
+				}
+			}
+
 			doc.Markdown = blogContent
 			doc.Release = blogHtml
 			doc.Content = blogHtml
@@ -246,6 +350,19 @@ func (c *BlogController) ManageEdit() {
 	if err != nil {
 		c.ShowErrorPage(404,"文章不存在或已删除")
 	}
+	blog.LinkAttach()
+
+	if len(blog.AttachList) > 0 {
+		returnJSON, err := json.Marshal(blog.AttachList)
+		if err != nil {
+			beego.Error("序列化文章附件时出错 ->",err)
+		}else{
+			c.Data["AttachList"] = template.JS(string(returnJSON))
+		}
+	}else{
+		c.Data["AttachList"] = template.JS("[]")
+	}
+
 	c.Data["Model"] = blog
 }
 
@@ -284,6 +401,15 @@ func (c *BlogController) Upload() {
 
 	if blogId <= 0 {
 		c.JsonResult(6001, "参数错误")
+	}
+
+	blog,err := models.NewBlog().Find(blogId)
+
+	if err != nil {
+		c.JsonResult(6010,"文章不存在")
+	}
+	if !c.Member.IsAdministrator() && blog.MemberId != c.Member.MemberId {
+		c.JsonResult(6011,"没有文章的访问权限")
 	}
 
 	name := "editormd-file-file"
@@ -361,7 +487,7 @@ func (c *BlogController) Upload() {
 
 	var httpPath string
 	result := make(map[string]interface{})
-
+	//如果是图片，则当做内置图片处理，否则当做附件处理
 	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
 		httpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
 		if strings.HasPrefix(httpPath, "//") {
@@ -375,7 +501,11 @@ func (c *BlogController) Upload() {
 		attachment.FileExt = ext
 		attachment.FilePath = strings.TrimPrefix(filePath, conf.WorkingDirectory)
 		attachment.DocumentId = blogId
-
+		//如果是关联文章，则将附件设置为关联文档的文档上
+		if blog.BlogType == 1 {
+			attachment.BookId = blog.BookId
+			attachment.DocumentId = blog.DocumentId
+		}
 		if fileInfo, err := os.Stat(filePath); err == nil {
 			attachment.FileSize = float64(fileInfo.Size())
 		}
@@ -413,11 +543,19 @@ func (c *BlogController) Upload() {
 func (c *BlogController) RemoveAttachment() {
 	c.Prepare()
 	attachId, _ := c.GetInt("attach_id")
+	blogId, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
 	if attachId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
-
+	blog, err := models.NewBlog().Find(blogId)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			c.ShowErrorPage(500, "文档不存在")
+		} else {
+			c.ShowErrorPage(500, "查询文章时异常")
+		}
+	}
 	attach, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
@@ -434,6 +572,11 @@ func (c *BlogController) RemoveAttachment() {
 		}
 	}
 
+	if blog.BlogType == 1 && attach.BookId != blog.BookId && attach.DocumentId != blog.DocumentId {
+		c.ShowErrorPage(404,"附件不存在")
+	}else if attach.BookId !=0 || attach.DocumentId != blogId {
+		c.ShowErrorPage(404,"附件不存在")
+	}
 
 	if err := attach.Delete();err != nil {
 		beego.Error(err)
@@ -461,8 +604,9 @@ func (c *BlogController) Download() {
 			c.ShowErrorPage(500, "查询文章时异常")
 		}
 	}
+	blogReadSession := fmt.Sprintf("blog:read:%d",blogId)
 
-	if (c.Member != nil && !c.Member.IsAdministrator()) || ( blog.BlogStatus == "password" && password != blog.Password) {
+	if (c.Member != nil && !c.Member.IsAdministrator()) || ( blog.BlogStatus == "password" && password != blog.Password && c.CruSession.Get(blogReadSession) == nil) {
 		c.ShowErrorPage(403, "没有下载权限")
 	}
 
@@ -477,8 +621,9 @@ func (c *BlogController) Download() {
 			c.ShowErrorPage(500,"查询附件时出现异常")
 		}
 	}
-
-	if attachment.BookId !=0 || attachment.DocumentId != blogId {
+	if blog.BlogType == 1 && attachment.BookId != blog.BookId && attachment.DocumentId != blog.DocumentId {
+		c.ShowErrorPage(404,"附件不存在")
+	}else if attachment.BookId !=0 || attachment.DocumentId != blogId {
 		c.ShowErrorPage(404,"附件不存在")
 	}
 

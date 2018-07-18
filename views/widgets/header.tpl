@@ -13,7 +13,7 @@
                     <li {{if eq .ControllerName "HomeController"}}class="active"{{end}}>
                         <a href="{{urlfor "HomeController.Index" }}" title="首页">首页</a>
                     </li>
-                    <li {{if eq .ControllerName "BlogController"}}{{if eq  .ActionName "List"}}class="active"{{end}}{{end}}>
+                    <li {{if eq .ControllerName "BlogController"}}{{if eq  .ActionName "List" "Index"}}class="active"{{end}}{{end}}>
                         <a href="{{urlfor "BlogController.List" }}" title="文章">文章</a>
                     </li>
                     <li {{if eq .ControllerName "LabelController"}}class="active"{{end}}>

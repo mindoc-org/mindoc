@@ -146,4 +146,19 @@ $(function () {
         }
         window.isLoad = false;
     }
+    /**
+     * 打开文档模板
+     */
+    $("#documentTemplateModal").on("click", ".section>a[data-type]", function () {
+        var $this = $(this).attr("data-type");
+        var body = $("#template-" + $this).html();
+        if (body) {
+            window.isLoad = true;
+            window.editor.clear();
+            window.editor.insertValue(body);
+            window.editor.setCursor({ line: 0, ch: 0 });
+            resetEditorChanged(true);
+        }
+        $("#documentTemplateModal").modal('hide');
+    });
 });

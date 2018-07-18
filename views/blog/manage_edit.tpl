@@ -14,7 +14,7 @@
         window.fileUploadURL = "";
         window.blogId = {{.Model.BlogId}};
         window.blogVersion = {{.Model.Version}};
-        window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
+        window.removeAttachURL = "{{urlfor "BlogController.RemoveAttachment" ":id" .Model.BlogId}}";
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -223,7 +223,7 @@
 <script src="{{cdnjs "/static/js/blog.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-
+        window.vueApp.lists = {{.AttachList}};
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });

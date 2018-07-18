@@ -34,7 +34,6 @@
                     <div class="description">
                         {{str2html $item.Description}}
                     </div>
-                    <div class="site">{{$.BaseUrl}}{{urlfor "DocumentController.Read" ":key" $item.BookIdentify ":id" $item.Identify}}</div>
                     <div class="source">
                         <span class="item">来自：<a href="{{urlfor "DocumentController.Index" ":key" $item.BookIdentify}}" target="_blank">{{$item.BookName}}</a></span>
                         <span class="item">作者：{{$item.Author}}</span>
