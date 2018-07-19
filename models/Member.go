@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	ldap "gopkg.in/ldap.v2"
+	"gopkg.in/ldap.v2"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
@@ -397,6 +397,17 @@ func (m *Member) Delete(oldId int, newId int) error {
 		o.Rollback()
 		return err
 	}
+	_,err = o.Raw("UPDATE md_blogs SET member_id = ? WHERE member_id = ?;", newId, oldId).Exec()
+
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	_, err = o.Raw("UPDATE md_blogs SET modify_at = ? WHERE modify_at = ?", newId, oldId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
 	//_,err = o.Raw("UPDATE md_relationship SET member_id = ? WHERE member_id = ?",newId,oldId).Exec()
 	//if err != nil {
 	//
@@ -405,12 +416,12 @@ func (m *Member) Delete(oldId int, newId int) error {
 	//		return err
 	//	}
 	//}
-	var relationship_list []*Relationship
+	var relationshipList []*Relationship
 
-	_, err = o.QueryTable(NewRelationship().TableNameWithPrefix()).Filter("member_id", oldId).Limit(math.MaxInt32).All(&relationship_list)
+	_, err = o.QueryTable(NewRelationship().TableNameWithPrefix()).Filter("member_id", oldId).Limit(math.MaxInt32).All(&relationshipList)
 
 	if err == nil {
-		for _, relationship := range relationship_list {
+		for _, relationship := range relationshipList {
 			//如果存在创始人，则删除
 			if relationship.RoleId == 0 {
 				rel := NewRelationship()
