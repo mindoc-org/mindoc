@@ -153,7 +153,7 @@
         /**
          * 删除项目
          */
-        $("#deleteBookForm").ajaxForm({
+        $("#deleteBlogForm").ajaxForm({
             beforeSubmit : function () {
                 $("#btnDeleteBlog").button("loading");
             },
