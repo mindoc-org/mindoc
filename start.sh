@@ -81,7 +81,7 @@ if [ ! -z $BASEURL ]; then
 fi
 
 if [ ! -z $ENABLE_EXPORT ]; then
-    sed -i "s#enable_export=.*#baseurl=$ENABLE_EXPORT#g" conf/app.conf
+    sed -i "s#enable_export=.*#enable_export=$ENABLE_EXPORT#g" conf/app.conf
 fi
 
 
