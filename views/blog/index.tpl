@@ -88,7 +88,7 @@
                {{.Model.BlogTitle}}
             </h1>
             <div class="blog-meta">
-                <div class="item user_img"><img src="{{.Model.MemberAvatar}}" align="{{.Model.CreateName}}"> </div>
+                <div class="item user_img"><img src="{{cdnimg .Model.MemberAvatar}}" align="{{.Model.CreateName}}"> </div>
                 <div class="item">&nbsp;{{.Model.CreateName}}</div>
                 <div class="item">发布于</div>
                 <div class="item">{{date .Model.Created "Y-m-d H:i:s"}}</div>
