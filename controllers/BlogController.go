@@ -79,7 +79,7 @@ func (c *BlogController) List() {
 	blogList,totalCount,err = models.NewBlog().FindToPager(pageIndex,conf.PageSize,0,"")
 
 
-	if err != nil {
+	if err != nil && err != orm.ErrNoRows {
 		c.ShowErrorPage(500,err.Error())
 	}
 	if totalCount > 0 {
