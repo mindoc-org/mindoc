@@ -728,7 +728,7 @@ func (book *Book) ImportBook(zipPath string) error {
 						//如果本地存在该链接
 						if filetil.FileExists(linkPath) {
 							ext := filepath.Ext(linkPath)
-							beego.Info("当前后缀 -> ",ext)
+							//beego.Info("当前后缀 -> ",ext)
 							//如果链接是Markdown文件，则生成文档标识,否则，将目标文件复制到项目目录
 							if strings.EqualFold(ext, ".md") || strings.EqualFold(ext, ".markdown") {
 								docIdentify := strings.Replace(strings.TrimPrefix(strings.Replace(linkPath, "\\", "/", -1), tempPath+"/"), "/", "-", -1)
