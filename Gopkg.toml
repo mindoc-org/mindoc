@@ -27,11 +27,11 @@
 
 [[constraint]]
   name = "github.com/PuerkitoBio/goquery"
-  version = "1.3.0"
+  version = "1.4.1"
 
 [[constraint]]
   name = "github.com/astaxie/beego"
-  version = "1.9.2"
+  version = "1.10.0"
 
 [[constraint]]
   name = "github.com/boombuler/barcode"
@@ -39,7 +39,7 @@
 
 [[constraint]]
   name = "github.com/go-sql-driver/mysql"
-  version = "1.3.0"
+  version = "1.4.0"
 
 [[constraint]]
   branch = "master"
@@ -51,7 +51,7 @@
 
 [[constraint]]
   name = "github.com/mattn/go-sqlite3"
-  version = "1.6.0"
+  version = "1.9.0"
 
 [[constraint]]
   branch = "master"

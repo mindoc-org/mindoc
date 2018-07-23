@@ -219,6 +219,9 @@ func (b *Blog) FindToPager(pageIndex, pageSize int,memberId int,status string) (
 	_,err = query.OrderBy("-order_index","-blog_id").Offset(offset).Limit(pageSize).All(&blogList)
 
 	if err != nil {
+		if err == orm.ErrNoRows {
+			err = nil
+		}
 		beego.Error("获取文章列表时出错 ->",err)
 		return
 	}
