@@ -593,7 +593,7 @@ func (book *Book) ImportBook(zipPath string) error {
 		return err
 	}
 	//当导入结束后，删除临时文件
-	defer os.RemoveAll(tempPath)
+	//defer os.RemoveAll(tempPath)
 
 	for {
 		//如果当前目录下只有一个目录，则重置根目录
@@ -660,7 +660,9 @@ func (book *Book) ImportBook(zipPath string) error {
 					imageUrl := strings.Replace(string(originalImageUrl), "\\", "/", -1)
 
 					//如果是本地路径，则需要将图片复制到项目目录
-					if !strings.HasPrefix(imageUrl, "http://") && !strings.HasPrefix(imageUrl, "https://") {
+					if !strings.HasPrefix(imageUrl, "http://") &&
+						!strings.HasPrefix(imageUrl, "https://") &&
+						!strings.HasPrefix(imageUrl,"ftp://") {
 						//如果路径中存在参数
 						if l := strings.Index(imageUrl,"?"); l > 0 {
 							imageUrl = imageUrl[:l]
@@ -707,15 +709,26 @@ func (book *Book) ImportBook(zipPath string) error {
 
 				linkRegexp := regexp.MustCompile(`\[(.*?)\]\((.*?)\)`)
 
+				//处理链接
 				doc.Markdown = linkRegexp.ReplaceAllStringFunc(doc.Markdown, func(link string) string {
 					links := linkRegexp.FindAllStringSubmatch(link, -1)
 					originalLink := links[0][2]
+					var linkPath string
+					var err error
+					//如果是从根目录开始，
+					if strings.HasPrefix(originalLink,"/") {
+						linkPath,err = filepath.Abs(filepath.Join(tempPath,originalLink))
+					}else if strings.HasPrefix(originalLink, "./"){
+						linkPath, err = filepath.Abs(filepath.Join(filepath.Dir(path), originalLink[1:]))
+					}else{
+						linkPath, err = filepath.Abs(filepath.Join(filepath.Dir(path), originalLink))
+					}
 
-					linkPath, err := filepath.Abs(filepath.Join(filepath.Dir(path), originalLink))
 					if err == nil {
 						//如果本地存在该链接
 						if filetil.FileExists(linkPath) {
 							ext := filepath.Ext(linkPath)
+							beego.Info("当前后缀 -> ",ext)
 							//如果链接是Markdown文件，则生成文档标识,否则，将目标文件复制到项目目录
 							if strings.EqualFold(ext, ".md") || strings.EqualFold(ext, ".markdown") {
 								docIdentify := strings.Replace(strings.TrimPrefix(strings.Replace(linkPath, "\\", "/", -1), tempPath+"/"), "/", "-", -1)
@@ -726,6 +739,7 @@ func (book *Book) ImportBook(zipPath string) error {
 								docIdentify = strings.TrimSuffix(docIdentify, "-README.md")
 
 								link = strings.TrimSuffix(link, originalLink+")") + conf.URLFor("DocumentController.Read", ":key", book.Identify, ":id", docIdentify) + ")"
+
 							} else {
 								dstPath := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"), originalLink)
 
@@ -736,6 +750,8 @@ func (book *Book) ImportBook(zipPath string) error {
 								link = strings.TrimSuffix(link, originalLink+")") + tempLink + ")"
 
 							}
+						}else{
+							beego.Info("文件不存在 ->",linkPath)
 						}
 					}
 
