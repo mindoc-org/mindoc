@@ -105,12 +105,15 @@ func (b *Blog) FindFromCache(blogId int) (blog *Blog,err error) {
 	if b,ok := obj.(Blog); ok {
 		blog = &b
 		blog.Link()
+		beego.Info("从缓存读取文章成功 ->", key)
 		return
 	}
 	blog,err = b.Find(blogId)
 	if err == nil {
 		//默认一个小时
-		cache.Put(key,blog,time.Hour * 1)
+		if err := cache.Put(key,*blog,time.Hour * 1); err != nil {
+			beego.Error("将文章存入缓存失败 ->",err)
+		}
 	}
 	return
 }
