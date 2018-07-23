@@ -64,18 +64,18 @@ func init() {
 	beego.Router("/book/setting/delete", &controllers.BookController{}, "post:Delete")
 
 	//管理文章的路由
-	beego.Router("/blogs", &controllers.BlogController{},"*:ManageList")
-	beego.Router("/blogs/setting/?:id", &controllers.BlogController{}, "*:ManageSetting")
-	beego.Router("/blogs/edit/?:id",&controllers.BlogController{}, "*:ManageEdit")
-	beego.Router("/blogs/delete",&controllers.BlogController{}, "post:ManageDelete")
-	beego.Router("/blogs/upload",&controllers.BlogController{}, "post:Upload")
-	beego.Router("/blogs/attach/:id",&controllers.BlogController{}, "post:RemoveAttachment")
+	beego.Router("/manage/blogs", &controllers.BlogController{},"*:ManageList")
+	beego.Router("/manage/blogs/setting/?:id", &controllers.BlogController{}, "*:ManageSetting")
+	beego.Router("/manage/blogs/edit/?:id",&controllers.BlogController{}, "*:ManageEdit")
+	beego.Router("/manage/blogs/delete",&controllers.BlogController{}, "post:ManageDelete")
+	beego.Router("/manage/blogs/upload",&controllers.BlogController{}, "post:Upload")
+	beego.Router("/manage/blogs/attach/:id",&controllers.BlogController{}, "post:RemoveAttachment")
 
 
 	//读文章的路由
-	beego.Router("/blog", &controllers.BlogController{}, "*:List")
-	beego.Router("/blog/attach/:id:int/:attach_id:int", &controllers.BlogController{},"get:Download")
-	beego.Router("/blog/:id",&controllers.BlogController{}, "*:Index")
+	beego.Router("/blogs", &controllers.BlogController{}, "*:List")
+	beego.Router("/blog-attach/:id:int/:attach_id:int", &controllers.BlogController{},"get:Download")
+	beego.Router("/blog-:id([0-9]+).html",&controllers.BlogController{}, "*:Index")
 
 	beego.Router("/api/attach/remove/", &controllers.DocumentController{}, "post:RemoveAttachment")
 	beego.Router("/api/:key/edit/?:id", &controllers.DocumentController{}, "*:Edit")
