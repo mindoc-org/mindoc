@@ -5,6 +5,8 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego"
+	"github.com/lifei6671/mindoc/cache"
+	"fmt"
 )
 
 //博文表
@@ -94,6 +96,26 @@ func (b *Blog) Find(blogId int) (*Blog,error) {
 
 	return b.Link()
 }
+
+//从缓存中读取文章
+func (b *Blog) FindFromCache(blogId int) (blog *Blog,err error) {
+	key := fmt.Sprintf("blog-id-%d",blogId);
+	obj := cache.Get(key)
+
+	if b,ok := obj.(Blog); ok {
+		blog = &b
+		blog.Link()
+		return
+	}
+	blog,err = b.Find(blogId)
+	if err == nil {
+		//默认一个小时
+		cache.Put(key,blog,time.Hour * 1)
+	}
+	return
+}
+
+
 //查找指定用户的指定文章
 func (b *Blog) FindByIdAndMemberId(blogId,memberId int) (*Blog,error) {
 	o := orm.NewOrm()
@@ -191,6 +213,9 @@ func (b *Blog) Save(cols ...string) error {
 	if b.BlogId > 0 {
 		b.Modified = time.Now()
 		_,err = o.Update(b,cols...)
+		key := fmt.Sprintf("blog-id-%d",b.BlogId);
+		cache.Delete(key)
+
 	}else{
 
 		b.Created = time.Now()

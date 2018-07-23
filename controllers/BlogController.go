@@ -32,7 +32,7 @@ func (c *BlogController) Index() {
 	}
 	blogReadSession := fmt.Sprintf("blog:read:%d",blogId)
 
-	blog,err := models.NewBlog().Find(blogId)
+	blog,err := models.NewBlog().FindFromCache(blogId)
 
 	if err != nil {
 		c.ShowErrorPage(404,"文章不存在")
