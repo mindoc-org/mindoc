@@ -715,12 +715,18 @@ func (book *Book) ImportBook(zipPath string) error {
 					originalLink := links[0][2]
 					var linkPath string
 					var err error
+					if strings.HasPrefix(originalLink,"<") {
+						originalLink = strings.TrimPrefix(originalLink,"<")
+					}
+					if strings.HasSuffix(originalLink,">") {
+						originalLink = strings.TrimSuffix(originalLink,">")
+					}
 					//如果是从根目录开始，
-					if strings.HasPrefix(originalLink,"/") {
-						linkPath,err = filepath.Abs(filepath.Join(tempPath,originalLink))
-					}else if strings.HasPrefix(originalLink, "./"){
+					if strings.HasPrefix(originalLink, "/") {
+						linkPath, err = filepath.Abs(filepath.Join(tempPath, originalLink))
+					} else if strings.HasPrefix(originalLink, "./") {
 						linkPath, err = filepath.Abs(filepath.Join(filepath.Dir(path), originalLink[1:]))
-					}else{
+					} else{
 						linkPath, err = filepath.Abs(filepath.Join(filepath.Dir(path), originalLink))
 					}
 
