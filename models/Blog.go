@@ -19,7 +19,7 @@ type Blog struct {
 	//排序序号
 	OrderIndex int 		`orm:"column(order_index);type(int);default(0)" json:"order_index"`
 	//所属用户
-	MemberId  int		`orm:"column(member_id);type(int);default(0):index" json:"member_id"`
+	MemberId  int		`orm:"column(member_id);type(int);default(0);index" json:"member_id"`
 	//用户头像
 	MemberAvatar string		`orm:"-" json:"member_avatar"`
 	//文章类型:0 普通文章/1 链接文章
