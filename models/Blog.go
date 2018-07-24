@@ -7,6 +7,9 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/mindoc/cache"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	"strings"
+	"github.com/qiniu/x/bytes.v7"
 )
 
 //博文表
@@ -223,6 +226,31 @@ func (b *Blog) Save(cols ...string) error {
 
 		b.Created = time.Now()
 		_,err = o.Insert(b)
+	}
+	//如果保存成功，则在后台处理文章中存在的外链问题
+	if err == nil {
+		go func(blog *Blog) {
+			bufio := bytes.NewReader([]byte(b.BlogRelease))
+			//解析文档中非本站的链接，并设置为新窗口打开
+			if content, err := goquery.NewDocumentFromReader(bufio); err == nil {
+
+				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
+					if src, ok := contentSelection.Attr("href"); ok {
+						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
+							//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
+							if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
+								contentSelection.SetAttr("target", "_blank")
+								if html, err := content.Html(); err == nil {
+									b.BlogRelease = html
+								}
+							}
+						}
+
+					}
+				})
+			}
+			o.Update(blog)
+		}(b)
 	}
 	return err
 }

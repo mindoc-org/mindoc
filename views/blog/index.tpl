@@ -49,6 +49,7 @@
             color: #666666;
             vertical-align: middle;
         }
+
         .blog-footer{
             margin: 25px auto;
             /*border-top: 1px solid #E5E5E5;*/
