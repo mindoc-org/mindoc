@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 
-    <title>{{.Model.BookName}} - Powered by MinDoc</title>
+    <title>{{.Title}} - Powered by MinDoc</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,8 +10,8 @@
     <meta name="renderer" content="webkit">
     <meta name="author" content="Minho" />
     <meta name="site" content="https://www.iminho.me" />
-    <meta name="keywords" content="{{.Model.BookName}}">
-    <meta name="description" content="{{.Model.Description}}">
+    <meta name="keywords" content="{{.Model.BookName}},{{.Title}}">
+    <meta name="description" content="{{.Title}}-{{.Model.Description}}">
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
