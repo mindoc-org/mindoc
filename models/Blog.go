@@ -104,11 +104,14 @@ func (b *Blog) Find(blogId int) (*Blog,error) {
 func (b *Blog) FindFromCache(blogId int) (blog *Blog,err error) {
 	key := fmt.Sprintf("blog-id-%d",blogId);
 	var temp Blog
-	if err := cache.Get(key,&temp); err == nil {
+	err = cache.Get(key,&temp);
+	if  err == nil {
 		b = &temp
 		b.Link()
-		beego.Info("从缓存读取文章成功 ->", key)
+		beego.Debug("从缓存读取文章成功 ->", key)
 		return b,nil
+	}else {
+		beego.Error("读取缓存失败 ->",err)
 	}
 
 	blog,err = b.Find(blogId)

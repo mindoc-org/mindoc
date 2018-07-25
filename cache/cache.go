@@ -4,7 +4,6 @@ import (
 	"github.com/astaxie/beego/cache"
 	"time"
 	"encoding/gob"
-	"fmt"
 	"bytes"
 	"errors"
 	"github.com/astaxie/beego"
@@ -27,11 +26,23 @@ func Get(key string,e interface{}) error {
 		err := decoder.Decode(e)
 
 		if err != nil {
-			fmt.Println("反序列化对象失败 ->", err)
+			beego.Error("反序列化对象失败 ->", err)
 		}
 		return err
+	}else if s,ok := val.(string); ok && s != "" {
+
+		buf := bytes.NewBufferString(s)
+
+		decoder := gob.NewDecoder(buf)
+
+		err := decoder.Decode(e)
+
+		if err != nil {
+		beego.Error("反序列化对象失败 ->", err)
 	}
-	return errors.New("value is not []byte")
+		return err
+	}
+	return errors.New("value is not []byte or string")
 }
 
 func GetMulti(keys []string) []interface{} {
