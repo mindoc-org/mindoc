@@ -35,8 +35,7 @@ func init() {
 	beego.InsertFilter("/book", beego.BeforeRouter, FilterUser)
 	beego.InsertFilter("/book/*", beego.BeforeRouter, FilterUser)
 	beego.InsertFilter("/api/*", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/blogs", beego.BeforeRouter,FilterUser)
-	beego.InsertFilter("/blogs/*", beego.BeforeRouter,FilterUser)
+	beego.InsertFilter("/manage/*", beego.BeforeRouter,FilterUser)
 
 	var FinishRouter = func(ctx *context.Context) {
 		ctx.ResponseWriter.Header().Add("MinDoc-Version", conf.VERSION)
