@@ -11,7 +11,7 @@
     <meta name="author" content="Minho" />
     <meta name="site" content="https://www.iminho.me" />
     <meta name="keywords" content="{{.Model.BookName}},{{.Title}}">
-    <meta name="description" content="{{.Title}}-{{.Model.Description}}">
+    <meta name="description" content="{{.Title}}-{{if .Description}}{{.Description}}{{else}}{{.Model.Description}}{{end}}">
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">

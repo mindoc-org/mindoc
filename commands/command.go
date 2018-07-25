@@ -24,6 +24,7 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils/filetil"
+	"github.com/astaxie/beego/cache/redis"
 )
 
 // RegisterDataBase 注册数据库
@@ -91,6 +92,8 @@ func RegisterModel() {
 		new(models.Label),
 		new(models.Blog),
 	)
+	gob.Register(models.Blog{})
+	gob.Register(models.Document{})
 	//migrate.RegisterMigration()
 }
 
@@ -100,28 +103,69 @@ func RegisterLogger(log string) {
 	logs.SetLogFuncCall(true)
 	logs.SetLogger("console")
 	logs.EnableFuncCallDepth(true)
-	logs.Async()
+
+	if beego.AppConfig.DefaultBool("log_is_async", true) {
+		logs.Async(1e3)
+	}
+	if log == "" {
+		log = conf.WorkingDir("runtime","logs")
+	}
 
 	logPath := filepath.Join(log, "log.log")
 
-	if _, err := os.Stat(logPath); os.IsNotExist(err) {
-
+	if _, err := os.Stat(log); os.IsNotExist(err) {
 		os.MkdirAll(log, 0777)
-
-		if f, err := os.Create(logPath); err == nil {
-			f.Close()
-			config := make(map[string]interface{}, 1)
-
-			config["filename"] = logPath
-
-			b, _ := json.Marshal(config)
-
-			beego.SetLogger("file", string(b))
-		}
 	}
 
+	config := make(map[string]interface{}, 1)
+
+	config["filename"] = logPath
+	config["perm"] = "0755"
+	config["rotate"] = true
+
+	if maxLines := beego.AppConfig.DefaultInt("log_maxlines", 1000000); maxLines > 0 {
+		config["maxLines"] = maxLines
+	}
+	if maxSize := beego.AppConfig.DefaultInt("log_maxsize", 1<<28); maxSize > 0 {
+		config["maxsize"] = maxSize
+	}
+	if !beego.AppConfig.DefaultBool("log_daily", true) {
+		config["daily"] = false
+	}
+	if maxDays := beego.AppConfig.DefaultInt("log_maxdays", 7); maxDays > 0 {
+		config["maxdays"] = maxDays
+	}
+	if level := beego.AppConfig.DefaultString("log_level", "Trace"); level != "" {
+		switch level {
+		case "Emergency":
+			config["level"] = beego.LevelEmergency;break
+		case "Alert":
+			config["level"] = beego.LevelAlert;break
+		case "Critical":
+			config["level"] = beego.LevelCritical;break
+		case "Error":
+			config["level"] = beego.LevelError; break
+		case "Warning":
+			config["level"] = beego.LevelWarning; break
+		case "Notice":
+			config["level"] = beego.LevelNotice; break
+		case "Informational":
+			config["level"] = beego.LevelInformational;break
+		case "Debug":
+			config["level"] = beego.LevelDebug;break
+		}
+	}
+	b, err := json.Marshal(config);
+	if  err != nil {
+		beego.Error("初始化文件日志时出错 ->",err)
+		beego.SetLogger("file", `{"filename":"`+ logPath + `"}`)
+	}else{
+		beego.SetLogger(logs.AdapterFile, string(b))
+	}
+
+
+
 	beego.SetLogFuncCall(true)
-	beego.BeeLogger.Async()
 }
 
 // RunCommand 注册orm命令行工具
@@ -270,6 +314,10 @@ func RegisterCache() {
 		beegoCache.DefaultEvery = cacheInterval
 		cache.Init(memory)
 	} else if cacheProvider == "redis" {
+		//设置Redis前缀
+		if key := beego.AppConfig.DefaultString("cache_redis_prefix",""); key != "" {
+			redis.DefaultKey = key
+		}
 		var redisConfig struct {
 			Conn     string `json:"conn"`
 			Password string `json:"password"`
@@ -320,7 +368,7 @@ func RegisterCache() {
 
 	} else {
 		cache.Init(&cache.NullCache{})
-		beego.Warn("不支持的缓存管道,缓存将禁用.")
+		beego.Warn("不支持的缓存管道,缓存将禁用 ->" ,cacheProvider)
 		return
 	}
 	beego.Info("缓存初始化完成.")

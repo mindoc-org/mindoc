@@ -8,7 +8,7 @@
     <meta name="author" content="Minho" />
     <meta name="site" content="https://www.iminho.me" />
     <meta name="keywords" content="{{.Model.BlogTitle}}">
-    <meta name="description" content="{{.Model.BlogTitle}}-{{.Model.BlogExcerpt}}">
+    <meta name="description" content="{{.Model.BlogTitle}}-{{.Description}}">
     <title>{{.Model.BlogTitle}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->

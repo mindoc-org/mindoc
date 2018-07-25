@@ -70,6 +70,7 @@ func (c *DocumentController) Index() {
 			c.Data["Title"] = doc.DocumentName
 			c.Data["Content"] = template.HTML(doc.Release)
 
+			c.Data["Description"] = utils.AutoSummary(doc.Release,120)
 		}
 	}else {
 		c.Data["Title"] = "概要"
@@ -207,6 +208,10 @@ func (c *DocumentController) Read() {
 		beego.Error(err)
 		c.Abort("500")
 	}
+
+
+	c.Data["Description"] =  utils.AutoSummary(doc.Release,120)
+
 
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)

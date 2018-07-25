@@ -3,7 +3,6 @@ package models
 import (
 	"time"
 
-	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -151,18 +150,18 @@ func (m *Document) RecursiveDocument(docId int) error {
 //将文档写入缓存
 func (m *Document) PutToCache() {
 	go func(m Document) {
-		if v, err := json.Marshal(&m); err == nil {
+
 			if m.Identify == "" {
 
-				if err := cache.Put("Document.Id."+strconv.Itoa(m.DocumentId), v, time.Second*3600); err != nil {
+				if err := cache.Put("Document.Id."+strconv.Itoa(m.DocumentId), m, time.Second*3600); err != nil {
 					beego.Info("文档缓存失败:", m.DocumentId)
 				}
 			} else {
-				if err := cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s", m.BookId, m.Identify), v, time.Second*3600); err != nil {
+				if err := cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s", m.BookId, m.Identify), m, time.Second*3600); err != nil {
 					beego.Info("文档缓存失败:", m.DocumentId)
 				}
 			}
-		}
+
 	}(*m)
 }
 
@@ -179,31 +178,35 @@ func (m *Document) RemoveCache() {
 
 //从缓存获取
 func (m *Document) FromCacheById(id int) (*Document, error) {
-	b := cache.Get("Document.Id." + strconv.Itoa(id))
-	if v, ok := b.([]byte); ok {
 
-		if err := json.Unmarshal(v, m); err == nil {
-			beego.Info("从缓存中获取文档信息成功", m.DocumentId)
-			return m, nil
-		}
+	var doc Document
+	if err := cache.Get("Document.Id."+strconv.Itoa(id), &m); err == nil {
+		m = &doc
+		beego.Info("从缓存中获取文档信息成功", m.DocumentId)
+		return m, nil
 	}
-	defer func() {
-		if m.DocumentId > 0 {
-			m.PutToCache()
-		}
-	}()
-	return m.Find(id)
+
+	if m.DocumentId > 0 {
+		m.PutToCache()
+	}
+	m,err := m.Find(id)
+
+	if err == nil {
+		m.PutToCache()
+	}
+	return m,err
 }
 
 //根据文档标识从缓存中查询文档
 func (m *Document) FromCacheByIdentify(identify string, bookId int) (*Document, error) {
-	b := cache.Get(fmt.Sprintf("Document.BookId.%d.Identify.%s", bookId, identify))
-	if v, ok := b.([]byte); ok {
-		if err := json.Unmarshal(v, m); err == nil {
-			beego.Info("从缓存中获取文档信息成功", m.DocumentId, identify)
-			return m, nil
-		}
+
+	key := fmt.Sprintf("Document.BookId.%d.Identify.%s", bookId, identify)
+
+	if err := cache.Get(key,m); err == nil {
+		beego.Info("从缓存中获取文档信息成功", key)
+		return m, nil
 	}
+
 	defer func() {
 		if m.DocumentId > 0 {
 			m.PutToCache()

@@ -29,3 +29,28 @@ func StripTags(s string) string  {
 
 	return src
 }
+//自动提取文章摘要
+func AutoSummary(body string,l int) string {
+
+	//匹配图片，如果图片语法是在代码块中，这里同样会处理
+	re := regexp.MustCompile(`<p>(.*?)</p>`)
+
+	contents := re.FindAllString(body, -1)
+
+	if len(contents) <= 0 {
+		return  ""
+	}
+	content := ""
+	for _,s := range contents {
+		b := strings.Replace(StripTags(s),"\n","", -1)
+
+		if l <= 0 {
+			break
+		}
+		l = l - len([]rune(b))
+
+		content += b
+
+	}
+	return content
+}

@@ -103,18 +103,18 @@ func (b *Blog) Find(blogId int) (*Blog,error) {
 //从缓存中读取文章
 func (b *Blog) FindFromCache(blogId int) (blog *Blog,err error) {
 	key := fmt.Sprintf("blog-id-%d",blogId);
-	obj := cache.Get(key)
-
-	if b,ok := obj.(Blog); ok {
-		blog = &b
-		blog.Link()
+	var temp Blog
+	if err := cache.Get(key,&temp); err == nil {
+		b = &temp
+		b.Link()
 		beego.Info("从缓存读取文章成功 ->", key)
-		return
+		return b,nil
 	}
+
 	blog,err = b.Find(blogId)
 	if err == nil {
 		//默认一个小时
-		if err := cache.Put(key,*blog,time.Hour * 1); err != nil {
+		if err := cache.Put(key,blog,time.Hour * 1); err != nil {
 			beego.Error("将文章存入缓存失败 ->",err)
 		}
 	}
@@ -219,7 +219,7 @@ func (b *Blog) Save(cols ...string) error {
 	if b.BlogId > 0 {
 		b.Modified = time.Now()
 		_,err = o.Update(b,cols...)
-		key := fmt.Sprintf("blog-id-%d",b.BlogId);
+		key := fmt.Sprintf("blog-id-%d", b.BlogId )
 		cache.Delete(key)
 
 	}else{
@@ -320,7 +320,7 @@ func (b *Blog) QueryNext(blogId int) (*Blog,error) {
 
 	err := o.QueryTable(b.TableNameWithPrefix()).Filter("order_index__gte",blog.OrderIndex).Filter("blog_id__gt",blogId).OrderBy("-order_index","-blog_id").One(blog)
 
-	if err != nil {
+	if err != nil && err != orm.ErrNoRows{
 		beego.Error("查询文章时出错 ->",err)
 	}
 	return blog,err
@@ -338,7 +338,7 @@ func (b *Blog) QueryPrevious(blogId int) (*Blog,error) {
 
 	err := o.QueryTable(b.TableNameWithPrefix()).Filter("order_index__lte",blog.OrderIndex).Filter("blog_id__lt",blogId).OrderBy("-order_index","-blog_id").One(blog)
 
-	if err != nil {
+	if err != nil && err != orm.ErrNoRows{
 		beego.Error("查询文章时出错 ->",err)
 	}
 	return blog,err
@@ -353,13 +353,13 @@ func (b *Blog) LinkAttach() (err error) {
 	//当不是关联文章时，用文章ID去查询附件
 	if b.BlogType != 1 || b.DocumentId <= 0 {
 		_, err = o.QueryTable(NewAttachment().TableNameWithPrefix()).Filter("document_id", b.BlogId).Filter("book_id",0).All(&attachList)
-		if err != nil {
+		if err != nil && err != orm.ErrNoRows{
 			beego.Error("查询文章附件时出错 ->", err)
 		}
 	}else {
 		_, err = o.QueryTable(NewAttachment().TableNameWithPrefix()).Filter("document_id", b.DocumentId).Filter("book_id", b.BookId).All(&attachList)
 
-		if err != nil {
+		if err != nil && err != orm.ErrNoRows{
 			beego.Error("查询文章附件时出错 ->", err)
 		}
 	}

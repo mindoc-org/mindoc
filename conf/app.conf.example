@@ -26,6 +26,8 @@ sessionproviderconfig=./runtime/session
 #时区设置
 timezone = Asia/Shanghai
 
+
+
 ####################MySQL 数据库配置###########################
 #支持MySQL和sqlite3两种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
 db_adapter=mysql
@@ -87,12 +89,6 @@ export_queue_limit_num=100
 #导出项目的缓存目录配置
 export_output_path=./runtime/cache
 
-###############配置CDN加速##################
-cdn=
-cdnjs=
-cdncss=
-cdnimg=
-
 ################百度地图密钥#################
 baidumapkey=
 
@@ -116,35 +112,73 @@ ldap_user_role=2
 #ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
 ldap_filter=objectClass=posixAccount
 
+###############配置CDN加速##################
+cdn=
+cdnjs=
+cdncss=
+cdnimg=
 
 ######################缓存配置###############################
+
 #是否开启缓存，true 开启/false 不开启
 cache=false
+
 #缓存方式:memory/memcache/redis/file
 cache_provider=memory
+
 #当配置缓存方式为memory时,内存回收时间,单位是秒
 cache_memory_interval=120
+
 #当缓存方式配置为file时,缓存的储存目录
 cache_file_path=./runtime/cache/
+
 #缓存文件后缀
 cache_file_suffix=.bin
+
 #文件缓存目录层级
 cache_file_dir_level=2
+
 #文件缓存的默认过期时间
 cache_file_expiry=3600
+
 #memcache缓存服务器地址
 cache_memcache_host=127.0.0.1:11211
+
 #redis服务器地址
 cache_redis_host=127.0.0.1:6379
+
 #redis数据库索引
 cache_redis_db=0
+
 #redis服务器密码
 cache_redis_password=
 
+#缓存键的前缀
+cache_redis_prefix=mindoc::cache
 
 
+#########日志储存配置##############
 
+#日志保存路径，在linux上，自动创建的日志文件请不要删除，否则将无法写入日志
+log_path=./runtime/logs
 
+#每个文件保存的最大行数，默认值 1000000
+log_maxlines=1000000
+
+# 每个文件保存的最大尺寸，默认值是 1 << 28, //256 MB
+log_maxsize=
+
+# 是否按照每天 logrotate，默认是 true
+log_daily=true
+
+# 文件最多保存多少天，默认保存 7 天
+log_maxdays=30
+
+# 日志保存的时候的级别，默认是 Trace 级别,可选值： Emergency/Alert/Critical/Error/Warning/Notice/Informational/Debug/Trace
+log_level=Trace
+
+# 是否异步生成日志，默认是 true
+log_is_async=true
 
 
 

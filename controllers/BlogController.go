@@ -15,6 +15,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"html/template"
 	"encoding/json"
+	"github.com/lifei6671/mindoc/utils"
 )
 
 type BlogController struct{
@@ -58,6 +59,13 @@ func (c *BlogController) Index() {
 	c.Data["Model"] = blog
 	c.Data["Content"] = template.HTML(blog.BlogRelease)
 
+	if blog.BlogExcerpt == "" {
+		c.Data["Description"] = utils.AutoSummary(blog.BlogRelease,120)
+	}else{
+		c.Data["Description"] = blog.BlogExcerpt
+	}
+
+
 	if nextBlog,err := models.NewBlog().QueryNext(blogId);err == nil {
 		c.Data["Next"] = nextBlog
 	}
@@ -86,6 +94,10 @@ func (c *BlogController) List() {
 		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 		for _,blog := range blogList {
+			//如果没有添加文章摘要，则自动提取
+			if blog.BlogExcerpt == "" {
+				blog.BlogExcerpt = utils.AutoSummary(blog.BlogRelease,120)
+			}
 			blog.Link()
 		}
 	} else {
