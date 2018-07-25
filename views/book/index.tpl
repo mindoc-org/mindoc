@@ -292,12 +292,12 @@
             context.fillRect(0,0,170,230);
 
             //设置字体样式
-            context.font = "bold 20px SimSun";
+            context.font = "600 20px Helvetica";
             context.textAlign = "left";
             //设置字体填充颜色
             context.fillStyle = "#3E403E";
 
-            var font = $font;
+            var font = $.trim($font);
 
             var lineWidth = 0; //当前行的绘制的宽度
             var lastTextIndex = 0; //已经绘制上canvas最后的一个字符的下标
@@ -367,6 +367,9 @@
         $("#deleteBookModal").find("input[name='identify']").val($id);
         $("#deleteBookModal").modal("show");
     }
+    /**
+     * 复制项目
+     * */
     function copyBook($id){
         var index = layer.load()
         $.ajax({
@@ -391,12 +394,45 @@
     }
 
     $(function () {
+        /**
+         * 处理创建项目弹窗
+         * */
         $("#addBookDialogModal").on("show.bs.modal",function () {
             window.bookDialogModal = $(this).find("#addBookDialogForm").html();
             drawBookCover("bookCover","默认封面");
         }).on("hidden.bs.modal",function () {
             $(this).find("#addBookDialogForm").html(window.bookDialogModal);
         });
+        /**
+         * 处理导入项目弹窗
+         * */
+        $("#importBookDialogModal").on("show.bs.modal",function () {
+            window.importBookDialogModal = $(this).find("#importBookDialogForm").html();
+            $("#import-book-upload").fileinput({
+                'uploadUrl':"{{urlfor "BookController.Import"}}",
+                'theme': 'fa',
+                'showPreview': false,
+                'showUpload' : false,
+                'required': true,
+                'validateInitialCount': true,
+                "language" : "zh",
+                'allowedFileExtensions': ['zip'],
+                'msgPlaceholder' : '请选择Zip文件',
+                'elErrorContainer' : "#import-book-form-error-message",
+                'uploadExtraData' : function () {
+                    var book = {};
+                    var $then = $("#importBookDialogForm");
+                    book.book_name = $then.find("input[name='book_name']").val();
+                    book.identify = $then.find("input[name='identify']").val();
+                    book.description = $then.find('textarea[name="description"]').val()
+
+                    return book;
+                }
+            });
+        }).on("hidden.bs.modal",function () {
+            $(this).find("#importBookDialogForm").html(window.importBookDialogModal);
+        });
+
         /**
          * 创建项目
          */
@@ -459,39 +495,13 @@
                 return showError("服务器异常");
             });
             return false;
-        });
-        /**
-         * 当填写项目标题后，绘制项目封面
-         */
-        $("#bookName").on("blur",function () {
-           var txt = $(this).val();
-           if(txt !== ""){
-               drawBookCover("bookCover",txt);
-           }
-        });
-        /**
-         * 删除项目
-         */
-        $("#deleteBookForm").ajaxForm({
-            beforeSubmit : function () {
-                $("#btnDeleteBook").button("loading");
-            },
-            success : function (res) {
-                if(res.errcode === 0){
-                    window.location = window.location.href;
-                }else{
-                    showError(res.message,"#form-error-message2");
-                }
-                $("#btnDeleteBook").button("reset");
-            },
-            error : function () {
-                showError("服务器异常","#form-error-message2");
-                $("#btnDeleteBook").button("reset");
+        }).on("blur","#bookName",function () {
+            var txt = $("#bookName").val();
+            if(txt !== ""){
+                drawBookCover("bookCover",txt);
             }
-        });
-
-        $("#btnImportBook").on("click",function () {
-            var $this = $(this);
+        }).on("click","#btnImportBook",function () {
+            console.log("aa");
             var $then = $(this).parents("#importBookDialogForm");
 
 
@@ -517,11 +527,43 @@
             if (filesCount <= 0) {
                 return showError("请选择需要上传的文件","#import-book-form-error-message");
             }
-           //$("#importBookDialogForm").submit();
+            //$("#importBookDialogForm").submit();
             $("#btnImportBook").button("loading");
             $('#import-book-upload').fileinput('upload');
+        }).on("fileuploaded","#import-book-upload",function (event, data, previewId, index){
 
+            if(data.response.errcode === 0 || data.response.errcode === '0'){
+                showSuccess(data.response.message,"#import-book-form-error-message");
+            }else{
+                showError(data.response.message,"#import-book-form-error-message");
+            }
+            $("#btnImportBook").button("reset");
+            return true;
         });
+
+        /**
+         * 删除项目
+         */
+        $("#deleteBookForm").ajaxForm({
+            beforeSubmit : function () {
+                $("#btnDeleteBook").button("loading");
+            },
+            success : function (res) {
+                if(res.errcode === 0){
+                    window.location = window.location.href;
+                }else{
+                    showError(res.message,"#form-error-message2");
+                }
+                $("#btnDeleteBook").button("reset");
+            },
+            error : function () {
+                showError("服务器异常","#form-error-message2");
+                $("#btnDeleteBook").button("reset");
+            }
+        });
+
+
+
         window.app = new Vue({
             el : "#bookList",
             data : {
@@ -533,38 +575,6 @@
         });
         Vue.nextTick(function () {
             $("[data-toggle='tooltip']").tooltip();
-        });
-
-        $("#import-book-upload").fileinput({
-            'uploadUrl':"{{urlfor "BookController.Import"}}",
-            'theme': 'fa',
-            'showPreview': false,
-            'showUpload' : false,
-            'required': true,
-            'validateInitialCount': true,
-            "language" : "zh",
-            'allowedFileExtensions': ['zip'],
-            'msgPlaceholder' : '请选择Zip文件',
-            'elErrorContainer' : "#import-book-form-error-message",
-            'uploadExtraData' : function () {
-                var book = {};
-                var $then = $("#importBookDialogForm");
-                book.book_name = $then.find("input[name='book_name']").val();
-                book.identify = $then.find("input[name='identify']").val();
-                book.description = $then.find('textarea[name="description"]').val()
-
-                return book;
-            }
-        });
-        $("#import-book-upload").on("fileuploaded",function (event, data, previewId, index){
-
-            if(data.response.errcode === 0 || data.response.errcode === '0'){
-                showSuccess(data.response.message,"#import-book-form-error-message");
-            }else{
-                showError(data.response.message,"#import-book-form-error-message");
-            }
-            $("#btnImportBook").button("reset");
-            return true;
         });
     });
 </script>
