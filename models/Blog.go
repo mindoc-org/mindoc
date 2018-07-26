@@ -321,7 +321,7 @@ func (b *Blog) QueryNext(blogId int) (*Blog,error) {
 		return b,err
 	}
 
-	err := o.QueryTable(b.TableNameWithPrefix()).Filter("order_index__gte",blog.OrderIndex).Filter("blog_id__gt",blogId).OrderBy("-order_index","-blog_id").One(blog)
+	err := o.QueryTable(b.TableNameWithPrefix()).Filter("order_index__gte",blog.OrderIndex).Filter("blog_id__gt",blogId).OrderBy("order_index","blog_id").One(blog)
 
 	if err != nil && err != orm.ErrNoRows{
 		beego.Error("查询文章时出错 ->",err)
