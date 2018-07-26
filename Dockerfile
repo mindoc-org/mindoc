@@ -38,6 +38,7 @@ RUN	 go get -u github.com/golang/dep/cmd/dep && dep ensure  && \
     rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock simsun.ttc
 
 ADD start.sh /go/src/github.com/lifei6671/mindoc
+ADD simsun.ttc /usr/share/fonts/win/
 
 FROM alpine:latest
 
@@ -64,14 +65,13 @@ COPY --from=0 /var/glibc.apk .
 COPY --from=0 /var/glibc-bin.apk .
 COPY --from=0 /etc/apk/keys/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
 COPY --from=0 /var/linux-installer.py .
-ADD simsun.ttc /usr/share/fonts/win/
-
-RUN chmod a+r /usr/share/fonts/win/simsun.ttc
+COPY --from=0 /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
 
 RUN  apk add glibc-bin.apk glibc.apk && \
     /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
     echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
-    rm -rf glibc.apk glibc-bin.apk /var/cache/apk/*
+    rm -rf glibc.apk glibc-bin.apk /var/cache/apk/* && \
+    chmod a+r /usr/share/fonts/win/simsun.ttc
 
 
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/calibre/lib
