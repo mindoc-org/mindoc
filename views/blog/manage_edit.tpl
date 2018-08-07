@@ -8,6 +8,8 @@
     <title>编辑文章 - Powered by MinDoc</title>
     <script type="text/javascript">
         window.baseUrl = "{{.BaseUrl}}";
+        window.katex = { js: "{{cdnjs "/static/katex/katex"}}",css: "{{cdncss "/static/katex/katex"}}"};
+        window.editormdLib = "{{cdnjs "/static/editor.md/lib/"}}";
         window.editor = null;
         window.editURL = "{{urlfor "BlogController.ManageEdit" "blogId" .Model.BlogId}}";
         window.imageUploadURL = "{{urlfor "BlogController.Upload" "blogId" .Model.BlogId}}";

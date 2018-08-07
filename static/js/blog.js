@@ -1,12 +1,12 @@
 $(function () {
     editormd.katexURL = {
-        js  : window.baseUrl + "/static/katex/katex",
-        css : window.baseUrl + "/static/katex/katex"
+        js  : window.katex.js,
+        css : window.katex.css
     };
     window.editor = editormd("docEditor", {
         width: "100%",
         height: "100%",
-        path: window.baseUrl + "/static/editor.md/lib/",
+        path: window.editormdLib,
         toolbar: true,
         placeholder: "本编辑器支持 Markdown 编辑，左边编写，右边预览。",
         imageUpload: true,
