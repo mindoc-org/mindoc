@@ -286,11 +286,11 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/editor.md/editormd.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/editor.md/editormd.js"}}?_=1533638577" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/markdown.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/editor.js"}}?_=1533638577" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/markdown.js"}}?_=1533638577" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
 
