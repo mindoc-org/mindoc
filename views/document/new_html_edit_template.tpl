@@ -19,19 +19,18 @@
         window.sortURL = "{{urlfor "BookController.SaveSort" ":key" .Model.Identify}}";
         window.historyURL = "{{urlfor "DocumentController.History"}}";
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
+        window.highlightStyle = "{{.HighlightStyle}}";
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/prettify/themes/atelier-estuary-dark.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
-    {{/*<link href="/static/bootstrap/plugins/bootstrap-wysiwyg/external/google-code-prettify/prettify.css" rel="stylesheet">*/}}
+    <link href="{{cdncss "/static/editor.md/lib/highlight/styles/"}}{{if .HighlightStyle}}{{.HighlightStyle}}{{else}}{{end}}.css" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/quill/quill.core.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/quill/quill.snow.css"}}" rel="stylesheet">
@@ -381,8 +380,7 @@
 <script src="{{cdnjs "/static/quill/quill.icons.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/highlight/highlight.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/highlight/highlightjs-line-numbers.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/quill.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
@@ -415,7 +413,7 @@
                     window.uploader = WebUploader.create({
                         auto: true,
                         dnd : true,
-                        swf: '/static/webuploader/Uploader.swf',
+                        swf: '{{.BaseUrl}}/static/webuploader/Uploader.swf',
                         server: '{{urlfor "DocumentController.Upload"}}',
                         formData : { "identify" : {{.Model.Identify}},"doc_id" :  window.selectNode.id },
                         pick: "#filePicker",

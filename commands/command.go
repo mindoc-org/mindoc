@@ -43,7 +43,7 @@ func RegisterDataBase() {
 		if err == nil {
 			orm.DefaultTimeLoc = location
 		} else {
-			beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量:", err)
+			beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量->", err)
 		}
 
 		port := beego.AppConfig.String("db_port")
@@ -51,7 +51,7 @@ func RegisterDataBase() {
 		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
 
 		if err := orm.RegisterDataBase("default", "mysql", dataSource); err != nil {
-			beego.Error("注册默认数据库失败:", err)
+			beego.Error("注册默认数据库失败->", err)
 			os.Exit(1)
 		}
 	} else if adapter == "sqlite3" {
@@ -67,7 +67,7 @@ func RegisterDataBase() {
 		err := orm.RegisterDataBase("default", "sqlite3", database)
 
 		if err != nil {
-			beego.Error("注册默认数据库失败:", err)
+			beego.Error("注册默认数据库失败->", err)
 		}
 	} else {
 		beego.Error("不支持的数据库类型.")
@@ -252,6 +252,7 @@ func ResolveCommand(args []string) {
 	if err := beego.LoadAppConfig("ini", conf.ConfigurationFile);err != nil {
 		log.Fatal("An error occurred:", err)
 	}
+	conf.AutoLoadDelay = beego.AppConfig.DefaultInt("config_auto_delay",0)
 	uploads := conf.WorkingDir("uploads")
 
 	os.MkdirAll(uploads, 0666)
@@ -372,6 +373,40 @@ func RegisterCache() {
 		return
 	}
 	beego.Info("缓存初始化完成.")
+}
+
+//自动加载配置文件.修改了监听端口号和数据库配置无法自动生效.
+func RegisterAutoLoadConfig()  {
+	if conf.AutoLoadDelay > 0 {
+		ticker := time.NewTicker(time.Second * time.Duration(conf.AutoLoadDelay))
+
+		go func() {
+			f,err := os.Stat(conf.ConfigurationFile)
+			if err != nil {
+				beego.Error("读取配置文件时出错 ->",err)
+				return
+			}
+			modTime := f.ModTime()
+			for {
+				select {
+				case <-ticker.C:
+					f,err := os.Stat(conf.ConfigurationFile)
+					if err != nil {
+						beego.Error("读取配置文件时出错 ->",err)
+						break
+					}
+					if modTime != f.ModTime() {
+						if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
+							beego.Error("An error occurred:", err)
+							break
+						}
+						modTime = f.ModTime()
+						beego.Info("配置文件已加载")
+					}
+				}
+			}
+		}()
+	}
 }
 
 func init() {

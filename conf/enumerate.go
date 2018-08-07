@@ -68,6 +68,7 @@ var (
 	WorkingDirectory  = "./"
 	LogFile           = "./runtime/logs"
 	BaseUrl			  = ""
+	AutoLoadDelay	  = 0
 )
 
 // app_key

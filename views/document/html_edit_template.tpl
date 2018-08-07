@@ -29,7 +29,7 @@
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/wangEditor/css/wangEditor.min.css"}}" rel="stylesheet">
 
-    <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/lib/highlight/styles/"}}{{if .HighlightStyle}}{{.HighlightStyle}}{{else}}github{{end}}.css" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
@@ -212,7 +212,7 @@
                     window.uploader = WebUploader.create({
                         auto: true,
                         dnd : true,
-                        swf: '/static/webuploader/Uploader.swf',
+                        swf: '{{.BaseUrl}}/static/webuploader/Uploader.swf',
                         server: '{{urlfor "DocumentController.Upload"}}',
                         formData : { "identify" : {{.Model.Identify}},"doc_id" :  window.selectNode.id },
                         pick: "#filePicker",
@@ -271,8 +271,6 @@
                 }
             }
         });
-
-
     });
 </script>
 </body>

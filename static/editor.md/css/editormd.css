@@ -3636,7 +3636,6 @@
   overflow: auto;
   font-size: 85%;
   line-height: 1.45;
-  background-color: #f7f7f7;
   border-radius: 3px;
 }
 
@@ -3657,7 +3656,6 @@
   overflow: initial;
   line-height: inherit;
   word-wrap: normal;
-  background-color: transparent;
   border: 0;
 }
 
@@ -3865,7 +3863,6 @@
 }
 .editormd-preview-container pre, .editormd-html-preview pre {
   border: 1px solid #ddd;
-  background: #f6f6f6;
   padding: 10px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;

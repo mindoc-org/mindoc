@@ -28,7 +28,6 @@
             <strong class="search-title">显示标签列表</strong>
         </div>
         <div class="row">
-
             <div class="hide tag-container-outer" style="border: 0;margin-top: 0;padding: 5px 15px;min-height: 200px;">
                 <span class="tags">
                     {{range  $index,$item := .Labels}}

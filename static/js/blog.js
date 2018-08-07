@@ -20,6 +20,7 @@ $(function () {
         htmlDecode: "style,script,iframe,title,onmouseover,onmouseout,style",
         lineNumbers: false,
         sequenceDiagram: true,
+        highlightStyle: window.highlightStyle ? window.highlightStyle : "github",
         tocStartLevel: 1,
         tocm: true,
         tex:true,

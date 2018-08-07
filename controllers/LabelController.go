@@ -44,18 +44,18 @@ func (c *LabelController) Index() {
 			c.Abort("500")
 		}
 	}
-	member_id := 0
+	memberId := 0
 	if c.Member != nil {
-		member_id = c.Member.MemberId
+		memberId = c.Member.MemberId
 	}
-	searchResult, totalCount, err := models.NewBook().FindForLabelToPager(labelName, pageIndex, conf.PageSize, member_id)
+	searchResult, totalCount, err := models.NewBook().FindForLabelToPager(labelName, pageIndex, conf.PageSize, memberId)
 
-	if err != nil {
-		beego.Error(err)
-		return
+	if err != nil && err != orm.ErrNoRows {
+		beego.Error("查询标签时出错 ->", err)
+		c.ShowErrorPage(500, "查询文档列表时出错")
 	}
 	if totalCount > 0 {
-		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize,c.BaseUrl())
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
 	} else {
 		c.Data["PageHtml"] = ""
@@ -74,8 +74,8 @@ func (c *LabelController) List() {
 
 	labels, totalCount, err := models.NewLabel().FindToPager(pageIndex, pageSize)
 
-	if err != nil {
-		c.ShowErrorPage(50001, err.Error())
+	if err != nil && err != orm.ErrNoRows {
+		c.ShowErrorPage(500, err.Error())
 	}
 	if totalCount > 0 {
 		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())

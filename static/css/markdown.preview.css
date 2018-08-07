@@ -36,18 +36,6 @@
 .editormd-preview-container table tr {
     background-color: #fff
 }
-.editormd-preview-container code {
-    padding: .2em 0;
-    margin-left: 3px;
-    margin-right: 3px;
-    background-color: #eee;
-    border-radius: 3px;
-    font-size: 1em;
-    font-family: Consolas,"Liberation Mono",Menlo,Courier,'Microsoft Yahei',monospace;
-    border: 0;
-    color: #555;
-    word-break: break-all;
-}
 
 /**************TOC*******************/
 .markdown-toc{
@@ -56,17 +44,35 @@
 }
 /***********代码样式*****************/
 .markdown-body .highlight pre, .markdown-body pre{
-    padding: 0;
-    font-size: 12px;
-    border-radius:0;
-    line-height: 1.4em;
+    padding: 1em;
+    border: none;
+    overflow: auto;
+    line-height: 1.45;
+    max-height: 35em;
+    position: relative;
+    /*background: url(../editor.md/lib/highlight/blueprint.png) #F6F6F6;*/
+    -moz-background-size: 30px,30px;
+    -o-background-size: 30px,30px;
+    -webkit-background-size: 30px,30px;
+    background-size: 30px,30px;
+    border-radius:4px;
+    word-break:break-all;
+    word-wrap:break-word;
+}
+.editormd-preview-container pre.hljs>code {
+    border-radius: 3px;
+    font-size: 1.1em;
+    font-family: "Source Code Pro",Consolas,"Liberation Mono",Menlo,Courier,'Microsoft Yahei',monospace;
+    border: 0;
+    word-break: break-all;
+    overflow-y: auto; overflow-x: hidden;
+    overflow-wrap: normal;
+    white-space: inherit
 }
 .editormd-preview-container pre.prettyprint, .editormd-html-preview pre.prettyprint {
     padding: 0;
 }
-.hljs{
-    padding: 10px 15px !important;
-}
+
 .editormd-preview-container ol.linenums, .editormd-html-preview ol.linenums{
     color: #999;
 }

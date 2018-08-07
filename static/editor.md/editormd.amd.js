@@ -26,7 +26,9 @@
             var cmAddonPath = "codemirror/addon/";
 
             var codeMirrorModules = [
-                "jquery", "marked", "prettify",
+                "jquery", "marked",
+                //"prettify",
+                "highlight/highlight",
                 "katex", "raphael", "underscore", "flowchart",  "jqueryflowchart",  "sequenceDiagram",
 
                 "codemirror/lib/codemirror",
@@ -239,6 +241,7 @@
         flowChart            : false,          // flowChart.js only support IE9+
         sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
         previewCodeHighlight : true,
+        highlightStyle       : "github",
                 
         toolbar              : true,           // show/hide toolbar
         toolbarAutoFixed     : true,           // on window scroll auto fixed position
@@ -653,7 +656,10 @@
                                 
                             if (settings.previewCodeHighlight) 
                             {
-                                editormd.loadScript(loadPath + "prettify.min", function() {
+                                // editormd.loadScript(loadPath + "prettify.min", function() {
+                                //     loadFlowChartOrSequenceDiagram();
+                                // });
+                                editormd.loadScript(loadPath + "highlight/highlight", function() {
                                     loadFlowChartOrSequenceDiagram();
                                 });
                             } 
@@ -1543,11 +1549,16 @@
             
             if (settings.previewCodeHighlight) 
             {
-                previewContainer.find("pre").addClass("prettyprint linenums");
-                
-                if (typeof prettyPrint !== "undefined")
-                {                    
-                    prettyPrint();
+                // previewContainer.find("pre").addClass("prettyprint");
+                //
+                // if (typeof prettyPrint !== "undefined")
+                // {
+                //     prettyPrint();
+                // }
+                if (typeof hljs !== "undefined") {
+                    previewContainer.find('pre').each(function (i, block) {
+                        hljs.highlightBlock(block);
+                    });
                 }
             }
 
@@ -4064,8 +4075,11 @@
             
         if (settings.previewCodeHighlight) 
         {
-            div.find("pre").addClass("prettyprint linenums");
-            prettyPrint();
+            //div.find("pre").addClass("prettyprint");
+            //prettyPrint();
+            div.find("pre").each(function (i, block) {
+                hljs.highlightBlock(block);
+            });
         }
         
         if (!editormd.isIE8) 

@@ -22,9 +22,8 @@
     <link href="{{cdncss "/static/css/kancloud.css"}}?_=1531286622" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/prettify/themes/prettify.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css?_=1531286622"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/highlight/styles/vs.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css?_=15312866210"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/lib/highlight/styles/"}}{{if .HighlightStyle}}{{.HighlightStyle}}{{else}}github{{end}}.css" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css"}}" media="print" rel="stylesheet">
 
@@ -278,8 +277,7 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/highlight/highlight.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/highlight/highlightjs-line-numbers.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js"}}" type="text/javascript"></script>

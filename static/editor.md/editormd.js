@@ -580,10 +580,14 @@
                         editormd.loadScript(loadPath + "marked.min", function() {
 
                             editormd.$marked = marked;
-                                
+
+                            if(!settings.highlightStyle){
+                                settings.highlightStyle = "github";
+                            }
                             if (settings.previewCodeHighlight) 
                             {
-                                editormd.loadScript(loadPath + "prettify.min", function() {
+                                editormd.loadCSS(loadPath + "highlight/styles/" + settings.highlightStyle);
+                                editormd.loadScript(loadPath + "highlight/highlight", function() {
                                     loadFlowChartOrSequenceDiagram();
                                 });
                             } 
@@ -1473,12 +1477,15 @@
             
             if (settings.previewCodeHighlight) 
             {
-                previewContainer.find("pre").addClass("prettyprint linenums");
-                
-                if (typeof prettyPrint !== "undefined")
-                {                    
-                    prettyPrint();
-                }
+                // previewContainer.find("pre").addClass("prettyprint");
+                //
+                // if (typeof prettyPrint !== "undefined")
+                // {
+                //     prettyPrint();
+                // }
+                previewContainer.find("pre").each(function (i, block) {
+                    hljs.highlightBlock(block);
+                });
             }
 
             return this;
@@ -3994,7 +4001,7 @@
             
         if (settings.previewCodeHighlight) 
         {
-            div.find("pre").addClass("prettyprint linenums");
+            div.find("pre").addClass("prettyprint");
             prettyPrint();
         }
         

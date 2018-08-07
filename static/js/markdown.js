@@ -23,6 +23,8 @@ $(function () {
         sequenceDiagram: true,
         tocStartLevel: 1,
         tocm: true,
+        previewCodeHighlight: 1,
+        highlightStyle: window.highlightStyle ? window.highlightStyle : "github",
         tex:true,
         saveHTMLToTextarea: true,
 

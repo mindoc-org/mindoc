@@ -47,6 +47,8 @@ func (d *Daemon) Run() {
 
 	commands.RegisterFunction()
 
+	commands.RegisterAutoLoadConfig()
+
 	beego.ErrorController(&controllers.ErrorController{})
 
 	fmt.Printf("MinDoc version => %s\nbuild time => %s\nstart directory => %s\n%s\n", conf.VERSION, conf.BUILD_TIME, os.Args[0], conf.GO_VERSION)

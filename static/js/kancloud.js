@@ -79,7 +79,7 @@ function initHighlighting() {
             }
             hljs.highlightBlock(block);
         });
-        hljs.initLineNumbersOnLoad();
+        // hljs.initLineNumbersOnLoad();
     }catch (e){
         console.log(e);
     }

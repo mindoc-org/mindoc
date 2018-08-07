@@ -1,4 +1,4 @@
-appname = godoc
+appname = mindoc
 # httpaddr = 127.0.0.1
 httpport = 8181
 runmode = dev
@@ -9,6 +9,15 @@ copyrequestbody = true
 baseurl=
 #默认Session生成Key的秘钥
 beegoserversessionkey=123456
+
+#########代码高亮样式################
+#样式演示地址：https://highlightjs.org/static/demo/
+highlight_style=github
+
+########配置文件自动加载##################
+#大于0时系统会自动检测配置文件是否变动，变动后自动加载并生效,单位是秒。监听端口和数据库配置无效
+config_auto_delay=0
+
 
 ########Session储存方式##############
 #以文件方式储存

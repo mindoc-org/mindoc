@@ -180,9 +180,9 @@ func (m *Document) RemoveCache() {
 func (m *Document) FromCacheById(id int) (*Document, error) {
 
 	var doc Document
-	if err := cache.Get("Document.Id."+strconv.Itoa(id), &m); err == nil {
+	if err := cache.Get("Document.Id."+strconv.Itoa(id), &m); err == nil && m.DocumentId > 0 {
 		m = &doc
-		beego.Info("从缓存中获取文档信息成功", m.DocumentId)
+		beego.Info("从缓存中获取文档信息成功 ->", m.DocumentId)
 		return m, nil
 	}
 
@@ -202,8 +202,8 @@ func (m *Document) FromCacheByIdentify(identify string, bookId int) (*Document, 
 
 	key := fmt.Sprintf("Document.BookId.%d.Identify.%s", bookId, identify)
 
-	if err := cache.Get(key,m); err == nil {
-		beego.Info("从缓存中获取文档信息成功", key)
+	if err := cache.Get(key,m); err == nil && m.DocumentId > 0 {
+		beego.Info("从缓存中获取文档信息成功 ->", key)
 		return m, nil
 	}
 

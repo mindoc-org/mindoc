@@ -20,6 +20,7 @@
         window.sortURL = "{{urlfor "BookController.SaveSort" ":key" .Model.Identify}}";
         window.historyURL = "{{urlfor "DocumentController.History"}}";
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
+        window.highlightStyle = "{{.HighlightStyle}}";
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -28,11 +29,9 @@
     <link href="{{cdncss "/static/editor.md/css/editormd.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/highlight/styles/vs.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/prettify/themes/prettify.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css"}}?_=1533630269" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>

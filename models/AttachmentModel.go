@@ -108,6 +108,10 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 	_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-attachment_id").Offset(offset).Limit(pageSize).All(&list)
 
 	if err != nil {
+		if err == orm.ErrNoRows {
+			beego.Info("没有查到附件 ->",err)
+			err = nil
+		}
 		return
 	}
 

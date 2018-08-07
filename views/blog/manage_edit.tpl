@@ -15,6 +15,7 @@
         window.blogId = {{.Model.BlogId}};
         window.blogVersion = {{.Model.Version}};
         window.removeAttachURL = "{{urlfor "BlogController.RemoveAttachment" ":id" .Model.BlogId}}";
+        window.highlightStyle = "{{.HighlightStyle}}";
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -23,11 +24,9 @@
     <link href="{{cdncss "/static/editor.md/css/editormd.css"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/highlight/styles/vs.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/prettify/themes/prettify.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css"}}?_=1533629945" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -220,7 +219,7 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/blog.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/blog.js"}}?_=1533629945" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         window.vueApp.lists = {{.AttachList}};
