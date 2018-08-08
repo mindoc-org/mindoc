@@ -108,8 +108,8 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
    
 # 支持 MinDoc
 
-![支付宝](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/alipay.jpg)
-![微信支付](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/weixin.jpg)
+![支付宝](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/alipay.png)
+![微信支付](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/weixin.png)
 
 # 项目截图
 
