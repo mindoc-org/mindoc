@@ -105,6 +105,11 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
         > docker-compose down
 
    更多 docker-compose 的使用相关的内容 请查看官网文档或百度
+   
+# 支持 MinDoc
+
+![支付宝](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/alipay.jpg)
+![微信支付](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/weixin.jpg)
 
 # 项目截图
 
