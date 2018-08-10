@@ -32,7 +32,7 @@ func RegisterDataBase() {
 	beego.Info("正在初始化数据库配置.")
 	adapter := beego.AppConfig.String("db_adapter")
 
-	if adapter == "mysql" {
+	if strings.EqualFold(adapter, "mysql") {
 		host := beego.AppConfig.String("db_host")
 		database := beego.AppConfig.String("db_database")
 		username := beego.AppConfig.String("db_username")
@@ -54,7 +54,7 @@ func RegisterDataBase() {
 			beego.Error("注册默认数据库失败->", err)
 			os.Exit(1)
 		}
-	} else if adapter == "sqlite3" {
+	} else if strings.EqualFold(adapter, "sqlite3") {
 		orm.DefaultTimeLoc = time.UTC
 		database := beego.AppConfig.String("db_database")
 		if strings.HasPrefix(database, "./") {
