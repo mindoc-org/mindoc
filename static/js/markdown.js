@@ -101,8 +101,8 @@ $(function () {
        } else if (name === "release") {
             if (Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0) {
                 if ($("#markdown-save").hasClass('change')) {
-                    var comfirm_result = confirm("编辑内容未保存，需要保存吗？")
-                    if (comfirm_result) {
+                    var confirm_result = confirm("编辑内容未保存，需要保存吗？");
+                    if (confirm_result) {
                         saveDocument(false, releaseBook);
                         return;
                     }
@@ -366,6 +366,10 @@ $(function () {
      */
     $("#documentTemplateModal").on("click", ".section>a[data-type]", function () {
         var $this = $(this).attr("data-type");
+        if($this === "customs"){
+            $("#displayCustomsTemplateModal").modal("show");
+            return;
+        }
         var body = $("#template-" + $this).html();
         if (body) {
             window.isLoad = true;
@@ -375,5 +379,33 @@ $(function () {
             resetEditorChanged(true);
         }
         $("#documentTemplateModal").modal('hide');
+    });
+
+    $("#displayCustomsTemplateModal").on("show.bs.modal",function () {
+        window.sessionStorage.setItem("displayCustomsTemplateList",$("#displayCustomsTemplateList").html());
+
+        var index ;
+        $.ajax({
+            beforeSend: function () {
+                index = layer.load(1, { shade: [0.1, '#fff'] });
+            },
+           url : window.template.listUrl,
+           data: {"identify":window.book.identify},
+           type: "POST",
+           dataType: "json",
+            success: function ($res) {
+
+            },
+            error : function () {
+
+            },
+            complete : function () {
+                layer.close(index);
+            }
+        });
+        $("#documentTemplateModal").modal("hide");
+    }).on("hidden.bs.modal",function () {
+        var cache = window.sessionStorage.getItem("displayCustomsTemplateList");
+        $("#displayCustomsTemplateList").html(cache);
     });
 });

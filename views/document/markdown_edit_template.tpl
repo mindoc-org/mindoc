@@ -23,6 +23,7 @@
         window.historyURL = "{{urlfor "DocumentController.History"}}";
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
         window.highlightStyle = "{{.HighlightStyle}}";
+        window.template = { "listUrl" : "{{urlfor "TemplateController.List"}}", "deleteUrl" : "{{urlfor "TemplateController.Delete"}}", "saveUrl" :"{{urlfor "TemplateController.Add"}}"}
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -231,7 +232,7 @@
 </div>
 
 <div class="modal fade" id="documentTemplateModal" tabindex="-1" role="dialog" aria-labelledby="请选择模板类型" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width: 780px;">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="modal-title">请选择模板类型</h4>
@@ -263,11 +264,69 @@
                             <li>表格支持</li>
                         </ul>
                     </div>
+                    <div class="section">
+                        <a data-type="customs" href="javascript:;"><i class="fa fa-book"></i></a>
+
+                        <h3><a data-type="customs" href="javascript:;">自定义模板</a></h3>
+                        <ul>
+                            <li>可将文档保存为自定义模板</li>
+                            <li>支持任意类型文档</li>
+                            <li>可以设置为全局模板</li>
+                        </ul>
+                    </div>
                 </div>
 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="displayCustomsTemplateModal" tabindex="-1" role="dialog" aria-labelledby="displayCustomsTemplateModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">自定义模板</h4>
+            </div>
+            <div class="modal-body text-center" id="displayCustomsTemplateList">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <td>#</td>
+                            <td class="col-sm-6">模板名称</td>
+                            <td class="col-sm-2">创建人</td>
+                            <td class="col-sm=2">创建时间</td>
+                            <td class="col-sm-2">操作</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{range $index,$item := .List}}
+                        <tr>
+                            <td>{{$item.HistoryId}}</td>
+                            <td>{{date_format $item.ModifyTime "2006-01-02 15:04:05"}}</td>
+                            <td>{{$item.ModifyName}}</td>
+                            <td>{{$item.Version}}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm delete-btn" data-id="{{$item.HistoryId}}" data-loading-text="删除中...">
+                                    删除
+                                </button>
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="6" class="text-center">暂无数据</td>
+                        </tr>
+                        {{end}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
             </div>
         </div>
     </div>

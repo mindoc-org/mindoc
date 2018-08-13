@@ -23,6 +23,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/requests"
 	"github.com/lifei6671/mindoc/utils/gopool"
 	"net/http"
+	"encoding/json"
 )
 
 var(
@@ -69,8 +70,17 @@ func NewBookResult() *BookResult {
 	return &BookResult{}
 }
 
+func (b *BookResult) String() string {
+	ret, err := json.Marshal(*b)
+
+	if err != nil {
+		return ""
+	}
+	return string(ret)
+}
+
 // 根据项目标识查询项目以及指定用户权限的信息.
-func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult, error) {
+func (m *BookResult) FindByIdentify(identify string, memberId int,cols ...string) (*BookResult, error) {
 	if identify == "" || memberId <= 0 {
 		return m, ErrInvalidParameter
 	}
@@ -78,7 +88,7 @@ func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult,
 
 	book := NewBook()
 
-	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify", identify).One(book)
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify", identify).One(book,cols...)
 
 	if err != nil {
 		return m, err

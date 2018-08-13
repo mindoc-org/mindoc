@@ -91,9 +91,11 @@ func RegisterModel() {
 		new(models.Migration),
 		new(models.Label),
 		new(models.Blog),
+		new(models.Template),
 	)
 	gob.Register(models.Blog{})
 	gob.Register(models.Document{})
+	gob.Register(models.Template{})
 	//migrate.RegisterMigration()
 }
 

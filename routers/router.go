@@ -77,6 +77,11 @@ func init() {
 	beego.Router("/blog-attach/:id:int/:attach_id:int", &controllers.BlogController{},"get:Download")
 	beego.Router("/blog-:id([0-9]+).html",&controllers.BlogController{}, "*:Index")
 
+	//模板相关接口
+	beego.Router("/api/template/list", &controllers.TemplateController{},"post:List")
+	beego.Router("/api/template/add", &controllers.TemplateController{},"post:Add")
+	beego.Router("/api/template/remove", &controllers.TemplateController{},"post:Delete")
+
 	beego.Router("/api/attach/remove/", &controllers.DocumentController{}, "post:RemoveAttachment")
 	beego.Router("/api/:key/edit/?:id", &controllers.DocumentController{}, "*:Edit")
 	beego.Router("/api/upload", &controllers.DocumentController{}, "post:Upload")

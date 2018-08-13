@@ -30,6 +30,7 @@ import (
 	"fmt"
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/gopool"
+	"github.com/astaxie/beego/logs"
 )
 
 // DocumentController struct
@@ -797,10 +798,12 @@ func (c *DocumentController) Content() {
 
 		//如果启用了自动发布
 		if autoRelease {
-			go func(identify string) {
-				models.NewBook().ReleaseContent(bookId)
-
-			}(identify)
+			go func() {
+				err := doc.ReleaseContent()
+				if err == nil {
+					logs.Informational("文档自动发布成功 -> document_id=%d;document_name=%s",doc.DocumentId, doc.DocumentName)
+				}
+			}()
 		}
 
 		c.JsonResult(0, "ok", doc)
@@ -1021,7 +1024,7 @@ func (c *DocumentController) History() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error("FindByIdentify => ", err)
+			beego.Error("查找项目失败 ->", err)
 			c.Data["ErrorMessage"] = "项目不存在或权限不足"
 			return
 		}
@@ -1031,7 +1034,7 @@ func (c *DocumentController) History() {
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("FindByIdentify => ", err)
+			beego.Error("查找项目失败 ->", err)
 			c.Data["ErrorMessage"] = "项目不存在或权限不足"
 			return
 		}
@@ -1060,7 +1063,7 @@ func (c *DocumentController) History() {
 
 	historis, totalCount, err := models.NewDocumentHistory().FindToPager(docId, pageIndex, conf.PageSize)
 	if err != nil {
-		beego.Error("FindToPager => ", err)
+		beego.Error("分页查找文档历史失败 ->", err)
 		c.Data["ErrorMessage"] = "获取历史失败"
 		return
 	}
@@ -1094,7 +1097,7 @@ func (c *DocumentController) DeleteHistory() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error("FindByIdentify => ", err)
+			beego.Error("查找项目失败 ->", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -1102,7 +1105,7 @@ func (c *DocumentController) DeleteHistory() {
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("FindByIdentify => ", err)
+			beego.Error("查找项目失败 ->", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"bytes"
 	"crypto/md5"
 	"errors"
 	"fmt"
@@ -14,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
@@ -24,6 +22,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/requests"
 	"github.com/lifei6671/mindoc/utils/ziptil"
 	"gopkg.in/russross/blackfriday.v2"
+	"encoding/json"
 )
 
 // Book struct .
@@ -71,6 +70,15 @@ type Book struct {
 	Version       int64     `orm:"type(bigint);column(version)" json:"version"`
 	//是否使用第一篇文章项目为默认首页,0 否/1 是
 	IsUseFirstDocument int `orm:"column(is_use_first_document);type(int);default(0)" json:"is_use_first_document"`
+}
+
+func (b *Book) String()  string {
+	ret, err := json.Marshal(*b)
+
+	if err != nil {
+		return ""
+	}
+	return string(ret)
 }
 
 // TableName 获取对应数据库表名.
@@ -286,10 +294,10 @@ func (book *Book) FindByFieldFirst(field string, value interface{}) (*Book, erro
 }
 
 //根据项目标识查询项目
-func (book *Book) FindByIdentify(identify string) (*Book, error) {
+func (book *Book) FindByIdentify(identify string,cols ...string) (*Book, error) {
 	o := orm.NewOrm()
 
-	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify", identify).One(book)
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify", identify).One(book,cols...)
 
 	return book, err
 }
@@ -500,59 +508,8 @@ func (book *Book) ReleaseContent(bookId int) {
 		return
 	}
 	for _, item := range docs {
-		if item.Content != "" {
-			item.Release = item.Content
-			bufio := bytes.NewReader([]byte(item.Content))
-			//解析文档中非本站的链接，并设置为新窗口打开
-			if content, err := goquery.NewDocumentFromReader(bufio); err == nil {
-
-				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
-					if src, ok := contentSelection.Attr("href"); ok {
-						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
-							//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
-							if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
-								contentSelection.SetAttr("target", "_blank")
-								if html, err := content.Html(); err == nil {
-									item.Release = html
-								}
-							}
-						}
-
-					}
-				})
-			}
-		}
-
-		attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
-		if err == nil && len(attachList) > 0 {
-			content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
-			for _, attach := range attachList {
-				if strings.HasPrefix(attach.HttpPath, "/") {
-					attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
-				}
-				li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
-
-				content.WriteString(li)
-			}
-			content.WriteString("</ul></div>")
-			item.Release += content.String()
-		}
-		_, err = o.Update(item, "release")
-		if err != nil {
-			beego.Error(fmt.Sprintf("发布失败 => %+v", item), err)
-		} else {
-			//当文档发布后，需要清除已缓存的转换文档和文档缓存
-			if doc, err := NewDocument().Find(item.DocumentId); err == nil {
-				doc.PutToCache()
-			} else {
-				doc.RemoveCache()
-			}
-
-			if err := os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId))); err != nil {
-				beego.Error("删除已缓存的文档目录失败 => ",filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId)))
-			}
-
-		}
+		item.BookId = bookId
+		item.ReleaseContent()
 	}
 }
 

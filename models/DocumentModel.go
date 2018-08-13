@@ -10,6 +10,11 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/cache"
 	"github.com/lifei6671/mindoc/conf"
+	"github.com/PuerkitoBio/goquery"
+	"strings"
+	"bytes"
+	"os"
+	"path/filepath"
 )
 
 // Document struct.
@@ -227,4 +232,68 @@ func (m *Document) IsExist(documentId int) bool {
 	o := orm.NewOrm()
 
 	return o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", documentId).Exist()
+}
+
+//发布单篇文档
+func (item *Document) ReleaseContent() error {
+
+	o := orm.NewOrm()
+
+	bookId := item.BookId
+
+	if item.Content != "" {
+		item.Release = item.Content
+		bufio := bytes.NewReader([]byte(item.Content))
+		//解析文档中非本站的链接，并设置为新窗口打开
+		if content, err := goquery.NewDocumentFromReader(bufio); err == nil {
+
+			content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
+				if src, ok := contentSelection.Attr("href"); ok {
+					if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
+						//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
+						if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
+							contentSelection.SetAttr("target", "_blank")
+							if html, err := content.Html(); err == nil {
+								item.Release = html
+							}
+						}
+					}
+
+				}
+			})
+		}
+	}
+
+	attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
+	if err == nil && len(attachList) > 0 {
+		content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
+		for _, attach := range attachList {
+			if strings.HasPrefix(attach.HttpPath, "/") {
+				attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
+			}
+			li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
+
+			content.WriteString(li)
+		}
+		content.WriteString("</ul></div>")
+		item.Release += content.String()
+	}
+	_, err = o.Update(item, "release")
+	if err != nil {
+		beego.Error(fmt.Sprintf("发布失败 => %+v", item), err)
+		return err
+	} else {
+		//当文档发布后，需要清除已缓存的转换文档和文档缓存
+		if doc, err := NewDocument().Find(item.DocumentId); err == nil {
+			doc.PutToCache()
+		} else {
+			doc.RemoveCache()
+		}
+
+		if err := os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId))); err != nil {
+			beego.Error("删除已缓存的文档目录失败 => ",filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(bookId)))
+			return err
+		}
+	}
+	return nil
 }

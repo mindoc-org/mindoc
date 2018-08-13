@@ -442,14 +442,14 @@ table>tbody>tr:hover{
 
 .manual-article .article-head h1 {
     margin: 0;
-    font-size: 20px;
-    font-weight: 300;
+    font-size: 36px;
+    font-weight: 400;
     text-align: center;
-    line-height: 30px;
+    line-height: 42px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #7e888b
+    color: #636363;
 }
 .manual-article .article-head h3 {
     margin: 0;
