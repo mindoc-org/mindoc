@@ -7,7 +7,7 @@ type NullCache struct {
 }
 
 
-func (bm *NullCache)Get(key string) interface{} {
+func (bm *NullCache) Get(key string) interface{} {
 	return nil
 }
 

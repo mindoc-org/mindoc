@@ -89,15 +89,15 @@ func (m *Document) InsertOrUpdate(cols ...string) error {
 		if m.Identify == "" {
 			book := NewBook()
 			identify := "docs"
-			if err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id",m.BookId).One(book,"identify");err == nil {
+			if err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", m.BookId).One(book, "identify"); err == nil {
 				identify = book.Identify
 			}
 
-			m.Identify = fmt.Sprintf("%s-%s",identify,strconv.FormatInt(time.Now().UnixNano(), 32))
+			m.Identify = fmt.Sprintf("%s-%s", identify, strconv.FormatInt(time.Now().UnixNano(), 32))
 		}
 
-		if m.OrderSort == 0{
-			sort,_ := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id",m.BookId).Filter("parent_id",m.ParentId).Count()
+		if m.OrderSort == 0 {
+			sort, _ := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", m.BookId).Filter("parent_id", m.ParentId).Count()
 			m.OrderSort = int(sort) + 1
 		}
 		_, err = o.Insert(m)
@@ -151,16 +151,16 @@ func (m *Document) RecursiveDocument(docId int) error {
 func (m *Document) PutToCache() {
 	go func(m Document) {
 
-			if m.Identify == "" {
+		if m.Identify == "" {
 
-				if err := cache.Put("Document.Id."+strconv.Itoa(m.DocumentId), m, time.Second*3600); err != nil {
-					beego.Info("文档缓存失败:", m.DocumentId)
-				}
-			} else {
-				if err := cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s", m.BookId, m.Identify), m, time.Second*3600); err != nil {
-					beego.Info("文档缓存失败:", m.DocumentId)
-				}
+			if err := cache.Put("Document.Id."+strconv.Itoa(m.DocumentId), m, time.Second*3600); err != nil {
+				beego.Info("文档缓存失败:", m.DocumentId)
 			}
+		} else {
+			if err := cache.Put(fmt.Sprintf("Document.BookId.%d.Identify.%s", m.BookId, m.Identify), m, time.Second*3600); err != nil {
+				beego.Info("文档缓存失败:", m.DocumentId)
+			}
+		}
 
 	}(*m)
 }
@@ -179,9 +179,7 @@ func (m *Document) RemoveCache() {
 //从缓存获取
 func (m *Document) FromCacheById(id int) (*Document, error) {
 
-	var doc Document
 	if err := cache.Get("Document.Id."+strconv.Itoa(id), &m); err == nil && m.DocumentId > 0 {
-		m = &doc
 		beego.Info("从缓存中获取文档信息成功 ->", m.DocumentId)
 		return m, nil
 	}
@@ -189,12 +187,12 @@ func (m *Document) FromCacheById(id int) (*Document, error) {
 	if m.DocumentId > 0 {
 		m.PutToCache()
 	}
-	m,err := m.Find(id)
+	m, err := m.Find(id)
 
 	if err == nil {
 		m.PutToCache()
 	}
-	return m,err
+	return m, err
 }
 
 //根据文档标识从缓存中查询文档
@@ -202,7 +200,7 @@ func (m *Document) FromCacheByIdentify(identify string, bookId int) (*Document, 
 
 	key := fmt.Sprintf("Document.BookId.%d.Identify.%s", bookId, identify)
 
-	if err := cache.Get(key,m); err == nil && m.DocumentId > 0 {
+	if err := cache.Get(key, m); err == nil && m.DocumentId > 0 {
 		beego.Info("从缓存中获取文档信息成功 ->", key)
 		return m, nil
 	}
@@ -228,5 +226,5 @@ func (m *Document) FindListByBookId(bookId int) (docs []*Document, err error) {
 func (m *Document) IsExist(documentId int) bool {
 	o := orm.NewOrm()
 
-	return o.QueryTable(m.TableNameWithPrefix()).Filter("document_id",documentId).Exist()
+	return o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", documentId).Exist()
 }

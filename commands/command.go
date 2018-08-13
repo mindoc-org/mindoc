@@ -43,7 +43,7 @@ func RegisterDataBase() {
 		if err == nil {
 			orm.DefaultTimeLoc = location
 		} else {
-			beego.Error("加载时区配置信息失败,请检查是否存在ZONEINFO环境变量->", err)
+			beego.Error("加载时区配置信息失败,请检查是否存在 ZONEINFO 环境变量->", err)
 		}
 
 		port := beego.AppConfig.String("db_port")
@@ -108,7 +108,12 @@ func RegisterLogger(log string) {
 		logs.Async(1e3)
 	}
 	if log == "" {
-		log = conf.WorkingDir("runtime","logs")
+		logPath,err := filepath.Abs(beego.AppConfig.DefaultString("log_path",conf.WorkingDir("runtime","logs")))
+		if err == nil {
+			log = logPath
+		}else{
+			log = conf.WorkingDir("runtime","logs")
+		}
 	}
 
 	logPath := filepath.Join(log, "log.log")
@@ -235,9 +240,7 @@ func ResolveCommand(args []string) {
 			conf.WorkingDirectory = filepath.Dir(p)
 		}
 	}
-	if conf.LogFile == "" {
-		conf.LogFile = conf.WorkingDir("runtime","logs")
-	}
+
 	if conf.ConfigurationFile == "" {
 		conf.ConfigurationFile = conf.WorkingDir( "conf", "app.conf")
 		config := conf.WorkingDir("conf", "app.conf.example")
@@ -252,6 +255,15 @@ func ResolveCommand(args []string) {
 	if err := beego.LoadAppConfig("ini", conf.ConfigurationFile);err != nil {
 		log.Fatal("An error occurred:", err)
 	}
+	if conf.LogFile == "" {
+		logPath,err := filepath.Abs(beego.AppConfig.DefaultString("log_path",conf.WorkingDir("runtime","logs")))
+		if err == nil {
+			conf.LogFile = logPath
+		}else{
+			conf.LogFile = conf.WorkingDir("runtime","logs")
+		}
+	}
+
 	conf.AutoLoadDelay = beego.AppConfig.DefaultInt("config_auto_delay",0)
 	uploads := conf.WorkingDir("uploads")
 
@@ -282,6 +294,7 @@ func RegisterCache() {
 	isOpenCache := beego.AppConfig.DefaultBool("cache", false)
 	if !isOpenCache {
 		cache.Init(&cache.NullCache{})
+		return
 	}
 	beego.Info("正常初始化缓存配置.")
 	cacheProvider := beego.AppConfig.String("cache_provider")
@@ -355,13 +368,13 @@ func RegisterCache() {
 
 		bc, err := json.Marshal(&memcacheConfig)
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:", err)
+			beego.Error("初始化 Redis 缓存失败 ->", err)
 			os.Exit(1)
 		}
 		memcache, err := beegoCache.NewCache("memcache", string(bc))
 
 		if err != nil {
-			beego.Error("初始化Memcache缓存失败:", err)
+			beego.Error("初始化 Memcache 缓存失败 ->", err)
 			os.Exit(1)
 		}
 
@@ -397,10 +410,13 @@ func RegisterAutoLoadConfig()  {
 					}
 					if modTime != f.ModTime() {
 						if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
-							beego.Error("An error occurred:", err)
+							beego.Error("An error occurred ->", err)
 							break
 						}
 						modTime = f.ModTime()
+						RegisterCache()
+
+						RegisterLogger("")
 						beego.Info("配置文件已加载")
 					}
 				}

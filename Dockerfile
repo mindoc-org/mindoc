@@ -84,6 +84,9 @@ WORKDIR /mindoc
 
 COPY --from=0 /go/src/github.com/lifei6671/mindoc .
 
+# 时区设置
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
 RUN chmod +x start.sh
