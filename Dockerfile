@@ -1,7 +1,7 @@
 FROM golang:1.10.3-alpine3.7
 
 #新增 GLIBC
-ENV GLIBC_VERSION 2.28-r0
+ENV GLIBC_VERSION "2.28-r0"
 
 # Download and install glibc
 RUN apk add --update && \
