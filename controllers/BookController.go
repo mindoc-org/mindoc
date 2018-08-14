@@ -198,7 +198,7 @@ func (c *BookController) SaveBook() {
 	bookResult.CommentStatus = commentStatus
 	bookResult.Label = tag
 
-	beego.Info("用户 [",c.Member.Account ,"] 修改了项目 ->",book)
+	beego.Info("用户 [", c.Member.Account, "] 修改了项目 ->", book)
 
 	c.JsonResult(0, "ok", bookResult)
 }
@@ -241,7 +241,7 @@ func (c *BookController) PrivatelyOwned() {
 		logs.Error("PrivatelyOwned => ", err)
 		c.JsonResult(6004, "保存失败")
 	}
-	beego.Info("用户 【",c.Member.Account,"]修改了项目权限 ->", state)
+	beego.Info("用户 【", c.Member.Account, "]修改了项目权限 ->", state)
 	c.JsonResult(0, "ok")
 }
 
@@ -296,12 +296,12 @@ func (c *BookController) UploadCover() {
 	}
 
 	file, moreFile, err := c.GetFile("image-file")
-	defer file.Close()
 
 	if err != nil {
-		logs.Error("", err.Error())
+		logs.Error("获取上传文件失败 ->", err.Error())
 		c.JsonResult(500, "读取文件异常")
 	}
+	defer file.Close()
 
 	ext := filepath.Ext(moreFile.Filename)
 
@@ -321,7 +321,8 @@ func (c *BookController) UploadCover() {
 
 	fileName := "cover_" + strconv.FormatInt(time.Now().UnixNano(), 16)
 
-	filePath := filepath.Join("uploads", time.Now().Format("200601"), fileName+ext)
+	//附件路径按照项目组织
+	filePath := filepath.Join("uploads", book.Identify,"images", fileName+ext)
 
 	path := filepath.Dir(filePath)
 
@@ -372,7 +373,7 @@ func (c *BookController) UploadCover() {
 	if oldCover != conf.GetDefaultCover() {
 		os.Remove("." + oldCover)
 	}
-	beego.Info("用户[",c.Member.Account,"]上传了项目封面 ->",book.BookName,book.BookId,book.Cover)
+	beego.Info("用户[", c.Member.Account, "]上传了项目封面 ->", book.BookName, book.BookId, book.Cover)
 
 	c.JsonResult(0, "ok", url)
 }
@@ -510,7 +511,7 @@ func (c *BookController) Create() {
 			beego.Error(err)
 		}
 
-		beego.Info("用户[",c.Member.Account,"]创建了项目 ->",book)
+		beego.Info("用户[", c.Member.Account, "]创建了项目 ->", book)
 		c.JsonResult(0, "ok", bookResult)
 	}
 	c.JsonResult(6001, "error")
@@ -611,7 +612,7 @@ func (c *BookController) Import() {
 
 	go book.ImportBook(tempPath)
 
-	beego.Info("用户[",c.Member.Account,"]导入了项目 ->",book)
+	beego.Info("用户[", c.Member.Account, "]导入了项目 ->", book)
 
 	c.JsonResult(0, "项目正在后台转换中，请稍后查看")
 }
@@ -648,7 +649,7 @@ func (c *BookController) CreateToken() {
 			logs.Error("生成阅读令牌失败 => ", err)
 			c.JsonResult(6003, "生成阅读令牌失败")
 		}
-		beego.Info("用户[",c.Member.Account,"]创建项目令牌 ->",book.PrivateToken)
+		beego.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
 		c.JsonResult(0, "ok", conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
 	} else {
 		book.PrivateToken = ""
@@ -656,7 +657,7 @@ func (c *BookController) CreateToken() {
 			logs.Error("CreateToken => ", err)
 			c.JsonResult(6004, "删除令牌失败")
 		}
-		beego.Info("用户[",c.Member.Account,"]创建项目令牌 ->",book.PrivateToken)
+		beego.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
 		c.JsonResult(0, "ok", "")
 	}
 }
@@ -683,7 +684,7 @@ func (c *BookController) Delete() {
 		logs.Error("删除项目 => ", err)
 		c.JsonResult(6003, "删除失败")
 	}
-	beego.Info("用户[",c.Member.Account,"]删除了项目 ->",bookResult)
+	beego.Info("用户[", c.Member.Account, "]删除了项目 ->", bookResult)
 	c.JsonResult(0, "ok")
 }
 

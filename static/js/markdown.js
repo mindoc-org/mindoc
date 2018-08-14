@@ -86,7 +86,9 @@ $(function () {
             saveDocument(false);
        } else if (name === "template") {
            $("#documentTemplateModal").modal("show");
-       } else if (name === "sidebar") {
+       } else if(name === "save-template"){
+           $("#saveTemplateModal").modal("show");
+       }else if (name === "sidebar") {
             $("#manualCategory").toggle(0, "swing", function () {
                 var $then = $("#manualEditorContainer");
                 var left = parseInt($then.css("left"));
@@ -380,7 +382,9 @@ $(function () {
         }
         $("#documentTemplateModal").modal('hide');
     });
-
+    /**
+     * 展示自定义模板列表
+     */
     $("#displayCustomsTemplateModal").on("show.bs.modal",function () {
         window.sessionStorage.setItem("displayCustomsTemplateList",$("#displayCustomsTemplateList").html());
 
@@ -392,12 +396,12 @@ $(function () {
            url : window.template.listUrl,
            data: {"identify":window.book.identify},
            type: "POST",
-           dataType: "json",
+           dataType: "html",
             success: function ($res) {
-
+                $("#displayCustomsTemplateList").html($res);
             },
             error : function () {
-
+                layer.msg("加载失败请重试");
             },
             complete : function () {
                 layer.close(index);
@@ -408,4 +412,91 @@ $(function () {
         var cache = window.sessionStorage.getItem("displayCustomsTemplateList");
         $("#displayCustomsTemplateList").html(cache);
     });
+    /**
+     * 添加模板
+     */
+    $("#saveTemplateForm").ajaxForm({
+        beforeSubmit: function () {
+            var doc_name = $.trim($("#templateName").val());
+            if (doc_name === "") {
+                return showError("模板名称不能为空", "#saveTemplateForm .show-error-message");
+            }
+            var content = $("#saveTemplateForm").find("input[name='content']").val();
+            if (content === ""){
+                return showError("模板内容不能为空", "#saveTemplateForm .show-error-message");
+            }
+
+            $("#btnSaveTemplate").button("loading");
+
+            return true;
+        },
+        success: function ($res) {
+            if($res.errcode === 0){
+                $("#saveTemplateModal").modal("hide");
+                layer.msg("保存成功");
+            }else{
+                return showError($res.message, "#saveTemplateForm .show-error-message");
+            }
+        },
+        complete : function () {
+            $("#btnSaveTemplate").button("reset");
+        }
+    });
+
+    $("#saveTemplateModal").on("show.bs.modal",function () {
+        window.sessionStorage.setItem("saveTemplateModal",$(this).find(".modal-body").html());
+        var content = window.editor.getMarkdown();
+        $("#saveTemplateForm").find("input[name='content']").val(content);
+    }).on("hidden.bs.modal",function () {
+        $(this).find(".modal-body").html(window.sessionStorage.getItem("saveTemplateModal"));
+    });
+
+    $("#displayCustomsTemplateList").on("click",".btn-insert",function () {
+        var templateId = $(this).attr("data-id");
+
+        $.ajax({
+            url: window.template.getUrl,
+            data :{"identify": window.book.identify, "template_id": templateId},
+            dataType: "json",
+            type: "get",
+            success : function ($res) {
+               if ($res.errcode !== 0){
+                   layer.msg($res.message);
+                   return;
+               }
+                window.isLoad = true;
+                window.editor.clear();
+                window.editor.insertValue($res.data.template_content);
+                window.editor.setCursor({ line: 0, ch: 0 });
+                resetEditorChanged(true);
+                $("#displayCustomsTemplateModal").modal("hide");
+            },error : function () {
+                layer.msg("服务器异常");
+            }
+        });
+    }).on("click",".btn-delete",function () {
+        var $then = $(this);
+        var templateId = $then.attr("data-id");
+        $then.button("loading");
+
+        $.ajax({
+            url : window.template.deleteUrl,
+            data: {"identify": window.book.identify, "template_id": templateId},
+            dataType: "json",
+            type: "post",
+            success: function ($res) {
+                if($res.errcode !== 0){
+                    layer.msg($res.message);
+                }else{
+                    $then.parents("tr").empty().remove();
+                }
+            },error : function () {
+                layer.msg("服务器异常");
+            },
+            complete: function () {
+                $then.button("reset");
+            }
+        })
+    });
+
 });

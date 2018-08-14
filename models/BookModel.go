@@ -72,8 +72,8 @@ type Book struct {
 	IsUseFirstDocument int `orm:"column(is_use_first_document);type(int);default(0)" json:"is_use_first_document"`
 }
 
-func (b *Book) String()  string {
-	ret, err := json.Marshal(*b)
+func (book *Book) String()  string {
+	ret, err := json.Marshal(*book)
 
 	if err != nil {
 		return ""
@@ -136,13 +136,13 @@ func (book *Book) Insert() error {
 	return err
 }
 
-func (book *Book) Find(id int) (*Book, error) {
+func (book *Book) Find(id int,cols ...string) (*Book, error) {
 	if id <= 0 {
 		return book, ErrInvalidParameter
 	}
 	o := orm.NewOrm()
 
-	err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", id).One(book)
+	err := o.QueryTable(book.TableNameWithPrefix()).Filter("book_id", id).One(book,cols...)
 
 	return book, err
 }
@@ -221,7 +221,7 @@ func (book *Book) Copy(identify string) error {
 		return err
 	}
 	if len(docs) > 0 {
-		if err := recursiveInsertDocument(docs,o,book.BookId,0);err != nil {
+		if err := recursiveInsertDocument(docs,o, book.BookId,0);err != nil {
 			beego.Error("复制项目时出错 -> ",err)
 			o.Rollback()
 			return err
@@ -371,31 +371,41 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 	}
 	o.Begin()
 
-	sql2 := "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?"
+	//删除附件,这里没有删除实际物理文件
+	_,err = o.Raw("DELETE FROM " + NewAttachment().TableNameWithPrefix() + " WHERE book_id=?").Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
 
-	_, err = o.Raw(sql2, book.BookId).Exec()
+	//删除文档
+	_, err = o.Raw( "DELETE FROM " + NewDocument().TableNameWithPrefix() + " WHERE book_id = ?", book.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
 		return err
 	}
-	sql3 := "DELETE FROM " + book.TableNameWithPrefix() + " WHERE book_id = ?"
-
-	_, err = o.Raw(sql3, book.BookId).Exec()
+	//删除项目
+	_, err = o.Raw("DELETE FROM " + book.TableNameWithPrefix() + " WHERE book_id = ?", book.BookId).Exec()
 
 	if err != nil {
 		o.Rollback()
 		return err
 	}
-	sql4 := "DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id = ?"
 
-	_, err = o.Raw(sql4, book.BookId).Exec()
-
+	//删除关系
+	_, err = o.Raw("DELETE FROM " + NewRelationship().TableNameWithPrefix() + " WHERE book_id = ?", book.BookId).Exec()
 	if err != nil {
 		o.Rollback()
-
 		return err
 	}
+	//删除模板
+	_,err = o.Raw("DELETE FROM " + NewTemplate().TableNameWithPrefix() + " WHERE book_id = ?",book.BookId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+
 
 	if book.Label != "" {
 		NewLabel().InsertOrUpdateMulti(book.Label)
@@ -821,7 +831,7 @@ func (book *Book) ImportBook(zipPath string) error {
 		beego.Error("导入项目异常 => ", err)
 		book.Description = "【项目导入存在错误：" + err.Error() + "】"
 	}
-	beego.Info("项目导入完毕 => ",book.BookName)
+	beego.Info("项目导入完毕 => ", book.BookName)
 	book.ReleaseContent(book.BookId)
 	return err
 }

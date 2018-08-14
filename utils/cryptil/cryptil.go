@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"io"
+	"crypto/rand"
 )
 
 //对称加密与解密之加密【从Beego中提取出来的】
@@ -67,4 +69,15 @@ func Sha1Crypt(str string, salt ...interface{}) (CryptStr string) {
 		str = fmt.Sprintf(str+strings.Join(slice, "%v"), salt...)
 	}
 	return fmt.Sprintf("%x", sha1.Sum([]byte(str)))
+}
+
+
+//生成Guid字串
+func UniqueId() string {
+	b := make([]byte, 48)
+
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		return ""
+	}
+	return Md5Crypt(base64.URLEncoding.EncodeToString(b))
 }

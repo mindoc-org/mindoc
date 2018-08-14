@@ -13,7 +13,7 @@ import (
 	"time"
 	"net/url"
 	"image/png"
-
+	"fmt"
 	"bytes"
 
 	"github.com/PuerkitoBio/goquery"
@@ -27,7 +27,6 @@ import (
 	"github.com/lifei6671/mindoc/utils/pagination"
 	"gopkg.in/russross/blackfriday.v2"
 	"github.com/lifei6671/mindoc/utils/cryptil"
-	"fmt"
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/gopool"
 	"github.com/astaxie/beego/logs"
@@ -46,7 +45,7 @@ func (c *DocumentController) Index() {
 	token := c.GetString("token")
 
 	if identify == "" {
-		c.ShowErrorPage(404,"项目不存在或已删除")
+		c.ShowErrorPage(404, "项目不存在或已删除")
 	}
 
 	// 如果没有开启匿名访问则跳转到登录
@@ -62,7 +61,7 @@ func (c *DocumentController) Index() {
 	selected := 0
 
 	if bookResult.IsUseFirstDocument {
-		doc,err := bookResult.FindFirstDocumentByBookId(bookResult.BookId)
+		doc, err := bookResult.FindFirstDocumentByBookId(bookResult.BookId)
 		if err == nil {
 			if strings.TrimSpace(doc.Release) != "" {
 				doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + "</div>";
@@ -71,9 +70,9 @@ func (c *DocumentController) Index() {
 			c.Data["Title"] = doc.DocumentName
 			c.Data["Content"] = template.HTML(doc.Release)
 
-			c.Data["Description"] = utils.AutoSummary(doc.Release,120)
+			c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
 		}
-	}else {
+	} else {
 		c.Data["Title"] = "概要"
 		c.Data["Content"] = template.HTML(blackfriday.Run([]byte(bookResult.Description)))
 	}
@@ -82,10 +81,10 @@ func (c *DocumentController) Index() {
 
 	if err != nil {
 		if err == orm.ErrNoRows {
-			c.ShowErrorPage(404,"生成项目文档树时出错")
+			c.ShowErrorPage(404, "生成项目文档树时出错")
 		} else {
-			beego.Error("生成项目文档树时出错 -> ",err)
-			c.ShowErrorPage(500,"生成项目文档树时出错")
+			beego.Error("生成项目文档树时出错 -> ", err)
+			c.ShowErrorPage(500, "生成项目文档树时出错")
 		}
 	}
 	c.Data["Model"] = bookResult
@@ -104,7 +103,7 @@ func (c *DocumentController) Read() {
 	c.Data["DocumentId"] = id
 
 	if identify == "" || id == "" {
-		c.ShowErrorPage(404,"项目不存或已删除")
+		c.ShowErrorPage(404, "项目不存或已删除")
 	}
 
 	// 如果没有开启匿名访问则跳转到登录
@@ -115,30 +114,30 @@ func (c *DocumentController) Read() {
 
 	bookResult := isReadable(identify, token, c)
 
-	c.TplName = fmt.Sprintf("document/%s_read.tpl",bookResult.Theme)
+	c.TplName = fmt.Sprintf("document/%s_read.tpl", bookResult.Theme)
 
 	doc := models.NewDocument()
 
 	if docId, err := strconv.Atoi(id); err == nil {
 		doc, err = doc.FromCacheById(docId)
 		if err != nil {
-			beego.Error("从缓存中读取文档时失败 ->",err)
-			c.ShowErrorPage(500,"文档不存在或已删除")
+			beego.Error("从缓存中读取文档时失败 ->", err)
+			c.ShowErrorPage(500, "文档不存在或已删除")
 		}
 	} else {
-		doc, err = doc.FromCacheByIdentify(id,bookResult.BookId)
+		doc, err = doc.FromCacheByIdentify(id, bookResult.BookId)
 		if err != nil {
 			if err == orm.ErrNoRows {
-				c.ShowErrorPage(404,"文档不存在或已删除")
-			}else{
-				beego.Error("从缓存查询文档时出错 ->" ,err)
-				c.ShowErrorPage(500,"未知异常")
+				c.ShowErrorPage(404, "文档不存在或已删除")
+			} else {
+				beego.Error("从缓存查询文档时出错 ->", err)
+				c.ShowErrorPage(500, "未知异常")
 			}
 		}
 	}
 
 	if doc.BookId != bookResult.BookId {
-		c.ShowErrorPage(404,"文档不存在或已删除")
+		c.ShowErrorPage(404, "文档不存在或已删除")
 	}
 
 	attach, err := models.NewAttachment().FindListByDocumentId(doc.DocumentId)
@@ -181,19 +180,17 @@ func (c *DocumentController) Read() {
 		docInfo += "；更新于 "
 		docInfo += doc.ModifyTime.Local().Format("2006-01-02 15:04")
 		if strings.TrimSpace(doc.Release) != "" {
-			doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") +" &nbsp;&nbsp;作者：";
+			doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者：";
 			if docCreator != nil {
 				if docCreator.RealName != "" {
 					doc.Release += docCreator.RealName
-				}else{
+				} else {
 					doc.Release += docCreator.Account
 				}
 			}
 			doc.Release += "</div>"
 		}
 	}
-
-
 
 	if c.IsAjax() {
 		var data struct {
@@ -213,14 +210,12 @@ func (c *DocumentController) Read() {
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, doc.DocumentId)
 
 	if err != nil && err != orm.ErrNoRows {
-		beego.Error("生成项目文档树时出错 ->",err)
+		beego.Error("生成项目文档树时出错 ->", err)
 
-		c.ShowErrorPage(500,"生成项目文档树时出错")
+		c.ShowErrorPage(500, "生成项目文档树时出错")
 	}
 
-
-	c.Data["Description"] =  utils.AutoSummary(doc.Release,120)
-
+	c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
 
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
@@ -235,7 +230,7 @@ func (c *DocumentController) Edit() {
 
 	identify := c.Ctx.Input.Param(":key")
 	if identify == "" {
-		c.ShowErrorPage(404,"无法解析项目标识")
+		c.ShowErrorPage(404, "无法解析项目标识")
 	}
 
 	bookResult := models.NewBookResult()
@@ -255,9 +250,9 @@ func (c *DocumentController) Edit() {
 		if err != nil {
 			if err == orm.ErrNoRows {
 				c.ShowErrorPage(403, "项目不存在或没有权限")
-			}else{
+			} else {
 				beego.Error("查询项目时出错 -> ", err)
-				c.ShowErrorPage(500,"查询项目时出错")
+				c.ShowErrorPage(500, "查询项目时出错")
 			}
 		}
 		if bookResult.RoleId == conf.BookObserver {
@@ -315,7 +310,6 @@ func (c *DocumentController) Create() {
 		c.JsonResult(6004, "文档名称不能为空")
 	}
 
-
 	bookId := 0
 
 	// 如果是超级管理员则不判断权限
@@ -343,7 +337,7 @@ func (c *DocumentController) Create() {
 			c.JsonResult(6003, "文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号")
 		}
 
-		d, _ := models.NewDocument().FindByIdentityFirst(docIdentify,bookId)
+		d, _ := models.NewDocument().FindByIdentityFirst(docIdentify, bookId)
 		if d.DocumentId > 0 && d.DocumentId != docId {
 			c.JsonResult(6006, "文档标识已被使用")
 		}
@@ -377,8 +371,8 @@ func (c *DocumentController) Create() {
 // 上传附件或图片
 func (c *DocumentController) Upload() {
 	identify := c.GetString("identify")
-	doc_id, _ := c.GetInt("doc_id")
-	is_attach := true
+	docId, _ := c.GetInt("doc_id")
+	isAttach := true
 
 	if identify == "" {
 		c.JsonResult(6001, "参数错误")
@@ -452,8 +446,8 @@ func (c *DocumentController) Upload() {
 		bookId = book.BookId
 	}
 
-	if doc_id > 0 {
-		doc, err := models.NewDocument().Find(doc_id)
+	if docId > 0 {
+		doc, err := models.NewDocument().Find(docId)
 		if err != nil {
 			c.JsonResult(6007, "文档不存在")
 		}
@@ -463,9 +457,15 @@ func (c *DocumentController) Upload() {
 		}
 	}
 
-	fileName := "attach_" + strconv.FormatInt(time.Now().UnixNano(), 16)
+	fileName := "m_" + cryptil.UniqueId() + "_r"
+	filePath := filepath.Join(conf.WorkingDirectory, "uploads", identify)
 
-	filePath := filepath.Join(conf.WorkingDirectory, "uploads", time.Now().Format("200601"),identify, fileName+ext)
+	//将图片和文件分开存放
+	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
+		filePath = filepath.Join(filePath, "images", fileName+ext)
+	} else {
+		filePath = filepath.Join(filePath, "files", fileName+ext)
+	}
 
 	path := filepath.Dir(filePath)
 
@@ -474,7 +474,7 @@ func (c *DocumentController) Upload() {
 	err = c.SaveToFile(name, filePath)
 
 	if err != nil {
-		beego.Error("SaveToFile => ", err)
+		beego.Error("保存文件失败 -> ", err)
 		c.JsonResult(6005, "保存文件失败")
 	}
 
@@ -484,14 +484,14 @@ func (c *DocumentController) Upload() {
 	attachment.CreateAt = c.Member.MemberId
 	attachment.FileExt = ext
 	attachment.FilePath = strings.TrimPrefix(filePath, conf.WorkingDirectory)
-	attachment.DocumentId = doc_id
+	attachment.DocumentId = docId
 
 	if fileInfo, err := os.Stat(filePath); err == nil {
 		attachment.FileSize = float64(fileInfo.Size())
 	}
 
-	if doc_id > 0 {
-		attachment.DocumentId = doc_id
+	if docId > 0 {
+		attachment.DocumentId = docId
 	}
 
 	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
@@ -500,7 +500,7 @@ func (c *DocumentController) Upload() {
 			attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))
 		}
 
-		is_attach = false
+		isAttach = false
 	}
 
 	err = attachment.Insert()
@@ -526,7 +526,7 @@ func (c *DocumentController) Upload() {
 		"message":   "ok",
 		"url":       attachment.HttpPath,
 		"alt":       attachment.FileName,
-		"is_attach": is_attach,
+		"is_attach": isAttach,
 		"attach":    attachment,
 	}
 
@@ -558,10 +558,10 @@ func (c *DocumentController) DownloadAttachment() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			if err == orm.ErrNoRows {
-				c.ShowErrorPage(404,"项目不存在或已删除")
-			}else{
-				beego.Error("查找项目时出错 ->",err)
-				c.ShowErrorPage(500,"系统错误")
+				c.ShowErrorPage(404, "项目不存在或已删除")
+			} else {
+				beego.Error("查找项目时出错 ->", err)
+				c.ShowErrorPage(500, "系统错误")
 			}
 		}
 
@@ -569,7 +569,7 @@ func (c *DocumentController) DownloadAttachment() {
 		if c.Member == nil || c.Member.Role != conf.MemberSuperRole {
 			// 如果项目是私有的，并且 token 不正确
 			if (book.PrivatelyOwned == 1 && token == "") || (book.PrivatelyOwned == 1 && book.PrivateToken != token) {
-				c.ShowErrorPage(403,"权限不足")
+				c.ShowErrorPage(403, "权限不足")
 			}
 		}
 
@@ -584,14 +584,14 @@ func (c *DocumentController) DownloadAttachment() {
 	if err != nil {
 		beego.Error("查找附件时出错 -> ", err)
 		if err == orm.ErrNoRows {
-			c.ShowErrorPage(404,"附件不存在或已删除")
+			c.ShowErrorPage(404, "附件不存在或已删除")
 		} else {
-			c.ShowErrorPage(500,"查找附件时出错")
+			c.ShowErrorPage(500, "查找附件时出错")
 		}
 	}
 
 	if attachment.BookId != bookId {
-		c.ShowErrorPage(404,"附件不存在或已删除")
+		c.ShowErrorPage(404, "附件不存在或已删除")
 	}
 
 	c.Ctx.Output.Download(filepath.Join(conf.WorkingDirectory, attachment.FilePath), attachment.FileName)
@@ -649,9 +649,9 @@ func (c *DocumentController) Delete() {
 	c.Prepare()
 
 	identify := c.GetString("identify")
-	doc_id, err := c.GetInt("doc_id", 0)
+	docId, err := c.GetInt("doc_id", 0)
 
-	book_id := 0
+	bookId := 0
 
 	// 如果是超级管理员则忽略权限判断
 	if c.Member.IsAdministrator() {
@@ -661,7 +661,7 @@ func (c *DocumentController) Delete() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
@@ -670,21 +670,21 @@ func (c *DocumentController) Delete() {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 	}
 
-	if doc_id <= 0 {
+	if docId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	doc, err := models.NewDocument().Find(doc_id)
+	doc, err := models.NewDocument().Find(docId)
 
 	if err != nil {
 		beego.Error("Delete => ", err)
 		c.JsonResult(6003, "删除失败")
 	}
 	// 如果文档所属项目错误
-	if doc.BookId != book_id {
+	if doc.BookId != bookId {
 		c.JsonResult(6004, "参数错误")
 	}
 
@@ -801,7 +801,7 @@ func (c *DocumentController) Content() {
 			go func() {
 				err := doc.ReleaseContent()
 				if err == nil {
-					logs.Informational("文档自动发布成功 -> document_id=%d;document_name=%s",doc.DocumentId, doc.DocumentName)
+					logs.Informational("文档自动发布成功 -> document_id=%d;document_name=%s", doc.DocumentId, doc.DocumentName)
 				}
 			}()
 		}
@@ -821,6 +821,7 @@ func (c *DocumentController) Content() {
 
 	c.JsonResult(0, "ok", doc)
 }
+
 //
 //func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
 //	doc = models.NewDocument()
@@ -845,7 +846,7 @@ func (c *DocumentController) Export() {
 
 	identify := c.Ctx.Input.Param(":key")
 	if identify == "" {
-		c.ShowErrorPage(500,"参数错误")
+		c.ShowErrorPage(500, "参数错误")
 	}
 
 	output := c.GetString("output")
@@ -857,7 +858,7 @@ func (c *DocumentController) Export() {
 		return
 	}
 	if !conf.GetEnableExport() {
-		c.ShowErrorPage(500,"系统没有开启导出功能")
+		c.ShowErrorPage(500, "系统没有开启导出功能")
 	}
 
 	bookResult := models.NewBookResult()
@@ -865,10 +866,10 @@ func (c *DocumentController) Export() {
 		book, err := models.NewBook().FindByIdentify(identify)
 		if err != nil {
 			if err == orm.ErrNoRows {
-				c.ShowErrorPage(404,"项目不存在")
+				c.ShowErrorPage(404, "项目不存在")
 			} else {
-				beego.Error("查找项目时出错 ->",err)
-				c.ShowErrorPage(500,"查找项目时出错")
+				beego.Error("查找项目时出错 ->", err)
+				c.ShowErrorPage(500, "查找项目时出错")
 			}
 		}
 		bookResult = models.NewBookResult().ToBookResult(*book)
@@ -876,7 +877,7 @@ func (c *DocumentController) Export() {
 		bookResult = isReadable(identify, token, c)
 	}
 	if !bookResult.IsDownload {
-		c.ShowErrorPage(200,"当前项目没有开启导出功能")
+		c.ShowErrorPage(200, "当前项目没有开启导出功能")
 	}
 
 	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
@@ -884,13 +885,13 @@ func (c *DocumentController) Export() {
 	}
 
 	if output == "markdown" {
-		if bookResult.Editor != "markdown"{
-			c.ShowErrorPage(500,"当前项目不支持Markdown编辑器")
+		if bookResult.Editor != "markdown" {
+			c.ShowErrorPage(500, "当前项目不支持Markdown编辑器")
 		}
-		p,err := bookResult.ExportMarkdown(c.CruSession.SessionID())
+		p, err := bookResult.ExportMarkdown(c.CruSession.SessionID())
 
 		if err != nil {
-			c.ShowErrorPage(500,"导出文档失败")
+			c.ShowErrorPage(500, "导出文档失败")
 		}
 		c.Ctx.Output.Download(p, bookResult.BookName+".zip")
 
@@ -905,10 +906,10 @@ func (c *DocumentController) Export() {
 	mobipath := filepath.Join(outputPath, "book.mobi")
 	docxpath := filepath.Join(outputPath, "book.docx")
 
-	if output == "pdf" && filetil.FileExists(pdfpath){
+	if output == "pdf" && filetil.FileExists(pdfpath) {
 		c.Ctx.Output.Download(pdfpath, bookResult.BookName+".pdf")
 		c.Abort("200")
-	} else if output == "epub"  && filetil.FileExists(epubpath){
+	} else if output == "epub" && filetil.FileExists(epubpath) {
 		c.Ctx.Output.Download(epubpath, bookResult.BookName+".epub")
 
 		c.Abort("200")
@@ -916,22 +917,22 @@ func (c *DocumentController) Export() {
 		c.Ctx.Output.Download(mobipath, bookResult.BookName+".mobi")
 
 		c.Abort("200")
-	} else if output == "docx"  && filetil.FileExists(docxpath){
+	} else if output == "docx" && filetil.FileExists(docxpath) {
 		c.Ctx.Output.Download(docxpath, bookResult.BookName+".docx")
 
 		c.Abort("200")
 
-	}else if output == "pdf" || output == "epub" || output == "docx" || output == "mobi"{
-		if err := models.BackgroupConvert(c.CruSession.SessionID(),bookResult);err != nil && err != gopool.ErrHandlerIsExist{
-			c.ShowErrorPage(500,"导出失败，请查看系统日志")
+	} else if output == "pdf" || output == "epub" || output == "docx" || output == "mobi" {
+		if err := models.BackgroupConvert(c.CruSession.SessionID(), bookResult); err != nil && err != gopool.ErrHandlerIsExist {
+			c.ShowErrorPage(500, "导出失败，请查看系统日志")
 		}
 
-		c.ShowErrorPage(200,"文档正在后台转换，请稍后再下载")
-	}else{
-		c.ShowErrorPage(200,"不支持的文件格式")
+		c.ShowErrorPage(200, "文档正在后台转换，请稍后再下载")
+	} else {
+		c.ShowErrorPage(200, "不支持的文件格式")
 	}
 
-	c.ShowErrorPage(404,"项目没有导出文件")
+	c.ShowErrorPage(404, "项目没有导出文件")
 }
 
 // 生成项目访问的二维码
@@ -942,20 +943,20 @@ func (c *DocumentController) QrCode() {
 
 	book, err := models.NewBook().FindByIdentify(identify)
 	if err != nil || book.BookId <= 0 {
-		c.ShowErrorPage(404,"项目不存在")
+		c.ShowErrorPage(404, "项目不存在")
 	}
 
 	uri := conf.URLFor("DocumentController.Index", ":key", identify)
 	code, err := qr.Encode(uri, qr.L, qr.Unicode)
 	if err != nil {
-		beego.Error("生成二维码失败 ->",err)
-		c.ShowErrorPage(500,"生成二维码失败")
+		beego.Error("生成二维码失败 ->", err)
+		c.ShowErrorPage(500, "生成二维码失败")
 	}
 
 	code, err = barcode.Scale(code, 150, 150)
 	if err != nil {
-		beego.Error("生成二维码失败 ->",err)
-		c.ShowErrorPage(500,"生成二维码失败")
+		beego.Error("生成二维码失败 ->", err)
+		c.ShowErrorPage(500, "生成二维码失败")
 	}
 
 	c.Ctx.ResponseWriter.Header().Set("Content-Type", "image/png")
@@ -964,8 +965,8 @@ func (c *DocumentController) QrCode() {
 
 	err = png.Encode(c.Ctx.ResponseWriter, code)
 	if err != nil {
-		beego.Error("生成二维码失败 ->",err)
-		c.ShowErrorPage(500,"生成二维码失败")
+		beego.Error("生成二维码失败 ->", err)
+		c.ShowErrorPage(500, "生成二维码失败")
 	}
 }
 
@@ -1018,7 +1019,7 @@ func (c *DocumentController) History() {
 	docId, err := c.GetInt("doc_id", 0)
 	pageIndex, _ := c.GetInt("page", 1)
 
-	book_id := 0
+	bookId := 0
 
 	// 如果是超级管理员则忽略权限判断
 	if c.Member.IsAdministrator() {
@@ -1029,7 +1030,7 @@ func (c *DocumentController) History() {
 			return
 		}
 
-		book_id = book.BookId
+		bookId = book.BookId
 		c.Data["Model"] = book
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
@@ -1039,7 +1040,7 @@ func (c *DocumentController) History() {
 			return
 		}
 
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 		c.Data["Model"] = bookResult
 	}
 
@@ -1056,19 +1057,19 @@ func (c *DocumentController) History() {
 	}
 
 	// 如果文档所属项目错误
-	if doc.BookId != book_id {
+	if doc.BookId != bookId {
 		c.Data["ErrorMessage"] = "参数错误"
 		return
 	}
 
-	historis, totalCount, err := models.NewDocumentHistory().FindToPager(docId, pageIndex, conf.PageSize)
+	histories, totalCount, err := models.NewDocumentHistory().FindToPager(docId, pageIndex, conf.PageSize)
 	if err != nil {
 		beego.Error("分页查找文档历史失败 ->", err)
 		c.Data["ErrorMessage"] = "获取历史失败"
 		return
 	}
 
-	c.Data["List"] = historis
+	c.Data["List"] = histories
 	c.Data["PageHtml"] = ""
 	c.Data["Document"] = doc
 
@@ -1135,6 +1136,7 @@ func (c *DocumentController) DeleteHistory() {
 
 	c.JsonResult(0, "ok")
 }
+
 //通过文档历史恢复文档
 func (c *DocumentController) RestoreHistory() {
 	c.Prepare()
@@ -1209,7 +1211,7 @@ func (c *DocumentController) Compare() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
 			beego.Error("DocumentController.Compare => ", err)
-			c.ShowErrorPage(403,"权限不足")
+			c.ShowErrorPage(403, "权限不足")
 			return
 		}
 
@@ -1220,7 +1222,7 @@ func (c *DocumentController) Compare() {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
 			beego.Error("FindByIdentify => ", err)
-			c.ShowErrorPage(403,"权限不足")
+			c.ShowErrorPage(403, "权限不足")
 			return
 		}
 
@@ -1281,14 +1283,14 @@ func EachFun(prefix, dpath string, c *DocumentController, book *models.BookResul
 	f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
 		beego.Error(err)
-		c.ShowErrorPage(500,"系统错误")
+		c.ShowErrorPage(500, "系统错误")
 	}
 
 	html, err := c.ExecuteViewPathTemplate("document/export.tpl", map[string]interface{}{"Model": book, "Lists": item, "BaseUrl": c.BaseUrl()})
 	if err != nil {
 		f.Close()
 		beego.Error(err)
-		c.ShowErrorPage(500,"系统错误")
+		c.ShowErrorPage(500, "系统错误")
 	}
 
 	buf := bytes.NewReader([]byte(html))
@@ -1303,7 +1305,7 @@ func EachFun(prefix, dpath string, c *DocumentController, book *models.BookResul
 	if err != nil {
 		f.Close()
 		beego.Error(err)
-		c.ShowErrorPage(500,"系统错误")
+		c.ShowErrorPage(500, "系统错误")
 	}
 
 	// html = strings.Replace(html, "<img src=\"/uploads", "<img src=\"" + c.BaseUrl() + "/uploads", -1)
@@ -1312,14 +1314,13 @@ func EachFun(prefix, dpath string, c *DocumentController, book *models.BookResul
 	f.Close()
 }
 
-
 // 判断用户是否可以阅读文档
 func isReadable(identify, token string, c *DocumentController) *models.BookResult {
 	book, err := models.NewBook().FindByFieldFirst("identify", identify)
 
 	if err != nil {
 		beego.Error(err)
-		c.ShowErrorPage(500,"项目不存在")
+		c.ShowErrorPage(500, "项目不存在")
 	}
 
 	// 如果文档是私有的
@@ -1340,10 +1341,10 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 			if token != "" && strings.EqualFold(token, book.PrivateToken) {
 				c.SetSession(identify, token)
 			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
-				c.ShowErrorPage(403,"权限不足")
+				c.ShowErrorPage(403, "权限不足")
 			}
 		} else if !is_ok {
-			c.ShowErrorPage(403,"权限不足")
+			c.ShowErrorPage(403, "权限不足")
 		}
 	}
 
@@ -1384,6 +1385,6 @@ func promptUserToLogIn(c *DocumentController) {
 	if c.IsAjax() {
 		c.JsonResult(6000, "请重新登录。")
 	} else {
-		c.Redirect(conf.URLFor("AccountController.Login")+ "?url=" + url.PathEscape(conf.BaseUrl+ c.Ctx.Request.URL.RequestURI()), 302)
+		c.Redirect(conf.URLFor("AccountController.Login")+"?url="+url.PathEscape(conf.BaseUrl+c.Ctx.Request.URL.RequestURI()), 302)
 	}
 }

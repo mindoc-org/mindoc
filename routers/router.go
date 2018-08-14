@@ -78,6 +78,7 @@ func init() {
 	beego.Router("/blog-:id([0-9]+).html",&controllers.BlogController{}, "*:Index")
 
 	//模板相关接口
+	beego.Router("/api/template/get", &controllers.TemplateController{},"get:Get")
 	beego.Router("/api/template/list", &controllers.TemplateController{},"post:List")
 	beego.Router("/api/template/add", &controllers.TemplateController{},"post:Add")
 	beego.Router("/api/template/remove", &controllers.TemplateController{},"post:Delete")

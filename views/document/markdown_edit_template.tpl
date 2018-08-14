@@ -23,24 +23,31 @@
         window.historyURL = "{{urlfor "DocumentController.History"}}";
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
         window.highlightStyle = "{{.HighlightStyle}}";
-        window.template = { "listUrl" : "{{urlfor "TemplateController.List"}}", "deleteUrl" : "{{urlfor "TemplateController.Delete"}}", "saveUrl" :"{{urlfor "TemplateController.Add"}}"}
+        window.template = { "getUrl":"{{urlfor "TemplateController.Get"}}", "listUrl" : "{{urlfor "TemplateController.List"}}", "deleteUrl" : "{{urlfor "TemplateController.Delete"}}", "saveUrl" :"{{urlfor "TemplateController.Add"}}"}
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/css/editormd.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/css/editormd.css"}}?_=1533630569" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css"}}?_=1533630269" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.css"}}?_=1533630569" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css"}}?_=1533630569" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
     <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="/static/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <style type="text/css">
+        .text{
+            font-size: 12px;
+            color: #999999;
+            font-weight: 200;
+        }
+    </style>
 </head>
 <body>
 
@@ -50,7 +57,8 @@
             <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
+            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save first" aria-hidden="true" name="save"></i></a>
+            <a href="javascript:;" id="markdown-template" data-toggle="tooltip" data-title="保存为模板" class="template"><i class="fa fa-briefcase last" aria-hidden="true" name="save-template"></i></a>
         </div>
         <div class="editormd-group">
             <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
@@ -163,6 +171,8 @@
         </form>
     </div>
 </div>
+
+<!-- 显示附件 --->
 <div class="modal fade" id="uploadAttachModal" tabindex="-1" role="dialog" aria-labelledby="uploadAttachModalLabel">
     <div class="modal-dialog" role="document">
         <form method="post" id="uploadAttachModalForm" class="form-horizontal">
@@ -213,7 +223,7 @@
         </form>
     </div>
 </div>
-<!-- Modal -->
+<!-- 显示温度历史 -->
 <div class="modal fade" id="documentHistoryModal" tabindex="-1" role="dialog" aria-labelledby="documentHistoryModalModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -230,11 +240,12 @@
         </div>
     </div>
 </div>
-
+<!--- 选择模板--->
 <div class="modal fade" id="documentTemplateModal" tabindex="-1" role="dialog" aria-labelledby="请选择模板类型" aria-hidden="true">
     <div class="modal-dialog" style="width: 780px;">
         <div class="modal-content">
             <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="modal-title">请选择模板类型</h4>
             </div>
             <div class="modal-body template-list">
@@ -269,7 +280,7 @@
 
                         <h3><a data-type="customs" href="javascript:;">自定义模板</a></h3>
                         <ul>
-                            <li>可将文档保存为自定义模板</li>
+                            <li>自定义模板</li>
                             <li>支持任意类型文档</li>
                             <li>可以设置为全局模板</li>
                         </ul>
@@ -283,9 +294,9 @@
         </div>
     </div>
 </div>
-
+<!--- 显示自定义模板--->
 <div class="modal fade" id="displayCustomsTemplateModal" tabindex="-1" role="dialog" aria-labelledby="displayCustomsTemplateModalLabel">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" role="document" style="width: 750px;">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -297,30 +308,17 @@
                         <thead>
                         <tr>
                             <td>#</td>
-                            <td class="col-sm-6">模板名称</td>
+                            <td class="col-sm-3">模板名称</td>
+                            <td class="col-sm-2">模板类型</td>
                             <td class="col-sm-2">创建人</td>
-                            <td class="col-sm=2">创建时间</td>
+                            <td class="col-sm-3">创建时间</td>
                             <td class="col-sm-2">操作</td>
                         </tr>
                         </thead>
                         <tbody>
-                        {{range $index,$item := .List}}
-                        <tr>
-                            <td>{{$item.HistoryId}}</td>
-                            <td>{{date_format $item.ModifyTime "2006-01-02 15:04:05"}}</td>
-                            <td>{{$item.ModifyName}}</td>
-                            <td>{{$item.Version}}</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm delete-btn" data-id="{{$item.HistoryId}}" data-loading-text="删除中...">
-                                    删除
-                                </button>
-                            </td>
-                        </tr>
-                        {{else}}
                         <tr>
                             <td colspan="6" class="text-center">暂无数据</td>
                         </tr>
-                        {{end}}
                         </tbody>
                     </table>
                 </div>
@@ -328,6 +326,49 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
             </div>
+        </div>
+    </div>
+</div>
+<!--- 创建模板--->
+<div class="modal fade" id="saveTemplateModal" tabindex="-1" role="dialog" aria-labelledby="saveTemplateModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" action="{{urlfor "TemplateController.Add"}}" id="saveTemplateForm" class="form-horizontal">
+                <input type="hidden" name="identify" value="{{.Model.Identify}}">
+                <input type="hidden" name="content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">保存为模板</h4>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">模板名称 <span class="error-message">*</span></label>
+                        <div class="col-sm-10">
+                            <input type="text" name="template_name" id="templateName" placeholder="模板名称" class="form-control"  maxlength="50">
+                        </div>
+                    </div>
+                    {{if eq .Member.Role 0 1}}
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <label>
+                                <input type="radio" name="is_global" value="1"> 全局<span class="text">(任何项目都可用)</span>
+                            </label>
+                        </div>
+                        <div class="col-lg-6">
+                            <label>
+                                <input type="radio" name="is_global" value="0" checked> 项目<span class="text">(只有当前项目可用)</span>
+                            </label>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    {{end}}
+                </div>
+                <div class="modal-footer">
+                    <span class="error-message show-error-message"></span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveTemplate" data-loading-text="保存中...">立即保存</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -349,10 +390,9 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js"}}?_=1533638577" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/markdown.js"}}?_=1533638577" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/markdown.js"}}?_=1533638587" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });

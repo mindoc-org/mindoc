@@ -204,11 +204,10 @@ func (m *Member) Update(cols ...string) error {
 	return nil
 }
 
-func (m *Member) Find(id int) (*Member, error) {
+func (m *Member) Find(id int,cols ...string) (*Member, error) {
 	o := orm.NewOrm()
 
-	m.MemberId = id
-	if err := o.Read(m); err != nil {
+	if err := o.QueryTable(m.TableNameWithPrefix()).Filter("member_id",id).One(m,cols...); err != nil {
 		return m, err
 	}
 	m.ResolveRoleName()
@@ -404,6 +403,18 @@ func (m *Member) Delete(oldId int, newId int) error {
 		return err
 	}
 	_, err = o.Raw("UPDATE md_blogs SET modify_at = ? WHERE modify_at = ?", newId, oldId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+
+	_, err = o.Raw("UPDATE md_templates SET modify_at = ? WHERE modify_at = ?", newId, oldId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+
+	_, err = o.Raw("UPDATE md_templates SET member_id = ? WHERE member_id = ?", newId, oldId).Exec()
 	if err != nil {
 		o.Rollback()
 		return err
