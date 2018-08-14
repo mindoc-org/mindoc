@@ -18,6 +18,7 @@ type DocumentTree struct {
 	BookIdentify string            `json:"-"`
 	Version      int64             `json:"version"`
 	State        *DocumentSelected `json:"state,omitempty"`
+	AAttrs		 map[string]interface{}		`json:"a_attr"`
 }
 type DocumentSelected struct {
 	Selected bool `json:"selected"`
@@ -32,7 +33,7 @@ func (m *Document) FindDocumentTree(bookId int) ([]*DocumentTree, error) {
 
 	var docs []*Document
 
-	count, err := o.QueryTable(m).Filter("book_id", bookId).OrderBy("order_sort", "document_id").Limit(math.MaxInt32).All(&docs, "document_id", "version", "document_name", "parent_id", "identify")
+	count, err := o.QueryTable(m).Filter("book_id", bookId).OrderBy("order_sort", "document_id").Limit(math.MaxInt32).All(&docs, "document_id", "version", "document_name", "parent_id", "identify","is_open")
 
 	if err != nil {
 		return trees, err
@@ -45,6 +46,10 @@ func (m *Document) FindDocumentTree(bookId int) ([]*DocumentTree, error) {
 		tree := &DocumentTree{}
 		if index == 0 {
 			tree.State = &DocumentSelected{Selected: true, Opened: true}
+			tree.AAttrs = map[string]interface{}{ "is_open": true}
+		}else if item.IsOpen == 1 {
+			tree.State = &DocumentSelected{Selected: false, Opened: true}
+			tree.AAttrs = map[string]interface{}{ "is_open": true}
 		}
 		tree.DocumentId = item.DocumentId
 		tree.Identify = item.Identify
@@ -107,14 +112,14 @@ func getDocumentTree(array []*DocumentTree, parentId int, selectedId int, select
 			if item.DocumentId == selectedId {
 				selected = ` class="jstree-clicked"`
 			}
-			selected_li := ""
-			if item.DocumentId == selectedParentId {
-				selected_li = ` class="jstree-open"`
+			selectedLi := ""
+			if item.DocumentId == selectedParentId || (item.State != nil && item.State.Opened) {
+				selectedLi = ` class="jstree-open"`
 			}
 			buf.WriteString("<li id=\"")
 			buf.WriteString(strconv.Itoa(item.DocumentId))
 			buf.WriteString("\"")
-			buf.WriteString(selected_li)
+			buf.WriteString(selectedLi)
 			buf.WriteString("><a href=\"")
 			if item.Identify != "" {
 				uri := conf.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.Identify)

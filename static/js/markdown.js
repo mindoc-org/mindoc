@@ -3,7 +3,7 @@ $(function () {
         js  : window.katex.js,
         css : window.katex.css
     };
-    window.addDocumentModalFormHtml = $(this).find("form").html();
+
     window.editor = editormd("docEditor", {
         width: "100%",
         height: "100%",
@@ -256,7 +256,7 @@ $(function () {
     }
 
     /**
-     * 添加顶级文档
+     * 添加文档
      */
     $("#addDocumentForm").ajaxForm({
         beforeSubmit: function () {
@@ -269,11 +269,20 @@ $(function () {
         },
         success: function (res) {
             if (res.errcode === 0) {
-                var data = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id , "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
+                var data = {
+                    "id": res.data.doc_id,
+                    'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id ,
+                    "text": res.data.doc_name,
+                    "identify": res.data.identify,
+                    "version": res.data.version ,
+                    state: { opened: res.data.is_open == 1},
+                    a_attr: { is_open: res.data.is_open == 1}
+                };
 
                 var node = window.treeCatalog.get_node(data.id);
                 if (node) {
                     window.treeCatalog.rename_node({ "id": data.id }, data.text);
+                    $("#sidebar").jstree(true).get_node(data.id).a_attr.is_open = data.state.opened;
                 } else {
                     window.treeCatalog.create_node(data.parent, data);
                     window.treeCatalog.deselect_all();

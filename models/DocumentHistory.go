@@ -21,6 +21,7 @@ type DocumentHistory struct {
 	ModifyTime   time.Time `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	ModifyAt     int       `orm:"column(modify_at);type(int)" json:"-"`
 	Version      int64     `orm:"type(bigint);column(version)" json:"version"`
+	IsOpen	   int 			 `orm:"column(is_open);type(int);default(0)" json:"is_open"`
 }
 
 type DocumentHistorySimpleResult struct {
@@ -101,6 +102,7 @@ func (m *DocumentHistory) Restore(historyId, docId, uid int) error {
 	history.Version = time.Now().Unix()
 	history.Action = "restore"
 	history.ActionName = "恢复文档"
+	history.IsOpen = doc.IsOpen
 
 	history.InsertOrUpdate()
 
@@ -109,6 +111,7 @@ func (m *DocumentHistory) Restore(historyId, docId, uid int) error {
 	doc.Markdown = m.Markdown
 	doc.Release = m.Content
 	doc.Version = time.Now().Unix()
+	doc.IsOpen = m.IsOpen
 
 	_, err = o.Update(doc)
 

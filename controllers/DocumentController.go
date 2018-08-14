@@ -301,6 +301,7 @@ func (c *DocumentController) Create() {
 	docName := c.GetString("doc_name")
 	parentId, _ := c.GetInt("parent_id", 0)
 	docId, _ := c.GetInt("doc_id", 0)
+	isOpen,_ := c.GetInt("is_open",0)
 
 	if identify == "" {
 		c.JsonResult(6001, "参数错误")
@@ -360,8 +361,14 @@ func (c *DocumentController) Create() {
 	document.DocumentName = docName
 	document.ParentId = parentId
 
+	if isOpen == 1 {
+		document.IsOpen = 1
+	}else{
+		document.IsOpen = 0
+	}
+
 	if err := document.InsertOrUpdate(); err != nil {
-		beego.Error("InsertOrUpdate => ", err)
+		beego.Error("添加或更新文档时出错 -> ", err)
 		c.JsonResult(6005, "保存失败")
 	} else {
 		c.JsonResult(0, "ok", document)

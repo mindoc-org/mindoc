@@ -36,7 +36,9 @@ type Document struct {
 	MemberId   int           `orm:"column(member_id);type(int)" json:"member_id"`
 	ModifyTime time.Time     `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	ModifyAt   int           `orm:"column(modify_at);type(int)" json:"-"`
-	Version    int64         `orm:"type(bigint);column(version)" json:"version"`
+	Version    int64         `orm:"column(version);type(bigint);" json:"version"`
+	//是否展开子目录：0 否/1 是
+	IsOpen	   int 			 `orm:"column(is_open);type(int);default(0)" json:"is_open"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
 }
 

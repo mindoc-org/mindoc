@@ -109,9 +109,16 @@ function openEditCatalogDialog($node) {
     var text = $node ? $node.text : '';
     var parentId = $node && $node.parent !== '#' ? $node.parent : 0;
 
+
     $then.find("input[name='doc_id']").val(doc_id);
     $then.find("input[name='parent_id']").val(parentId);
     $then.find("input[name='doc_name']").val(text);
+
+    if($node.a_attr && $node.a_attr.is_open){
+        $then.find("input[name='is_open'][value='1']").prop("checked","checked");
+    }else{
+        $then.find("input[name='is_open'][value='0']").prop("checked","checked");
+    }
 
     for (var index in window.documentCategory){
         var item = window.documentCategory[index];
@@ -196,9 +203,11 @@ $("#btnAddDocument").on("click",function () {
 });
 //用于还原创建文档的遮罩层
 $("#addDocumentModal").on("hidden.bs.modal",function () {
-    $(this).find("form").html(window.addDocumentModalFormHtml);
+    // $(this).find("form").html(window.sessionStorage.getItem("addDocumentModal"));
 }).on("shown.bs.modal",function () {
     $(this).find("input[name='doc_name']").focus();
+}).on("show.bs.modal",function () {
+    // window.sessionStorage.setItem("addDocumentModal",$(this).find("form").html())
 });
 
 function showError($msg,$id) {
@@ -344,7 +353,6 @@ $(function () {
                     type : "post",
                     data : { "attach_id" : $attach_id},
                     success : function (res) {
-                        console.log(res);
                         if(res.errcode === 0){
                             $this.lists = $this.lists.filter(function ($item) {
                                 return $item.attachment_id != $attach_id;

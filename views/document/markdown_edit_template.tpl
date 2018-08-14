@@ -154,12 +154,26 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">文档标识</label>
+                    <label class="col-sm-2 control-label">文档标识 <span class="error-message">&nbsp;</span></label>
                     <div class="col-sm-10">
                         <input type="text" name="doc_identify" id="documentIdentify" placeholder="文档唯一标识" class="form-control" maxlength="50">
                         <p style="color: #999;font-size: 12px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
                     </div>
 
+                </div>
+                <div class="form-group">
+                        <div class="col-lg-6">
+                            <label>
+                                <input type="radio" name="is_open" value="1"> 展开<span class="text">(在阅读时会自动展开节点)</span>
+                            </label>
+                        </div>
+                        <div class="col-lg-6">
+                            <label>
+                                <input type="radio" name="is_open" value="0" checked> 关闭<span class="text">(在阅读时会关闭节点)</span>
+                            </label>
+                        </div>
+
+                    <div class="clearfix"></div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -223,7 +237,7 @@
         </form>
     </div>
 </div>
-<!-- 显示温度历史 -->
+<!-- 显示文档历史 -->
 <div class="modal fade" id="documentHistoryModal" tabindex="-1" role="dialog" aria-labelledby="documentHistoryModalModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -317,7 +331,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td colspan="6" class="text-center">暂无数据</td>
+                            <td colspan="7" class="text-center">暂无数据</td>
                         </tr>
                         </tbody>
                     </table>
