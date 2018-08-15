@@ -372,7 +372,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 	o.Begin()
 
 	//删除附件,这里没有删除实际物理文件
-	_,err = o.Raw("DELETE FROM " + NewAttachment().TableNameWithPrefix() + " WHERE book_id=?").Exec()
+	_,err = o.Raw("DELETE FROM " + NewAttachment().TableNameWithPrefix() + " WHERE book_id=?",book.BookId).Exec()
 	if err != nil {
 		o.Rollback()
 		return err
@@ -411,7 +411,9 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		NewLabel().InsertOrUpdateMulti(book.Label)
 	}
 
-	os.RemoveAll(filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(id)))
+	if err := os.RemoveAll(filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(id))); err != nil {
+		beego.Error("删除项目缓存失败 ->",err)
+	}
 
 	return o.Commit()
 
