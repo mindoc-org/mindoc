@@ -451,15 +451,20 @@ $(function () {
             $("#btnSaveTemplate").button("reset");
         }
     });
-
+    /**
+     * 当添加模板弹窗事件发生
+     */
     $("#saveTemplateModal").on("show.bs.modal",function () {
         window.sessionStorage.setItem("saveTemplateModal",$(this).find(".modal-body").html());
         var content = window.editor.getMarkdown();
         $("#saveTemplateForm").find("input[name='content']").val(content);
+        $("#saveTemplateForm .show-error-message").html("");
     }).on("hidden.bs.modal",function () {
         $(this).find(".modal-body").html(window.sessionStorage.getItem("saveTemplateModal"));
     });
-
+    /**
+     * 插入自定义模板内容
+     */
     $("#displayCustomsTemplateList").on("click",".btn-insert",function () {
         var templateId = $(this).attr("data-id");
 

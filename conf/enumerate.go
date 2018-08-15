@@ -7,6 +7,8 @@ import (
 	"github.com/astaxie/beego"
 	"strconv"
 	"path/filepath"
+	"os"
+	"fmt"
 )
 
 // 登录用户的Session名
@@ -240,10 +242,15 @@ func URLForWithCdnImage(p string) string  {
 	return cdn + p
 }
 
-func URLForWithCdnCss (p string) string {
+func URLForWithCdnCss (p string,v ...string) string {
 	cdn := beego.AppConfig.DefaultString("cdncss", "")
 	if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 		return p
+	}
+	filePath := WorkingDir(p)
+
+	if f,err := os.Stat(filePath); err == nil && !strings.Contains(p, "?") && len(v) > 0 && v[0] == "version" {
+		p = p + fmt.Sprintf("?v=%s" , f.ModTime().Format("20060102150405"))
 	}
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
@@ -268,11 +275,18 @@ func URLForWithCdnCss (p string) string {
 	return cdn + p
 }
 
-func URLForWithCdnJs(p string) string {
+func URLForWithCdnJs(p string,v ...string) string {
 	cdn := beego.AppConfig.DefaultString("cdnjs", "")
 	if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 		return p
 	}
+
+	filePath := WorkingDir(p)
+
+	if f,err := os.Stat(filePath); err == nil && !strings.Contains(p, "?") && len(v) > 0 && v[0] == "version" {
+		p = p + fmt.Sprintf("?v=%s" , f.ModTime().Format("20060102150405"))
+	}
+
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
 		baseUrl := beego.AppConfig.DefaultString("baseurl","")

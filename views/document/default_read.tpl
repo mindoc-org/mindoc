@@ -19,13 +19,13 @@
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/nprogress/nprogress.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/kancloud.css"}}?_=1531286622" rel="stylesheet">
+    <link href="{{cdncss "/static/css/kancloud.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css?_=15312866210"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/lib/highlight/styles/"}}{{if .HighlightStyle}}{{.HighlightStyle}}{{else}}github{{end}}.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/print.css"}}" media="print" rel="stylesheet">
+    <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -279,8 +279,8 @@
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/kancloud.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/splitbar.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">
 
 $(function () {
