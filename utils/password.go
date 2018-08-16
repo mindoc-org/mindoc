@@ -23,24 +23,24 @@ const (
 //加密密码
 func PasswordHash(pass string) (string, error) {
 
-	salt_secret, err := salt_secret()
+	saltSecret, err := salt_secret()
 	if err != nil {
 		return "", err
 	}
 
-	salt, err := salt(salt_local_secret + salt_secret)
+	salt, err := salt(salt_local_secret + saltSecret)
 	if err != nil {
 		return "", err
 	}
 
 	interation := randInt(1, 20)
 
-	hash, err := hash(pass, salt_secret, salt, int64(interation))
+	hash, err := hash(pass, saltSecret, salt, int64(interation))
 	if err != nil {
 		return "", err
 	}
-	interation_string := strconv.Itoa(interation)
-	password := salt_secret + delmiter + interation_string + delmiter + hash + delmiter + salt
+	interationString := strconv.Itoa(interation)
+	password := saltSecret + delmiter + interationString + delmiter + hash + delmiter + salt
 
 	return password, nil
 
@@ -48,7 +48,7 @@ func PasswordHash(pass string) (string, error) {
 
 //校验密码是否有效
 func PasswordVerify(hashing string, pass string) (bool, error) {
-	data := trim_salt_hash(hashing)
+	data := trimSaltHash(hashing)
 
 	interation, _ := strconv.ParseInt(data["interation_string"], 10, 64)
 
@@ -66,40 +66,48 @@ func PasswordVerify(hashing string, pass string) (bool, error) {
 }
 
 func hash(pass string, salt_secret string, salt string, interation int64) (string, error) {
-	var pass_salt string = salt_secret + pass + salt + salt_secret + pass + salt + pass + pass + salt
+	var passSalt = salt_secret + pass + salt + salt_secret + pass + salt + pass + pass + salt
 	var i int
 
-	hash_pass := salt_local_secret
-	hash_start := sha512.New()
-	hash_center := sha256.New()
-	hash_output := sha256.New224()
+	hashPass := salt_local_secret
+	hashStart := sha512.New()
+	hashCenter := sha256.New()
+	hashOutput := sha256.New224()
 
 	i = 0
 	for i <= stretching_password {
 		i = i + 1
-		hash_start.Write([]byte(pass_salt + hash_pass))
-		hash_pass = hex.EncodeToString(hash_start.Sum(nil))
+		_, err := hashStart.Write([]byte(passSalt + hashPass))
+		if err != nil {
+			return "", err
+		}
+		hashPass = hex.EncodeToString(hashStart.Sum(nil))
 	}
 
 	i = 0
 	for int64(i) <= interation {
 		i = i + 1
-		hash_pass = hash_pass + hash_pass
+		hashPass = hashPass + hashPass
 	}
 
 	i = 0
 	for i <= stretching_password {
 		i = i + 1
-		hash_center.Write([]byte(hash_pass + salt_secret))
-		hash_pass = hex.EncodeToString(hash_center.Sum(nil))
+		_, err := hashCenter.Write([]byte(hashPass + salt_secret))
+		if err != nil {
+			return "", err
+		}
+		hashPass = hex.EncodeToString(hashCenter.Sum(nil))
 	}
-	hash_output.Write([]byte(hash_pass + salt_local_secret))
-	hash_pass = hex.EncodeToString(hash_output.Sum(nil))
+	if _,err := hashOutput.Write([]byte(hashPass + salt_local_secret)); err != nil {
+		return "", err
+	}
+	hashPass = hex.EncodeToString(hashOutput.Sum(nil))
 
-	return hash_pass, nil
+	return hashPass, nil
 }
 
-func trim_salt_hash(hash string) map[string]string {
+func trimSaltHash(hash string) map[string]string {
 	str := strings.Split(hash, delmiter)
 
 	return map[string]string{

@@ -8,7 +8,6 @@ import (
 
 	"github.com/lifei6671/mindoc/mail"
 	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
@@ -25,7 +24,6 @@ func (c *AccountController) Login() {
 	c.Prepare()
 	c.TplName = "account/login.tpl"
 
-
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
 		u := c.GetString("url")
 		if u == "" {
@@ -34,7 +32,7 @@ func (c *AccountController) Login() {
 		if u == "" {
 			u = conf.URLFor("HomeController.Index")
 		}
-		c.Redirect(u,302)
+		c.Redirect(u, 302)
 	}
 	var remember CookieRemember
 	// 如果 Cookie 中存在登录信息
@@ -62,6 +60,10 @@ func (c *AccountController) Login() {
 			}
 		}
 
+		if account == "" || password == "" {
+			c.JsonResult(6002, "账号或密码不能为空")
+		}
+
 		member, err := models.NewMember().Login(account, password)
 		if err == nil {
 			member.LastLoginTime = time.Now()
@@ -75,10 +77,10 @@ func (c *AccountController) Login() {
 				remember.Time = time.Now()
 				v, err := utils.Encode(remember)
 				if err == nil {
-					c.SetSecureCookie(conf.GetAppKey(), "login", v,time.Now().Add(time.Hour * 24 * 30).Unix())
+					c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour * 24 * 30).Unix())
 				}
 			}
-			u,_ := url.PathUnescape(c.GetString("url"))
+			u, _ := url.PathUnescape(c.GetString("url"))
 			if u == "" {
 				u = c.Ctx.Request.Header.Get("Referer")
 			}
@@ -88,11 +90,11 @@ func (c *AccountController) Login() {
 
 			c.JsonResult(0, "ok", u)
 		} else {
-			logs.Error("用户登录 =>", err)
+			beego.Error("用户登录 ->", err)
 			c.JsonResult(500, "账号或密码错误", nil)
 		}
-	}else{
-		u,_ := url.PathUnescape(c.GetString("url"))
+	} else {
+		u, _ := url.PathUnescape(c.GetString("url"))
 		if u == "" {
 			u = c.Ctx.Request.Header.Get("Referer")
 		}
@@ -130,7 +132,7 @@ func (c *AccountController) Register() {
 
 	//如果用户登录了，则跳转到网站首页
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
-		c.Redirect(conf.URLFor("HomeController.Index"),302)
+		c.Redirect(conf.URLFor("HomeController.Index"), 302)
 	}
 	// 如果没有开启用户注册
 	if v, ok := c.Option["ENABLED_REGISTER"]; ok && !strings.EqualFold(v, "true") {
@@ -244,7 +246,7 @@ func (c *AccountController) FindPassword() {
 		data := map[string]interface{}{
 			"SITE_NAME": c.Option["SITE_NAME"],
 			"url":       conf.URLFor("AccountController.FindPassword", "token", member_token.Token, "mail", email),
-			"BaseUrl": c.BaseUrl(),
+			"BaseUrl":   c.BaseUrl(),
 		}
 
 		body, err := c.ExecuteViewPathTemplate("account/mail_template.tpl", data)
@@ -261,7 +263,7 @@ func (c *AccountController) FindPassword() {
 				Host:     mailConf.SmtpHost,
 				Port:     mailConf.SmtpPort,
 				Secure:   mailConf.Secure,
-				Identity:"",
+				Identity: "",
 			}
 			beego.Info(mailConfig)
 
@@ -406,7 +408,7 @@ func (c *AccountController) Logout() {
 
 	u := c.Ctx.Request.Header.Get("Referer")
 
-	c.Redirect(conf.URLFor("AccountController.Login","url",u), 302)
+	c.Redirect(conf.URLFor("AccountController.Login", "url", u), 302)
 }
 
 // 验证码
