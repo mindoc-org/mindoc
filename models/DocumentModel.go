@@ -299,3 +299,22 @@ func (item *Document) ReleaseContent() error {
 	}
 	return nil
 }
+
+//追加一些文档信息.
+func (doc *Document) AppendInfo() *Document {
+
+	docCreator, err := NewMember().Find(doc.MemberId,"real_name","account")
+
+	if strings.TrimSpace(doc.Release) != "" {
+		doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者：";
+		if err == nil && docCreator != nil {
+			if docCreator.RealName != "" {
+				doc.Release += docCreator.RealName
+			} else {
+				doc.Release += docCreator.Account
+			}
+		}
+		doc.Release += "</div>"
+	}
+	return doc
+}

@@ -63,9 +63,7 @@ func (c *DocumentController) Index() {
 	if bookResult.IsUseFirstDocument {
 		doc, err := bookResult.FindFirstDocumentByBookId(bookResult.BookId)
 		if err == nil {
-			if strings.TrimSpace(doc.Release) != "" {
-				doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + "</div>";
-			}
+			doc.AppendInfo()
 			selected = doc.DocumentId
 			c.Data["Title"] = doc.DocumentName
 			c.Data["Content"] = template.HTML(doc.Release)
@@ -179,17 +177,7 @@ func (c *DocumentController) Read() {
 	if doc.ModifyTime != doc.CreateTime {
 		docInfo += "；更新于 "
 		docInfo += doc.ModifyTime.Local().Format("2006-01-02 15:04")
-		if strings.TrimSpace(doc.Release) != "" {
-			doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者：";
-			if docCreator != nil {
-				if docCreator.RealName != "" {
-					doc.Release += docCreator.RealName
-				} else {
-					doc.Release += docCreator.Account
-				}
-			}
-			doc.Release += "</div>"
-		}
+		doc.AppendInfo()
 	}
 
 	if c.IsAjax() {
