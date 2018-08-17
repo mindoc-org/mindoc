@@ -161,7 +161,6 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 	if errCode >= 200 && errCode <= 510 {
 		c.CustomAbort(errCode, buf.String())
 	}else{
-		c.CustomAbort(200, buf.String())
+		c.CustomAbort(500, buf.String())
 	}
-
 }

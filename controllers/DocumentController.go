@@ -120,7 +120,7 @@ func (c *DocumentController) Read() {
 		doc, err = doc.FromCacheById(docId)
 		if err != nil {
 			beego.Error("从缓存中读取文档时失败 ->", err)
-			c.ShowErrorPage(500, "文档不存在或已删除")
+			c.ShowErrorPage(404, "文档不存在或已删除")
 		}
 	} else {
 		doc, err = doc.FromCacheByIdentify(id, bookResult.BookId)

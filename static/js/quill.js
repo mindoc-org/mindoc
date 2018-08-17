@@ -138,7 +138,7 @@ $(function () {
 
                 pushVueLists(res.data.attach);
                 initHighlighting();
-
+                setLastSelectNode($node);
             }else{
                 layer.msg("文档加载失败");
             }
@@ -182,13 +182,13 @@ $(function () {
         $.ajax({
             beforeSend  : function () {
                 index = layer.load(1, {shade: [0.1,'#fff'] });
+                window.saveing = true;
             },
             url :  window.editURL,
             data : {"identify" : window.book.identify,"doc_id" : doc_id,"markdown" : content,"html" : html,"cover" : $is_cover ? "yes":"no","version": version},
             type :"post",
             dataType :"json",
             success : function (res) {
-                layer.close(index);
                 if(res.errcode === 0){
                     for(var i in window.documentCategory){
                         var item = window.documentCategory[i];
@@ -214,6 +214,13 @@ $(function () {
                 }else{
                     layer.msg(res.message);
                 }
+            },
+            error : function (XMLHttpRequest, textStatus, errorThrown) {
+                layer.msg("服务器错误：" +  errorThrown);
+            },
+            complete :function () {
+                layer.close(index);
+                window.saveing = false;
             }
         });
     }
@@ -317,17 +324,8 @@ $(function () {
         }
     }).on('loaded.jstree', function () {
         window.treeCatalog = $(this).jstree();
-        var $select_node_id = window.treeCatalog.get_selected();
-        if ($select_node_id) {
-            var $select_node = window.treeCatalog.get_node($select_node_id[0])
-            if ($select_node) {
-                $select_node.node = {
-                    id: $select_node.id
-                };
-
-                loadDocument($select_node);
-            }
-        }
+        //如果没有选中节点则选中默认节点
+        openLastSelectedNode();
 
     }).on('select_node.jstree', function (node, selected, event) {
         if(window.menu_save.hasClass('change')) {

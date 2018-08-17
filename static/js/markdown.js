@@ -202,10 +202,8 @@ $(function () {
             timeout : 30000,
             dataType: "json",
             success: function (res) {
-                layer.close(index);
                 if (res.errcode === 0) {
                     resetEditorChanged(false);
-                    window.saveing = false;
                     for (var i in window.documentCategory) {
                         var item = window.documentCategory[i];
 
@@ -230,8 +228,10 @@ $(function () {
                 }
             },
             error : function (XMLHttpRequest, textStatus, errorThrown) {
-                layer.close(index);
                 layer.msg("服务器错误：" +  errorThrown);
+            },
+            complete :function () {
+                layer.close(index);
                 window.saveing = false;
             }
         });

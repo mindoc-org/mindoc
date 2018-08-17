@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>服务器异常 - Powered by MinDoc</title>
+    <title> {{if eq 200 .ErrorCode}}友情提示{{else if eq 404 .ErrorCode}}页面不存在{{else}}服务器异0常{{end}} - Powered by MinDoc</title>
     <link href="{{cdncss "/static/fonts/lato-100.css"}}" rel="stylesheet" type="text/css">
     <style type="text/css">
         html, body {
