@@ -12,7 +12,7 @@ function openLastSelectedNode() {
     }
     var $isSelected = false;
     if(window.localStorage){
-        var $selectedNodeId = window.localStorage.getItem("MinDoc::LastLoadDocument:" + window.book.identify);
+        var $selectedNodeId = window.sessionStorage.getItem("MinDoc::LastLoadDocument:" + window.book.identify);
         try{
             if($selectedNodeId){
                 //遍历文档树判断是否存在节点
@@ -51,10 +51,10 @@ function openLastSelectedNode() {
 function setLastSelectNode($node) {
     if(window.localStorage) {
         if (typeof $node === "undefined" || !$node) {
-            window.localStorage.removeItem("MinDoc::LastLoadDocument:" + window.book.identify);
+            window.sessionStorage.removeItem("MinDoc::LastLoadDocument:" + window.book.identify);
         } else {
             var nodeId = $node.id ? $node.id : $node.node.id;
-            window.localStorage.setItem("MinDoc::LastLoadDocument:" + window.book.identify, nodeId);
+            window.sessionStorage.setItem("MinDoc::LastLoadDocument:" + window.book.identify, nodeId);
         }
     }
 }

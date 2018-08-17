@@ -1,7 +1,7 @@
 var events = function () {
     var articleOpen = function (event, $param) {
         //当打开文档时，将文档ID加入到本地缓存。
-        window.localStorage && window.localStorage.setItem("MinDoc::LastLoadDocument:" + window.book.identify, $param.$id);
+        window.sessionStorage && window.sessionStorage.setItem("MinDoc::LastLoadDocument:" + window.book.identify, $param.$id);
         var prevState = window.history.state || {};
         if ('pushState' in history) {
 
@@ -24,6 +24,7 @@ var events = function () {
     if(window.sessionStorage){
         return {
             data: function ($key, $value) {
+                $key = "MinDoc::Document:" + $key;
                 if(typeof $value === "undefined"){
                     var data = window.sessionStorage.getItem($key);
                     return JSON.parse(data);
@@ -39,6 +40,7 @@ var events = function () {
     }else{
         return {
             data : function ($key, $value) {
+                $key = "MinDoc::Document:" + $key;
                 if(typeof $value === "undefined"){
                     return $("body").data($key);
                 }else{
@@ -67,7 +69,7 @@ function loadDocument($url, $id, $callback) {
         url : $url,
         type : "GET",
         beforeSend : function (xhr) {
-            var data = events.data("document_" + $id);
+            var data = events.data($id);
             if(data) {
                 if (typeof $callback === "function") {
                     data.body = $callback(data.body);
@@ -103,7 +105,7 @@ function loadDocument($url, $id, $callback) {
                 $("#article-title").text(doc_title);
                 $("#article-info").text(doc_info);
 
-                events.data('document_' + $id, res.data);
+                events.data($id, res.data);
 
                 events.trigger('article.open', { $url : $url, $id : $id });
             } else if (res.errcode === 6000) {
