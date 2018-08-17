@@ -144,6 +144,7 @@ func (c *BookController) SaveBook() {
 	isDownload := strings.TrimSpace(c.GetString("is_download")) == "on"
 	enableShare := strings.TrimSpace(c.GetString("enable_share")) == "on"
 	isUseFirstDocument := strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
+	autoSave := strings.TrimSpace(c.GetString("auto_save")) == "on"
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
@@ -170,6 +171,7 @@ func (c *BookController) SaveBook() {
 	book.HistoryCount = historyCount
 	book.IsDownload = 0
 
+
 	if autoRelease {
 		book.AutoRelease = 1
 	} else {
@@ -189,6 +191,11 @@ func (c *BookController) SaveBook() {
 		book.IsUseFirstDocument = 1
 	} else {
 		book.IsUseFirstDocument = 0
+	}
+	if autoSave {
+		book.AutoSave = 1
+	}else{
+		book.AutoSave = 0
 	}
 	if err := book.Update(); err != nil {
 		c.JsonResult(6006, "保存失败")

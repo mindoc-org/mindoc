@@ -158,7 +158,15 @@
                     <label for="autoRelease">设置第一篇文档为默认首页</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
-                            <input type="checkbox" id="is_use_first_document" name="is_use_first_document"{{if .Model.IsUseFirstDocument }} checked{{end}} data-size="small" placeholder="设置第一篇文档为默认首页">
+                            <input type="checkbox" id="isUseFirstDocument" name="is_use_first_document"{{if .Model.IsUseFirstDocument }} checked{{end}} data-size="small" placeholder="设置第一篇文档为默认首页">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="autoRelease">自动保存</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="autoSave" name="auto_save"{{if .Model.AutoSave }} checked{{end}} data-size="small" placeholder="自动保存">
                         </div>
                     </div>
                 </div>
@@ -325,7 +333,7 @@
         }).on("show.bs.modal",function () {
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
         });
-        $("#autoRelease,#enableShare,#isDownload,#is_use_first_document").bootstrapSwitch();
+        $("#autoRelease,#enableShare,#isDownload,#isUseFirstDocument,#autoSave").bootstrapSwitch();
 
         $('input[name="label"]').tagsinput({
             confirmKeys: [13,44],

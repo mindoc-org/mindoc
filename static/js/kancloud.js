@@ -1,6 +1,7 @@
 var events = function () {
     var articleOpen = function (event, $param) {
-
+        //当打开文档时，将文档ID加入到本地缓存。
+        window.localStorage && window.localStorage.setItem("MinDoc::LastLoadDocument:" + window.book.identify, $param.$id);
         var prevState = window.history.state || {};
         if ('pushState' in history) {
 

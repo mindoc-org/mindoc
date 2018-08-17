@@ -1,6 +1,64 @@
 /**
  * Created by lifei6671 on 2017/4/29 0029.
  */
+
+/**
+ * 打开最后选中的节点
+ */
+function openLastSelectedNode() {
+    //如果文档树或编辑器没有准备好则不加载文档
+    if (window.treeCatalog == null || window.editor == null) {
+        return false;
+    }
+    var $isSelected = false;
+    if(window.localStorage){
+        var $selectedNodeId = window.localStorage.getItem("MinDoc::LastLoadDocument:" + window.book.identify);
+        try{
+            if($selectedNodeId){
+                //遍历文档树判断是否存在节点
+                $.each(window.documentCategory,function (i, n) {
+                    if(n.id == $selectedNodeId && !$isSelected){
+                        var $node = {"id" : n.id};
+                        window.treeCatalog.deselect_all();
+                        window.treeCatalog.select_node($node);
+                        $isSelected = true;
+                    }
+                });
+
+            }
+        }catch($ex){
+            console.log($ex)
+        }
+    }
+
+    //如果节点不存在，则默认选中第一个节点
+    if (!$isSelected && window.documentCategory.length > 0){
+        var doc = window.documentCategory[0];
+
+        if(doc && doc.id > 0){
+            var node = {"id": doc.id};
+            $("#sidebar").jstree(true).select_node(node);
+            $isSelected = true;
+        }
+    }
+    return $isSelected;
+}
+
+/**
+ * 设置最后选中的文档
+ * @param $node
+ */
+function setLastSelectNode($node) {
+    if(window.localStorage) {
+        if (typeof $node === "undefined" || !$node) {
+            window.localStorage.removeItem("MinDoc::LastLoadDocument:" + window.book.identify);
+        } else {
+            var nodeId = $node.id ? $node.id : $node.node.id;
+            window.localStorage.setItem("MinDoc::LastLoadDocument:" + window.book.identify, nodeId);
+        }
+    }
+}
+
 /**
  * 保存排序
  * @param node
@@ -23,8 +81,6 @@ function jstree_save(node, parent) {
     var index = layer.load(1, {
         shade: [0.1, '#fff'] //0.1透明度的白色背景
     });
-
-    console.log(JSON.stringify(nodeData));
 
     $.ajax({
         url : window.sortURL,
@@ -88,6 +144,13 @@ function openDeleteDocumentDialog($node) {
             layer.close(index);
             if(res.errcode === 0){
                 window.treeCatalog.delete_node($node);
+                window.documentCategory.remove(function (item) {
+                   return item.id == $node.id;
+                });
+
+
+                // console.log(window.documentCategory)
+                setLastSelectNode();
             }else{
                 layer.msg("删除失败",{icon : 2})
             }
@@ -153,10 +216,9 @@ function pushDocumentCategory($node) {
 function pushVueLists($lists) {
 
     window.vueApp.lists = [];
-    for(var j in $lists){
-        var item = $lists[j];
+    $.each($lists,function (i, item) {
         window.vueApp.lists.push(item);
-    }
+    });
 }
 
 /**
@@ -245,14 +307,6 @@ window.documentHistory = function() {
         }
     });
 };
-//格式化文件大小
-function formatBytes($size) {
-    var $units = [" B", " KB", " MB", " GB", " TB"];
-
-    for ($i = 0; $size >= 1024 && $i < 4; $i++) $size /= 1024;
-
-    return $size.toFixed(2) + $units[$i];
-}
 
 function uploadImage($id,$callback) {
     /** 粘贴上传图片 **/
@@ -370,5 +424,26 @@ $(function () {
             }
         }
     });
-
+    /**
+     * 启动自动保存，默认30s自动保存一次
+     */
+    if(window.book.auto_save){
+        setTimeout(function () {
+            setInterval(function () {
+                var $then =  $("#markdown-save");
+                if(!window.saveing && $then.hasClass("change")){
+                    $then.trigger("click");
+                }
+            },30000);
+        },30000);
+    }
+    /**
+     * 当离开窗口时存在未保存的文档会提示保存
+     */
+    $(window).on("beforeunload",function () {
+        if($("#markdown-save").hasClass("change")){
+            return '您输入的内容尚未保存，确定离开此页面吗？';
+        }
+    });
 });
+

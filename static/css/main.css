@@ -423,6 +423,7 @@ textarea{
     margin: 0 15px;
     padding: 10px 20px;
     line-height: 25px;
+    word-break: break-word;
 }
 .manual-search-reader .search-item:hover{
     background-color: #F5F5F5;

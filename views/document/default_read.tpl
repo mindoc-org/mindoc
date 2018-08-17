@@ -27,13 +27,7 @@
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-
-    <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <script type="text/javascript">window.book={"identify":"{{.Model.Identify}}"};</script>
 </head>
 <body>
 <div class="m-manual manual-mode-view manual-reader">

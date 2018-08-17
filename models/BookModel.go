@@ -70,6 +70,8 @@ type Book struct {
 	Version       int64     `orm:"type(bigint);column(version)" json:"version"`
 	//是否使用第一篇文章项目为默认首页,0 否/1 是
 	IsUseFirstDocument int `orm:"column(is_use_first_document);type(int);default(0)" json:"is_use_first_document"`
+	//是否开启自动保存：0 否/1 是
+	AutoSave	int 		`orm:"column(auto_save);type(tinyint);default(0)" json:"auto_save"`
 }
 
 func (book *Book) String()  string {

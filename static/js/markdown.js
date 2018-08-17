@@ -43,18 +43,8 @@ $(function () {
             };
             this.addKeyMap(keyMap);
 
-            var $select_node_id = window.treeCatalog.get_selected();
-            if ($select_node_id) {
-                var $select_node = window.treeCatalog.get_node($select_node_id[0])
-                if ($select_node) {
-                    $select_node.node = {
-                        id: $select_node.id
-                    };
-
-                    loadDocument($select_node);
-                }
-            }
-
+            //如果没有选中节点则选中默认节点
+            openLastSelectedNode();
             uploadImage("docEditor", function ($state, $res) {
                 if ($state === "before") {
                     return layer.load(1, {
@@ -67,6 +57,7 @@ $(function () {
                     }
                 }
             });
+
         },
         onchange: function () {
             resetEditorChanged(true);
@@ -164,6 +155,7 @@ $(function () {
                 pushDocumentCategory(node);
                 window.selectNode = node;
                 pushVueLists(res.data.attach);
+                setLastSelectNode($node);
             } else {
                 layer.msg("文档加载失败");
             }
@@ -202,6 +194,7 @@ $(function () {
         $.ajax({
             beforeSend: function () {
                 index = layer.load(1, { shade: [0.1, '#fff'] });
+                window.saveing = true;
             },
             url: window.editURL,
             data: { "identify": window.book.identify, "doc_id": doc_id, "markdown": content, "html": html, "cover": $is_cover ? "yes" : "no", "version": version },
@@ -212,6 +205,7 @@ $(function () {
                 layer.close(index);
                 if (res.errcode === 0) {
                     resetEditorChanged(false);
+                    window.saveing = false;
                     for (var i in window.documentCategory) {
                         var item = window.documentCategory[i];
 
@@ -223,6 +217,7 @@ $(function () {
                     if (typeof callback === "function") {
                         callback();
                     }
+
                 } else if(res.errcode === 6005) {
                     var confirmIndex = layer.confirm('文档已被其他人修改确定覆盖已存在的文档吗？', {
                         btn: ['确定', '取消'] // 按钮
@@ -237,6 +232,7 @@ $(function () {
             error : function (XMLHttpRequest, textStatus, errorThrown) {
                 layer.close(index);
                 layer.msg("服务器错误：" +  errorThrown);
+                window.saveing = false;
             }
         });
     }
@@ -357,8 +353,11 @@ $(function () {
                 }
             }
         }
-    }).on('loaded.jstree', function () {
-        window.treeCatalog = $(this).jstree();
+    }).on("ready.jstree",function () {
+        window.treeCatalog = $("#sidebar").jstree(true);
+
+        //如果没有选中节点则选中默认节点
+        // openLastSelectedNode();
     }).on('select_node.jstree', function (node, selected, event) {
 
         if ($("#markdown-save").hasClass('change')) {
@@ -371,7 +370,9 @@ $(function () {
         }
 
         loadDocument(selected);
-    }).on("move_node.jstree", jstree_save);
+    }).on("move_node.jstree", jstree_save).on("delete_node.jstree",function($node,$parent) {
+        openLastSelectedNode();
+    });
     /**
      * 打开文档模板
      */

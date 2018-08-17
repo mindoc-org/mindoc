@@ -7,7 +7,9 @@
 
     <title>编辑文档 - Powered by MinDoc</title>
     <script type="text/javascript">
+        window.treeCatalog = null;
         window.baseUrl = "{{.BaseUrl}}";
+        window.saveing = false;
         window.katex = { js: "{{cdnjs "/static/katex/katex"}}",css: "{{cdncss "/static/katex/katex"}}"};
         window.editormdLib = "{{cdnjs "/static/editor.md/lib/"}}";
         window.editor = null;
@@ -395,6 +397,7 @@
 <template id="template-code">
 {{template "document/template_code.tpl"}}
 </template>
+<script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
