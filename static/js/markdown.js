@@ -212,6 +212,13 @@ $(function () {
                             break;
                         }
                     }
+                    $.each(window.documentCategory,function (i, item) {
+                        var $item = window.documentCategory[i];
+
+                        if (item.id === doc_id) {
+                            window.documentCategory[i].version = res.data.version;
+                        }
+                    });
                     if (typeof callback === "function") {
                         callback();
                     }
