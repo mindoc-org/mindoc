@@ -337,6 +337,8 @@ textarea{
 .book-list .list-item .desc-text{
     font-size: 12px;
     margin: 5px;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 .book-list .list-item .info{
     font-size: 12px;
@@ -759,11 +761,12 @@ textarea{
 
 .ui.items>.item>.content>.description {
     margin-top: .6em;
-    max-width: auto;
     font-size: 1em;
     line-height: 1.4285em;
     color: rgba(0,0,0,.87);
     min-height: 40px;
+    word-wrap: break-word;
+    word-break: break-word;
 }
 
 .ui.items>.item>.content p {
