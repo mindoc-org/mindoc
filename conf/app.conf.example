@@ -24,7 +24,7 @@ config_auto_delay="${MINDOC_CONFIG_AUTO_DELAY||20}"
 ########Session储存方式##############
 
 #默认Session生成Key的秘钥
-beegoserversessionkey="${MINDOC_SESSION_KEY||NY1B$28pms12JM&c}"
+beegoserversessionkey=NY1B$28pms12JM&c
 sessionprovider="${MINDOC_SESSION_PROVIDER||file}"
 sessionproviderconfig="${MINDOC_SESSION_PROVIDER_CONFIG||./runtime/session}"
 #默认的过期时间
@@ -52,10 +52,10 @@ timezone = Asia/Shanghai
 
 ####################MySQL 数据库配置###########################
 #支持MySQL和sqlite3两种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
-db_adapter="${MINDOC_DB_ADAPTER||mysql}"
+db_adapter="${MINDOC_DB_ADAPTER||sqlite3}"
 db_host="${MINDOC_DB_HOST||127.0.0.1}"
 db_port="${MINDOC_DB_PORT||3306}"
-db_database="${MINDOC_DB_DATABASE||mindoc_db}"
+db_database="${MINDOC_DB_DATABASE||./database/mindoc.db}"
 db_username="${MINDOC_DB_USERNAME||root}"
 db_password="${MINDOC_DB_PASSWORD||123456}"
 
@@ -130,7 +130,7 @@ ldap_base=DC=example,DC=com
 ldap_user=CN=ldap helper,OU=example.com,DC=example,DC=com
 #第一次绑定ldap用户密码
 ldap_password=superSecret
-#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户 
+#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户
 ldap_user_role=2
 #ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
 ldap_filter=objectClass=posixAccount
@@ -144,10 +144,10 @@ cdnimg="${MINDOC_CDN_IMG_URL}"
 ######################缓存配置###############################
 
 #是否开启缓存，true 开启/false 不开启
-cache="${MINDOC_CACHE||false}"
+cache="${MINDOC_CACHE||true}"
 
 #缓存方式:memory/memcache/redis/file
-cache_provider="${MINDOC_CACHE_PROVIDER||memory}"
+cache_provider="${MINDOC_CACHE_PROVIDER||redis}"
 
 #当配置缓存方式为memory时,内存回收时间,单位是秒
 cache_memory_interval="${MINDOC_CACHE_MEMORY_INTERVAL||120}"
@@ -198,7 +198,7 @@ log_daily="${MINDOC_LOG_DAILY||true}"
 log_maxdays="${MINDOC_LOG_MAX_DAYS||30}"
 
 # 日志保存的时候的级别，默认是 Trace 级别,可选值： Emergency/Alert/Critical/Error/Warning/Notice/Informational/Debug/Trace
-log_level="${MINDOC_LOG_LEVEL||Trace}"
+log_level="${MINDOC_LOG_LEVEL||Alert}"
 
 # 是否异步生成日志，默认是 true
 log_is_async="${MINDOC_LOG_IS_ASYNC||TRUE}"
