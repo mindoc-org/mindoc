@@ -1,37 +1,23 @@
-version: '2'
-
-services:
-
-### Applications Code Container #############################
-
-    applications:
-      image: tianon/true
-### Workspace Utilities Container ###########################
-
-    mindoc:
-      build:
-        context: ./
-      env_file: .env
-      environment:
-        - MYSQL_PORT_3306_TCP_ADDR=${MYSQL_PORT_3306_TCP_ADDR}
-        - MYSQL_PORT_3306_TCP_PORT=${MYSQL_PORT_3306_TCP_PORT}
-        - MYSQL_INSTANCE_NAME=${MYSQL_INSTANCE_NAME}
-        - MYSQL_USERNAME=${MYSQL_USERNAME}
-        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-        - HTTP_PORT=${HTTP_PORT}
-      ports:
-        - "${HTTP_PORT}:8181"
-      volumes_from:
-        - applications
-      tty: true
-      networks:
-        - backend
-
-
-### Networks Setup ############################################
-
-networks:
-  backend:
-    driver: "bridge"
-
-
+MinDoc_New:
+  image: registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc:v0.13
+  privileged: false
+  restart: always
+  ports:
+    - 8181:8181
+  volumes:
+    - /var/www/mindoc/database:/mindoc/database
+    - /var/www/mindoc/uploads:/mindoc/uploads
+  environment:
+    - MINDOC_RUN_MODE=prod
+    - MINDOC_DB_ADAPTER=sqlite3
+    - MINDOC_DB_DATABASE=./database/mindoc.db
+    - MINDOC_CACHE=true
+    - MINDOC_CACHE_PROVIDER=file
+    - MINDOC_ENABLE_EXPORT=false
+    - MINDOC_BASE_URL=
+    - MINDOC_CDN_IMG_URL=
+    - MINDOC_CDN_CSS_URL=
+    - MINDOC_CDN_JS_URL=
+  dns:
+    - 223.5.5.5
+    - 223.6.6.6
