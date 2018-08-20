@@ -413,8 +413,13 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		NewLabel().InsertOrUpdateMulti(book.Label)
 	}
 
+	//删除导出缓存
 	if err := os.RemoveAll(filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(id))); err != nil {
 		beego.Error("删除项目缓存失败 ->",err)
+	}
+	//删除附件和图片
+	if err := os.RemoveAll(filepath.Join(conf.WorkingDirectory,"uploads",book.Identify)); err != nil {
+		beego.Error("删除项目附件和图片失败 ->",err)
 	}
 
 	return o.Commit()
