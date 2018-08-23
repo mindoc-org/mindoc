@@ -427,7 +427,7 @@ $(function () {
     /**
      * 启动自动保存，默认30s自动保存一次
      */
-    if(window.book.auto_save){
+    if(window.book && window.book.auto_save){
         setTimeout(function () {
             setInterval(function () {
                 var $then =  $("#markdown-save");
