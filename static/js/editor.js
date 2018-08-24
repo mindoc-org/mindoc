@@ -106,6 +106,8 @@ function openCreateCatalogDialog($node) {
     var doc_id = $node ? $node.id : 0;
 
     $then.find("input[name='parent_id']").val(doc_id);
+    $then.find("input[name='doc_id']").val('');
+    $then.find("input[name='doc_name']").val('');
 
     $then.modal("show");
 }
@@ -265,11 +267,16 @@ $("#btnAddDocument").on("click",function () {
 });
 //用于还原创建文档的遮罩层
 $("#addDocumentModal").on("hidden.bs.modal",function () {
-    // $(this).find("form").html(window.sessionStorage.getItem("addDocumentModal"));
+     $(this).find("form").html(window.sessionStorage.getItem("MinDoc::addDocumentModal"));
+    var $then =  $("#addDocumentModal");
+
+    $then.find("input[name='parent_id']").val('');
+    $then.find("input[name='doc_id']").val('');
+    $then.find("input[name='doc_name']").val('');
 }).on("shown.bs.modal",function () {
     $(this).find("input[name='doc_name']").focus();
 }).on("show.bs.modal",function () {
-    // window.sessionStorage.setItem("addDocumentModal",$(this).find("form").html())
+     window.sessionStorage.setItem("MinDoc::addDocumentModal",$(this).find("form").html())
 });
 
 function showError($msg,$id) {

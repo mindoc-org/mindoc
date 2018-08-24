@@ -136,7 +136,7 @@
 
     </div>
 </div>
-<!-- Modal -->
+<!-- 创建文档 -->
 <div class="modal fade" id="addDocumentModal" tabindex="-1" role="dialog" aria-labelledby="addDocumentModalLabel">
     <div class="modal-dialog" role="document">
         <form method="post" action="{{urlfor "DocumentController.Create" ":key" .Model.Identify}}" id="addDocumentForm" class="form-horizontal">
