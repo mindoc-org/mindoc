@@ -19,7 +19,6 @@ const CaptchaSessionName = "__captcha__"
 const RegexpEmail = "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 
 //允许用户名中出现点号
-
 const RegexpAccount = `^[a-zA-Z][a-zA-z0-9\.]{2,50}$`
 
 // PageSize 默认分页条数.
@@ -75,7 +74,7 @@ var (
 
 // app_key
 func GetAppKey() string {
-	return beego.AppConfig.DefaultString("app_key", "godoc")
+	return beego.AppConfig.DefaultString("app_key", "mindoc")
 }
 
 func GetDatabasePrefix() string {
@@ -315,4 +314,16 @@ func WorkingDir(elem ...string) string {
 	elems := append([]string{ WorkingDirectory },elem...)
 
 	return filepath.Join(elems...)
+}
+
+func init()  {
+	if p,err := filepath.Abs("./conf/app.conf"); err == nil {
+		ConfigurationFile = p
+	}
+	if p,err := filepath.Abs("./"); err == nil {
+		WorkingDirectory = p
+	}
+	if p,err := filepath.Abs("./runtime/logs"); err == nil {
+		LogFile = p
+	}
 }

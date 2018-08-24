@@ -60,9 +60,16 @@ func RegisterDataBase() {
 		if strings.HasPrefix(database, "./") {
 			database = filepath.Join(conf.WorkingDirectory, string(database[1:]))
 		}
+		if p,err := filepath.Abs(database); err == nil {
+			database = p
+		}
 
 		dbPath := filepath.Dir(database)
-		os.MkdirAll(dbPath, 0777)
+
+		if _,err := os.Stat(dbPath); err != nil && os.IsNotExist(err) {
+			os.MkdirAll(dbPath, 0777)
+		}
+
 
 		err := orm.RegisterDataBase("default", "sqlite3", database)
 

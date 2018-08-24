@@ -9,3 +9,9 @@ body{
 .editormd-preview-container{
     padding: 0 !important;
 }
+
+.markdown-body pre{
+    max-height: none !important;
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+}
