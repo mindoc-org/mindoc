@@ -79,7 +79,7 @@ func (c *DocumentController) Index() {
 
 	if err != nil {
 		if err == orm.ErrNoRows {
-			c.ShowErrorPage(404, "生成项目文档树时出错")
+			c.ShowErrorPage(404, "当前项目没有文档")
 		} else {
 			beego.Error("生成项目文档树时出错 -> ", err)
 			c.ShowErrorPage(500, "生成项目文档树时出错")
