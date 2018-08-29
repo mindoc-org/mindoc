@@ -618,7 +618,7 @@ func (c *BlogController) Download() {
 	}
 	blogReadSession := fmt.Sprintf("blog:read:%d",blogId)
 	//如果没有启动匿名访问，或者设置了访问密码
-	if (c.Member != nil && !c.EnableAnonymous) || ( blog.BlogStatus == "password" && password != blog.Password && c.CruSession.Get(blogReadSession) == nil) {
+	if (c.Member == nil && !c.EnableAnonymous) || ( blog.BlogStatus == "password" && password != blog.Password && c.CruSession.Get(blogReadSession) == nil) {
 		c.ShowErrorPage(403, "没有下载权限")
 	}
 
