@@ -381,6 +381,7 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/quill.js"}}" type="text/javascript"></script>
 <script type="text/javascript">

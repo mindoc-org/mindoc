@@ -406,6 +406,7 @@
 <script src="{{cdnjs "/static/editor.md/editormd.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/markdown.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">

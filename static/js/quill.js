@@ -322,7 +322,7 @@ $(function () {
                 }
             }
         }
-    }).on('loaded.jstree', function () {
+    }).on('ready.jstree', function () {
         window.treeCatalog = $(this).jstree();
         //如果没有选中节点则选中默认节点
         openLastSelectedNode();
