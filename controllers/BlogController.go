@@ -50,7 +50,7 @@ func (c *BlogController) Index() {
 			c.JsonResult(0,"OK")
 		}
 		c.JsonResult(0,"OK")
-	}else if blog.BlogStatus == "password" && c.CruSession.Get(blogReadSession) == nil {
+	}else if blog.BlogStatus == "password" && (c.CruSession.Get(blogReadSession) == nil || (c.Member != nil && blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator() ) ){
 		//如果不存在已输入密码的标记
 		c.TplName = "blog/index_password.tpl"
 	}

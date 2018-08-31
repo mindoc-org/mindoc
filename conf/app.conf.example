@@ -144,10 +144,10 @@ cdnimg="${MINDOC_CDN_IMG_URL}"
 ######################缓存配置###############################
 
 #是否开启缓存，true 开启/false 不开启
-cache="${MINDOC_CACHE||true}"
+cache="${MINDOC_CACHE||false}"
 
 #缓存方式:memory/memcache/redis/file
-cache_provider="${MINDOC_CACHE_PROVIDER||redis}"
+cache_provider="${MINDOC_CACHE_PROVIDER||file}"
 
 #当配置缓存方式为memory时,内存回收时间,单位是秒
 cache_memory_interval="${MINDOC_CACHE_MEMORY_INTERVAL||120}"

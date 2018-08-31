@@ -377,7 +377,7 @@ func RegisterCache() {
 
 		bc, err := json.Marshal(&memcacheConfig)
 		if err != nil {
-			beego.Error("初始化 Redis 缓存失败 ->", err)
+			beego.Error("初始化 Memcache 缓存失败 ->", err)
 			os.Exit(1)
 		}
 		memcache, err := beegoCache.NewCache("memcache", string(bc))
@@ -439,7 +439,7 @@ func init() {
 	if configPath, err := filepath.Abs(conf.ConfigurationFile); err == nil {
 		conf.ConfigurationFile = configPath
 	}
-	gocaptcha.ReadFonts("./static/fonts", ".ttf")
+	gocaptcha.ReadFonts(conf.WorkingDir("static","fonts"), ".ttf")
 	gob.Register(models.Member{})
 
 	if p, err := filepath.Abs(os.Args[0]); err == nil {
