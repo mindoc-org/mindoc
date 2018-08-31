@@ -101,7 +101,7 @@
         height               : "100%",
         path                 : "./lib/",       // Dependents module file directory
         pluginPath           : "",             // If this empty, default use settings.path + "../plugins/"
-        delay                : 300,            // Delay parse markdown to html, Uint : ms
+        delay                : 500,            // Delay parse markdown to html, Uint : ms
         autoLoadModules      : true,           // Automatic load dependent module files
         watch                : true,
         placeholder          : "Enjoy Markdown! coding now...",
@@ -168,6 +168,7 @@
         tex                  : false,          // TeX(LaTeX), based on KaTeX
         flowChart            : false,          // flowChart.js only support IE9+
         sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
+        mermaid              : true,
         previewCodeHighlight : true,
                 
         toolbar              : true,           // show/hide toolbar
@@ -505,7 +506,47 @@
                     
                     return ;
                 }
-
+                if (settings.mermaid) {
+                    editormd.loadCSS(loadPath + "mermaid/mermaid", function () {
+                            editormd.loadScript(loadPath + "mermaid/mermaid.min", function () {
+                            window.mermaid.initialize({
+                                theme: 'default',
+                                startOnLoad:true,
+                                cloneCssStyles: true,
+                                flowchart: {
+                                    htmlLabels: false,
+                                    useMaxWidth:false
+                                },
+                            });
+                            mermaid.ganttConfig = {
+                                axisFormatter: [
+                                    // Within a day
+                                    ['%I:%M', function (d) {
+                                        return d.getHours();
+                                    }],
+                                    // Monday a week
+                                    ['%m/%d', function (d) { // redefine date here as '%m/%d'instead of 'w. %U', search mermaid.js
+                                        return d.getDay() == 1;
+                                    }],
+                                    // Day within a week (not monday)
+                                    ['%a %d', function (d) {
+                                        return d.getDay() && d.getDate() != 1;
+                                    }],
+                                    // within a month
+                                    ['%b %d', function (d) {
+                                        return d.getDate() != 1;
+                                    }],
+                                    // Month
+                                    ['%m-%y', function (d) {
+                                        return d.getMonth();
+                                    }],[ "%m-%Y", function () {
+                                        return d.getFullYear();
+                                    }]]
+                            };
+                            _this.loadedDisplay();
+                        });
+                    });
+                }
                 if (settings.flowChart || settings.sequenceDiagram) 
                 {
                     editormd.loadScript(loadPath + "raphael.min", function() {
@@ -1530,6 +1571,12 @@
             if (editormd.isIE8) {
                 return this;
             }
+            if (settings.mermaid) {
+                var mermaid = previewContainer.find(".lang-mermaid");
+                if (mermaid) {
+                    window.mermaid.init(void 0,  mermaid.removeClass("hide"));
+                }
+            }
 
             if (settings.flowChart) {
                 if (flowchartTimer === null) {
@@ -1539,7 +1586,7 @@
                 previewContainer.find(".flowchart").flowChart(); 
             }
 
-            if (settings.sequenceDiagram) {
+            if (settings.sequence) {
                 previewContainer.find(".sequence-diagram").sequenceDiagram({theme: "simple"});
             }
                     
@@ -2006,6 +2053,7 @@
                 flowChart            : settings.flowChart,
                 sequenceDiagram      : settings.sequenceDiagram,
                 previewCodeHighlight : settings.previewCodeHighlight,
+                mermaid              : settings.mermaid,
             };
             
             var markedOptions = this.markedOptions = {
@@ -2086,7 +2134,7 @@
                     }
                 }                
                 
-                if (settings.flowChart || settings.sequenceDiagram)
+                if (settings.flowChart || settings.sequenceDiagram || settings.mermaid)
                 {
                     flowchartTimer = setTimeout(function(){
                         clearTimeout(flowchartTimer);
@@ -3402,6 +3450,7 @@
             tex                  : false,          // TeX(LaTeX), based on KaTeX
             flowChart            : false,          // flowChart.js only support IE9+
             sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
+            mermaid              : true,
         };
         
         var settings        = $.extend(defaults, options || {});    
@@ -3630,7 +3679,18 @@
             if (lang === "seq" || lang === "sequence")
             {
                 return "<div class=\"sequence-diagram\">" + code + "</div>";
-            } 
+            }
+            else  if (lang === "mermaid"){
+                var $chars = 'ABCDEFGHJKLMNOPQRSTUVWXYZabcdefhijlkmnopqrstuvwxyz012345678';
+
+                var maxPos = $chars.length;
+                var id = '';
+                for (var i = 0; i < 4; i++) {
+                    id += $chars.charAt(Math.floor(Math.random() * maxPos));
+                }
+
+                return "<div class=\"lang-mermaid hide\" data-anchor-id=\""+id+"\">" + code + "</div>";
+            }
             else if ( lang === "flow")
             {
                 return "<div class=\"flowchart\">" + code + "</div>";
@@ -3919,7 +3979,8 @@
             emoji                : false,
             flowChart            : false,
             sequenceDiagram      : false,
-            previewCodeHighlight : true
+            previewCodeHighlight : true,
+            mermaid              : true,
         };
         
         editormd.$marked  = marked;
@@ -3949,6 +4010,7 @@
             emailLink            : settings.emailLink,        // for mail address auto link
             flowChart            : settings.flowChart,
             sequenceDiagram      : settings.sequenceDiagram,
+            mermaid              : settings.mermaid,
             previewCodeHighlight : settings.previewCodeHighlight,
         };
 
@@ -4013,6 +4075,9 @@
 
             if (settings.sequenceDiagram) {
                 div.find(".sequence-diagram").sequenceDiagram({theme: "simple"});
+            }
+            if (settings.mermaid) {
+                window.mermaid.init(void 0,  div.find(".lang-mermaid"));
             }
         }
 

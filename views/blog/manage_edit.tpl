@@ -29,12 +29,6 @@
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
 </head>
 <body>
 
@@ -97,7 +91,7 @@
     <div class="manual-body">
         <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 920px;left: 0;">
             <div class="manual-editormd">
-                <div id="docEditor" class="manual-editormd-active"><textarea style="display:none;">{{.Model.BlogContent}}</textarea></div>
+                <div id="docEditor" class="manual-editormd-active"></div>
             </div>
             <div class="manual-editor-status">
                 <div id="attachInfo" class="item">0 个附件</div>
@@ -106,6 +100,7 @@
 
     </div>
 </div>
+<script type="text/x-markdown"  id="blogRawMarkdown">{{.Model.BlogContent}}</script>
 <!-- Modal -->
 
 <div class="modal fade" id="uploadAttachModal" tabindex="-1" role="dialog" aria-labelledby="uploadAttachModalLabel">

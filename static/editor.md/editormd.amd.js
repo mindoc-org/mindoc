@@ -29,6 +29,7 @@
                 "jquery", "marked",
                 //"prettify",
                 "highlight/highlight",
+                "mermaid/mermaid",
                 "katex", "raphael", "underscore", "flowchart",  "jqueryflowchart",  "sequenceDiagram",
 
                 "codemirror/lib/codemirror",
@@ -240,6 +241,9 @@
         tex                  : false,          // TeX(LaTeX), based on KaTeX
         flowChart            : false,          // flowChart.js only support IE9+
         sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
+        mermaidGantt         : false,          //mermaid/mermaid.js
+        mermaidSequence      : false,
+        mermaidFlowChat      : false,
         previewCodeHighlight : true,
         highlightStyle       : "github",
                 
@@ -578,7 +582,12 @@
                     
                     return ;
                 }
-
+                if (settings.mermaidGantt || settings.mermaidFlowChat || settings.mermaidSequence) {
+                    console.log("aa")
+                    editormd.loadScript(loadPath + "mermaid/mermaid.min", function () {
+                        _this.loadedDisplay();
+                    });
+                }
                 if (settings.flowChart || settings.sequenceDiagram) 
                 {
                     editormd.loadScript(loadPath + "raphael.min", function() {
@@ -3704,7 +3713,9 @@
             if (lang === "seq" || lang === "sequence")
             {
                 return "<div class=\"sequence-diagram\">" + code + "</div>";
-            } 
+            } else  if (lang === "gantt"){
+                return "<div class=\"mermain-gantt\""> + code + "</div>"
+            }
             else if ( lang === "flow")
             {
                 return "<div class=\"flowchart\">" + code + "</div>";

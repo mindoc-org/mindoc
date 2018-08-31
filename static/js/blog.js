@@ -17,6 +17,7 @@ $(function () {
         fileUploadURL: window.fileUploadURL,
         taskList: true,
         flowChart: true,
+        mermaid: true,
         htmlDecode: "style,script,iframe,title,onmouseover,onmouseout,style",
         lineNumbers: false,
         sequenceDiagram: true,
@@ -54,6 +55,9 @@ $(function () {
                     }
                 }
             });
+            window.isLoad = true;
+            this.insertValue($("#blogRawMarkdown").html());
+            this.setCursor({ line: 0, ch: 0 });
         },
         onchange: function () {
             resetEditorChanged(true);
@@ -117,7 +121,6 @@ $(function () {
                 if ($res.errcode === 0) {
                     resetEditorChanged(false);
                     window.blogVersion = $res.data.version;
-                    console.log(window.blogVersion);
                 } else if($res.errcode === 6005) {
                     var confirmIndex = layer.confirm('文档已被其他人修改确定覆盖已存在的文档吗？', {
                         btn: ['确定', '取消'] // 按钮
