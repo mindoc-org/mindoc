@@ -89,6 +89,7 @@
     };
     
     editormd.defaults     = {
+        debug                : false,
         mode                 : "gfm",          //gfm or markdown
         name                 : "",             // Form element name
         value                : "",             // value for CodeMirror, if mode not gfm/markdown
@@ -608,7 +609,7 @@
                         
                         _this.setToolbar();
 
-                        editormd.loadScript(loadPath + "marked.min", function() {
+                        editormd.loadScript(loadPath + "marked", function() {
 
                             editormd.$marked = marked;
 
@@ -1576,8 +1577,11 @@
                 if (flowchartTimer === null) {
                     return this;
                 }
-                
-                previewContainer.find(".flowchart").flowChart(); 
+                try {
+                    previewContainer.find(".flowchart").flowChart();
+                }catch (e) {
+                    console.log(e);
+                }
             }
 
             if (settings.sequenceDiagram) {
@@ -2068,9 +2072,10 @@
             marked.setOptions(markedOptions);
                     
             var newMarkdownDoc = editormd.$marked(cmValue, markedOptions);
-            
-            //console.info("cmValue", cmValue, newMarkdownDoc);
-            
+
+            if(settings.debug) {
+                console.info("cmValue", cmValue, newMarkdownDoc);
+            }
             newMarkdownDoc = editormd.filterHTMLTags(newMarkdownDoc, settings.htmlDecode);
             
             //console.error("cmValue", cmValue, newMarkdownDoc);
@@ -3465,6 +3470,60 @@
         var faIconReg       = regexs.fontAwesome;
         var editormdLogoReg = regexs.editormdLogo;
         var pageBreakReg    = regexs.pageBreak;
+
+        markedRenderer.blockquote = function($quote) {
+            console.log($quote)
+            var $class = "default";
+            if($quote.indexOf("[info]") === 0){
+                $class = "info";
+                $quote = $quote.substr(6);
+            }else if($quote.indexOf("<p>[info]") === 0){
+                $class = "info";
+                $quote = $quote.substr(9);
+            }else if($quote.indexOf("[warning]") === 0){
+                $class = "warning";
+                $quote = $quote.substr(9);
+            }else if($quote.indexOf("<p>[warning]") === 0){
+                $class = "warning";
+                $quote = $quote.substr(12);
+            }else if($quote.indexOf("[success]") === 0){
+                $class = "success";
+                $quote = $quote.substr(9);
+            }else if($quote.indexOf("<p>[success]") === 0){
+                $class = "success";
+                $quote = $quote.substr(12);
+            }else if($quote.indexOf("[danger]") === 0){
+                $class = "danger";
+                $quote = $quote.substr(8);
+            }else if($quote.indexOf("<p>[danger]") === 0){
+                $class = "danger";
+                $quote = $quote.substr(11);
+            }
+
+            return '<blockquote class="'+$class+'">\n' + $quote + '</blockquote>\n';
+        };
+
+        markedRenderer.image = function(href,title,text) {
+            var attr = "";
+
+            if(href && href !== ""){
+                var a =  document.createElement('a');
+                a.href = href;
+                var attrs = a.hash.match(/size=\d+x\d+/i);
+                if(attrs !== null) {
+                    a.hash = a.hash.replace(attrs[0],"");
+                    href = a.href;
+                    attrs = attrs[0].replace("size=","").split("x");
+                    if(attrs[0] > 0) {
+                        attr += " width=\"" + attrs[0] + "\""
+                    }
+                    if(attrs[1] > 0) {
+                        attr += " height=\"" + attrs[1] + "\""
+                    }
+                }
+            }
+            return "<img src=\""+href+"\" title=\""+title+"\" alt=\""+text+"\" "+attr+">"
+        };
 
         markedRenderer.emoji = function(text) {
             
