@@ -547,40 +547,30 @@
                         });
                     });
                 }
-                if (settings.flowChart || settings.sequenceDiagram) 
+                if (settings.flowChart)
                 {
                     editormd.loadScript(loadPath + "raphael.min", function() {
+                        editormd.loadScript(loadPath + "flowchart.min", function() {
+                            editormd.loadScript(loadPath + "jquery.flowchart.min", function() {
+                                _this.loadedDisplay();
+                            });
+                        });
+                    });
+                }
 
-                        editormd.loadScript(loadPath + "underscore.min", function() {  
-
-                            if (!settings.flowChart && settings.sequenceDiagram) 
-                            {
-                                editormd.loadScript(loadPath + "sequence-diagram.min", function() {
-                                    _this.loadedDisplay();
-                                });
-                            }
-                            else if (settings.flowChart && !settings.sequenceDiagram) 
-                            {      
-                                editormd.loadScript(loadPath + "flowchart.min", function() {  
-                                    editormd.loadScript(loadPath + "jquery.flowchart.min", function() {
+                if(settings.sequenceDiagram) {
+                    editormd.loadCSS(loadPath + "sequence/sequence-diagram-min", function () {
+                        editormd.loadScript(loadPath + "sequence/webfont", function() {
+                            editormd.loadScript(loadPath + "sequence/snap.svg-min", function() {
+                                editormd.loadScript(loadPath + "sequence/underscore-min", function() {
+                                    editormd.loadScript(loadPath + "sequence/sequence-diagram-min", function() {
                                         _this.loadedDisplay();
                                     });
                                 });
-                            }
-                            else if (settings.flowChart && settings.sequenceDiagram) 
-                            {  
-                                editormd.loadScript(loadPath + "flowchart.min", function() {  
-                                    editormd.loadScript(loadPath + "jquery.flowchart.min", function() {
-                                        editormd.loadScript(loadPath + "sequence-diagram.min", function() {
-                                            _this.loadedDisplay();
-                                        });
-                                    });
-                                });
-                            }
+                            });
                         });
-
                     });
-                } 
+                }
                 else
                 {
                     _this.loadedDisplay();
@@ -1574,7 +1564,11 @@
             if (settings.mermaid) {
                 var mermaid = previewContainer.find(".lang-mermaid");
                 if (mermaid) {
-                    window.mermaid.init(void 0,  mermaid.removeClass("hide"));
+                    try {
+                        window.mermaid.init(void 0, mermaid.removeClass("hide"));
+                    }catch (e) {
+                        console.log(e);
+                    }
                 }
             }
 
@@ -1586,8 +1580,12 @@
                 previewContainer.find(".flowchart").flowChart(); 
             }
 
-            if (settings.sequence) {
-                previewContainer.find(".sequence-diagram").sequenceDiagram({theme: "simple"});
+            if (settings.sequenceDiagram) {
+                try {
+                    previewContainer.find(".sequence-diagram").sequenceDiagram({theme: "simple"});
+                }catch (e) {
+                    console.log(e);
+                }
             }
                     
             var preview    = $this.preview;

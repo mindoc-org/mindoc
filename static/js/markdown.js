@@ -57,7 +57,7 @@ $(function () {
                     }
                 }
             });
-
+            window.isLoad = true;
         },
         onchange: function () {
             resetEditorChanged(true);
