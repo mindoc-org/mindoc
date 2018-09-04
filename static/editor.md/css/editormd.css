@@ -3841,6 +3841,14 @@
   font-size: 14px;
   font-style: italic;
 }
+.editormd-preview-container blockquote.default, .editormd-html-preview blockquote.default  {
+  border-left: 5px solid #D0E3F0;
+  margin: 8px 0;
+  padding: 8px 16px;
+  background-color: #F0F7FD;
+  color: #0382AD;
+}
+
 .editormd-preview-container p code, .editormd-html-preview p code {
   margin-left: 5px;
   margin-right: 4px;

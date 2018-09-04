@@ -19,10 +19,7 @@
     word-wrap: break-word;
     text-align: left
 }
-.editormd-preview-container-body blockquote,.editormd-preview-container blockquote p {
-    font-size: 14px;
-    color: #999;
-}
+
 .editormd-preview-container blockquote, .editormd-html-preview blockquote{
     font-style: normal;
 }

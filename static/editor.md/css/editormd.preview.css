@@ -3124,6 +3124,7 @@
   margin-left: 0;
   font-size: 14px;
   font-style: italic;
+  line-height:1.7em;
 }
 .editormd-preview-container p code, .editormd-html-preview p code {
   margin-left: 5px;
@@ -3186,6 +3187,35 @@
 .editormd-preview-container .sequence-diagram text, .editormd-preview-container .flowchart text, .editormd-html-preview .sequence-diagram text, .editormd-html-preview .flowchart text {
   font-size: 15px !important;
   font-family: "YaHei Consolas Hybrid", Consolas, "Microsoft YaHei", "Malgun Gothic", "Segoe UI", Helvetica, Arial !important;
+}
+
+.editormd-preview-container blockquote.default, .editormd-html-preview blockquote.default  {
+  border-left: 5px solid #D0E3F0;
+  margin: 8px 0;
+  padding: 8px 16px;
+  background-color: #F0F7FD;
+  color: #0382AD;
+  font-size: 14px;
+}
+.editormd-preview-container blockquote.info, .editormd-html-preview blockquote.info  {
+  border-left-color: #5bc0de;
+  color: #5bc0de;
+  background-color: #f4f8fa
+}
+.editormd-preview-container blockquote.warning, .editormd-html-preview blockquote.warning  {
+  background-color: #fcf8f2;
+  border-color: #f0ad4e;
+  color: #f0ad4e
+}
+.editormd-preview-container blockquote.danger, .editormd-html-preview blockquote.danger  {
+  color: #d9534f;
+  background-color: #fdf7f7;
+  border-color: #d9534f
+}
+.editormd-preview-container blockquote.success, .editormd-html-preview blockquote.success  {
+  background-color: #f3f8f3;
+  border-color: #50af51;
+  color: #50af51
 }
 
 /*! Pretty printing styles. Used with prettify.js. */

@@ -3474,6 +3474,7 @@
         markedRenderer.blockquote = function($quote) {
             console.log($quote)
             var $class = "default";
+
             if($quote.indexOf("[info]") === 0){
                 $class = "info";
                 $quote = $quote.substr(6);
