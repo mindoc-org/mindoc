@@ -3472,36 +3472,31 @@
         var pageBreakReg    = regexs.pageBreak;
 
         markedRenderer.blockquote = function($quote) {
-            console.log($quote)
+
+            var quoteBegin = "";
+
+            var ps = $quote.match(/<p\s.*?>/i);
+            if(ps !== null) {
+                quoteBegin = ps[0];
+                $quote = $quote.substr(quoteBegin.length);
+            }
             var $class = "default";
 
             if($quote.indexOf("[info]") === 0){
                 $class = "info";
                 $quote = $quote.substr(6);
-            }else if($quote.indexOf("<p>[info]") === 0){
-                $class = "info";
-                $quote = $quote.substr(9);
             }else if($quote.indexOf("[warning]") === 0){
                 $class = "warning";
                 $quote = $quote.substr(9);
-            }else if($quote.indexOf("<p>[warning]") === 0){
-                $class = "warning";
-                $quote = $quote.substr(12);
             }else if($quote.indexOf("[success]") === 0){
                 $class = "success";
                 $quote = $quote.substr(9);
-            }else if($quote.indexOf("<p>[success]") === 0){
-                $class = "success";
-                $quote = $quote.substr(12);
             }else if($quote.indexOf("[danger]") === 0){
                 $class = "danger";
                 $quote = $quote.substr(8);
-            }else if($quote.indexOf("<p>[danger]") === 0){
-                $class = "danger";
-                $quote = $quote.substr(11);
             }
 
-            return '<blockquote class="'+$class+'">\n' + $quote + '</blockquote>\n';
+            return '<blockquote class="'+$class+'">\n' + quoteBegin + $quote + '</blockquote>\n';
         };
 
         markedRenderer.image = function(href,title,text) {
@@ -3524,7 +3519,7 @@
                         attr += " height=\"" + attrs[1] + "\""
                     }
                 }
-                attrs = a.hash.match(/align=center|left|right/i)
+                attrs = a.hash.match(/align=(center|left|right)/i)
                 if (attrs !== null) {
                     var hash = a.hash.replace(attrs[0],"");
                     if (hash.indexOf("#&") === 0) {
@@ -3625,7 +3620,7 @@
                     });
 
                     text = text.replace(atLinkReg, function($1, $2) {
-                        return "<a href=\"" + editormd.urls.atLinkBase + "" + $2 + "\" title=\"&#64;" + $2 + "\" class=\"at-link\">" + $1 + "</a>";
+                        return "<a href=\"" + editormd.urls.atLinkBase + "" + $2 + "\" title=\"&#64;" + $2 + "\" class=\"at-link\" target='_blank'>" + $1 + "</a>";
                     }).replace(/_#_&#64;_#_/g, "@");
                 }
                 
@@ -3655,8 +3650,14 @@
                     return "";
                 }
             }
+            if(href.indexOf("@") === 0){
+                return '<a name="'+ href.substr(1) + '"></a>';
+            }
 
             var out = "<a href=\"" + href + "\"";
+            if(href.indexOf("http://") === 0 || href.indexOf("https://") === 0) {
+                out += "target=\"_blank\"";
+            }
             
             if (atLinkReg.test(title) || atLinkReg.test(text))
             {
@@ -3732,7 +3733,7 @@
         markedRenderer.paragraph = function(text) {
             var isTeXInline     = /\$\$(.*)\$\$/g.test(text);
             var isTeXLine       = /^\$\$(.*)\$\$$/.test(text);
-            var isTeXAddClass   = (isTeXLine)     ? " class=\"" + editormd.classNames.tex + "\"" : "";
+            var isTeXAddClass   = (isTeXLine)     ? " class=\"" + editormd.classNames.tex + "\"" : " class=\"line\"";
             var isToC           = (settings.tocm) ? /^(\[TOC\]|\[TOCM\])$/.test(text) : /^\[TOC\]$/.test(text);
             var isToCMenu       = /^\[TOCM\]$/.test(text);
             
@@ -3804,6 +3805,9 @@
             {
                 return "<li>" + this.atLink(this.emoji(text)) + "</li>";
             }
+        };
+        markedRenderer.checkbox = function(checked){
+            return checked ? '<i class="fa fa-check-square"></i> ' : '<i class="fa fa-square-o"></i> ';
         };
         
         return markedRenderer;

@@ -3259,7 +3259,7 @@
 }
 
 .markdown-body a {
-  color: #4183c4;
+  color: #08c;
   text-decoration: none;
 }
 
@@ -3834,19 +3834,16 @@
   background-color: #fff;
 }
 .editormd-preview-container blockquote, .editormd-html-preview blockquote {
-  color: #666;
-  border-left: 4px solid #ddd;
-  padding-left: 20px;
-  margin-left: 0;
+  color: #2C3E50;
+  border-left: 5px solid #D6DBDF;
   font-size: 14px;
-  font-style: italic;
-}
-.editormd-preview-container blockquote.default, .editormd-html-preview blockquote.default  {
-  border-left: 5px solid #D0E3F0;
+  background: none repeat scroll 0 0 rgba(102,128,153,.05);
   margin: 8px 0;
   padding: 8px 16px;
-  background-color: #F0F7FD;
-  color: #0382AD;
+}
+.editormd-preview-container blockquote.default, .editormd-html-preview blockquote.default  {
+
+
 }
 .editormd-preview-container blockquote.info, .editormd-html-preview blockquote.info  {
     border-left-color: #5bc0de;

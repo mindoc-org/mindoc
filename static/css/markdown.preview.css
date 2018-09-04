@@ -20,9 +20,6 @@
     text-align: left
 }
 
-.editormd-preview-container blockquote, .editormd-html-preview blockquote{
-    font-style: normal;
-}
 .editormd-preview-container table th {
     background-color: #f2f2f2;
     color: #333;
