@@ -3506,6 +3506,8 @@
 
         markedRenderer.image = function(href,title,text) {
             var attr = "";
+            var begin = "";
+            var end = "";
 
             if(href && href !== ""){
                 var a =  document.createElement('a');
@@ -3522,8 +3524,27 @@
                         attr += " height=\"" + attrs[1] + "\""
                     }
                 }
+                attrs = a.hash.match(/align=center|left|right/i)
+                if (attrs !== null) {
+                    var hash = a.hash.replace(attrs[0],"");
+                    if (hash.indexOf("#&") === 0) {
+                        hash = "#" + hash.substr(2);
+                    }
+                    a.hash = hash;
+
+                    href = a.href;
+                    attrs = attrs[0].replace("align=","");
+                    end = "</p>";
+                    if(attrs === "center"){
+                        begin = '<p align="center">';
+                    }else if (attrs === "left") {
+                        begin = '<p align="left">';
+                    }else if (attrs === "right") {
+                        begin = '<p align="right">';
+                    }
+                }
             }
-            return "<img src=\""+href+"\" title=\""+title+"\" alt=\""+text+"\" "+attr+">"
+            return begin + "<img src=\""+href+"\" title=\""+title+"\" alt=\""+text+"\" "+attr+">" + end;
         };
 
         markedRenderer.emoji = function(text) {
