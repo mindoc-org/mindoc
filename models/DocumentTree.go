@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"html/template"
 	"math"
-	"strconv"
-
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
+	"fmt"
 )
 
 type DocumentTree struct {
@@ -116,11 +115,7 @@ func getDocumentTree(array []*DocumentTree, parentId int, selectedId int, select
 			if item.DocumentId == selectedParentId || (item.State != nil && item.State.Opened) {
 				selectedLi = ` class="jstree-open"`
 			}
-			buf.WriteString("<li id=\"")
-			buf.WriteString(strconv.Itoa(item.DocumentId))
-			buf.WriteString("\"")
-			buf.WriteString(selectedLi)
-			buf.WriteString("><a href=\"")
+			buf.WriteString(fmt.Sprintf("<li id=\"%d\"%s><a href=\"",item.DocumentId,selectedLi))
 			if item.Identify != "" {
 				uri := conf.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.Identify)
 				buf.WriteString(uri)
@@ -128,10 +123,9 @@ func getDocumentTree(array []*DocumentTree, parentId int, selectedId int, select
 				uri := conf.URLFor("DocumentController.Read", ":key", item.BookIdentify, ":id", item.DocumentId)
 				buf.WriteString(uri)
 			}
-			buf.WriteString("\" title=\"")
-			buf.WriteString(template.HTMLEscapeString(item.DocumentName) + "\"")
-			buf.WriteString(selected + ">")
-			buf.WriteString(template.HTMLEscapeString(item.DocumentName) + "</a>")
+			buf.WriteString(fmt.Sprintf("\" title=\"%s\"",template.HTMLEscapeString(item.DocumentName)))
+			buf.WriteString(fmt.Sprintf(" data-version=\"%d\"%s>%s</a>",item.Version,selected,template.HTMLEscapeString(item.DocumentName)))
+
 
 			for _, sub := range array {
 				if p, ok := sub.ParentId.(int); ok && p == item.DocumentId {

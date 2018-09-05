@@ -42,8 +42,9 @@ $(function () {
             };
             this.addKeyMap(keyMap);
 
-
+            console.log("加载完成")
             uploadImage("docEditor", function ($state, $res) {
+                console.log("注册上传图片")
                 if ($state === "before") {
                     return layer.load(1, {
                         shade: [0.1, '#fff'] // 0.1 透明度的白色背景

@@ -73,8 +73,9 @@ function loadDocument($url, $id, $callback) {
             if(data) {
                 if (typeof $callback === "function") {
                     data.body = $callback(data.body);
+                }else if(data.version && data.version != $callback){
+                    return true;
                 }
-
                 $("#page-content").html(data.body);
                 $("title").text(data.title);
                 $("#article-title").text(data.doc_title);
@@ -172,7 +173,7 @@ $(function () {
         }
     }).on('select_node.jstree', function (node, selected, event) {
         $(".m-manual").removeClass('manual-mobile-show-left');
-        loadDocument(selected.node.a_attr.href, selected.node.id);
+        loadDocument(selected.node.a_attr.href, selected.node.id,selected.node.a_attr['data-version']);
     });
 
     $("#slidebar").on("click", function () {

@@ -186,11 +186,13 @@ func (c *DocumentController) Read() {
 			Body     string `json:"body"`
 			Title    string `json:"title"`
 			DocInfo  string `json:"doc_info"`
+			Version  int64	`json:"version"`
 		}
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
 		data.DocInfo = docInfo
+		data.Version = doc.Version
 
 		c.JsonResult(0, "ok", data)
 	}
