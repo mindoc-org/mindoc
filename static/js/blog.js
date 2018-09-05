@@ -42,7 +42,6 @@ $(function () {
             };
             this.addKeyMap(keyMap);
 
-            console.log("加载完成")
             uploadImage("docEditor", function ($state, $res) {
                 console.log("注册上传图片")
                 if ($state === "before") {
@@ -56,9 +55,6 @@ $(function () {
                     }
                 }
             });
-            window.isLoad = true;
-            this.insertValue($("#blogRawMarkdown").html());
-            this.setCursor({ line: 0, ch: 0 });
         },
         onchange: function () {
             resetEditorChanged(true);
