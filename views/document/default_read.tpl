@@ -19,11 +19,11 @@
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/nprogress/nprogress.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/kancloud.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/kancloud.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/lib/mermaid/mermaid.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/lib/sequence/sequence-diagram-min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/css/editormd.preview.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/lib/mermaid/mermaid.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/lib/sequence/sequence-diagram-min.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/css/editormd.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
