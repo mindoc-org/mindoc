@@ -91,7 +91,7 @@
     <div class="manual-body">
         <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 920px;left: 0;">
             <div class="manual-editormd">
-                <div id="docEditor" class="manual-editormd-active"><textarea style="display: none">{{.Model.BlogContent}}</textarea> </div>
+                <div id="docEditor" class="manual-editormd-active"><textarea style="display: none">{{str2html .Model.BlogContent}}</textarea> </div>
             </div>
             <div class="manual-editor-status">
                 <div id="attachInfo" class="item">0 个附件</div>
