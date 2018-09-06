@@ -1,7 +1,6 @@
-@import url("https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,800");
 body {
     position: relative;
-    font-family: Helvetica, -apple-system, "Montserrat","Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
+    font-family: Helvetica, -apple-system, "Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
 }
 
 a{

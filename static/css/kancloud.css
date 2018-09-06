@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,800");
 @font-face {
     font-family: 'FontAwesome';
     src: url("../font-awesome/fonts/fontawesome-webfont.eot?v=4.7.0");
@@ -28,7 +27,7 @@ body {
 }
 
 h1,h2,h3,h4,h5,h6,strong,input,select,textarea,button,body,code {
-    font-family: "Montserrat","Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
+    font-family: "Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
 }
 h1 {
     font-size: 2.25em;

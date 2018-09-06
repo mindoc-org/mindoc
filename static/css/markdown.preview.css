@@ -1,7 +1,7 @@
 /*************表格样式****************/
 .markdown-body{
     -webkit-backface-visibility: hidden;
-    font-family: Helvetica, -apple-system, BlinkMacSystemFont, "Montserrat","Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
+    font-family: Helvetica, -apple-system, BlinkMacSystemFont, "Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
 
 }
 .editormd-preview-container table {
