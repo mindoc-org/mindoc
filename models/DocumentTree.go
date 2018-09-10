@@ -17,7 +17,7 @@ type DocumentTree struct {
 	BookIdentify string            `json:"-"`
 	Version      int64             `json:"version"`
 	State        *DocumentSelected `json:"-"`
-	AAttrs		 map[string]interface{}		`json:"-"`
+	AAttrs		 map[string]interface{}		`json:"a_attr"`
 }
 type DocumentSelected struct {
 	Selected bool `json:"selected"`
