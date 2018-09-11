@@ -13,12 +13,6 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 </head>
@@ -40,7 +34,7 @@
                         <div class="input-group-addon">
                             <i class="fa fa-user"></i>
                         </div>
-                        <input type="text" class="form-control" placeholder="用户名" name="account" id="account" autocomplete="off">
+                        <input type="text" class="form-control" placeholder="邮箱 / 用户名" name="account" id="account" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
