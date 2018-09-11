@@ -256,7 +256,7 @@ func (item *Document) ReleaseContent() error {
 						if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
 							contentSelection.SetAttr("target", "_blank")
 							if html, err := content.Html(); err == nil {
-								item.Release = html
+								item.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html),"<html><head></head><body>"),"</body></html>")
 							}
 						}
 					}
@@ -305,7 +305,15 @@ func (doc *Document) AppendInfo() *Document {
 
 	docCreator, err := NewMember().Find(doc.MemberId,"real_name","account")
 
-	if strings.TrimSpace(doc.Release) != "" {
+	doc.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(doc.Release),"<html><head></head><body>"),"</body></html>")
+	suffix := ""
+	if doc.Release != "" {
+		beego.Info(doc.Release)
+		if strings.HasPrefix(doc.Release,"<div class=\"markdown-toc") {
+
+			doc.Release = strings.TrimSuffix(doc.Release,"</div>")
+			suffix = "</div>"
+		}
 		doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者：";
 		if err == nil && docCreator != nil {
 			if docCreator.RealName != "" {
@@ -314,7 +322,8 @@ func (doc *Document) AppendInfo() *Document {
 				doc.Release += docCreator.Account
 			}
 		}
-		doc.Release += "</div>"
+		doc.Release += "</div>" + suffix
 	}
+
 	return doc
 }

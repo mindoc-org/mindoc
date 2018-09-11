@@ -3713,20 +3713,24 @@
             text = trim(text);
 
             var escapedText    = text.toLowerCase().replace(/[^\w]+/g, "-");
+
+            // var isChinese = /^[\u4e00-\u9fa5]+$/.test(text);
+            // var id        = (isChinese) ? escape(text).replace(/\%/g, "") : text.toLowerCase().replace(/[^\w]+/g, "-");
+
+            var id = Math.floor(Math.random() * 1000000000 ).toString(36);
+
             var toc = {
                 text  : text,
                 level : level,
-                slug  : escapedText
+                slug  : escapedText,
+                id : id
             };
-
-            var isChinese = /^[\u4e00-\u9fa5]+$/.test(text);
-            var id        = (isChinese) ? escape(text).replace(/\%/g, "") : text.toLowerCase().replace(/[^\w]+/g, "-");
 
             markdownToC.push(toc);
 
-            var headingHTML = "<h" + level + " id=\"h"+ level + "-" + this.options.headerPrefix + id +"\">";
+            var headingHTML = "<h" + level + " id=\"" + id +"\" class=\"markdown-heading\">";
 
-            headingHTML    += "<a name=\"" + text + "\" class=\"reference-link\"></a>";
+            headingHTML    += "<a name=\"" + id + "\" class=\"reference-link\"></a>";
             headingHTML    += "<span class=\"header-link octicon octicon-link\"></span>";
             headingHTML    += (hasLinkReg) ? this.atLink(this.emoji(linkText)) : this.atLink(this.emoji(text));
             headingHTML    += "</h" + level + ">";
@@ -3761,7 +3765,7 @@
                 text = (isTeXLine) ? text.replace(/\$/g, "") : text;
             }
 
-            var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
+            var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div><div class=\"markdown-article\">";
 
             return (isToC) ? ( (isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML )
                            : ( (pageBreakReg.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n" );
@@ -3849,6 +3853,7 @@
         {
             var text  = toc[i].text;
             var level = toc[i].level;
+            var id    = toc[i].id;
 
             if (level < startLevel) {
                 continue;
@@ -3860,16 +3865,17 @@
             }
             else if (level < lastLevel)
             {
-                html += (new Array(lastLevel - level + 2)).join("</ul></li>");
+                // html += (new Array(lastLevel - level + 2)).join("</ul></li>");
             }
             else
             {
-                html += "</ul></li>";
+                // html += "</ul></li>";
             }
 
-            html += "<li><a class=\"toc-level-" + level + "\" href=\"#" + text + "\" level=\"" + level + "\">" + text + "</a><ul>";
+            html += "<li class=\"directory-item\"><a class=\"directory-item-link directory-item-link-" + level + "\" href=\"#" + id + "\" level=\"" + level + "\">" + text + "</a></li>";
             lastLevel = level;
         }
+        console.log(html);
 
         var tocContainer = container.find(".markdown-toc");
 

@@ -486,6 +486,7 @@ table>tbody>tr:hover{
     list-style: none;
     border-top: 1px solid #DDDDDD;
     padding-top: 15px;
+    clear: both;
 }
 .manual-article .wiki-bottom{
     border-top: 1px solid #E5E5E5;

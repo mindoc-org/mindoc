@@ -32,9 +32,74 @@
 }
 
 /**************TOC*******************/
-.markdown-toc{
-    padding: 16px 11px 4px;
-    border: 1px solid #f0f0f0;
+.editormd-preview-container{
+    position: relative;
+    height: auto;
+    width: 100%;
+}
+
+.article-body .markdown-toc{
+    position: fixed;
+    right: 0;
+    width: 260px;
+    font-size: 12px;
+}
+.markdown-toc ul{
+    list-style:none;
+}
+.markdown-toc .markdown-toc-list>li{
+    padding: 3px 10px 3px 16px;
+    line-height: 18px;
+    border-left: 2px solid #e8e8e8;
+    color: #595959;
+}
+.markdown-toc .markdown-toc-list>li.active{
+    border-right: 2px solid #25b864;
+}
+
+.article-body .markdown-article{
+    margin-right: 200px;
+}
+.markdown-toc-list .directory-item {
+    padding: 3px 10px 3px 16px;
+    line-height: 18px;
+    border-left: 2px solid #e8e8e8;
+    color: #595959;
+}
+.markdown-toc-list .directory-item-link {
+    width: 100%;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #595959;
+}
+.markdown-toc-list .directory-item-link:hover {
+    color: #8C8C8C;
+}
+.markdown-toc-list .directory-item-link-1 {
+    padding-left: 0;
+}
+.markdown-toc-list .directory-item-link-2 {
+    padding-left: 1.2em;
+}
+.markdown-toc-list .directory-item-link-3 {
+    padding-left: 2.4em;
+}
+.markdown-toc-list .directory-item-link-4 {
+    padding-left: 3.6em;
+}
+.markdown-toc-list .directory-item-link-5 {
+    padding-left: 4.8em;
+}
+.markdown-toc-list .directory-item-active {
+    border-left: 2px solid #25b864;
+}
+.markdown-toc-list .directory-item-active a {
+    color: #25b864;
+}
+.markdown-toc-list .directory-item-active a:hover {
+    color: #7CD4A2;
 }
 /***********代码样式*****************/
 .markdown-body .highlight pre, .markdown-body pre{
