@@ -278,7 +278,6 @@
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">
-
 $(function () {
     $("#searchList").on("click","a",function () {
         var id = $(this).attr("data-id");
@@ -290,7 +289,7 @@ $(function () {
         });
     });
 });
-
 </script>
+{{.Scripts}}
 </body>
 </html>

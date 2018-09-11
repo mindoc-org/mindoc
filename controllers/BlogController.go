@@ -337,7 +337,6 @@ func (c *BlogController) ManageEdit() {
 		blog.ModifyAt = c.Member.MemberId
 		blog.Modified = time.Now()
 
-
 		if err := blog.Save("blog_content","blog_release","modify_at","modify_time","version");err != nil {
 			beego.Error("保存文章失败 -> ",err)
 			c.JsonResult(6011,"保存文章失败")
@@ -374,7 +373,11 @@ func (c *BlogController) ManageEdit() {
 	}else{
 		c.Data["AttachList"] = template.JS("[]")
 	}
-
+	if conf.GetUploadFileSize() > 0 {
+		c.Data["UploadFileSize"] = conf.GetUploadFileSize()
+	}else{
+		c.Data["UploadFileSize"] = "undefined";
+	}
 	c.Data["Model"] = blog
 }
 

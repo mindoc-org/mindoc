@@ -186,6 +186,9 @@ func IsAllowUploadFileExt(ext string) bool {
 	exts := GetUploadFileExt()
 
 	for _, item := range exts {
+		if item == "*" {
+			return  true
+		}
 		if strings.EqualFold(item, ext) {
 			return true
 		}

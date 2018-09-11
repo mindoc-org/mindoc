@@ -186,7 +186,7 @@ func (c *DocumentController) Read() {
 			Body     string `json:"body"`
 			Title    string `json:"title"`
 			DocInfo  string `json:"doc_info"`
-			Version  int64	`json:"version"`
+			Version  int64  `json:"version"`
 		}
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
@@ -282,6 +282,12 @@ func (c *DocumentController) Edit() {
 	}
 
 	c.Data["BaiDuMapKey"] = beego.AppConfig.DefaultString("baidumapkey", "")
+
+	if conf.GetUploadFileSize() > 0 {
+		c.Data["UploadFileSize"] = conf.GetUploadFileSize()
+	}else{
+		c.Data["UploadFileSize"] = "undefined";
+	}
 }
 
 // 创建一个文档
@@ -291,7 +297,7 @@ func (c *DocumentController) Create() {
 	docName := c.GetString("doc_name")
 	parentId, _ := c.GetInt("parent_id", 0)
 	docId, _ := c.GetInt("doc_id", 0)
-	isOpen,_ := c.GetInt("is_open",0)
+	isOpen, _ := c.GetInt("is_open", 0)
 
 	if identify == "" {
 		c.JsonResult(6001, "参数错误")
@@ -353,7 +359,7 @@ func (c *DocumentController) Create() {
 
 	if isOpen == 1 {
 		document.IsOpen = 1
-	}else{
+	} else {
 		document.IsOpen = 0
 	}
 
@@ -397,19 +403,17 @@ func (c *DocumentController) Upload() {
 	}
 
 	if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize() {
-		c.JsonResult(6009, "查过文件允许的上传最大值")
+		c.JsonResult(6009, "文件大小超过了限定的最大值")
 	}
 
 	ext := filepath.Ext(moreFile.Filename)
-
+	//文件必须带有后缀名
 	if ext == "" {
 		c.JsonResult(6003, "无法解析文件的格式")
 	}
 	//如果文件类型设置为 * 标识不限制文件类型
-	if beego.AppConfig.DefaultString("upload_file_ext", "") != "*" {
-		if !conf.IsAllowUploadFileExt(ext) {
-			c.JsonResult(6004, "不允许的文件类型")
-		}
+	if conf.IsAllowUploadFileExt(ext) == false {
+		c.JsonResult(6004, "不允许的文件类型")
 	}
 
 	bookId := 0
@@ -504,7 +508,7 @@ func (c *DocumentController) Upload() {
 
 	if err != nil {
 		os.Remove(filePath)
-		beego.Error("Attachment Insert => ", err)
+		beego.Error("文件保存失败 ->", err)
 		c.JsonResult(6006, "文件保存失败")
 	}
 
@@ -512,7 +516,7 @@ func (c *DocumentController) Upload() {
 		attachment.HttpPath = conf.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update(); err != nil {
-			beego.Error("SaveToFile => ", err)
+			beego.Error("保存文件失败 ->", err)
 			c.JsonResult(6005, "保存文件失败")
 		}
 	}

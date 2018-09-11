@@ -237,10 +237,8 @@
                         formData : { "blogId" : {{.Model.BlogId}}},
                         pick: "#filePicker",
                         fileVal : "editormd-file-file",
-                        fileNumLimit : 1,
+                        fileSingleSizeLimit: {{.UploadFileSize}},
                         compress : false
-                    }).on("beforeFileQueued",function (file) {
-                        uploader.reset();
                     }).on( 'fileQueued', function( file ) {
                         var item = {
                             state : "wait",
@@ -249,15 +247,14 @@
                             file_name : file.name,
                             message : "正在上传"
                         };
-                        window.vueApp.lists.splice(0,0,item);
+                        window.vueApp.lists.push(item);
 
                     }).on("uploadError",function (file,reason) {
                         for(var i in window.vueApp.lists){
                             var item = window.vueApp.lists[i];
                             if(item.attachment_id == file.id){
                                 item.state = "error";
-                                item.message = "上传失败";
-                                break;
+                                item.message = "上传失败：" + reason;
                             }
                         }
 
@@ -267,25 +264,23 @@
                             var item = window.vueApp.lists[index];
                             if(item.attachment_id === file.id){
                                 if(res.errcode === 0) {
-                                    window.vueApp.lists.splice(index, 1, res.attach);
-
+                                    window.vueApp.lists.splice(index, 1, res.attach?res.attach:res.data);
                                 }else{
                                     item.message = res.message;
                                     item.state = "error";
                                 }
-                                break;
                             }
                         }
-
-                    }).on("beforeFileQueued",function (file) {
-
-                    }).on("uploadComplete",function () {
-
                     }).on("uploadProgress",function (file, percentage) {
                         var $li = $( '#'+file.id ),
                                 $percent = $li.find('.progress .progress-bar');
 
                         $percent.css( 'width', percentage * 100 + '%' );
+                    }).on("error", function (type) {
+                        if(type === "F_EXCEED_SIZE"){
+                            layer.msg("文件超过了限定大小");
+                        }
+                        console.log(type);
                     });
                 }catch(e){
                     console.log(e);
