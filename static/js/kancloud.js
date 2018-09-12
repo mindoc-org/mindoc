@@ -149,11 +149,36 @@ $(function () {
         $('.manual-right').animate({ scrollTop: '0px' }, 200);
     });
     $(".manual-right").scroll(function () {
-        var top = $(".manual-right").scrollTop();
-        if (top > 100) {
-            $(".view-backtop").addClass("active");
-        } else {
-            $(".view-backtop").removeClass("active");
+        try {
+            var top = $(".manual-right").scrollTop();
+            if (top > 100) {
+                $(".view-backtop").addClass("active");
+            } else {
+                $(".view-backtop").removeClass("active");
+            }
+        }catch (e) {
+            console.log(e);
+        }
+        try{
+            var scrollTop = $(document).scrollTop();
+            var oItem = $(".markdown-heading").find(".reference-link");
+            var oName = "";
+            $.each(oItem,function(){
+                var oneItem = $(this);
+                var offsetTop = oneItem.offset().top;
+                if(offsetTop-scrollTop < 200){
+                    oName = "#" + oneItem.attr("name");
+                }
+            });
+            $(".markdown-toc-list a").each(function () {
+                if(oName === $(this).attr("href")) {
+                    $(this).parents("li").addClass("directory-item-active");
+                }else{
+                    $(this).parents("li").removeClass("directory-item-active");
+                }
+            });
+        }catch (e) {
+            console.log(e);
         }
     });
     window.isFullScreen = false;

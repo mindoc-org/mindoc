@@ -288,27 +288,6 @@ $(function () {
             return $(body).highlight(window.keyword);
         });
     });
-    $(".manual-right").scroll(function(){
-        var scrollTop = $(document).scrollTop();
-        var oItem = $(".markdown-heading").find(".reference-link");
-        var oName = "";
-        $.each(oItem,function(){
-            var oneItem = $(this);
-            var offsetTop = oneItem.offset().top;
-            if(offsetTop-scrollTop < 200){
-                oName = "#" + oneItem.attr("name");
-            }
-        });
-        console.log(oName);
-        $(".markdown-toc-list a").each(function () {
-            if(oName === $(this).attr("href")) {
-                $(this).parents("li").addClass("directory-item-active");
-            }else{
-                $(this).parents("li").removeClass("directory-item-active");
-            }
-        });
-    });
-
 });
 </script>
 {{.Scripts}}

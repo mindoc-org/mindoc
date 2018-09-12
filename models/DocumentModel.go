@@ -243,29 +243,27 @@ func (item *Document) ReleaseContent() error {
 
 	bookId := item.BookId
 
+	var docQuery *goquery.Document
+	var err error
+
 	if item.Content != "" {
 		item.Release = item.Content
 		bufio := bytes.NewReader([]byte(item.Content))
 		//解析文档中非本站的链接，并设置为新窗口打开
-		if content, err := goquery.NewDocumentFromReader(bufio); err == nil {
-
-			content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
+		if docQuery, err = goquery.NewDocumentFromReader(bufio); err == nil {
+			docQuery.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
 				if src, ok := contentSelection.Attr("href"); ok {
 					if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
-						//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
 						if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
 							contentSelection.SetAttr("target", "_blank")
-							if html, err := content.Html(); err == nil {
-								item.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html),"<html><head></head><body>"),"</body></html>")
-							}
 						}
 					}
-
 				}
 			})
 		}
 	}
 
+	//处理附件
 	attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
 	if err == nil && len(attachList) > 0 {
 		content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
@@ -278,8 +276,43 @@ func (item *Document) ReleaseContent() error {
 			content.WriteString(li)
 		}
 		content.WriteString("</ul></div>")
-		item.Release += content.String()
+		if docQuery == nil {
+			docQuery ,err = goquery.NewDocumentFromReader(content);
+		}else {
+			if selector := docQuery.Find("div.markdown-article").First(); selector.Size() > 0{
+				selector.AppendHtml(content.String())
+			}else{
+				docQuery.Find("article.markdown-article-inner").First().AppendHtml(content.String())
+			}
+		}
 	}
+
+	//处理格式化后的文档内容
+	if docQuery != nil {
+		//处理文档结尾信息
+		docCreator, err := NewMember().Find(item.MemberId,"real_name","account")
+		release := "<div class=\"wiki-bottom\">文档更新时间: " + item.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者："
+		if err == nil && docCreator != nil {
+			if docCreator.RealName != "" {
+				release += docCreator.RealName
+			} else {
+				release += docCreator.Account
+			}
+		}
+		release += "</div>"
+
+		if selector := docQuery.Find("div.markdown-article").First() ; selector.Size() > 0{
+			beego.Info(selector)
+			selector.AppendHtml(release)
+		}else{
+			docQuery.Find("article.markdown-article-inner").First().AppendHtml(release)
+		}
+
+		if html, err := docQuery.Html(); err == nil {
+			item.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html), "<html><head></head><body>"), "</body></html>")
+		}
+	}
+
 	_, err = o.Update(item, "release")
 	if err != nil {
 		beego.Error(fmt.Sprintf("发布失败 => %+v", item), err)
@@ -298,32 +331,4 @@ func (item *Document) ReleaseContent() error {
 		}
 	}
 	return nil
-}
-
-//追加一些文档信息.
-func (doc *Document) AppendInfo() *Document {
-
-	docCreator, err := NewMember().Find(doc.MemberId,"real_name","account")
-
-	doc.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(doc.Release),"<html><head></head><body>"),"</body></html>")
-	suffix := ""
-	if doc.Release != "" {
-		beego.Info(doc.Release)
-		if strings.HasPrefix(doc.Release,"<div class=\"markdown-toc") {
-
-			doc.Release = strings.TrimSuffix(doc.Release,"</div>")
-			suffix = "</div>"
-		}
-		doc.Release += "<div class=\"wiki-bottom\">文档更新时间: " + doc.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者：";
-		if err == nil && docCreator != nil {
-			if docCreator.RealName != "" {
-				doc.Release += docCreator.RealName
-			} else {
-				doc.Release += docCreator.Account
-			}
-		}
-		doc.Release += "</div>" + suffix
-	}
-
-	return doc
 }

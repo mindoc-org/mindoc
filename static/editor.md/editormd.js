@@ -3981,6 +3981,7 @@
             html = new String(html);
         }
 
+        html = '<article class="markdown-article-inner">' + html + "</article>";
         if (typeof filters !== "string") {
             return html;
         }

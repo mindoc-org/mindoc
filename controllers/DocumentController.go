@@ -63,7 +63,6 @@ func (c *DocumentController) Index() {
 	if bookResult.IsUseFirstDocument {
 		doc, err := bookResult.FindFirstDocumentByBookId(bookResult.BookId)
 		if err == nil {
-			doc.AppendInfo()
 			selected = doc.DocumentId
 			c.Data["Title"] = doc.DocumentName
 			c.Data["Content"] = template.HTML(doc.Release)
@@ -177,7 +176,6 @@ func (c *DocumentController) Read() {
 	if doc.ModifyTime != doc.CreateTime {
 		docInfo += "；更新于 "
 		docInfo += doc.ModifyTime.Local().Format("2006-01-02 15:04")
-		doc.AppendInfo()
 	}
 
 	if c.IsAjax() {

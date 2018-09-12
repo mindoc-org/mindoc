@@ -57,7 +57,7 @@
     border-right: 2px solid #25b864;
 }
 
-.article-body .markdown-article,.article-body .attach-list{
+.article-body .markdown-article{
     margin-right: 200px;
 }
 .markdown-toc-list .directory-item {
