@@ -159,14 +159,16 @@ $(function () {
         }catch (e) {
             console.log(e);
         }
+
         try{
-            var scrollTop = $(document).scrollTop();
+            var scrollTop = $("body").scrollTop();
             var oItem = $(".markdown-heading").find(".reference-link");
             var oName = "";
             $.each(oItem,function(){
                 var oneItem = $(this);
                 var offsetTop = oneItem.offset().top;
-                if(offsetTop-scrollTop < 200){
+
+                if(offsetTop-scrollTop < 58){
                     oName = "#" + oneItem.attr("name");
                 }
             });
@@ -177,10 +179,26 @@ $(function () {
                     $(this).parents("li").removeClass("directory-item-active");
                 }
             });
+            if(!$(".markdown-toc-list li").hasClass('directory-item-active')) {
+                $(".markdown-toc-list li:eq(0)").addClass("directory-item-active");
+            }
         }catch (e) {
             console.log(e);
         }
     });
+    $(".markdown-toc-list li:eq(0)").addClass("directory-item-active");
+
+    $(".markdown-toc-list a").on("click",function () {
+        $(".markdown-toc-list li").removeClass("directory-item-active");
+        $(this).parents("li").addClass("directory-item-active");
+    });
+
+    $(window).resize(function (e) {
+        var h = $(".manual-catalog").innerHeight() - 20;
+        $(".markdown-toc").height(h);
+    });
+    $(window).resize();
+
     window.isFullScreen = false;
 
     initHighlighting();
