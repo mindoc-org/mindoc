@@ -57,7 +57,7 @@
     border-right: 2px solid #25b864;
 }
 
-.article-body .markdown-article{
+.article-body .markdown-article,.article-body .attach-list{
     margin-right: 200px;
 }
 .markdown-toc-list .directory-item {
@@ -93,7 +93,7 @@
     padding-left: 4.8em;
 }
 .markdown-toc-list .directory-item-active {
-    border-left: 2px solid #25b864;
+    border-left: 2px solid #25b864 !important;
 }
 .markdown-toc-list .directory-item-active a {
     color: #25b864;
