@@ -168,7 +168,7 @@ $(function () {
                 var oneItem = $(this);
                 var offsetTop = oneItem.offset().top;
 
-                if(offsetTop-scrollTop < 58){
+                if(offsetTop-scrollTop < 100){
                     oName = "#" + oneItem.attr("name");
                 }
             });

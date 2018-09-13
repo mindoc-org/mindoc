@@ -3111,11 +3111,9 @@
 .editormd-preview-container, .editormd-html-preview {
   text-align: left;
   font-size: 14px;
-  line-height: 1.6;
   padding: 20px;
-  overflow: auto;
   width: 100%;
-  background-color: #fff;
+  line-height: 1.6em;
 }
 .editormd-preview-container blockquote, .editormd-html-preview blockquote {
   color: #2C3E50;
