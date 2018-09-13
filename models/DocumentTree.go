@@ -25,14 +25,14 @@ type DocumentSelected struct {
 }
 
 //获取项目的文档树状结构
-func (m *Document) FindDocumentTree(bookId int) ([]*DocumentTree, error) {
+func (item *Document) FindDocumentTree(bookId int) ([]*DocumentTree, error) {
 	o := orm.NewOrm()
 
 	trees := make([]*DocumentTree, 0)
 
 	var docs []*Document
 
-	count, err := o.QueryTable(m).Filter("book_id", bookId).OrderBy("order_sort", "document_id").Limit(math.MaxInt32).All(&docs, "document_id", "version", "document_name", "parent_id", "identify","is_open")
+	count, err := o.QueryTable(item).Filter("book_id", bookId).OrderBy("order_sort", "document_id").Limit(math.MaxInt32).All(&docs, "document_id", "version", "document_name", "parent_id", "identify","is_open")
 
 	if err != nil {
 		return trees, err
@@ -68,8 +68,8 @@ func (m *Document) FindDocumentTree(bookId int) ([]*DocumentTree, error) {
 	return trees, nil
 }
 
-func (m *Document) CreateDocumentTreeForHtml(bookId, selectedId int) (string, error) {
-	trees, err := m.FindDocumentTree(bookId)
+func (item *Document) CreateDocumentTreeForHtml(bookId, selectedId int) (string, error) {
+	trees, err := item.FindDocumentTree(bookId)
 	if err != nil {
 		return "", err
 	}

@@ -520,7 +520,7 @@ func (book *Book) ReleaseContent(bookId int) {
 	o := orm.NewOrm()
 
 	var docs []*Document
-	_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).All(&docs, "document_id", "identify", "content")
+	_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).All(&docs)
 
 	if err != nil {
 		beego.Error("发布失败 =>",bookId, err)

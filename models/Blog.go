@@ -9,7 +9,8 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"strings"
-	"github.com/qiniu/x/bytes.v7"
+	"bytes"
+	"github.com/lifei6671/mindoc/utils"
 )
 
 //博文表
@@ -218,7 +219,9 @@ func (b *Blog) Save(cols ...string) error {
 		}
 	}
 	var err error
-	b.Version = time.Now().Unix()
+
+	b.Processor().Version = time.Now().Unix()
+
 	if b.BlogId > 0 {
 		b.Modified = time.Now()
 		_,err = o.Update(b,cols...)
@@ -230,32 +233,43 @@ func (b *Blog) Save(cols ...string) error {
 		b.Created = time.Now()
 		_,err = o.Insert(b)
 	}
-	//如果保存成功，则在后台处理文章中存在的外链问题
-	if err == nil {
-		go func(blog *Blog) {
-			bufio := bytes.NewReader([]byte(b.BlogRelease))
-			//解析文档中非本站的链接，并设置为新窗口打开
-			if content, err := goquery.NewDocumentFromReader(bufio); err == nil {
 
-				content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
-					if src, ok := contentSelection.Attr("href"); ok {
-						if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
-							//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
-							if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
-								contentSelection.SetAttr("target", "_blank")
-								if html, err := content.Html(); err == nil {
-									b.BlogRelease = html
-								}
-							}
-						}
-
-					}
-				})
-			}
-			o.Update(blog)
-		}(b)
-	}
 	return err
+}
+
+//过滤文章的危险标签，处理文章外链以及图片.
+func (b *Blog) Processor() *Blog {
+
+	b.BlogRelease = utils.SafetyProcessor(b.BlogRelease)
+
+	//解析文档中非本站的链接，并设置为新窗口打开
+	if content, err := goquery.NewDocumentFromReader(bytes.NewBufferString(b.BlogRelease)); err == nil {
+
+		content.Find("a").Each(func(i int, contentSelection *goquery.Selection) {
+			if src, ok := contentSelection.Attr("href"); ok {
+				if strings.HasPrefix(src, "http://") || strings.HasPrefix(src, "https://") {
+					//beego.Info(src,conf.BaseUrl,strings.HasPrefix(src,conf.BaseUrl))
+					if conf.BaseUrl != "" && !strings.HasPrefix(src, conf.BaseUrl) {
+						contentSelection.SetAttr("target", "_blank")
+						if html, err := content.Html(); err == nil {
+							b.BlogRelease = html
+						}
+					}
+				}
+
+			}
+		})
+		//设置图片为CDN地址
+		if cdnimg := beego.AppConfig.String("cdnimg"); cdnimg != "" {
+			content.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
+				if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
+					contentSelection.SetAttr("src", utils.JoinURI(cdnimg, src))
+				}
+			})
+		}
+	}
+
+	return b
 }
 
 //分页查询文章列表

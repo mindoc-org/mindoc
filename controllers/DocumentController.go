@@ -137,45 +137,11 @@ func (c *DocumentController) Read() {
 		c.ShowErrorPage(404, "文档不存在或已删除")
 	}
 
+	doc.Processor()
+
 	attach, err := models.NewAttachment().FindListByDocumentId(doc.DocumentId)
 	if err == nil {
 		doc.AttachList = attach
-	}
-
-	cdnimg := beego.AppConfig.String("cdnimg")
-	if doc.Release != "" && cdnimg != "" {
-		query, err := goquery.NewDocumentFromReader(bytes.NewBufferString(doc.Release))
-		if err != nil {
-			beego.Error(err)
-		} else {
-			query.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
-				if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
-					contentSelection.SetAttr("src", utils.JoinURI(cdnimg, src))
-				}
-			})
-
-			html, err := query.Html()
-			if err != nil {
-				beego.Error(err)
-			} else {
-				doc.Release = html
-			}
-		}
-	}
-
-	// assemble doc info, added by dandycheung, 2017-12-20
-	docInfo := ""
-	docCreator, err := models.NewMember().Find(doc.MemberId)
-	if err == nil {
-		docInfo += docCreator.Account
-	}
-
-	docInfo += " 创建于 "
-	docInfo += doc.CreateTime.Local().Format("2006-01-02 15:04")
-
-	if doc.ModifyTime != doc.CreateTime {
-		docInfo += "；更新于 "
-		docInfo += doc.ModifyTime.Local().Format("2006-01-02 15:04")
 	}
 
 	if c.IsAjax() {
@@ -183,13 +149,11 @@ func (c *DocumentController) Read() {
 			DocTitle string `json:"doc_title"`
 			Body     string `json:"body"`
 			Title    string `json:"title"`
-			DocInfo  string `json:"doc_info"`
 			Version  int64  `json:"version"`
 		}
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
-		data.DocInfo = docInfo
 		data.Version = doc.Version
 
 		c.JsonResult(0, "ok", data)
@@ -208,7 +172,6 @@ func (c *DocumentController) Read() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = doc.DocumentName
-	c.Data["Info"] = docInfo
 	c.Data["Content"] = template.HTML(doc.Release)
 }
 

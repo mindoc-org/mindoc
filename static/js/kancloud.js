@@ -16,46 +16,31 @@ var events = function () {
         }
 
         initHighlighting();
+        $(window).resize();
 
         $(".manual-right").scrollTop(0);
         //使用layer相册功能查看图片
         layer.photos({photos: "#page-content"});
     };
-    if(window.sessionStorage){
-        return {
-            data: function ($key, $value) {
-                $key = "MinDoc::Document:" + $key;
-                if(typeof $value === "undefined"){
-                    var data = window.sessionStorage.getItem($key);
-                    return JSON.parse(data);
-                } else {
-                    $value = JSON.stringify($value);
-                    return window.sessionStorage.setItem($key,$value);
-                }
-            },
-            trigger: function ($e, $obj) {
-                articleOpen($e, $obj);
+
+    return {
+        data: function ($key, $value) {
+            $key = "MinDoc::Document:" + $key;
+            if (typeof $value === "undefined") {
+                return $("body").data($key);
+            } else {
+                return $('body').data($key, $value);
             }
-        }
-    }else{
-        return {
-            data : function ($key, $value) {
-                $key = "MinDoc::Document:" + $key;
-                if(typeof $value === "undefined"){
-                    return $("body").data($key);
-                }else{
-                    return $('body').data($key, $value);
-                }
-            },
-            trigger: function ($e, $obj) {
-                if($e === "article.open"){
-                    articleOpen($e, $obj);
-                }else {
-                    $('body').trigger('article.open', $obj);
-                }
+        },
+        trigger: function ($e, $obj) {
+            if ($e === "article.open") {
+                articleOpen($e, $obj);
+            } else {
+                $('body').trigger('article.open', $obj);
             }
         }
     }
+
 }();
 
 /***
@@ -185,19 +170,19 @@ $(function () {
         }catch (e) {
             console.log(e);
         }
-    });
-    $(".markdown-toc-list li:eq(0)").addClass("directory-item-active");
+    }).on("click",".markdown-toc-list a", function () {
+        var $this = $(this);
+        setTimeout(function () {
+            $(".markdown-toc-list li").removeClass("directory-item-active");
+            $this.parents("li").addClass("directory-item-active");
+        },10);
+    }).find(".markdown-toc-list li:eq(0)").addClass("directory-item-active");
 
-    $(".markdown-toc-list a").on("click",function () {
-        $(".markdown-toc-list li").removeClass("directory-item-active");
-        $(this).parents("li").addClass("directory-item-active");
-    });
 
     $(window).resize(function (e) {
         var h = $(".manual-catalog").innerHeight() - 20;
         $(".markdown-toc").height(h);
-    });
-    $(window).resize();
+    }).resize();
 
     window.isFullScreen = false;
 
