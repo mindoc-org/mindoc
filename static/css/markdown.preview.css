@@ -73,6 +73,13 @@
 .article-body .markdown-article{
     margin-right: 250px;
 }
+.article-body.content .markdown-toc{
+    position: relative;
+}
+.article-body.content .markdown-article{
+    margin-right: 0;
+}
+
 .markdown-toc-list .directory-item {
     padding: 3px 10px 3px 16px;
     line-height: 18px;
@@ -117,7 +124,7 @@
 .markdown-toc-list .directory-item-active a:hover {
     color: #7CD4A2;
 }
-@media (max-width: 1300px){
+@media (max-width: 1200px){
     .article-body .markdown-toc{
         display: none;
     }
@@ -125,6 +132,7 @@
         margin-right: 0;
     }
 }
+
 /***********代码样式*****************/
 .markdown-body .highlight pre, .markdown-body pre{
     padding: 1em;
