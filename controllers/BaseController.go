@@ -68,12 +68,8 @@ func (c *BaseController) Prepare() {
 			c.Data[item.OptionName] = item.OptionValue
 			c.Option[item.OptionName] = item.OptionValue
 
-			if strings.EqualFold(item.OptionName, "ENABLE_ANONYMOUS") && item.OptionValue == "true" {
-				c.EnableAnonymous = true
-			}
-			if strings.EqualFold(item.OptionName, "ENABLE_DOCUMENT_HISTORY") && item.OptionValue == "true" {
-				c.EnableDocumentHistory = true
-			}
+			c.EnableAnonymous = strings.EqualFold(item.OptionName, "ENABLE_ANONYMOUS") && item.OptionValue == "true"
+			c.EnableDocumentHistory = strings.EqualFold(item.OptionName, "ENABLE_DOCUMENT_HISTORY") && item.OptionValue == "true"
 		}
 	}
 	c.Data["HighlightStyle"] = beego.AppConfig.DefaultString("highlight_style","github")

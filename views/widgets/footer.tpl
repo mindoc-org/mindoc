@@ -9,7 +9,7 @@
             <span>&nbsp;·&nbsp;</span>
             <span><a href="https://www.iminho.me/wiki/docs/mindoc/" target="_blank">使用手册</a></span>
         </div>
-        {{if ne .site_beian ""}}
+        {{if .site_beian}}
         <div class="row text-center">
             <a href="http://www.miitbeian.gov.cn" target="_blank">{{.site_beian}}</a>
         </div>
