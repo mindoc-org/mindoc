@@ -357,6 +357,7 @@ textarea{
 }
 .dashboard .summary{
     margin-top: 15px;
+    word-break: break-all;
 }
 /************文档成员*************************/
 .users-list .list-item{
