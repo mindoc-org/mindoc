@@ -105,7 +105,16 @@ func SafetyProcessor(html string) string {
 				}
 			}
 		})
-
+		//添加文档标签包裹
+		if selector := docQuery.Find("article.markdown-article-inner").First(); selector.Size() <= 0 {
+			docQuery.Children().WrapAllHtml("<article class=\"markdown-article-inner\"></article>")
+		}
+		//解决文档内容缺少包裹标签的问题
+		if selector := docQuery.Find("div.markdown-article").First(); selector.Size() <= 0 {
+			if selector := docQuery.Find("div.markdown-toc").First(); selector.Size() > 0 {
+				docQuery.Find("div.markdown-toc").NextAll().WrapAllHtml("<div class=\"markdown-article\"></div>")
+			}
+		}
 
 
 		if html, err := docQuery.Html(); err == nil {

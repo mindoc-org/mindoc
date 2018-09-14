@@ -291,8 +291,6 @@ func (item *Document) Processor() *Document {
 							selector.AppendHtml(content.String())
 						} else if selector := docQuery.Find("article.markdown-article-inner").First(); selector.Size() > 0 {
 							selector.AppendHtml(content.String())
-						} else {
-							docQuery.Children().WrapHtml("<article class=\"markdown-article-inner\"></article>").AppendHtml(content.String())
 						}
 					}
 				}
@@ -316,8 +314,6 @@ func (item *Document) Processor() *Document {
 					selector.AppendHtml(release)
 				} else if selector := docQuery.Find("article.markdown-article-inner").First(); selector.Size() > 0 {
 					selector.First().AppendHtml(release)
-				} else {
-					docQuery.Children().WrapHtml("<article class=\"markdown-article-inner\"></article>").AppendHtml(release);
 				}
 			}
 
