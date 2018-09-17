@@ -1,4 +1,4 @@
-FROM golang:1.10.3-alpine3.7
+FROM golang:1.10.3-alpine3.7 AS build
 
 #新增 GLIBC
 ENV GLIBC_VERSION "2.28-r0"
@@ -34,7 +34,7 @@ ADD . /go/src/github.com/lifei6671/mindoc
 WORKDIR /go/src/github.com/lifei6671/mindoc
 
 RUN	 go get -u github.com/golang/dep/cmd/dep && dep ensure  && \
-	CGO_ENABLE=1 go build -v -o mindoc_linux_amd64 -ldflags="-w -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" && \
+	CGO_ENABLE=1 go build -v -a -o mindoc_linux_amd64 -ldflags="-w -s -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" && \
     rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock simsun.ttc
 
 ADD start.sh /go/src/github.com/lifei6671/mindoc
@@ -46,7 +46,6 @@ LABEL maintainer="longfei6671@163.com"
 
 RUN apk add --update && \
     apk add --no-cache --upgrade \
-    ca-certificates \
     mesa-gl \
     python \
     qt5-qtbase-x11 \
@@ -61,11 +60,12 @@ RUN apk add --update && \
     update-ms-fonts && \
     fc-cache -f
 
-COPY --from=0 /var/glibc.apk .
-COPY --from=0 /var/glibc-bin.apk .
-COPY --from=0 /etc/apk/keys/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
-COPY --from=0 /var/linux-installer.py .
-COPY --from=0 /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
+COPY --from=build /var/glibc.apk .
+COPY --from=build /var/glibc-bin.apk .
+COPY --from=build /etc/apk/keys/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
+COPY --from=build /var/linux-installer.py .
+COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 RUN  apk add glibc-bin.apk glibc.apk && \
     /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \

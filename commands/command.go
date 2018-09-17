@@ -31,6 +31,7 @@ import (
 func RegisterDataBase() {
 	beego.Info("正在初始化数据库配置.")
 	adapter := beego.AppConfig.String("db_adapter")
+	orm.DefaultTimeLoc = time.Local
 
 	if strings.EqualFold(adapter, "mysql") {
 		host := beego.AppConfig.String("db_host")
@@ -55,7 +56,7 @@ func RegisterDataBase() {
 			os.Exit(1)
 		}
 	} else if strings.EqualFold(adapter, "sqlite3") {
-		orm.DefaultTimeLoc = time.UTC
+
 		database := beego.AppConfig.String("db_database")
 		if strings.HasPrefix(database, "./") {
 			database = filepath.Join(conf.WorkingDirectory, string(database[1:]))
