@@ -65,7 +65,8 @@ COPY --from=build /var/glibc-bin.apk .
 COPY --from=build /etc/apk/keys/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
 COPY --from=build /var/linux-installer.py .
 COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=build /go/src/github.com/lifei6671/mindoc .
 
 RUN  apk add glibc-bin.apk glibc.apk && \
     /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
@@ -82,7 +83,6 @@ RUN cat linux-installer.py | python -c "import sys; main=lambda x,y:sys.stderr.w
 
 WORKDIR /mindoc
 
-COPY --from=0 /go/src/github.com/lifei6671/mindoc .
 
 # 时区设置
 ENV TZ=Asia/Shanghai
