@@ -66,7 +66,7 @@ COPY --from=build /etc/apk/keys/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
 COPY --from=build /var/linux-installer.py .
 COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /go/src/github.com/lifei6671/mindoc .
+COPY --from=build /go/src/github.com/lifei6671/mindoc /mindoc
 
 RUN  apk add glibc-bin.apk glibc.apk && \
     /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
