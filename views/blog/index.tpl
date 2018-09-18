@@ -87,6 +87,9 @@
                 <div class="item">{{.Model.ModifyRealName}}</div>
                 <div class="item">修改于</div>
                 <div class="item">{{date .Model.Modified "Y-m-d H:i:s"}}</div>
+                {{if eq .Member.MemberId .Model.MemberId}}
+                    <div class="item"><a href='{{urlfor "BlogController.ManageEdit" ":id" .Model.BlogId}}' title="文章编辑"><i class="fa fa-edit"></i> 编辑</a></div>
+                {{end}}
             </div>
         </div>
         <div class="row">
