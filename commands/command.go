@@ -417,19 +417,23 @@ func RegisterAutoLoadConfig()  {
 					if ev.IsModify() {
 						if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
 							beego.Error("An error occurred ->", err)
-							break
+							continue
 						}
 						RegisterCache()
 						RegisterLogger("")
 						beego.Info("配置文件已加载 ->", conf.ConfigurationFile)
+					} else if ev.IsRename() {
+						watcher.WatchFlags(conf.ConfigurationFile, fsnotify.FSN_MODIFY|fsnotify.FSN_RENAME)
 					}
+					beego.Info(ev.String())
 				case err := <-watcher.Error:
 					beego.Error("配置文件监控器错误 ->", err)
+
 				}
 			}
 		}()
 
-		err = watcher.Watch(conf.ConfigurationFile)
+		err = watcher.WatchFlags(conf.ConfigurationFile, fsnotify.FSN_MODIFY|fsnotify.FSN_RENAME)
 
 		if err != nil {
 			beego.Error("监控配置文件失败 ->",err)
