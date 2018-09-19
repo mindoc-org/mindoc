@@ -75,7 +75,7 @@ func (c *BaseController) Prepare() {
 	c.Data["HighlightStyle"] = beego.AppConfig.DefaultString("highlight_style", "github")
 
 	if b, err := ioutil.ReadFile(filepath.Join(beego.BConfig.WebConfig.ViewsPath, "widgets", "scripts.tpl")); err == nil {
-		c.Data["Scripts0"] = template.HTML(string(b))
+		c.Data["Scripts"] = template.HTML(string(b))
 	}
 
 }
