@@ -38,6 +38,8 @@ func init() {
 	beego.Router("/manager/label/list", &controllers.ManagerController{},"get:LabelList")
 	beego.Router("/manager/label/delete/:id", &controllers.ManagerController{},"post:LabelDelete")
 
+	beego.Router("/manager/config",  &controllers.ManagerController{}, "*:Config")
+
 	beego.Router("/setting", &controllers.SettingController{}, "*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{}, "*:Password")
 	beego.Router("/setting/upload", &controllers.SettingController{}, "*:Upload")

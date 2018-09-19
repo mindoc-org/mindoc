@@ -16,41 +16,48 @@ import (
 	"html/template"
 	"encoding/json"
 	"github.com/lifei6671/mindoc/utils"
+	"net/url"
 )
 
-type BlogController struct{
+type BlogController struct {
 	BaseController
+}
+
+func (c *BlogController) Prepare() {
+	c.BaseController.Prepare()
+	if !c.EnableAnonymous && c.Member == nil {
+		c.Redirect(conf.URLFor("AccountController.Login")+"?url="+url.PathEscape(conf.BaseUrl+c.Ctx.Request.URL.RequestURI()), 302)
+	}
 }
 
 //文章阅读
 func (c *BlogController) Index() {
 	c.Prepare()
 	c.TplName = "blog/index.tpl"
-	blogId,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	blogId, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
-	if blogId <= 0{
-		c.ShowErrorPage(404,"页面不存在")
+	if blogId <= 0 {
+		c.ShowErrorPage(404, "页面不存在")
 	}
-	blogReadSession := fmt.Sprintf("blog:read:%d",blogId)
+	blogReadSession := fmt.Sprintf("blog:read:%d", blogId)
 
-	blog,err := models.NewBlog().FindFromCache(blogId)
+	blog, err := models.NewBlog().FindFromCache(blogId)
 
 	if err != nil {
-		c.ShowErrorPage(404,"文章不存在")
+		c.ShowErrorPage(404, "文章不存在")
 	}
 
 	if c.Ctx.Input.IsPost() {
 		password := c.GetString("password");
-
 		if blog.BlogStatus == "password" && password != blog.Password {
-			c.JsonResult(6001,"文章密码不正确")
-		}else if blog.BlogStatus == "password" && password == blog.Password {
+			c.JsonResult(6001, "文章密码不正确")
+		} else if blog.BlogStatus == "password" && password == blog.Password {
 			//如果密码输入正确，则存入session中
-			c.CruSession.Set(blogReadSession,blogId)
-			c.JsonResult(0,"OK")
+			c.CruSession.Set(blogReadSession, blogId)
+			c.JsonResult(0, "OK")
 		}
-		c.JsonResult(0,"OK")
-	}else if blog.BlogStatus == "password" && (c.CruSession.Get(blogReadSession) == nil || (c.Member != nil && blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator() ) ){
+		c.JsonResult(0, "OK")
+	} else if blog.BlogStatus == "password" && (c.CruSession.Get(blogReadSession) == nil || (c.Member != nil && blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) {
 		//如果不存在已输入密码的标记
 		c.TplName = "blog/index_password.tpl"
 	}
@@ -60,16 +67,15 @@ func (c *BlogController) Index() {
 	c.Data["Content"] = template.HTML(blog.BlogRelease)
 
 	if blog.BlogExcerpt == "" {
-		c.Data["Description"] = utils.AutoSummary(blog.BlogRelease,120)
-	}else{
+		c.Data["Description"] = utils.AutoSummary(blog.BlogRelease, 120)
+	} else {
 		c.Data["Description"] = blog.BlogExcerpt
 	}
 
-
-	if nextBlog,err := models.NewBlog().QueryNext(blogId);err == nil {
+	if nextBlog, err := models.NewBlog().QueryNext(blogId); err == nil {
 		c.Data["Next"] = nextBlog
 	}
-	if preBlog,err := models.NewBlog().QueryPrevious(blogId);err == nil {
+	if preBlog, err := models.NewBlog().QueryPrevious(blogId); err == nil {
 		c.Data["Previous"] = preBlog
 	}
 }
@@ -82,21 +88,20 @@ func (c *BlogController) List() {
 
 	var blogList []*models.Blog
 	var totalCount int
-	var  err error
+	var err error
 
-	blogList,totalCount,err = models.NewBlog().FindToPager(pageIndex,conf.PageSize,0,"")
-
+	blogList, totalCount, err = models.NewBlog().FindToPager(pageIndex, conf.PageSize, 0, "")
 
 	if err != nil && err != orm.ErrNoRows {
-		c.ShowErrorPage(500,err.Error())
+		c.ShowErrorPage(500, err.Error())
 	}
 	if totalCount > 0 {
 		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 		c.Data["PageHtml"] = pager.HtmlPages()
-		for _,blog := range blogList {
+		for _, blog := range blogList {
 			//如果没有添加文章摘要，则自动提取
 			if blog.BlogExcerpt == "" {
-				blog.BlogExcerpt = utils.AutoSummary(blog.BlogRelease,120)
+				blog.BlogExcerpt = utils.AutoSummary(blog.BlogRelease, 120)
 			}
 			blog.Link()
 		}
@@ -114,10 +119,10 @@ func (c *BlogController) ManageList() {
 
 	pageIndex, _ := c.GetInt("page", 1)
 
-	blogList,totalCount,err := models.NewBlog().FindToPager(pageIndex,conf.PageSize,c.Member.MemberId,"")
+	blogList, totalCount, err := models.NewBlog().FindToPager(pageIndex, conf.PageSize, c.Member.MemberId, "")
 
 	if err != nil {
-		c.ShowErrorPage(500,err.Error())
+		c.ShowErrorPage(500, err.Error())
 	}
 	if totalCount > 0 {
 		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
@@ -136,46 +141,46 @@ func (c *BlogController) ManageSetting() {
 	c.TplName = "blog/manage_setting.tpl"
 	//如果是post请求
 	if c.Ctx.Input.IsPost() {
-		blogId,_ := c.GetInt("id",0)
+		blogId, _ := c.GetInt("id", 0)
 		blogTitle := c.GetString("title")
 		blogIdentify := c.GetString("identify")
-		orderIndex,_ := c.GetInt("order_index",0)
-		blogType,_ := c.GetInt("blog_type",0)
-		blogExcerpt := c.GetString("excerpt","")
-		blogStatus := c.GetString("status","publish")
-		blogPassword := c.GetString("password","")
+		orderIndex, _ := c.GetInt("order_index", 0)
+		blogType, _ := c.GetInt("blog_type", 0)
+		blogExcerpt := c.GetString("excerpt", "")
+		blogStatus := c.GetString("status", "publish")
+		blogPassword := c.GetString("password", "")
 		documentIdentify := strings.TrimSpace(c.GetString("documentIdentify"))
 		bookIdentify := strings.TrimSpace(c.GetString("bookIdentify"))
 		documentId := 0
 
 		if blogTitle == "" {
-			c.JsonResult(6001,"文章标题不能为空")
+			c.JsonResult(6001, "文章标题不能为空")
 		}
-		if strings.Count(blogExcerpt,"") > 500 {
-			c.JsonResult(6008,"文章摘要必须小于500字符")
+		if strings.Count(blogExcerpt, "") > 500 {
+			c.JsonResult(6008, "文章摘要必须小于500字符")
 		}
 		if blogStatus != "public" && blogStatus != "password" && blogStatus != "draft" {
 			blogStatus = "public"
 		}
 		if blogStatus == "password" && blogPassword == "" {
-			c.JsonResult(6010,"加密文章请设置密码")
+			c.JsonResult(6010, "加密文章请设置密码")
 		}
 		if blogType != 0 && blogType != 1 {
-			c.JsonResult(6005,"未知的文章类型")
+			c.JsonResult(6005, "未知的文章类型")
 		}
-		if strings.Count(blogTitle,"") > 200 {
-			c.JsonResult(6002,"文章标题不能大于200个字符")
+		if strings.Count(blogTitle, "") > 200 {
+			c.JsonResult(6002, "文章标题不能大于200个字符")
 		}
 		//如果是关联文章，需要同步关联的文档
 		if blogType == 1 {
-			book,err := models.NewBook().FindByIdentify(bookIdentify)
+			book, err := models.NewBook().FindByIdentify(bookIdentify)
 
 			if err != nil {
-				c.JsonResult(6011,"关联文档的项目不存在")
+				c.JsonResult(6011, "关联文档的项目不存在")
 			}
-			doc,err := models.NewDocument().FindByIdentityFirst(documentIdentify,book.BookId)
-			if  err != nil {
-				c.JsonResult(6003,"查询关联项目文档时出错")
+			doc, err := models.NewDocument().FindByIdentityFirst(documentIdentify, book.BookId)
+			if err != nil {
+				c.JsonResult(6003, "查询关联项目文档时出错")
 			}
 			documentId = doc.DocumentId
 
@@ -205,17 +210,17 @@ func (c *BlogController) ManageSetting() {
 			//如果设置了文章标识
 			if blogIdentify != "" {
 				//如果查询到的文章标识存在并且不是当前文章的id
-				if b,err := models.NewBlog().FindByIdentify(blogIdentify); err == nil && b.BlogId != blogId {
-					c.JsonResult(6004,"文章标识已存在")
+				if b, err := models.NewBlog().FindByIdentify(blogIdentify); err == nil && b.BlogId != blogId {
+					c.JsonResult(6004, "文章标识已存在")
 				}
 			}
 			blog.Modified = time.Now()
 			blog.ModifyAt = c.Member.MemberId
-		}else{
+		} else {
 			//如果设置了文章标识
 			if blogIdentify != "" {
 				if models.NewBlog().IsExist(blogIdentify) {
-					c.JsonResult(6004,"文章标识已存在")
+					c.JsonResult(6004, "文章标识已存在")
 				}
 			}
 
@@ -224,8 +229,8 @@ func (c *BlogController) ManageSetting() {
 			blog.Created = time.Now()
 		}
 		if blogIdentify == "" {
-			blog.BlogIdentify = fmt.Sprintf("%s-%d","post",time.Now().UnixNano())
-		}else{
+			blog.BlogIdentify = fmt.Sprintf("%s-%d", "post", time.Now().UnixNano())
+		} else {
 			blog.BlogIdentify = blogIdentify
 		}
 
@@ -240,30 +245,29 @@ func (c *BlogController) ManageSetting() {
 		blog.BlogStatus = blogStatus
 		blog.Password = blogPassword
 
-		if err := blog.Save();err != nil {
-			beego.Error("保存文章失败 -> ",err)
-			c.JsonResult(6011,"保存文章失败")
-		}else{
-			c.JsonResult(0,"ok",blog)
+		if err := blog.Save(); err != nil {
+			beego.Error("保存文章失败 -> ", err)
+			c.JsonResult(6011, "保存文章失败")
+		} else {
+			c.JsonResult(0, "ok", blog)
 		}
 	}
 	if c.Ctx.Input.Referer() == "" {
 		c.Data["Referer"] = "javascript:history.back();"
-	}else{
+	} else {
 		c.Data["Referer"] = c.Ctx.Input.Referer()
 	}
-	blogId,err := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	blogId, err := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
 	c.Data["DocumentIdentify"] = "";
-
 	if err == nil {
-		blog,err := models.NewBlog().FindByIdAndMemberId(blogId,c.Member.MemberId)
+		blog, err := models.NewBlog().FindByIdAndMemberId(blogId, c.Member.MemberId)
 		if err != nil {
-			c.ShowErrorPage(500,err.Error())
+			c.ShowErrorPage(500, err.Error())
 		}
 
 		c.Data["Model"] = blog
-	}else{
+	} else {
 		c.Data["Model"] = models.NewBlog()
 	}
 }
@@ -274,37 +278,37 @@ func (c *BlogController) ManageEdit() {
 	c.TplName = "blog/manage_edit.tpl"
 
 	if c.Ctx.Input.IsPost() {
-		blogId,_ := c.GetInt("blogId",0)
+		blogId, _ := c.GetInt("blogId", 0)
 
 		if blogId <= 0 {
-			c.JsonResult(6001,"文章参数错误")
+			c.JsonResult(6001, "文章参数错误")
 		}
-		blogContent := c.GetString("content","")
-		blogHtml := c.GetString("htmlContent","")
-		version,_ := c.GetInt64("version",0)
+		blogContent := c.GetString("content", "")
+		blogHtml := c.GetString("htmlContent", "")
+		version, _ := c.GetInt64("version", 0)
 		cover := c.GetString("cover")
 
 		var blog *models.Blog
 		var err error
 
 		if c.Member.IsAdministrator() {
-			blog,err = models.NewBlog().Find(blogId)
-		}else{
-			blog,err = models.NewBlog().FindByIdAndMemberId(blogId,c.Member.MemberId)
+			blog, err = models.NewBlog().Find(blogId)
+		} else {
+			blog, err = models.NewBlog().FindByIdAndMemberId(blogId, c.Member.MemberId)
 		}
 		if err != nil {
-			beego.Error("查询文章失败 ->",err)
-			c.JsonResult(6002,"查询文章失败")
+			beego.Error("查询文章失败 ->", err)
+			c.JsonResult(6002, "查询文章失败")
 		}
-		if version > 0 && blog.Version != version && cover != "yes"{
-			c.JsonResult(6005,"文章已被修改")
+		if version > 0 && blog.Version != version && cover != "yes" {
+			c.JsonResult(6005, "文章已被修改")
 		}
 		//如果是关联文章，需要同步关联的文档
 		if blog.BlogType == 1 {
-			doc,err := models.NewDocument().Find(blog.DocumentId)
+			doc, err := models.NewDocument().Find(blog.DocumentId)
 			if err != nil {
 				beego.Error("查询关联项目文档时出错 ->", err)
-				c.JsonResult(6003,"查询关联项目文档时出错")
+				c.JsonResult(6003, "查询关联项目文档时出错")
 			}
 			book, err := models.NewBook().Find(doc.BookId)
 			if err != nil {
@@ -326,9 +330,9 @@ func (c *BlogController) ManageEdit() {
 			doc.Content = blogHtml
 			doc.ModifyTime = time.Now()
 			doc.ModifyAt = c.Member.MemberId
-			if err := doc.InsertOrUpdate("markdown","release","content","modify_time","modify_at");err != nil {
-				beego.Error("保存关联文档时出错 ->",err)
-				c.JsonResult(6004,"保存关联文档时出错")
+			if err := doc.InsertOrUpdate("markdown", "release", "content", "modify_time", "modify_at"); err != nil {
+				beego.Error("保存关联文档时出错 ->", err)
+				c.JsonResult(6004, "保存关联文档时出错")
 			}
 		}
 
@@ -337,94 +341,94 @@ func (c *BlogController) ManageEdit() {
 		blog.ModifyAt = c.Member.MemberId
 		blog.Modified = time.Now()
 
-		if err := blog.Save("blog_content","blog_release","modify_at","modify_time","version");err != nil {
-			beego.Error("保存文章失败 -> ",err)
-			c.JsonResult(6011,"保存文章失败")
-		}else{
-			c.JsonResult(0,"ok",blog)
+		if err := blog.Save("blog_content", "blog_release", "modify_at", "modify_time", "version"); err != nil {
+			beego.Error("保存文章失败 -> ", err)
+			c.JsonResult(6011, "保存文章失败")
+		} else {
+			c.JsonResult(0, "ok", blog)
 		}
 	}
 
-	blogId,_ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	blogId, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
 	if blogId <= 0 {
-		c.ShowErrorPage(500,"参数错误")
+		c.ShowErrorPage(500, "参数错误")
 	}
 	var blog *models.Blog
 	var err error
 
 	if c.Member.IsAdministrator() {
-		blog,err = models.NewBlog().Find(blogId)
-	}else{
-		blog,err = models.NewBlog().FindByIdAndMemberId(blogId,c.Member.MemberId)
+		blog, err = models.NewBlog().Find(blogId)
+	} else {
+		blog, err = models.NewBlog().FindByIdAndMemberId(blogId, c.Member.MemberId)
 	}
 	if err != nil {
-		c.ShowErrorPage(404,"文章不存在或已删除")
+		c.ShowErrorPage(404, "文章不存在或已删除")
 	}
 	blog.LinkAttach()
 
 	if len(blog.AttachList) > 0 {
 		returnJSON, err := json.Marshal(blog.AttachList)
 		if err != nil {
-			beego.Error("序列化文章附件时出错 ->",err)
-		}else{
+			beego.Error("序列化文章附件时出错 ->", err)
+		} else {
 			c.Data["AttachList"] = template.JS(string(returnJSON))
 		}
-	}else{
+	} else {
 		c.Data["AttachList"] = template.JS("[]")
 	}
 	if conf.GetUploadFileSize() > 0 {
 		c.Data["UploadFileSize"] = conf.GetUploadFileSize()
-	}else{
+	} else {
 		c.Data["UploadFileSize"] = "undefined";
 	}
 	c.Data["Model"] = blog
 }
 
 //删除文章
-func (c *BlogController) ManageDelete()  {
+func (c *BlogController) ManageDelete() {
 	c.Prepare()
-	blogId,_ := c.GetInt("blog_id",0)
+	blogId, _ := c.GetInt("blog_id", 0)
 
 	if blogId <= 0 {
-		c.JsonResult(6001,"参数错误")
+		c.JsonResult(6001, "参数错误")
 	}
 	var blog *models.Blog
 	var err error
 
 	if c.Member.IsAdministrator() {
-		blog,err = models.NewBlog().Find(blogId)
-	}else{
-		blog,err = models.NewBlog().FindByIdAndMemberId(blogId,c.Member.MemberId)
+		blog, err = models.NewBlog().Find(blogId)
+	} else {
+		blog, err = models.NewBlog().FindByIdAndMemberId(blogId, c.Member.MemberId)
 	}
 	if err != nil {
-		c.JsonResult(6002,"文章不存在或已删除")
+		c.JsonResult(6002, "文章不存在或已删除")
 	}
 
 	if err := blog.Delete(blogId); err != nil {
-		c.JsonResult(6003,"删除失败")
-	}else{
-		c.JsonResult(0,"删除成功")
+		c.JsonResult(6003, "删除失败")
+	} else {
+		c.JsonResult(0, "删除成功")
 	}
 
 }
 
 // 上传附件或图片
 func (c *BlogController) Upload() {
-
+	c.Prepare()
 	blogId, _ := c.GetInt("blogId")
 
 	if blogId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	blog,err := models.NewBlog().Find(blogId)
+	blog, err := models.NewBlog().Find(blogId)
 
 	if err != nil {
-		c.JsonResult(6010,"文章不存在")
+		c.JsonResult(6010, "文章不存在")
 	}
 	if !c.Member.IsAdministrator() && blog.MemberId != c.Member.MemberId {
-		c.JsonResult(6011,"没有文章的访问权限")
+		c.JsonResult(6011, "没有文章的访问权限")
 	}
 
 	name := "editormd-file-file"
@@ -549,7 +553,6 @@ func (c *BlogController) Upload() {
 	result["url"] = httpPath
 	result["alt"] = fileName
 
-
 	c.Ctx.Output.JSON(result, true, false)
 	c.StopRun()
 }
@@ -579,7 +582,7 @@ func (c *BlogController) RemoveAttachment() {
 	}
 
 	if !c.Member.IsAdministrator() {
-		_, err := models.NewBlog().FindByIdAndMemberId(attach.DocumentId,c.Member.MemberId)
+		_, err := models.NewBlog().FindByIdAndMemberId(attach.DocumentId, c.Member.MemberId)
 
 		if err != nil {
 			beego.Error(err)
@@ -588,12 +591,12 @@ func (c *BlogController) RemoveAttachment() {
 	}
 
 	if blog.BlogType == 1 && attach.BookId != blog.BookId && attach.DocumentId != blog.DocumentId {
-		c.ShowErrorPage(404,"附件不存在")
-	}else if attach.BookId !=0 || attach.DocumentId != blogId {
-		c.ShowErrorPage(404,"附件不存在")
+		c.ShowErrorPage(404, "附件不存在")
+	} else if attach.BookId != 0 || attach.DocumentId != blogId {
+		c.ShowErrorPage(404, "附件不存在")
 	}
 
-	if err := attach.Delete();err != nil {
+	if err := attach.Delete(); err != nil {
 		beego.Error(err)
 		c.JsonResult(6005, "删除失败")
 	}
@@ -619,9 +622,9 @@ func (c *BlogController) Download() {
 			c.ShowErrorPage(500, "查询文章时异常")
 		}
 	}
-	blogReadSession := fmt.Sprintf("blog:read:%d",blogId)
+	blogReadSession := fmt.Sprintf("blog:read:%d", blogId)
 	//如果没有启动匿名访问，或者设置了访问密码
-	if (c.Member == nil && !c.EnableAnonymous) || ( blog.BlogStatus == "password" && password != blog.Password && c.CruSession.Get(blogReadSession) == nil) {
+	if (c.Member == nil && !c.EnableAnonymous) || (blog.BlogStatus == "password" && password != blog.Password && c.CruSession.Get(blogReadSession) == nil) {
 		c.ShowErrorPage(403, "没有下载权限")
 	}
 
@@ -631,15 +634,15 @@ func (c *BlogController) Download() {
 	if err != nil {
 		beego.Error("DownloadAttachment => ", err)
 		if err == orm.ErrNoRows {
-			c.ShowErrorPage(404,"附件不存在")
+			c.ShowErrorPage(404, "附件不存在")
 		} else {
-			c.ShowErrorPage(500,"查询附件时出现异常")
+			c.ShowErrorPage(500, "查询附件时出现异常")
 		}
 	}
 	if blog.BlogType == 1 && attachment.BookId != blog.BookId && attachment.DocumentId != blog.DocumentId {
-		c.ShowErrorPage(404,"附件不存在")
-	}else if attachment.BookId !=0 || attachment.DocumentId != blogId {
-		c.ShowErrorPage(404,"附件不存在")
+		c.ShowErrorPage(404, "附件不存在")
+	} else if attachment.BookId != 0 || attachment.DocumentId != blogId {
+		c.ShowErrorPage(404, "附件不存在")
 	}
 
 	c.Ctx.Output.Download(filepath.Join(conf.WorkingDirectory, attachment.FilePath), attachment.FileName)

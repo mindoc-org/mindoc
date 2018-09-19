@@ -25,6 +25,7 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/astaxie/beego/cache/redis"
+	"github.com/howeyc/fsnotify"
 )
 
 // RegisterDataBase 注册数据库
@@ -55,6 +56,7 @@ func RegisterDataBase() {
 			beego.Error("注册默认数据库失败->", err)
 			os.Exit(1)
 		}
+
 	} else if strings.EqualFold(adapter, "sqlite3") {
 
 		database := beego.AppConfig.String("db_database")
@@ -401,37 +403,37 @@ func RegisterCache() {
 //自动加载配置文件.修改了监听端口号和数据库配置无法自动生效.
 func RegisterAutoLoadConfig()  {
 	if conf.AutoLoadDelay > 0 {
-		ticker := time.NewTicker(time.Second * time.Duration(conf.AutoLoadDelay))
 
+		watcher, err := fsnotify.NewWatcher()
+
+		if err != nil {
+			beego.Error("创建配置文件监控器失败 ->",err)
+		}
 		go func() {
-			f,err := os.Stat(conf.ConfigurationFile)
-			if err != nil {
-				beego.Error("读取配置文件时出错 ->",err)
-				return
-			}
-			modTime := f.ModTime()
 			for {
 				select {
-				case <-ticker.C:
-					f,err := os.Stat(conf.ConfigurationFile)
-					if err != nil {
-						beego.Error("读取配置文件时出错 ->",err)
-						break
-					}
-					if modTime != f.ModTime() {
+				case ev := <-watcher.Event:
+					//如果是修改了配置文件
+					if ev.IsModify() {
 						if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
 							beego.Error("An error occurred ->", err)
 							break
 						}
-						modTime = f.ModTime()
 						RegisterCache()
-
 						RegisterLogger("")
-						beego.Info("配置文件已加载")
+						beego.Info("配置文件已加载 ->", conf.ConfigurationFile)
 					}
+				case err := <-watcher.Error:
+					beego.Error("配置文件监控器错误 ->", err)
 				}
 			}
 		}()
+
+		err = watcher.Watch(conf.ConfigurationFile)
+
+		if err != nil {
+			beego.Error("监控配置文件失败 ->",err)
+		}
 	}
 }
 
