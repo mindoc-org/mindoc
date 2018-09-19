@@ -12,8 +12,9 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
-	"github.com/lifei6671/mindoc/utils/filetil"
 	"path/filepath"
+	"io/ioutil"
+	"html/template"
 )
 
 type BaseController struct {
@@ -69,13 +70,14 @@ func (c *BaseController) Prepare() {
 			c.Option[item.OptionName] = item.OptionValue
 		}
 		c.EnableAnonymous = strings.EqualFold(c.Option["ENABLE_ANONYMOUS"], "true")
-		c.EnableDocumentHistory = strings.EqualFold(c.Option["ENABLE_DOCUMENT_HISTORY"],"true")
+		c.EnableDocumentHistory = strings.EqualFold(c.Option["ENABLE_DOCUMENT_HISTORY"], "true")
 	}
-	c.Data["HighlightStyle"] = beego.AppConfig.DefaultString("highlight_style","github")
+	c.Data["HighlightStyle"] = beego.AppConfig.DefaultString("highlight_style", "github")
 
-	if filetil.FileExists(filepath.Join(beego.BConfig.WebConfig.ViewsPath,"widgets","scripts.tpl")) {
-		c.LayoutSections["Scripts"] = "widgets/scripts.tpl"
+	if b, err := ioutil.ReadFile(filepath.Join(beego.BConfig.WebConfig.ViewsPath, "widgets", "scripts.tpl")); err == nil {
+		c.Data["Scripts0"] = template.HTML(string(b))
 	}
+
 }
 
 // SetMember 获取或设置当前登录用户信息,如果 MemberId 小于 0 则标识删除 Session
