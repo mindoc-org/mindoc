@@ -356,7 +356,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		name := strconv.Itoa(item.DocumentId)
 		fpath := filepath.Join(tempOutputPath, name+".html")
 
-		f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0777)
+		f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0755)
 		if err != nil {
 			return convertBookResult, err
 		}
@@ -388,9 +388,6 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 						beego.Error("复制图片失败 -> ", err, src)
 						return
 					}
-					//if ff, e := ioutil.ReadFile(spath); e == nil {
-					//	encodeString = base64.StdEncoding.EncodeToString(ff)
-					//}
 
 				} else {
 					client := &http.Client{}
@@ -420,15 +417,13 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 						}
 					}
 				}
-				//if encodeString != "" {
-				//	src = "data:image/" + strings.TrimPrefix(filepath.Ext(src),".") + ";base64," + encodeString
-				//
-				//	contentSelection.SetAttr("src", src)
-				//}
-
 				contentSelection.SetAttr("src", dstSrcString)
 			}
 		})
+		//移除文档底部的更新信息
+		if selection := doc.Find("div.wiki-bottom").First(); selection.Size() > 0 {
+			selection.Remove()
+		}
 
 		html, err = doc.Html()
 		if err != nil {
@@ -448,17 +443,19 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "editor.md", "css", "editormd.preview.css"), filepath.Join(tempOutputPath, "styles", "editor.md", "css", "editormd.preview.css")); err != nil {
 		beego.Error("复制CSS样式出错 -> static/editor.md/css/editormd.preview.css", err)
 	}
-	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "prettify", "themes", "prettify.css"), filepath.Join(tempOutputPath, "styles", "prettify", "themes", "prettify.css")); err != nil {
-		beego.Error("复制CSS样式出错 -> static/prettify/themes/prettify.css", err)
-	}
+
 	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "markdown.preview.css"), filepath.Join(tempOutputPath, "styles", "css", "markdown.preview.css")); err != nil {
 		beego.Error("复制CSS样式出错 -> static/css/markdown.preview.css", err)
 	}
-	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "highlight", "styles", "vs.css"), filepath.Join(tempOutputPath, "styles", "highlight", "styles", "vs.css")); err != nil {
-		beego.Error("复制CSS样式出错 -> static/highlight/styles/vs.css", err)
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static","editor.md","lib", "highlight", "styles", "github.css"), filepath.Join(tempOutputPath, "styles","css", "github.css")); err != nil {
+		beego.Error("复制CSS样式出错 -> static/editor.md/lib/highlight/styles/github.css", err)
 	}
-	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "katex", "katex.min.css"), filepath.Join(tempOutputPath, "styles", "katex", "katex.min.css")); err != nil {
-		beego.Error("复制CSS样式出错 -> static/katex/katex.min.css", err)
+
+	if err := filetil.CopyDir(filepath.Join(conf.WorkingDirectory,"static","font-awesome"), filepath.Join(tempOutputPath,"styles","font-awesome")); err != nil {
+		beego.Error("复制CSS样式出错 -> static/font-awesome", err)
+	}
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static","editor.md","lib","mermaid","mermaid.css"), filepath.Join(tempOutputPath, "styles", "css", "mermaid.css")); err != nil {
+		beego.Error("复制CSS样式出错 -> static/editor.md/lib/mermaid/mermaid.css", err)
 	}
 
 	eBookConverter := &converter.Converter{

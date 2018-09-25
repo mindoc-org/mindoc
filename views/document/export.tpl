@@ -7,11 +7,11 @@
     <title>{{.Model.BookName}} - Powered by MinDoc</title>
     <link href="styles/css/kancloud.css" rel="stylesheet">
     <link href="styles/editor.md/css/editormd.preview.css" rel="stylesheet"/>
-    <link href="styles/prettify/themes/prettify.css" rel="stylesheet"/>
     <link href="styles/css/markdown.preview.css" rel="stylesheet"/>
-    <link href="styles/highlight/styles/vs.css" rel="stylesheet"/>
-    <link href="styles/katex/katex.min.css" rel="stylesheet"/>
+    <link href="styles/css/github.css" rel="stylesheet"/>
+    <link href="styles/css/mermaid.css" rel="stylesheet">
     <link href="styles/css/export.css" rel="stylesheet"/>
+    <link href="styles/font-awesome/css/font-awesome.css" />
 </head>
 
 <body>

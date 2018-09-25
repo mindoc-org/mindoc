@@ -9,9 +9,19 @@ body{
 .editormd-preview-container{
     padding: 0 !important;
 }
-
+.markdown-body{
+    -webkit-backface-visibility: inherit !important;
+    backface-visibility: inherit !important;
+}
 .markdown-body pre{
     max-height: none !important;
     white-space: pre-wrap !important;
     word-wrap: break-word !important;
+}
+.markdown-toc{
+    display: none !important;
+    width: 0 !important;
+}
+.article-body .markdown-article{
+    margin-right: 0 !important;
 }
