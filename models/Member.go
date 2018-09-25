@@ -100,11 +100,13 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	var err error
 	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", beego.AppConfig.String("ldap_host"), beego.AppConfig.DefaultInt("ldap_port", 3268)))
 	if err != nil {
+		beego.Error("绑定 LDAP 用户失败 ->",err)
 		return m, ErrLDAPConnect
 	}
 	defer lc.Close()
 	err = lc.Bind(beego.AppConfig.String("ldap_user"), beego.AppConfig.String("ldap_password"))
 	if err != nil {
+		beego.Error("绑定 LDAP 用户失败 ->",err)
 		return m, ErrLDAPFirstBind
 	}
 	searchRequest := ldap.NewSearchRequest(
@@ -117,6 +119,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	)
 	searchResult, err := lc.Search(searchRequest)
 	if err != nil {
+		beego.Error("绑定 LDAP 用户失败 ->",err)
 		return m, ErrLDAPSearch
 	}
 	if len(searchResult.Entries) != 1 {
@@ -125,6 +128,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	userdn := searchResult.Entries[0].DN
 	err = lc.Bind(userdn, password)
 	if err != nil {
+		beego.Error("绑定 LDAP 用户失败 ->",err)
 		return m, ErrorMemberPasswordError
 	}
 	if m.Account == "" {
@@ -137,7 +141,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 
 		err = m.Add()
 		if err != nil {
-			logs.Error("自动注册LDAP用户错误", err)
+			beego.Error("自动注册LDAP用户错误", err)
 			return m, ErrorMemberPasswordError
 		}
 		m.ResolveRoleName()
