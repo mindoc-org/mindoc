@@ -153,12 +153,11 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 
 # 使用的技术
 
-- beego 1.8.1
+- beego 1.10.0
 - mysql 5.6
-- editor.md
+- editor.md Markdown 编辑器
 - bootstrap 3.2
 - jquery 库
-- layer 弹出层框架
 - webuploader 文件上传框架
 - Nprogress 库
 - jstree 树状结构库
@@ -167,7 +166,8 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 - layer 弹出层框架
 - highlight 代码高亮库
 - to-markdown HTML转Markdown库
-- wangEditor 富文本编辑器
+- quill 富文本编辑器
+- vue 框架
 
 
 # 主要功能
