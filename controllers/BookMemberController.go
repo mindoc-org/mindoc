@@ -18,7 +18,7 @@ type BookMemberController struct {
 func (c *BookMemberController) AddMember() {
 	identify := c.GetString("identify")
 	account,_ := c.GetInt("account")
-	role_id, _ := c.GetInt("role_id", 3)
+	roleId, _ := c.GetInt("role_id", 3)
 	beego.Info(account)
 	if identify == "" || account <= 0 {
 		c.JsonResult(6001, "参数错误")
@@ -46,11 +46,11 @@ func (c *BookMemberController) AddMember() {
 	relationship := models.NewRelationship()
 	relationship.BookId = book.BookId
 	relationship.MemberId = member.MemberId
-	relationship.RoleId = role_id
+	relationship.RoleId = conf.BookRole(roleId)
 
 	if err := relationship.Insert(); err == nil {
 		memberRelationshipResult := models.NewMemberRelationshipResult().FromMember(member)
-		memberRelationshipResult.RoleId = role_id
+		memberRelationshipResult.RoleId = conf.BookRole(roleId)
 		memberRelationshipResult.RelationshipId = relationship.RelationshipId
 		memberRelationshipResult.BookId = book.BookId
 		memberRelationshipResult.ResolveRoleName()
@@ -63,13 +63,13 @@ func (c *BookMemberController) AddMember() {
 // 变更指定用户在指定项目中的权限
 func (c *BookMemberController) ChangeRole() {
 	identify := c.GetString("identify")
-	member_id, _ := c.GetInt("member_id", 0)
+	memberId, _ := c.GetInt("member_id", 0)
 	role, _ := c.GetInt("role_id", 0)
 
-	if identify == "" || member_id <= 0 {
+	if identify == "" || memberId <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
-	if member_id == c.Member.MemberId {
+	if memberId == c.Member.MemberId {
 		c.JsonResult(6006, "不能变更自己的权限")
 	}
 	book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
@@ -89,14 +89,14 @@ func (c *BookMemberController) ChangeRole() {
 
 	member := models.NewMember()
 
-	if _, err := member.Find(member_id); err != nil {
+	if _, err := member.Find(memberId); err != nil {
 		c.JsonResult(6003, "用户不存在")
 	}
 	if member.Status == 1 {
 		c.JsonResult(6004, "用户已被禁用")
 	}
 
-	relationship, err := models.NewRelationship().UpdateRoleId(book.BookId, member_id, role)
+	relationship, err := models.NewRelationship().UpdateRoleId(book.BookId, memberId, conf.BookRole(role))
 
 	if err != nil {
 		logs.Error("变更用户在项目中的权限 => ", err)

@@ -39,3 +39,20 @@ var (
 	ErrCommentClosed          = errors.New("评论已关闭")
 	ErrCommentContentNotEmpty = errors.New("评论内容不能为空")
 )
+
+type Error struct {
+	code    int
+	message string
+}
+
+func (e Error) Error() string {
+	return e.message
+}
+
+func (e Error) Code() int {
+	return e.code
+}
+
+func NewError(code int, message string) Error {
+	return Error{code: code, message: message}
+}

@@ -12,7 +12,7 @@ type Relationship struct {
 	MemberId       int `orm:"column(member_id);type(int)" json:"member_id"`
 	BookId         int `orm:"column(book_id);type(int)" json:"book_id"`
 	// RoleId 角色：0 创始人(创始人不能被移除) / 1 管理员/2 编辑者/3 观察者
-	RoleId int `orm:"column(role_id);type(int)" json:"role_id"`
+	RoleId conf.BookRole `orm:"column(role_id);type(int)" json:"role_id"`
 }
 
 // TableName 获取对应数据库表名.
@@ -31,7 +31,7 @@ func (m *Relationship) TableEngine() string {
 // 联合唯一键
 func (u *Relationship) TableUnique() [][]string {
 	return [][]string{
-		[]string{"MemberId", "BookId"},
+		{"member_id", "book_id"},
 	}
 }
 
@@ -55,28 +55,28 @@ func (m *Relationship) FindFounder(book_id int) (*Relationship, error) {
 	return m, err
 }
 
-func (m *Relationship) UpdateRoleId(book_id, member_id, role_id int) (*Relationship, error) {
+func (m *Relationship) UpdateRoleId(bookId, memberId int, roleId conf.BookRole) (*Relationship, error) {
 	o := orm.NewOrm()
 	book := NewBook()
-	book.BookId = book_id
+	book.BookId = bookId
 
 	if err := o.Read(book); err != nil {
 		logs.Error("UpdateRoleId => ", err)
 		return m, errors.New("项目不存在")
 	}
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("member_id", member_id).Filter("book_id", book_id).One(m)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("member_id", memberId).Filter("book_id", bookId).One(m)
 
 	if err == orm.ErrNoRows {
 		m = NewRelationship()
-		m.BookId = book_id
-		m.MemberId = member_id
-		m.RoleId = role_id
+		m.BookId = bookId
+		m.MemberId = memberId
+		m.RoleId = roleId
 	} else if err != nil {
 		return m, err
 	} else if m.RoleId == conf.BookFounder {
 		return m, errors.New("不能变更创始人的权限")
 	}
-	m.RoleId = role_id
+	m.RoleId = roleId
 
 	if m.RelationshipId > 0 {
 		_, err = o.Update(m)
@@ -88,7 +88,7 @@ func (m *Relationship) UpdateRoleId(book_id, member_id, role_id int) (*Relations
 
 }
 
-func (m *Relationship) FindForRoleId(book_id, member_id int) (int, error) {
+func (m *Relationship) FindForRoleId(book_id, member_id int) (conf.BookRole, error) {
 	o := orm.NewOrm()
 
 	relationship := NewRelationship()

@@ -40,6 +40,23 @@ func init() {
 
 	beego.Router("/manager/config",  &controllers.ManagerController{}, "*:Config")
 
+	beego.Router("/manager/team", &controllers.ManagerController{}, "*:Team")
+	beego.Router("/manager/team/create", &controllers.ManagerController{}, "POST:TeamCreate")
+	beego.Router("/manager/team/edit", &controllers.ManagerController{}, "POST:TeamEdit")
+	beego.Router("/manager/team/delete", &controllers.ManagerController{}, "POST:TeamDelete")
+
+	beego.Router("/manager/team/member/list/:id", &controllers.ManagerController{}, "*:TeamMemberList")
+	beego.Router("/manager/team/member/add", &controllers.ManagerController{}, "POST:TeamMemberAdd")
+	beego.Router("/manager/team/member/delete", &controllers.ManagerController{}, "POST:TeamMemberDelete")
+	beego.Router("/manager/team/member/change_role", &controllers.ManagerController{}, "POST:TeamChangeMemberRole")
+	beego.Router("/manager/team/member/search", &controllers.ManagerController{}, "*:TeamSearchMember")
+
+
+	beego.Router("/manager/team/book/list/:id", &controllers.ManagerController{}, "*:TeamBookList")
+	beego.Router("/manager/team/book/add", &controllers.ManagerController{}, "POST:TeamBookAdd")
+	beego.Router("/manager/team/book/delete", &controllers.ManagerController{}, "POST:TeamBookDelete")
+
+
 	beego.Router("/setting", &controllers.SettingController{}, "*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{}, "*:Password")
 	beego.Router("/setting/upload", &controllers.SettingController{}, "*:Upload")

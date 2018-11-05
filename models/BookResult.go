@@ -54,12 +54,12 @@ type BookResult struct {
 	AutoRelease    bool      `json:"auto_release"`
 	HistoryCount   int       `json:"history_count"`
 
-	RelationshipId     int    `json:"relationship_id"`
-	RoleId             int    `json:"role_id"`
-	RoleName           string `json:"role_name"`
-	Status             int    `json:"status"`
-	IsEnableShare      bool   `json:"is_enable_share"`
-	IsUseFirstDocument bool   `json:"is_use_first_document"`
+	RelationshipId     int           `json:"relationship_id"`
+	RoleId             conf.BookRole `json:"role_id"`
+	RoleName           string        `json:"role_name"`
+	Status             int           `json:"status"`
+	IsEnableShare      bool          `json:"is_enable_share"`
+	IsUseFirstDocument bool          `json:"is_use_first_document"`
 
 	LastModifyText   string `json:"last_modify_text"`
 	IsDisplayComment bool   `json:"is_display_comment"`
@@ -447,14 +447,14 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "markdown.preview.css"), filepath.Join(tempOutputPath, "styles", "css", "markdown.preview.css")); err != nil {
 		beego.Error("复制CSS样式出错 -> static/css/markdown.preview.css", err)
 	}
-	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static","editor.md","lib", "highlight", "styles", "github.css"), filepath.Join(tempOutputPath, "styles","css", "github.css")); err != nil {
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "editor.md", "lib", "highlight", "styles", "github.css"), filepath.Join(tempOutputPath, "styles", "css", "github.css")); err != nil {
 		beego.Error("复制CSS样式出错 -> static/editor.md/lib/highlight/styles/github.css", err)
 	}
 
-	if err := filetil.CopyDir(filepath.Join(conf.WorkingDirectory,"static","font-awesome"), filepath.Join(tempOutputPath,"styles","font-awesome")); err != nil {
+	if err := filetil.CopyDir(filepath.Join(conf.WorkingDirectory, "static", "font-awesome"), filepath.Join(tempOutputPath, "styles", "font-awesome")); err != nil {
 		beego.Error("复制CSS样式出错 -> static/font-awesome", err)
 	}
-	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static","editor.md","lib","mermaid","mermaid.css"), filepath.Join(tempOutputPath, "styles", "css", "mermaid.css")); err != nil {
+	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "editor.md", "lib", "mermaid", "mermaid.css"), filepath.Join(tempOutputPath, "styles", "css", "mermaid.css")); err != nil {
 		beego.Error("复制CSS样式出错 -> static/editor.md/lib/mermaid/mermaid.css", err)
 	}
 

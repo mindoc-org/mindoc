@@ -117,6 +117,30 @@ func (c *BaseController) JsonResult(errCode int, errMsg string, data ...interfac
 	c.StopRun()
 }
 
+//如果错误不为空，则响应错误信息到浏览器.
+func (c *BaseController) CheckJsonError(code int,err error) {
+
+	if err == nil {
+		return
+	}
+	jsonData := make(map[string]interface{}, 3)
+
+	jsonData["errcode"] = code
+	jsonData["message"] = err.Error()
+
+	returnJSON, err := json.Marshal(jsonData)
+
+	if err != nil {
+		beego.Error(err)
+	}
+
+	c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
+	c.Ctx.ResponseWriter.Header().Set("Cache-Control", "no-cache, no-store")
+	io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+
+	c.StopRun()
+}
+
 // ExecuteViewPathTemplate 执行指定的模板并返回执行结果.
 func (c *BaseController) ExecuteViewPathTemplate(tplName string, data interface{}) (string, error) {
 	var buf bytes.Buffer
@@ -160,7 +184,13 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 	}
 	if errCode >= 200 && errCode <= 510 {
 		c.CustomAbort(errCode, buf.String())
-	}else{
+	} else {
 		c.CustomAbort(500, buf.String())
+	}
+}
+
+func (c *BaseController) CheckErrorResult(code int,err error) {
+	if err != nil {
+		c.ShowErrorPage(code, err.Error())
 	}
 }

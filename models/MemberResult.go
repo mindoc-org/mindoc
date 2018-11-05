@@ -7,29 +7,29 @@ import (
 )
 
 type MemberRelationshipResult struct {
-	MemberId       int       `json:"member_id"`
-	Account        string    `json:"account"`
-	RealName 	   string    `json:"real_name"`
-	Description    string    `json:"description"`
-	Email          string    `json:"email"`
-	Phone          string    `json:"phone"`
-	Avatar         string    `json:"avatar"`
-	Role           int       `json:"role"`   //用户角色：0 管理员/ 1 普通用户
-	Status         int       `json:"status"` //用户状态：0 正常/1 禁用
-	CreateTime     time.Time `json:"create_time"`
-	CreateAt       int       `json:"create_at"`
-	RelationshipId int       `json:"relationship_id"`
-	BookId         int       `json:"book_id"`
+	MemberId       int             `json:"member_id"`
+	Account        string          `json:"account"`
+	RealName       string          `json:"real_name"`
+	Description    string          `json:"description"`
+	Email          string          `json:"email"`
+	Phone          string          `json:"phone"`
+	Avatar         string          `json:"avatar"`
+	Role           conf.SystemRole `json:"role"`   //用户角色：0 管理员/ 1 普通用户
+	Status         int             `json:"status"` //用户状态：0 正常/1 禁用
+	CreateTime     time.Time       `json:"create_time"`
+	CreateAt       int             `json:"create_at"`
+	RelationshipId int             `json:"relationship_id"`
+	BookId         int             `json:"book_id"`
 	// RoleId 角色：0 创始人(创始人不能被移除) / 1 管理员/2 编辑者/3 观察者
-	RoleId   int    `json:"role_id"`
-	RoleName string `json:"role_name"`
+	RoleId   conf.BookRole `json:"role_id"`
+	RoleName string        `json:"role_name"`
 }
 
 type SelectMemberResult struct {
 	Result []KeyValueItem `json:"results"`
 }
 type KeyValueItem struct {
-	Id int `json:"id"`
+	Id   int    `json:"id"`
 	Text string `json:"text"`
 }
 
@@ -63,6 +63,7 @@ func (m *MemberRelationshipResult) ResolveRoleName() *MemberRelationshipResult {
 	}
 	return m
 }
+
 // 根据项目ID查询用户
 func (m *MemberRelationshipResult) FindForUsersByBookId(bookId, pageIndex, pageSize int) ([]*MemberRelationshipResult, int, error) {
 	o := orm.NewOrm()
@@ -96,44 +97,14 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(bookId, pageIndex, pageS
 }
 
 // 查询指定文档中不存在的用户列表
-func (m *MemberRelationshipResult) FindNotJoinUsersByAccount(bookId, limit int,account string) ([]*Member,error){
+func (m *MemberRelationshipResult) FindNotJoinUsersByAccount(bookId, limit int, account string) ([]*Member, error) {
 	o := orm.NewOrm()
 
 	sql := "SELECT m.* FROM md_members as m LEFT JOIN md_relationship as rel ON m.member_id=rel.member_id AND rel.book_id = ? WHERE rel.relationship_id IS NULL AND m.account LIKE ? LIMIT 0,?;"
 
 	var members []*Member
 
-	_,err := o.Raw(sql,bookId,account,limit).QueryRows(&members)
+	_, err := o.Raw(sql, bookId, account, limit).QueryRows(&members)
 
-	return members,err
+	return members, err
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

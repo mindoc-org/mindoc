@@ -279,7 +279,7 @@ func (b *Blog) FindToPager(pageIndex, pageSize int,memberId int,status string) (
 
 	offset := (pageIndex - 1) * pageSize
 
-	query := o.QueryTable(b.TableNameWithPrefix());
+	query := o.QueryTable(b.TableNameWithPrefix())
 
 	if memberId > 0 {
 		query = query.Filter("member_id",memberId)
