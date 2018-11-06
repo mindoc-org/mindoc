@@ -982,15 +982,109 @@ func (c *ManagerController) TeamChangeMemberRole() {
 
 }
 
+//团队项目列表.
 func (c *ManagerController) TeamBookList() {
 	c.Prepare()
 	c.TplName = "manager/team_book_list.tpl"
 
-}
-func (c *ManagerController) TeamBookAdd() {
-	c.Prepare()
+	teamId, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
+	pageIndex, _ := c.GetInt("page", 0)
+
+	if teamId <= 0 {
+		c.JsonResult(5002, "团队标识不能为空")
+	}
+
+	team, err := models.NewTeam().First(teamId)
+
+	if err == orm.ErrNoRows {
+		c.ShowErrorPage(404, "团队不存在")
+	}
+	c.CheckErrorResult(500, err)
+	c.Data["Model"] = team
+
+	teams, totalCount, err := models.NewTeamRelationship().FindToPager(teamId, pageIndex, conf.PageSize)
+
+	if err != nil && err != orm.ErrNoRows {
+		c.ShowErrorPage(500, err.Error())
+	}
+	if err == orm.ErrNoRows || len(teams) <= 0 {
+		c.Data["Result"] = template.JS("[]")
+		c.Data["PageHtml"] = ""
+		return
+	}
+
+	if totalCount > 0 {
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
+		c.Data["PageHtml"] = pager.HtmlPages()
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+
+	b, err := json.Marshal(teams)
+
+	if err != nil {
+		beego.Error("编码 JSON 结果失败 ->", err)
+		c.Data["Result"] = template.JS("[]")
+	} else {
+		c.Data["Result"] = template.JS(string(b))
+	}
 }
 
+//给团队增加项目.
+func (c *ManagerController) TeamBookAdd() {
+	c.Prepare()
+
+	teamId, _ := c.GetInt("teamId")
+	bookId, _ := c.GetInt("bookId")
+
+	if teamId <= 0 || bookId <= 0 {
+		c.JsonResult(500, "参数错误")
+	}
+	teamRel := models.NewTeamRelationship()
+	teamRel.BookId = bookId
+	teamRel.TeamId = teamId
+
+	err := teamRel.Save()
+
+	if err != nil {
+		c.JsonResult(5001, err.Error())
+	} else {
+		teamRel.Include()
+		c.JsonResult(0, "OK", teamRel)
+	}
+}
+
+//搜索未参与的项目.
+func (c *ManagerController) TeamSearchBook() {
+	c.Prepare()
+
+	teamId, _ := c.GetInt("teamId")
+	keyword := strings.TrimSpace(c.GetString("q"))
+
+	if teamId <= 0 {
+		c.JsonResult(500, "参数错误")
+	}
+
+	searchResult, err := models.NewTeamRelationship().FindNotJoinBookByName(teamId, keyword, 10)
+
+	if err != nil {
+		c.JsonResult(500, err.Error())
+	}
+	c.JsonResult(0, "OK", searchResult)
+
+}
 func (c *ManagerController) TeamBookDelete() {
 	c.Prepare()
+	teamRelationshipId, _ := c.GetInt("teamRelId")
+
+	if teamRelationshipId <= 0 {
+		c.JsonResult(500, "参数错误")
+	}
+
+	err := models.NewTeamRelationship().Delete(teamRelationshipId)
+
+	if err != nil {
+		c.JsonResult(5001, "删除失败")
+	}
+	c.JsonResult(0, "OK")
 }

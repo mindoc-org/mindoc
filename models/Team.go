@@ -95,7 +95,7 @@ func (t *Team) FindToPager(pageIndex, pageSize int) (list []*Team, totalCount in
 
 	offset := (pageIndex - 1) * pageSize
 
-	_, err = o.QueryTable(t.TableNameWithPrefix()).Offset(offset).Limit(pageSize).All(&list)
+	_, err = o.QueryTable(t.TableNameWithPrefix()).OrderBy("-team_id").Offset(offset).Limit(pageSize).All(&list)
 
 	if err != nil {
 		return

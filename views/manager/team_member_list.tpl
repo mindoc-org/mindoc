@@ -26,9 +26,7 @@
                 <div class="m-box">
                     <div class="box-head">
                         <strong class="box-title">{{.Model.TeamName}} - 成员管理</strong>
-                    {{if eq .Member.Role 0}}
                         <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addTeamMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> 添加成员</button>
-                    {{end}}
                     </div>
                 </div>
                 <div class="box-body">
@@ -224,7 +222,6 @@
                                 for (var index in $this.lists) {
                                     var item = $this.lists[index];
                                     if (item.member_id == id) {
-                                        console.log(item);
                                         $this.lists.splice(index,1);
                                         break;
                                     }

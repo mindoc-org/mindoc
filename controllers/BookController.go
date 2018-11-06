@@ -171,7 +171,6 @@ func (c *BookController) SaveBook() {
 	book.HistoryCount = historyCount
 	book.IsDownload = 0
 
-
 	if autoRelease {
 		book.AutoRelease = 1
 	} else {
@@ -194,7 +193,7 @@ func (c *BookController) SaveBook() {
 	}
 	if autoSave {
 		book.AutoSave = 1
-	}else{
+	} else {
 		book.AutoSave = 0
 	}
 	if err := book.Update(); err != nil {
@@ -329,7 +328,7 @@ func (c *BookController) UploadCover() {
 	fileName := "cover_" + strconv.FormatInt(time.Now().UnixNano(), 16)
 
 	//附件路径按照项目组织
-	filePath := filepath.Join("uploads", book.Identify,"images", fileName+ext)
+	filePath := filepath.Join("uploads", book.Identify, "images", fileName+ext)
 
 	path := filepath.Dir(filePath)
 
@@ -394,7 +393,7 @@ func (c *BookController) Users() {
 	pageIndex, _ := c.GetInt("page", 1)
 
 	if key == "" {
-		c.Abort("404")
+		c.ShowErrorPage(404, "项目不存在或已删除")
 	}
 
 	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
@@ -407,7 +406,7 @@ func (c *BookController) Users() {
 
 	c.Data["Model"] = *book
 
-	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, 15)
+	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, conf.PageSize)
 
 	if totalCount > 0 {
 		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
@@ -817,6 +816,61 @@ func (c *BookController) SaveSort() {
 
 	}
 	c.JsonResult(0, "ok")
+}
+
+func (c *BookController) Team() {
+	c.Prepare()
+	c.TplName = "book/team.tpl"
+
+	key := c.Ctx.Input.Param(":key")
+	pageIndex, _ := c.GetInt("page", 1)
+
+	if key == "" {
+		c.ShowErrorPage(404, "项目不存在或已删除")
+	}
+
+	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
+	if err != nil {
+		if err == models.ErrPermissionDenied {
+			c.ShowErrorPage(403, "权限不足")
+		}
+		c.ShowErrorPage(500, "系统错误")
+	}
+
+	c.Data["Model"] = book
+
+	members, totalCount, err := models.NewTeamRelationship().FindByBookToPager(book.BookId, pageIndex, conf.PageSize)
+
+	if totalCount > 0 {
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
+		c.Data["PageHtml"] = pager.HtmlPages()
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+	b, err := json.Marshal(members)
+
+	if err != nil {
+		c.Data["Result"] = template.JS("[]")
+	} else {
+		c.Data["Result"] = template.JS(string(b))
+	}
+}
+
+func (c *BookController) TeamAdd() {
+	c.Prepare()
+
+	c.JsonResult(0, "OK")
+}
+
+func (c *BookController) TeamDelete() {
+	c.Prepare()
+
+	c.JsonResult(0, "OK")
+}
+
+func (c *BookController) TeamSearch() {
+	c.Prepare()
+
 }
 
 func (c *BookController) IsPermission() (*models.BookResult, error) {

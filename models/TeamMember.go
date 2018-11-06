@@ -63,7 +63,7 @@ func (m *TeamMember) ChangeRoleId(teamId int, memberId int, roleId conf.BookRole
 	}
 	o := orm.NewOrm()
 
-	err = o.QueryTable(m.TableNameWithPrefix()).Filter("team_id", teamId).Filter("member_id", memberId).One(m)
+	err = o.QueryTable(m.TableNameWithPrefix()).Filter("team_id", teamId).Filter("member_id", memberId).OrderBy("-team_member_id").One(m)
 
 	if err != nil {
 		beego.Error("查询团队用户时失败 ->", err)
@@ -79,6 +79,7 @@ func (m *TeamMember) ChangeRoleId(teamId int, memberId int, roleId conf.BookRole
 	return m, err
 }
 
+//查询团队中指定的用户.
 func (m *TeamMember) FindFirst(teamId, memberId int) (*TeamMember, error) {
 	if teamId <= 0 || memberId <= 0 {
 		return nil, ErrInvalidParameter
@@ -93,6 +94,7 @@ func (m *TeamMember) FindFirst(teamId, memberId int) (*TeamMember, error) {
 	return m.Include(),nil
 }
 
+//更新或插入团队用户.
 func (m *TeamMember) Save(cols ...string) (err error) {
 
 	if m.TeamId <= 0 {
@@ -110,7 +112,11 @@ func (m *TeamMember) Save(cols ...string) (err error) {
 	if !o.QueryTable(NewMember()).Filter("member_id", m.MemberId).Filter("status", 0).Exist() {
 		return errors.New("用户不存在或已禁用")
 	}
+
 	if m.TeamMemberId <= 0 {
+		if o.QueryTable(m.TableNameWithPrefix()).Filter("team_id",m.TeamId).Filter("member_id",m.MemberId).Exist() {
+			return errors.New("团队中已存在该用户")
+		}
 		_, err = o.Insert(m)
 	} else {
 		_, err = o.Update(m, cols...)
@@ -121,6 +127,7 @@ func (m *TeamMember) Save(cols ...string) (err error) {
 	return
 }
 
+//删除一个团队用户.
 func (m *TeamMember) Delete(id int) (err error) {
 
 	if id <= 0 {
@@ -134,6 +141,7 @@ func (m *TeamMember) Delete(id int) (err error) {
 	return
 }
 
+//分页查询团队用户.
 func (m *TeamMember) FindToPager(teamId, pageIndex, pageSize int) (list []*TeamMember, totalCount int, err error) {
 	if teamId <= 0 {
 		err = ErrInvalidParameter
@@ -165,6 +173,7 @@ func (m *TeamMember) FindToPager(teamId, pageIndex, pageSize int) (list []*TeamM
 	return
 }
 
+//查询关联数据.
 func (m *TeamMember) Include() *TeamMember {
 
 	if member, err := NewMember().Find(m.MemberId, "account", "real_name", "avatar"); err == nil {
@@ -184,6 +193,7 @@ func (m *TeamMember) Include() *TeamMember {
 	return m
 }
 
+//查询未加入团队的用户。
 func (m *TeamMember) FindNotJoinMemberByAccount(teamId int, account string, limit int) (*SelectMemberResult, error) {
 	if teamId <= 0 {
 		return nil, ErrInvalidParameter
@@ -193,7 +203,7 @@ func (m *TeamMember) FindNotJoinMemberByAccount(teamId int, account string, limi
 	sql := `select member.member_id,member.account
 from md_members as member 
   left join md_team_member as team on team.team_id = ? and member.member_id != team.member_id
-  where member.account like ?
+  where member.account like ? and team.member_id isnull 
   order by member.member_id desc 
 limit ?;`
 
