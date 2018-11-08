@@ -23,6 +23,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/ziptil"
 	"gopkg.in/russross/blackfriday.v2"
 	"encoding/json"
+	"github.com/lifei6671/mindoc/utils"
 )
 
 // Book struct .
@@ -104,7 +105,7 @@ func NewBook() *Book {
 func (book *Book) Insert() error {
 	o := orm.NewOrm()
 	//	o.Begin()
-
+	book.BookName = utils.StripTags(book.BookName)
 	_, err := o.Insert(book)
 
 	if err == nil {
@@ -153,6 +154,7 @@ func (book *Book) Find(id int,cols ...string) (*Book, error) {
 func (book *Book) Update(cols ...string) error {
 	o := orm.NewOrm()
 
+	book.BookName = utils.StripTags(book.BookName)
 	temp := NewBook()
 	temp.BookId = book.BookId
 

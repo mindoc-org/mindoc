@@ -41,8 +41,7 @@
                     <div class="box-head">
                         <strong class="box-title"> 团队管理</strong>
                     {{if eq .Member.Role 0}}
-                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal"
-                                data-target="#addTeamDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i>
+                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addTeamDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i>
                             添加团队
                         </button>
                     {{end}}
@@ -88,23 +87,21 @@
     </div>
 {{template "widgets/footer.tpl" .}}
 </div>
-<!-- Modal -->
+
 <div class="modal fade" id="addTeamDialogModal" tabindex="-1" role="dialog" aria-labelledby="addTeamDialogModalLabel">
     <div class="modal-dialog" role="document">
-        <form method="post" autocomplete="off" class="form-horizontal"
-              action="{{urlfor "ManagerController.TeamCreate"}}" id="addTeamDialogForm">
+        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "BookController.TeamAdd"}}" id="addTeamDialogForm">
+            <input type="hidden" name="bookId" value="{{.Model.BookId}}">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">创建团队</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">添加团队</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="account">团队名称<span
-                                class="error-message">*</span></label>
+                        <label class="col-sm-2 control-label" for="account">团队名称<span class="error-message">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text" name="teamName" class="form-control" placeholder="团队名称" id="teamName" maxlength="50">
+                            <select type="text" name="teamId" class="js-data-example-ajax form-control" multiple="multiple"></select>
                         </div>
                     </div>
                     <div class="clearfix"></div>
@@ -113,35 +110,6 @@
                     <span id="form-error-message"></span>
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                     <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddTeam">保存
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div><!--END Modal-->
-<div class="modal fade" id="editTeamDialogModal" tabindex="-1" role="dialog" aria-labelledby="editTeamDialogModalLabel">
-    <div class="modal-dialog" role="document">
-        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "ManagerController.TeamEdit"}}" id="editTeamDialogForm">
-            <input type="hidden" name="teamId" value="">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                            aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">编辑团队</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label" for="account">团队名称<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="text" name="teamName" class="form-control" placeholder="团队名称" maxlength="50">
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="modal-footer">
-                    <span id="form-error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnEditTeam">保存
                     </button>
                 </div>
             </div>
@@ -159,7 +127,6 @@
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        var editTeamDialogModal = $("#editTeamDialogModal");
 
         $("#addTeamDialogModal").on("show.bs.modal", function () {
             window.addTeamDialogModalHtml = $(this).find("form").html();
@@ -187,12 +154,14 @@
             });
         }).on("hidden.bs.modal", function () {
             $(this).find("form").html(window.addTeamDialogModalHtml);
+        }).on("shown.bs.modal",function () {
+            $(this).find("input[name='teamId']").focus();
         });
 
 
         $("#addTeamDialogForm").ajaxForm({
             beforeSubmit: function () {
-                var account = $.trim($("#addTeamDialogForm #teamName").val());
+                var account = $.trim($("#addTeamDialogForm input[name='teamId']").val());
                 if (account === "") {
                     return showError("团队名称不能为空");
                 }
@@ -212,39 +181,6 @@
             },
             complete: function () {
                 $("#btnAddTeam").button("reset");
-            }
-        });
-
-        editTeamDialogModal.on("shown.bs.modal",function () {
-            $(this).find("input[name='teamName']").focus();
-        });
-        $("#editTeamDialogForm").ajaxForm({
-            beforeSubmit: function () {
-                var account = $.trim(editTeamDialogModal.find("input[name='teamName']").val());
-                if (account === "") {
-                    return showError("团队名称不能为空");
-                }
-                $("#btnEditTeam").button("loading");
-                return true;
-            },success :function ($res) {
-                if ($res.errcode === 0) {
-                    for (var index in app.lists) {
-                        var item = app.lists[index];
-                        if (item.team_id == $res.data.team_id) {
-                            app.lists.splice(index, 1, $res.data);
-                            break;
-                        }
-                    }
-                    editTeamDialogModal.modal("hide");
-                }else {
-                    showError($res.message);
-                }
-            },
-            error: function () {
-                showError("服务器异常");
-            },
-            complete: function () {
-                $("#btnEditTeam").button("reset");
             }
         });
 

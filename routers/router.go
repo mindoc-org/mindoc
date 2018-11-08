@@ -87,7 +87,7 @@ func init() {
 
 	beego.Router("/book/team/add", &controllers.BookController{}, "POST:TeamAdd")
 	beego.Router("/book/team/delete", &controllers.BookController{}, "POST:TeamDelete")
-	beego.Router("/book/team/search", &controllers.BookController{}, "POST:TeamSearch")
+	beego.Router("/book/team/search", &controllers.BookController{}, "*:TeamSearch")
 
 
 	//管理文章的路由

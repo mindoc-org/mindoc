@@ -90,6 +90,7 @@ func (item *Document) Find(id int) (*Document, error) {
 //插入和更新文档.
 func (item *Document) InsertOrUpdate(cols ...string) error {
 	o := orm.NewOrm()
+	item.DocumentName = utils.StripTags(item.DocumentName)
 	var err error
 	if item.DocumentId > 0 {
 		_, err = o.Update(item, cols...)

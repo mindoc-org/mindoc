@@ -871,6 +871,20 @@ func (c *BookController) TeamDelete() {
 func (c *BookController) TeamSearch() {
 	c.Prepare()
 
+	teamId, _ := c.GetInt("teamId")
+	keyword := strings.TrimSpace(c.GetString("q"))
+
+	if teamId <= 0 {
+		c.JsonResult(500, "参数错误")
+	}
+
+	searchResult, err := models.NewTeamRelationship().FindNotJoinBookByName(teamId, keyword, 10)
+
+	if err != nil {
+		c.JsonResult(500, err.Error())
+	}
+	c.JsonResult(0, "OK", searchResult)
+
 }
 
 func (c *BookController) IsPermission() (*models.BookResult, error) {
