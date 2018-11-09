@@ -44,11 +44,14 @@ func (d *Daemon) Start(s service.Service) error {
 
 func (d *Daemon) Run() {
 
+
 	commands.ResolveCommand(d.config.Arguments)
 
 	commands.RegisterFunction()
 
 	commands.RegisterAutoLoadConfig()
+
+	commands.RegisterError()
 
 	beego.ErrorController(&controllers.ErrorController{})
 

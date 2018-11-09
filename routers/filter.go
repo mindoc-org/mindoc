@@ -7,6 +7,7 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"net/url"
+	"regexp"
 )
 
 func init() {
@@ -42,5 +43,13 @@ func init() {
 		ctx.ResponseWriter.Header().Add("MinDoc-Site", "https://www.iminho.me")
 	}
 
+	var StartRouter = func(ctx *context.Context) {
+		sessionId := ctx.Input.Cookie(beego.AppConfig.String("sessionname"))
+		//sessionId必须是数字字母组成，且最小32个字符，最大1024字符
+		if ok, err := regexp.MatchString(`^[a-zA-z0-9]{32,1024}$`, sessionId); !ok || err != nil {
+			panic("401")
+		}
+	}
+	beego.InsertFilter("/*", beego.BeforeStatic, StartRouter, false)
 	beego.InsertFilter("/*", beego.BeforeRouter, FinishRouter, false)
 }

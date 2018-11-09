@@ -31,7 +31,7 @@
 
 [[constraint]]
   name = "github.com/astaxie/beego"
-  version = "1.10.0"
+  version = "1.10.1"
 
 [[constraint]]
   name = "github.com/boombuler/barcode"
