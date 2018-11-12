@@ -854,7 +854,7 @@ func (c *ManagerController) TeamDelete() {
 
 	c.CheckJsonError(5001, err)
 
-	c.JsonResult(0, "")
+	c.JsonResult(0, "OK")
 }
 
 func (c *ManagerController) TeamMemberList() {

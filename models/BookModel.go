@@ -97,6 +97,10 @@ func (book *Book) TableNameWithPrefix() string {
 	return conf.GetDatabasePrefix() + book.TableName()
 }
 
+func (book *Book) QueryTable() orm.QuerySeter  {
+	return orm.NewOrm().QueryTable(book.TableNameWithPrefix())
+}
+
 func NewBook() *Book {
 	return &Book{}
 }

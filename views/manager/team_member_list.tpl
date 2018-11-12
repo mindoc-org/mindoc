@@ -39,9 +39,9 @@
                                 <thead>
                                 <tr>
                                     <th width="80">头像</th>
-                                    <th>账号</th>
-                                    <th>姓名</th>
-                                    <th>角色</th>
+                                    <th width="100">账号</th>
+                                    <th width="100">姓名</th>
+                                    <th width="150">角色</th>
                                     <th width="80px">操作</th>
                                 </tr>
                                 </thead>
@@ -53,7 +53,7 @@
                                     <td>
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                ${item.role_name}
+                                                角色：${item.role_name}
                                                 <span class="caret"></span></button>
                                             <ul class="dropdown-menu">
                                                 <li><a href="javascript:;" @click="setTeamMemberRole(item.member_id,1)">管理员 <p class="text">拥有阅读、写作和管理权限</p></a> </li>

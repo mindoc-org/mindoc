@@ -10,9 +10,11 @@ import (
 
 type TeamRelationship struct {
 	TeamRelationshipId int       `orm:"column(team_relationship_id);pk;auto;unique;" json:"team_relationship_id"`
-	BookId             int       `orm:"column(book_id)"`
-	TeamId             int       `orm:"column(team_id)"`
+	BookId             int       `orm:"column(book_id)" json:"book_id"`
+	TeamId             int       `orm:"column(team_id)" json:"team_id"`
 	CreateTime         time.Time `orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
+	TeamName           string    `orm:"-" json:"team_name"`
+	MemberCount        int       `orm:"-" json:"member_count"`
 	BookMemberId       int       `orm:"-" json:"book_member_id"`
 	BookMemberName     string    `orm:"-" json:"book_member_name"`
 	BookName           string    `orm:"-" json:"book_name"`
@@ -41,6 +43,39 @@ func (m *TeamRelationship) QueryTable() orm.QuerySeter {
 
 func NewTeamRelationship() *TeamRelationship {
 	return &TeamRelationship{}
+}
+
+func (m *TeamRelationship) First(teamId int, cols ...string) (*TeamRelationship, error) {
+	if teamId <= 0 {
+		return nil, ErrInvalidParameter
+	}
+	err := m.QueryTable().Filter("team_id", teamId).One(m, cols...)
+	if err != nil {
+		beego.Error("查询项目团队失败 ->", err)
+	}
+	return m, err
+}
+
+//查找指定项目的指定团队.
+func (m *TeamRelationship) FindByBookId(bookId int, teamId int) (*TeamRelationship, error) {
+	if teamId <= 0 || bookId <= 0 {
+		return nil, ErrInvalidParameter
+	}
+	err := m.QueryTable().Filter("team_id", teamId).Filter("book_id", bookId).One(m)
+	if err != nil {
+		beego.Error("查询项目团队失败 ->", err)
+	}
+	return m, err
+}
+
+//删除指定项目的指定团队.
+func (m *TeamRelationship) DeleteByBookId(bookId int, teamId int) error {
+	err := m.QueryTable().Filter("team_id", teamId).Filter("book_id", bookId).One(m)
+	if err != nil {
+		beego.Error("查询项目团队失败 ->", err)
+		return err
+	}
+	return m.Delete(teamId)
 }
 
 //保存团队项目.
@@ -125,10 +160,17 @@ func (m *TeamRelationship) Include() (*TeamRelationship, error) {
 			}
 		}
 	}
+	if m.TeamId > 0{
+		team ,err := NewTeam().First(m.TeamId)
+		if err == nil {
+			m.TeamName = team.TeamName
+			m.MemberCount = team.MemberCount
+		}
+	}
 	return m, nil
 }
 
-//查询未加入团队的用户。
+//查询未加入团队的项目.
 func (m *TeamRelationship) FindNotJoinBookByName(teamId int, bookName string, limit int) (*SelectMemberResult, error) {
 	if teamId <= 0 {
 		return nil, ErrInvalidParameter
@@ -163,10 +205,45 @@ and book.book_name like ? order by book_id desc limit ?;`
 	return &result, err
 }
 
-//查询指定项目的团队.
-func (m *TeamRelationship) FindByBookToPager(bookId, pageIndex,pageSize int) (list []*TeamRelationship,totalCount int,err error) {
+//查找指定项目中未加入的团队.
+func (m *TeamRelationship) FindNotJoinBookByBookIdentify(bookId int, teamName string, limit int) (*SelectMemberResult, error) {
+	if bookId <= 0 || teamName == "" {
+		return nil, ErrInvalidParameter
+	}
 
-	if bookId <= 0{
+	o := orm.NewOrm()
+	sql := `select *
+from md_teams as team
+where team.team_id not in (select rel.team_id from md_team_relationship as rel where rel.book_id = ?) 
+and team.team_name like ? 
+order by team.team_id desc limit ?;`
+	teams := make([]*Team, 0)
+
+	_, err := o.Raw(sql, bookId, "%"+teamName+"%", limit).QueryRows(&teams)
+
+	if err != nil {
+		beego.Error("查询团队项目时出错 ->", err)
+		return nil, err
+	}
+
+	result := SelectMemberResult{}
+	items := make([]KeyValueItem, 0)
+
+	for _, team := range teams {
+		item := KeyValueItem{}
+		item.Id = team.TeamId
+		item.Text = team.TeamName
+		items = append(items, item)
+	}
+	result.Result = items
+
+	return &result, err
+}
+
+//查询指定项目的团队.
+func (m *TeamRelationship) FindByBookToPager(bookId, pageIndex, pageSize int) (list []*TeamRelationship, totalCount int, err error) {
+
+	if bookId <= 0 {
 		err = ErrInvalidParameter
 		return
 	}
@@ -193,32 +270,3 @@ func (m *TeamRelationship) FindByBookToPager(bookId, pageIndex,pageSize int) (li
 	}
 	return
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -35,6 +35,9 @@ func (u *Relationship) TableUnique() [][]string {
 	}
 }
 
+func (u *Relationship) QueryTable() orm.QuerySeter  {
+	return orm.NewOrm().QueryTable(u.TableNameWithPrefix())
+}
 func NewRelationship() *Relationship {
 	return &Relationship{}
 }

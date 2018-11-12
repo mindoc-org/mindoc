@@ -688,7 +688,7 @@ func (c *DocumentController) Content() {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("FindByIdentify => ", err)
+			beego.Error("项目不存在或权限不足 -> ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -885,7 +885,7 @@ func (c *DocumentController) Export() {
 		c.Abort("200")
 
 	} else if output == "pdf" || output == "epub" || output == "docx" || output == "mobi" {
-		if err := models.BackgroupConvert(c.CruSession.SessionID(), bookResult); err != nil && err != gopool.ErrHandlerIsExist {
+		if err := models.BackgroundConvert(c.CruSession.SessionID(), bookResult); err != nil && err != gopool.ErrHandlerIsExist {
 			c.ShowErrorPage(500, "导出失败，请查看系统日志")
 		}
 
@@ -1319,6 +1319,9 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 			bookResult.MemberId = rel.MemberId
 			bookResult.RoleId = rel.RoleId
 			bookResult.RelationshipId = rel.RelationshipId
+		} else {
+			//TODO 团队权限
+
 		}
 	}
 

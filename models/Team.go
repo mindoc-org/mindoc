@@ -46,6 +46,11 @@ func (t *Team) First(id int, cols ...string) (*Team, error) {
 	o := orm.NewOrm()
 	err := o.QueryTable(t.TableNameWithPrefix()).Filter("team_id", id).One(t, cols...)
 
+	if err != nil {
+		beego.Error("查询团队失败 ->",id, err)
+		return nil,err
+	}
+	t.Include()
 	return t, err
 }
 
@@ -107,22 +112,29 @@ func (t *Team) FindToPager(pageIndex, pageSize int) (list []*Team, totalCount in
 	}
 	totalCount = int(c)
 
-	for i,item := range list {
-		if member,err := NewMember().Find(item.MemberId,"account","real_name"); err == nil {
-			if member.RealName != "" {
-				list[i].MemberName = member.RealName
-			} else {
-				list[i].MemberName = member.Account
-			}
-		}
-		if c,err := o.QueryTable(NewTeamRelationship().TableNameWithPrefix()).Filter("team_id", item.TeamId).Count(); err == nil {
-			list[i].BookCount = int(c)
-		}
-		if c,err := o.QueryTable(NewTeamMember().TableNameWithPrefix()).Filter("team_id", item.TeamId).Count(); err == nil {
-			list[i].MemberCount = int(c)
-		}
+	for _,item := range list {
+		item.Include()
 	}
 	return
+}
+
+func (t *Team) Include() {
+
+	o := orm.NewOrm()
+
+	if member,err := NewMember().Find(t.MemberId,"account","real_name"); err == nil {
+		if member.RealName != "" {
+			t.MemberName = member.RealName
+		} else {
+			t.MemberName = member.Account
+		}
+	}
+	if c,err := o.QueryTable(NewTeamRelationship().TableNameWithPrefix()).Filter("team_id", t.TeamId).Count(); err == nil {
+		t.BookCount = int(c)
+	}
+	if c,err := o.QueryTable(NewTeamMember().TableNameWithPrefix()).Filter("team_id", t.TeamId).Count(); err == nil {
+		t.MemberCount = int(c)
+	}
 }
 
 //更新或添加一个团队.

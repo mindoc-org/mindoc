@@ -73,7 +73,9 @@ func (c *BookController) Dashboard() {
 	if key == "" {
 		c.Abort("404")
 	}
-
+	if c.Member == nil {
+		c.ShowErrorPage(500,"aaaa")
+	}
 	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
@@ -859,26 +861,69 @@ func (c *BookController) Team() {
 func (c *BookController) TeamAdd() {
 	c.Prepare()
 
-	c.JsonResult(0, "OK")
+	teamId, _ := c.GetInt("teamId")
+
+	book, err := c.IsPermission()
+
+	if err != nil {
+		c.JsonResult(500, err.Error())
+	}
+
+	_, err = models.NewTeam().First(teamId, "team_id")
+	if err != nil {
+		if err == orm.ErrNoRows {
+			c.JsonResult(500, "团队不存在")
+		}
+		c.JsonResult(5002, err.Error())
+	}
+	if _, err := models.NewTeamRelationship().FindByBookId(book.BookId, teamId); err == nil {
+		c.JsonResult(5003, "团队已加入当前项目")
+	}
+	teamRel := models.NewTeamRelationship()
+	teamRel.BookId = book.BookId
+	teamRel.TeamId = teamId
+	err = teamRel.Save()
+	if err != nil {
+		c.JsonResult(5004, "加入项目失败")
+	}
+	teamRel.Include()
+
+	c.JsonResult(0, "OK", teamRel)
 }
 
+//删除项目的团队.
 func (c *BookController) TeamDelete() {
 	c.Prepare()
 
+	teamId, _ := c.GetInt("teamId")
+
+	book, err := c.IsPermission()
+
+	if err != nil {
+		c.JsonResult(500, err.Error())
+	}
+	err = models.NewTeamRelationship().DeleteByBookId(book.BookId, teamId)
+
+	if err != nil {
+		if err == orm.ErrNoRows {
+			c.JsonResult(500, "团队未加入项目")
+		}
+		c.JsonResult(500, err.Error())
+	}
 	c.JsonResult(0, "OK")
 }
 
 func (c *BookController) TeamSearch() {
 	c.Prepare()
 
-	teamId, _ := c.GetInt("teamId")
 	keyword := strings.TrimSpace(c.GetString("q"))
 
-	if teamId <= 0 {
-		c.JsonResult(500, "参数错误")
-	}
+	book, err := c.IsPermission()
 
-	searchResult, err := models.NewTeamRelationship().FindNotJoinBookByName(teamId, keyword, 10)
+	if err != nil {
+		c.JsonResult(500, err.Error())
+	}
+	searchResult, err := models.NewTeamRelationship().FindNotJoinBookByBookIdentify(book.BookId, keyword, 10)
 
 	if err != nil {
 		c.JsonResult(500, err.Error())
@@ -889,6 +934,10 @@ func (c *BookController) TeamSearch() {
 
 func (c *BookController) IsPermission() (*models.BookResult, error) {
 	identify := c.GetString("identify")
+
+	if identify == "" {
+		return nil, errors.New("参数错误")
+	}
 
 	book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 

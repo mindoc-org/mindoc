@@ -27,11 +27,15 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
-                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 成员</a> </li>
-                    <li class="active"><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> 团队</a> </li>
+                    <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i
+                            class="fa fa-dashboard" aria-hidden="true"></i> 概要</a></li>
+                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i
+                            class="fa fa-user" aria-hidden="true"></i> 成员</a></li>
+                    <li class="active"><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i
+                            class="fa fa-group" aria-hidden="true"></i> 团队</a></li>
                 {{if eq .Model.RoleId 0 1}}
-                    <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                    <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i
+                            class="fa fa-gear" aria-hidden="true"></i> 设置</a></li>
                 {{end}}
                 </ul>
 
@@ -41,7 +45,8 @@
                     <div class="box-head">
                         <strong class="box-title"> 团队管理</strong>
                     {{if eq .Member.Role 0}}
-                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addTeamDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i>
+                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal"
+                                data-target="#addTeamDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i>
                             添加团队
                         </button>
                     {{end}}
@@ -57,8 +62,8 @@
                                 <thead>
                                 <tr>
                                     <th>团队名称</th>
-                                    <th width="150px">成员数量</th>
-                                    <th width="150px">项目数量</th>
+                                    <th width="100">成员数量</th>
+                                    <th width="180">加入时间</th>
                                     <th align="center" width="220px">操作</th>
                                 </tr>
                                 </thead>
@@ -66,11 +71,8 @@
                                 <tr v-for="item in lists">
                                     <td>${item.team_name}</td>
                                     <td>${item.member_count}</td>
-                                    <td>${item.book_count}</td>
+                                    <td>${(new Date(item.create_time)).format("yyyy-MM-dd hh:mm:ss")}</td>
                                     <td>
-                                        <a :href="'{{urlfor "ManagerController.TeamBookList" ":id" ""}}' + item.team_id" class="btn btn-primary btn-sm">项目</a>
-                                        <a :href="'{{urlfor "ManagerController.TeamMemberList" ":id" ""}}' + item.team_id" type="button" class="btn btn-success btn-sm">成员</a>
-                                        <button type="button" class="btn btn-sm btn-default" @click="editTeam(item.team_id)">编辑</button>
                                         <button type="button" class="btn btn-danger btn-sm" @click="deleteTeam(item.team_id,$event)" data-loading-text="删除中">删除</button>
                                     </td>
                                 </tr>
@@ -90,8 +92,9 @@
 
 <div class="modal fade" id="addTeamDialogModal" tabindex="-1" role="dialog" aria-labelledby="addTeamDialogModalLabel">
     <div class="modal-dialog" role="document">
-        <form method="post" autocomplete="off" class="form-horizontal" action="{{urlfor "BookController.TeamAdd"}}" id="addTeamDialogForm">
+        <form method="post" autocomplete="off" id="addTeamDialogForm" class="form-horizontal" action="{{urlfor "BookController.TeamAdd"}}">
             <input type="hidden" name="bookId" value="{{.Model.BookId}}">
+            <input type="hidden" name="identify" value="{{.Model.Identify}}">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -101,7 +104,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label" for="account">团队名称<span class="error-message">*</span></label>
                         <div class="col-sm-10">
-                            <select type="text" name="teamId" class="js-data-example-ajax form-control" multiple="multiple"></select>
+                            <select type="text" name="teamId" id="teamId" class="js-data-example-ajax form-control" multiple="multiple"></select>
                         </div>
                     </div>
                     <div class="clearfix"></div>
@@ -132,12 +135,12 @@
             window.addTeamDialogModalHtml = $(this).find("form").html();
             $('.js-data-example-ajax').select2({
                 language: "zh-CN",
-                minimumInputLength : 1,
+                minimumInputLength: 1,
                 minimumResultsForSearch: Infinity,
-                maximumSelectionLength:1,
-                width : "100%",
+                maximumSelectionLength: 1,
+                width: "100%",
                 ajax: {
-                    url: '{{urlfor "BookController.TeamSearch" "identity" .Model.Identify}}',
+                    url: '{{urlfor "BookController.TeamSearch" "identify" .Model.Identify}}',
                     dataType: 'json',
                     data: function (params) {
                         return {
@@ -147,22 +150,22 @@
                     },
                     processResults: function (data, params) {
                         return {
-                            results : data.data.results
+                            results: data.data.results
                         }
                     }
                 }
             });
         }).on("hidden.bs.modal", function () {
             $(this).find("form").html(window.addTeamDialogModalHtml);
-        }).on("shown.bs.modal",function () {
+        }).on("shown.bs.modal", function () {
             $(this).find("input[name='teamId']").focus();
         });
 
 
         $("#addTeamDialogForm").ajaxForm({
             beforeSubmit: function () {
-                var account = $.trim($("#addTeamDialogForm input[name='teamId']").val());
-                if (account === "") {
+                var teamId = $.trim($("#addTeamDialogForm select[name='teamId']").val());
+                if (teamId == "") {
                     return showError("团队名称不能为空");
                 }
                 $("#btnAddTeam").button("loading");
@@ -194,16 +197,15 @@
                 deleteTeam: function (id, e) {
                     var $this = this;
                     $.ajax({
-                        url: "{{urlfor "ManagerController.TeamDelete"}}",
+                        url: "{{urlfor "BookController.TeamDelete"}}",
                         type: "post",
-                        data: {"id": id},
+                        data: {"teamId": id, "identify": "{{.Model.Identify}}"},
                         dataType: "json",
-                        success: function (res) {
-                            if (res.errcode === 0) {
-
+                        success: function ($res) {
+                            if ($res.errcode === 0) {
                                 for (var index in $this.lists) {
                                     var item = $this.lists[index];
-                                    if (item.team_id == id) {
+                                    if (item.team_relationship_id == id) {
                                         $this.lists.splice(index, 1);
                                         break;
                                     }
@@ -213,18 +215,6 @@
                             }
                         }
                     });
-                },
-                editTeam : function (id, e) {
-                    var $this = this;
-                    for (var index in $this.lists) {
-                        var item = $this.lists[index];
-                        if (item.team_id == id) {
-                            editTeamDialogModal.find("input[name='teamName']").val(item.team_name);
-                            editTeamDialogModal.find("input[name='teamId']").val(item.team_id);
-                            editTeamDialogModal.modal("show");
-                            break;
-                        }
-                    }
                 }
             }
         });

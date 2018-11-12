@@ -55,6 +55,7 @@ type BookResult struct {
 	HistoryCount   int       `json:"history_count"`
 
 	RelationshipId     int           `json:"relationship_id"`
+	TeamRelationshipId int           `json:"team_relationship_id"`
 	RoleId             conf.BookRole `json:"role_id"`
 	RoleName           string        `json:"role_name"`
 	Status             int           `json:"status"`
@@ -71,8 +72,8 @@ func NewBookResult() *BookResult {
 	return &BookResult{}
 }
 
-func (b *BookResult) String() string {
-	ret, err := json.Marshal(*b)
+func (m *BookResult) String() string {
+	ret, err := json.Marshal(*m)
 
 	if err != nil {
 		return ""
@@ -87,23 +88,35 @@ func (m *BookResult) FindByIdentify(identify string, memberId int, cols ...strin
 	}
 	o := orm.NewOrm()
 
-	book := NewBook()
+	var book Book
 
-	err := o.QueryTable(book.TableNameWithPrefix()).Filter("identify", identify).One(book, cols...)
+	err := NewBook().QueryTable().Filter("identify", identify).One(&book)
 
 	if err != nil {
+		beego.Error("获取项目失败 ->",err)
 		return m, err
 	}
 
-	relationship := NewRelationship()
+	var relationship Relationship
+	var teamMember *TeamMember
 
-	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("member_id", memberId).One(relationship)
+	err = NewRelationship().QueryTable().Filter("book_id", book.BookId).Filter("member_id", memberId).One(&relationship)
 
 	if err != nil {
-		return m, err
+		if err == orm.ErrNoRows {
+			//未查到项目参与者
+			teamMember,err = NewTeamMember().FindByBookIdAndMemberId(book.BookId,memberId)
+			if err != nil {
+				return m,err
+			}
+			err = nil
+		} else {
+			return m, err
+		}
 	}
 	var relationship2 Relationship
 
+	//查找项目创始人
 	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("role_id", 0).One(&relationship2)
 
 	if err != nil {
@@ -116,16 +129,21 @@ func (m *BookResult) FindByIdentify(identify string, memberId int, cols ...strin
 		return m, err
 	}
 
-	m = NewBookResult().ToBookResult(*book)
+	m.ToBookResult(book)
 
+	m.MemberId = memberId
 	m.CreateName = member.Account
+
 	if member.RealName != "" {
 		m.RealName = member.RealName
 	}
-	m.MemberId = relationship.MemberId
-	m.RoleId = relationship.RoleId
-	m.RelationshipId = relationship.RelationshipId
-
+	if teamMember != nil {
+		m.RoleId = teamMember.RoleId
+		m.TeamRelationshipId = teamMember.TeamMemberId
+	} else {
+		m.RoleId = relationship.RoleId
+		m.RelationshipId = relationship.RelationshipId
+	}
 	if m.RoleId == conf.BookFounder {
 		m.RoleName = "创始人"
 	} else if m.RoleId == conf.BookAdmin {
@@ -226,7 +244,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 }
 
 //后台转换
-func BackgroupConvert(sessionId string, bookResult *BookResult) error {
+func BackgroundConvert(sessionId string, bookResult *BookResult) error {
 
 	if err := converter.CheckConvertCommand(); err != nil {
 		beego.Error("检查转换程序失败 -> ", err)

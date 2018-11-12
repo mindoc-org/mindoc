@@ -37,6 +37,10 @@ func (m *TeamMember) TableUnique() [][]string {
 	return [][]string{{"team_id", "member_id"}}
 }
 
+func (m *TeamMember) QueryTable() orm.QuerySeter {
+	return orm.NewOrm().QueryTable(m.TableNameWithPrefix())
+}
+
 func NewTeamMember() *TeamMember {
 	return &TeamMember{}
 }
@@ -85,13 +89,13 @@ func (m *TeamMember) FindFirst(teamId, memberId int) (*TeamMember, error) {
 		return nil, ErrInvalidParameter
 	}
 	o := orm.NewOrm()
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("team_id",teamId).Filter("member_id",memberId).One(m)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("team_id", teamId).Filter("member_id", memberId).One(m)
 
 	if err != nil {
-		beego.Error("查询团队用户失败 ->",err)
-		return nil,err
+		beego.Error("查询团队用户失败 ->", err)
+		return nil, err
 	}
-	return m.Include(),nil
+	return m.Include(), nil
 }
 
 //更新或插入团队用户.
@@ -114,7 +118,7 @@ func (m *TeamMember) Save(cols ...string) (err error) {
 	}
 
 	if m.TeamMemberId <= 0 {
-		if o.QueryTable(m.TableNameWithPrefix()).Filter("team_id",m.TeamId).Filter("member_id",m.MemberId).Exist() {
+		if o.QueryTable(m.TableNameWithPrefix()).Filter("team_id", m.TeamId).Filter("member_id", m.MemberId).Exist() {
 			return errors.New("团队中已存在该用户")
 		}
 		_, err = o.Insert(m)
@@ -228,4 +232,25 @@ limit ?;`
 	result.Result = items
 
 	return &result, err
+}
+
+func (m *TeamMember) FindByBookIdAndMemberId(bookId,memberId int) (*TeamMember, error) {
+	if bookId <= 0 || memberId <= 0 {
+		return nil,ErrInvalidParameter
+	}
+	//一个用户可能在多个团队中，且一个项目可能有多个团队参与。因此需要查询用户最大权限。
+	sql := `select *
+from md_team_member as team
+where team.team_id in (select rel.team_id from md_team_relationship as rel where rel.book_id = ?) 
+and team.member_id = ? order by team.role_id asc limit 1;`
+
+	o := orm.NewOrm()
+
+	err := o.Raw(sql,bookId,memberId).QueryRow(m)
+
+	if err != nil {
+		beego.Error("查询用户项目所在团队失败 ->bookId=",bookId," memberId=", memberId, err)
+		return nil,err
+	}
+	return m,nil
 }
