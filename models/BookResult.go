@@ -54,8 +54,8 @@ type BookResult struct {
 	AutoRelease    bool      `json:"auto_release"`
 	HistoryCount   int       `json:"history_count"`
 
-	RelationshipId     int           `json:"relationship_id"`
-	TeamRelationshipId int           `json:"team_relationship_id"`
+	//RelationshipId     int           `json:"relationship_id"`
+	//TeamRelationshipId int           `json:"team_relationship_id"`
 	RoleId             conf.BookRole `json:"role_id"`
 	RoleName           string        `json:"role_name"`
 	Status             int           `json:"status"`
@@ -82,7 +82,7 @@ func (m *BookResult) String() string {
 }
 
 // 根据项目标识查询项目以及指定用户权限的信息.
-func (m *BookResult) FindByIdentify(identify string, memberId int, cols ...string) (*BookResult, error) {
+func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult, error) {
 	if identify == "" || memberId <= 0 {
 		return m, ErrInvalidParameter
 	}
@@ -97,27 +97,15 @@ func (m *BookResult) FindByIdentify(identify string, memberId int, cols ...strin
 		return m, err
 	}
 
-	var relationship Relationship
-	var teamMember *TeamMember
-
-	err = NewRelationship().QueryTable().Filter("book_id", book.BookId).Filter("member_id", memberId).One(&relationship)
+	roleId,err := NewBook().FindForRoleId(book.BookId,memberId)
 
 	if err != nil {
-		if err == orm.ErrNoRows {
-			//未查到项目参与者
-			teamMember,err = NewTeamMember().FindByBookIdAndMemberId(book.BookId,memberId)
-			if err != nil {
-				return m,err
-			}
-			err = nil
-		} else {
-			return m, err
-		}
+		return m, ErrPermissionDenied
 	}
 	var relationship2 Relationship
 
 	//查找项目创始人
-	err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", book.BookId).Filter("role_id", 0).One(&relationship2)
+	err = NewRelationship().QueryTable().Filter("book_id", book.BookId).Filter("role_id", 0).One(&relationship2)
 
 	if err != nil {
 		logs.Error("根据项目标识查询项目以及指定用户权限的信息 -> ", err)
@@ -130,20 +118,15 @@ func (m *BookResult) FindByIdentify(identify string, memberId int, cols ...strin
 	}
 
 	m.ToBookResult(book)
-
+	m.RoleId = roleId
 	m.MemberId = memberId
 	m.CreateName = member.Account
 
 	if member.RealName != "" {
 		m.RealName = member.RealName
 	}
-	if teamMember != nil {
-		m.RoleId = teamMember.RoleId
-		m.TeamRelationshipId = teamMember.TeamMemberId
-	} else {
-		m.RoleId = relationship.RoleId
-		m.RelationshipId = relationship.RelationshipId
-	}
+
+
 	if m.RoleId == conf.BookFounder {
 		m.RoleName = "创始人"
 	} else if m.RoleId == conf.BookAdmin {

@@ -44,9 +44,8 @@
                 <div class="m-box">
                     <div class="box-head">
                         <strong class="box-title"> 团队管理</strong>
-                    {{if eq .Member.Role 0}}
-                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal"
-                                data-target="#addTeamDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i>
+                    {{if eq .Model.RoleId 0}}
+                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addTeamDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i>
                             添加团队
                         </button>
                     {{end}}

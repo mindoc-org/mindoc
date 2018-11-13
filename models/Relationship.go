@@ -29,14 +29,14 @@ func (m *Relationship) TableEngine() string {
 }
 
 // 联合唯一键
-func (u *Relationship) TableUnique() [][]string {
+func (m *Relationship) TableUnique() [][]string {
 	return [][]string{
 		{"member_id", "book_id"},
 	}
 }
 
-func (u *Relationship) QueryTable() orm.QuerySeter  {
-	return orm.NewOrm().QueryTable(u.TableNameWithPrefix())
+func (m *Relationship) QueryTable() orm.QuerySeter  {
+	return orm.NewOrm().QueryTable(m.TableNameWithPrefix())
 }
 func NewRelationship() *Relationship {
 	return &Relationship{}
@@ -91,12 +91,12 @@ func (m *Relationship) UpdateRoleId(bookId, memberId int, roleId conf.BookRole) 
 
 }
 
-func (m *Relationship) FindForRoleId(book_id, member_id int) (conf.BookRole, error) {
+func (m *Relationship) FindForRoleId(bookId, memberId int) (conf.BookRole, error) {
 	o := orm.NewOrm()
 
 	relationship := NewRelationship()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).Filter("member_id", member_id).One(relationship)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", bookId).Filter("member_id", memberId).One(relationship)
 
 	if err != nil {
 

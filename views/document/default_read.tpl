@@ -43,12 +43,10 @@
             <div class="navbar-header pull-right manual-menu">
                 <a href="javascript:window.print();" id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> 打印</a>
                 {{if gt .Member.MemberId 0}}
-                {{if gt .Model.RelationshipId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
                 <div class="dropdown pull-right">
                    <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
                 </div>
-                {{end}}
                 {{end}}
                 {{end}}
                 <div class="dropdown pull-right" style="margin-right: 10px;">

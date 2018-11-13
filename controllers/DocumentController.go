@@ -1284,19 +1284,21 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 		beego.Error(err)
 		c.ShowErrorPage(500, "项目不存在")
 	}
+	bookResult := models.NewBookResult().ToBookResult(*book)
+	isOk := false
 
+	if c.Member != nil {
+		roleId, err := models.NewBook().FindForRoleId(book.BookId, c.Member.MemberId)
+		if err == nil {
+			isOk = true
+			bookResult.MemberId = c.Member.MemberId
+			bookResult.RoleId = roleId
+		}
+	}
 	// 如果文档是私有的
 	if book.PrivatelyOwned == 1 && !c.Member.IsAdministrator() {
-		is_ok := false
 
-		if c.Member != nil {
-			_, err := models.NewRelationship().FindForRoleId(book.BookId, c.Member.MemberId)
-			if err == nil {
-				is_ok = true
-			}
-		}
-
-		if book.PrivateToken != "" && !is_ok {
+		if book.PrivateToken != "" && !isOk {
 			// 如果有访问的 Token，并且该项目设置了访问 Token，并且和用户提供的相匹配，则记录到 Session 中。
 			// 如果用户未提供 Token 且用户登录了，则判断用户是否参与了该项目。
 			// 如果用户未登录，则从 Session 中读取 Token。
@@ -1305,36 +1307,21 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
 				c.ShowErrorPage(403, "权限不足")
 			}
-		} else if !is_ok {
+		} else if !isOk {
 			c.ShowErrorPage(403, "权限不足")
 		}
 	}
 
-	bookResult := models.NewBookResult().ToBookResult(*book)
-
-	if c.Member != nil {
-		rel, err := models.NewRelationship().FindByBookIdAndMemberId(bookResult.BookId, c.Member.MemberId)
-
-		if err == nil {
-			bookResult.MemberId = rel.MemberId
-			bookResult.RoleId = rel.RoleId
-			bookResult.RelationshipId = rel.RelationshipId
-		} else {
-			//TODO 团队权限
-
-		}
-	}
-
-	// 判断是否需要显示评论框
-	if bookResult.CommentStatus == "closed" {
-		bookResult.IsDisplayComment = false
-	} else if bookResult.CommentStatus == "open" {
-		bookResult.IsDisplayComment = true
-	} else if bookResult.CommentStatus == "group_only" {
-		bookResult.IsDisplayComment = bookResult.RelationshipId > 0
-	} else if bookResult.CommentStatus == "registered_only" {
-		bookResult.IsDisplayComment = true
-	}
+	//// 判断是否需要显示评论框
+	//if bookResult.CommentStatus == "closed" {
+	//	bookResult.IsDisplayComment = false
+	//} else if bookResult.CommentStatus == "open" {
+	//	bookResult.IsDisplayComment = true
+	//} else if bookResult.CommentStatus == "group_only" {
+	//	bookResult.IsDisplayComment = bookResult.RelationshipId > 0
+	//} else if bookResult.CommentStatus == "registered_only" {
+	//	bookResult.IsDisplayComment = true
+	//}
 
 	return bookResult
 }

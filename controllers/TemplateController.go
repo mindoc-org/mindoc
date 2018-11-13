@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/astaxie/beego/orm"
-	"github.com/qiniu/x/errors.v7"
+	"errors"
 	"strings"
 	"github.com/lifei6671/mindoc/conf"
 )
@@ -23,7 +23,7 @@ func (c *TemplateController) isPermission() (error) {
 	}
 
 	if !c.Member.IsAdministrator() {
-		book, err := models.NewBookResult().FindByIdentify(bookIdentify, c.Member.MemberId, "book_id")
+		book, err := models.NewBookResult().FindByIdentify(bookIdentify, c.Member.MemberId)
 		if err != nil {
 			if err == orm.ErrNoRows {
 				return errors.New("项目不存在或没有权限")

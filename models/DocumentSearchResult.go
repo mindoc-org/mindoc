@@ -25,13 +25,13 @@ func NewDocumentSearchResult() *DocumentSearchResult {
 }
 
 //分页全局搜索.
-func (m *DocumentSearchResult) FindToPager(keyword string, page_index, page_size, member_id int) (search_result []*DocumentSearchResult, total_count int, err error) {
+func (m *DocumentSearchResult) FindToPager(keyword string, pageIndex, pageSize, memberId int) (searchResult []*DocumentSearchResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
-	offset := (page_index - 1) * page_size
+	offset := (pageIndex - 1) * pageSize
 	keyword = "%" + keyword + "%"
 
-	if member_id <= 0 {
+	if memberId <= 0 {
 		sql1 := `SELECT count(doc.document_id) as total_count FROM md_documents AS doc
   LEFT JOIN md_books as book ON doc.book_id = book.book_id
 WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE ?) `
@@ -43,11 +43,11 @@ WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE
 WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE ?)
  ORDER BY doc.document_id DESC LIMIT ?,? `
 
-		err = o.Raw(sql1, keyword, keyword).QueryRow(&total_count)
+		err = o.Raw(sql1, keyword, keyword).QueryRow(&totalCount)
 		if err != nil {
 			return
 		}
-		_, err = o.Raw(sql2, keyword, keyword, offset, page_size).QueryRows(&search_result)
+		_, err = o.Raw(sql2, keyword, keyword, offset, pageSize).QueryRows(&searchResult)
 		if err != nil {
 			return
 		}
@@ -56,21 +56,29 @@ WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE
   LEFT JOIN md_books as book ON doc.book_id = book.book_id
   LEFT JOIN md_relationship AS rel ON doc.book_id = rel.book_id AND rel.role_id = 0
   LEFT JOIN md_relationship AS rel1 ON doc.book_id = rel1.book_id AND rel1.member_id = ?
-WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0)  AND (doc.document_name LIKE ? OR doc.release LIKE ?) `
+			left join (select * from (select book_id,team_member_id,role_id
+                   	from md_team_relationship as mtr
+					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team 
+					on team.book_id = book.book_id
+WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_id > 0)  AND (doc.document_name LIKE ? OR doc.release LIKE ?) `
 
 		sql2 := `SELECT doc.document_id,doc.modify_time,doc.create_time,doc.document_name,doc.identify,doc.release as description,doc.modify_time,book.identify as book_identify,book.book_name,rel.member_id,member.account AS author FROM md_documents AS doc
   LEFT JOIN md_books as book ON doc.book_id = book.book_id
   LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.role_id = 0
   LEFT JOIN md_members as member ON rel.member_id = member.member_id
   LEFT JOIN md_relationship AS rel1 ON doc.book_id = rel1.book_id AND rel1.member_id = ?
-WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0)  AND (doc.document_name LIKE ? OR doc.release LIKE ?)
+			left join (select * from (select book_id,team_member_id,role_id
+                   	from md_team_relationship as mtr
+					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team 
+					on team.book_id = book.book_id
+WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_id > 0)  AND (doc.document_name LIKE ? OR doc.release LIKE ?)
  ORDER BY doc.document_id DESC LIMIT ?,? `
 
-		err = o.Raw(sql1, member_id, keyword, keyword).QueryRow(&total_count)
+		err = o.Raw(sql1, memberId, memberId, keyword, keyword).QueryRow(&totalCount)
 		if err != nil {
 			return
 		}
-		_, err = o.Raw(sql2, member_id, keyword, keyword, offset, page_size).QueryRows(&search_result)
+		_, err = o.Raw(sql2, memberId, memberId, keyword, keyword, offset, pageSize).QueryRows(&searchResult)
 		if err != nil {
 			return
 		}
