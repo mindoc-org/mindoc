@@ -22,7 +22,7 @@ import (
 
 var (
 	imageRegex  = regexp.MustCompile(`(src|background)=["'](.*?)["']`)
-	schemeRegxp = regexp.MustCompile(`^[A-z]+://`)
+	schemeRegxp = regexp.MustCompile(`^[a-zA-Z]+://`)
 )
 
 // Mail will represent a formatted email
