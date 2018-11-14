@@ -129,7 +129,5 @@ $("#auth_form").ajaxForm({
     }
 });
 </script>
-
-        <script src="{{cdnjs "static/bootstrap/js/bootstrap.min.js"}}"></script>
 </body>
 </html>
