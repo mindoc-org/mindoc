@@ -213,7 +213,7 @@ func URLFor(endpoint string, values ...interface{}) string {
 	pathUrl := beego.URLFor(endpoint, values ...)
 
 	if baseUrl == "" {
-		baseUrl = BaseUrl
+		baseUrl = "/"
 	}
 	if strings.HasPrefix(pathUrl, "http://") {
 		return pathUrl
