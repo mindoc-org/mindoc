@@ -153,6 +153,8 @@
                     <label class="col-sm-2 control-label">文档名称 <span class="error-message">*</span></label>
                     <div class="col-sm-10">
                         <input type="text" name="doc_name" id="documentName" placeholder="文档名称" class="form-control"  maxlength="50">
+                        <p style="color: #999;font-size: 12px;">在目录的文档名上右键可以删除和修改文档名称以及添加下级文档</p>
+
                     </div>
                 </div>
                 <div class="form-group">

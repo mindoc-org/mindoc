@@ -1,3 +1,2 @@
 *.js linguist-language=Go
 *.css linguist-language=Go
-./.env
