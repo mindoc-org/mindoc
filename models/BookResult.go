@@ -39,6 +39,7 @@ type BookResult struct {
 	Publisher      string    `json:"publisher"`
 	PrivatelyOwned int       `json:"privately_owned"`
 	PrivateToken   string    `json:"private_token"`
+	BookPassword   string    `json:"book_password"`
 	DocCount       int       `json:"doc_count"`
 	CommentStatus  string    `json:"comment_status"`
 	CommentCount   int       `json:"comment_count"`
@@ -93,11 +94,11 @@ func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult,
 	err := NewBook().QueryTable().Filter("identify", identify).One(&book)
 
 	if err != nil {
-		beego.Error("获取项目失败 ->",err)
+		beego.Error("获取项目失败 ->", err)
 		return m, err
 	}
 
-	roleId,err := NewBook().FindForRoleId(book.BookId,memberId)
+	roleId, err := NewBook().FindForRoleId(book.BookId, memberId)
 
 	if err != nil {
 		return m, ErrPermissionDenied
@@ -125,7 +126,6 @@ func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult,
 	if member.RealName != "" {
 		m.RealName = member.RealName
 	}
-
 
 	if m.RoleId == conf.BookFounder {
 		m.RoleName = "创始人"
@@ -185,6 +185,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.Description = strings.Replace(book.Description, "\r\n", "<br/>", -1)
 	m.PrivatelyOwned = book.PrivatelyOwned
 	m.PrivateToken = book.PrivateToken
+	m.BookPassword = book.BookPassword
 	m.DocCount = book.DocCount
 	m.CommentStatus = book.CommentStatus
 	m.CommentCount = book.CommentCount

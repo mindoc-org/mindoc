@@ -73,15 +73,12 @@ func (c *BookController) Dashboard() {
 	if key == "" {
 		c.Abort("404")
 	}
-	if c.Member == nil {
-		c.ShowErrorPage(500,"aaaa")
-	}
+
 	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
 	if err != nil {
 		if err == models.ErrPermissionDenied {
 			c.Abort("403")
 		}
-		beego.Error(err)
 		c.Abort("500")
 	}
 
@@ -172,6 +169,7 @@ func (c *BookController) SaveBook() {
 	book.Editor = editor
 	book.HistoryCount = historyCount
 	book.IsDownload = 0
+	book.BookPassword = c.GetString("bPassword")
 
 	if autoRelease {
 		book.AutoRelease = 1
@@ -282,7 +280,7 @@ func (c *BookController) Transfer() {
 	err = models.NewRelationship().Transfer(bookResult.BookId, c.Member.MemberId, member.MemberId)
 
 	if err != nil {
-		logs.Error("Transfer => ", err)
+		logs.Error("转让项目失败 -> ", err)
 		c.JsonResult(6008, err.Error())
 	}
 	c.JsonResult(0, "ok")

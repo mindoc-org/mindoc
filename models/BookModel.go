@@ -47,6 +47,8 @@ type Book struct {
 	PrivatelyOwned int `orm:"column(privately_owned);type(int);default(0)" json:"privately_owned"`
 	// 当项目是私有时的访问Token.
 	PrivateToken string `orm:"column(private_token);size(500);null" json:"private_token"`
+	//访问密码.
+	BookPassword string `orm:"column(book_password);size(500);null" json:"book_password"`
 	//状态：0 正常/1 已删除
 	Status int `orm:"column(status);type(int);default(0)" json:"status"`
 	//默认的编辑器.
@@ -919,7 +921,7 @@ where mtr.book_id = ? and mtm.member_id = ? order by mtm.role_id asc limit 1;`
 
 	if err != nil {
 		beego.Error("查询用户项目角色出错 -> book_id=", bookId, " member_id=", memberId, err)
-		return 0, nil
+		return 0, err
 	}
 	return conf.BookRole(roleId), nil
 }

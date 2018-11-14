@@ -26,7 +26,7 @@
                 <ul class="menu">
                     <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
                     <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 成员</a> </li>
-                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> 团队</a> </li>
+                    <li><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> 团队</a> </li>
                     <li class="active"><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
                 </ul>
 
@@ -123,6 +123,11 @@
                             <button type="button" class="btn btn-danger btn-sm" id="deleteToken" data-loading-text="删除" data-action="delete">删除</button>
                         </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>访问密码</label>
+                    <input type="text" name="bPassword" id="bPassword" class="form-control" placeholder="访问密码" value="{{.Model.BookPassword}}">
+                    <p class="text">没有访问权限访问项目时需要提供的密码</p>
                 </div>
                 {{end}}
 

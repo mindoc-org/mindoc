@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"container/list"
 	"encoding/json"
 	"html/template"
 	"net/http"
@@ -14,9 +13,6 @@ import (
 	"net/url"
 	"image/png"
 	"fmt"
-	"bytes"
-
-	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/boombuler/barcode"
@@ -49,12 +45,12 @@ func (c *DocumentController) Index() {
 	}
 
 	// 如果没有开启匿名访问则跳转到登录
-	if !c.EnableAnonymous && !isUserLoggedIn(c) {
+	if !c.EnableAnonymous && !c.isUserLoggedIn() {
 		promptUserToLogIn(c)
 		return
 	}
 
-	bookResult := isReadable(identify, token, c)
+	bookResult := c.isReadable(identify, token)
 
 	c.TplName = "document/" + bookResult.Theme + "_read.tpl"
 
@@ -104,12 +100,12 @@ func (c *DocumentController) Read() {
 	}
 
 	// 如果没有开启匿名访问则跳转到登录
-	if !c.EnableAnonymous && !isUserLoggedIn(c) {
+	if !c.EnableAnonymous && !c.isUserLoggedIn() {
 		promptUserToLogIn(c)
 		return
 	}
 
-	bookResult := isReadable(identify, token, c)
+	bookResult := c.isReadable(identify, token)
 
 	c.TplName = fmt.Sprintf("document/%s_read.tpl", bookResult.Theme)
 
@@ -246,7 +242,7 @@ func (c *DocumentController) Edit() {
 
 	if conf.GetUploadFileSize() > 0 {
 		c.Data["UploadFileSize"] = conf.GetUploadFileSize()
-	}else{
+	} else {
 		c.Data["UploadFileSize"] = "undefined";
 	}
 }
@@ -815,7 +811,7 @@ func (c *DocumentController) Export() {
 	token := c.GetString("token")
 
 	// 如果没有开启匿名访问则跳转到登录
-	if !c.EnableAnonymous && !isUserLoggedIn(c) {
+	if !c.EnableAnonymous && !c.isUserLoggedIn() {
 		promptUserToLogIn(c)
 		return
 	}
@@ -836,7 +832,7 @@ func (c *DocumentController) Export() {
 		}
 		bookResult = models.NewBookResult().ToBookResult(*book)
 	} else {
-		bookResult = isReadable(identify, token, c)
+		bookResult = c.isReadable(identify, token)
 	}
 	if !bookResult.IsDownload {
 		c.ShowErrorPage(200, "当前项目没有开启导出功能")
@@ -944,12 +940,12 @@ func (c *DocumentController) Search() {
 		c.JsonResult(6001, "参数错误")
 	}
 
-	if !c.EnableAnonymous && !isUserLoggedIn(c) {
+	if !c.EnableAnonymous && !c.isUserLoggedIn() {
 		promptUserToLogIn(c)
 		return
 	}
 
-	bookResult := isReadable(identify, token, c)
+	bookResult := c.isReadable(identify, token)
 
 	docs, err := models.NewDocumentSearchResult().SearchDocument(keyword, bookResult.BookId)
 	if err != nil {
@@ -1220,64 +1216,8 @@ func (c *DocumentController) Compare() {
 	}
 }
 
-// 递归生成文档序列数组
-func RecursiveFun(parentId int, prefix, dpath string, c *DocumentController, book *models.BookResult, docs []*models.Document, paths *list.List) {
-	for _, item := range docs {
-		if item.ParentId == parentId {
-			EachFun(prefix, dpath, c, book, item, paths)
-
-			for _, sub := range docs {
-				if sub.ParentId == item.DocumentId {
-					prefix += strconv.Itoa(item.ParentId) + strconv.Itoa(item.OrderSort) + strconv.Itoa(item.DocumentId)
-					RecursiveFun(item.DocumentId, prefix, dpath, c, book, docs, paths)
-					break
-				}
-			}
-		}
-	}
-}
-
-func EachFun(prefix, dpath string, c *DocumentController, book *models.BookResult, item *models.Document, paths *list.List) {
-	name := prefix + strconv.Itoa(item.ParentId) + strconv.Itoa(item.OrderSort) + strconv.Itoa(item.DocumentId)
-	fpath := dpath + "/" + name + ".html"
-	paths.PushBack(fpath)
-
-	f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0777)
-	if err != nil {
-		beego.Error(err)
-		c.ShowErrorPage(500, "系统错误")
-	}
-
-	html, err := c.ExecuteViewPathTemplate("document/export.tpl", map[string]interface{}{"Model": book, "Lists": item, "BaseUrl": c.BaseUrl()})
-	if err != nil {
-		f.Close()
-		beego.Error(err)
-		c.ShowErrorPage(500, "系统错误")
-	}
-
-	buf := bytes.NewReader([]byte(html))
-	doc, err := goquery.NewDocumentFromReader(buf)
-	doc.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
-		if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
-			contentSelection.SetAttr("src", c.BaseUrl()+src)
-		}
-	})
-
-	html, err = doc.Html()
-	if err != nil {
-		f.Close()
-		beego.Error(err)
-		c.ShowErrorPage(500, "系统错误")
-	}
-
-	// html = strings.Replace(html, "<img src=\"/uploads", "<img src=\"" + c.BaseUrl() + "/uploads", -1)
-
-	f.WriteString(html)
-	f.Close()
-}
-
 // 判断用户是否可以阅读文档
-func isReadable(identify, token string, c *DocumentController) *models.BookResult {
+func (c *DocumentController) isReadable(identify, token string) *models.BookResult {
 	book, err := models.NewBook().FindByFieldFirst("identify", identify)
 
 	if err != nil {
@@ -1287,7 +1227,7 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 	bookResult := models.NewBookResult().ToBookResult(*book)
 	isOk := false
 
-	if c.Member != nil {
+	if c.isUserLoggedIn() {
 		roleId, err := models.NewBook().FindForRoleId(book.BookId, c.Member.MemberId)
 		if err == nil {
 			isOk = true
@@ -1296,9 +1236,9 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 		}
 	}
 	// 如果文档是私有的
-	if book.PrivatelyOwned == 1 && !c.Member.IsAdministrator() {
+	if book.PrivatelyOwned == 1 && (!c.isUserLoggedIn() || !c.Member.IsAdministrator()) {
 
-		if book.PrivateToken != "" && !isOk {
+		if book.PrivateToken != "" && !isOk && token != "" {
 			// 如果有访问的 Token，并且该项目设置了访问 Token，并且和用户提供的相匹配，则记录到 Session 中。
 			// 如果用户未提供 Token 且用户登录了，则判断用户是否参与了该项目。
 			// 如果用户未登录，则从 Session 中读取 Token。
@@ -1307,27 +1247,34 @@ func isReadable(identify, token string, c *DocumentController) *models.BookResul
 			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
 				c.ShowErrorPage(403, "权限不足")
 			}
+		} else if password := c.GetString("bPassword", "");!isOk && book.BookPassword != "" && password != ""{
+
+			//如果设置了密码，则判断密码是否正确
+			if book.BookPassword != password {
+				c.JsonResult(5001, "密码错误")
+			} else {
+				c.SetSession(identify, password)
+				c.JsonResult(0,"OK")
+			}
+
 		} else if !isOk {
-			c.ShowErrorPage(403, "权限不足")
+			//如果设置了密码，则显示密码输入页面
+			if book.BookPassword != "" {
+				//判断已存在的密码是否正确
+				if password, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(password, book.BookPassword) {
+					body, err := c.ExecuteViewPathTemplate("document/document_password.tpl", map[string]string{"Identify": book.Identify});
+					if err != nil {
+						beego.Error("显示密码页面失败 ->", err)
+					}
+					c.CustomAbort(200, body)
+				}
+			} else {
+				c.ShowErrorPage(403, "权限不足")
+			}
 		}
 	}
 
-	//// 判断是否需要显示评论框
-	//if bookResult.CommentStatus == "closed" {
-	//	bookResult.IsDisplayComment = false
-	//} else if bookResult.CommentStatus == "open" {
-	//	bookResult.IsDisplayComment = true
-	//} else if bookResult.CommentStatus == "group_only" {
-	//	bookResult.IsDisplayComment = bookResult.RelationshipId > 0
-	//} else if bookResult.CommentStatus == "registered_only" {
-	//	bookResult.IsDisplayComment = true
-	//}
-
 	return bookResult
-}
-
-func isUserLoggedIn(c *DocumentController) bool {
-	return c.Member != nil && c.Member.MemberId > 0
 }
 
 func promptUserToLogIn(c *DocumentController) {
