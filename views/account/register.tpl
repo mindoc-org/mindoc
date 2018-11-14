@@ -34,6 +34,7 @@
     <div class="row login">
         <div class="login-body">
             <form role="form" method="post" id="registerForm">
+            {{ .xsrfdata }}
                 <h3 class="text-center">用户注册</h3>
                 <div class="form-group">
                     <div class="input-group">

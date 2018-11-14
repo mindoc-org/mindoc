@@ -29,6 +29,7 @@
     <div class="row login">
         <div class="login-body">
             <form role="form" method="post">
+            {{ .xsrfdata }}
                 <h3 class="text-center">用户登录</h3>
                 <div class="form-group">
                     <div class="input-group">

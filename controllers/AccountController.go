@@ -12,6 +12,7 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
+	"html/template"
 )
 
 // AccountController 用户登录与注册
@@ -19,9 +20,39 @@ type AccountController struct {
 	BaseController
 }
 
+func (c *AccountController) Prepare() {
+	c.BaseController.Prepare()
+	c.EnableXSRF = true
+	c.Data["xsrfdata"]=template.HTML(c.XSRFFormHTML())
+	if c.Ctx.Input.IsPost() {
+		token := c.Ctx.Input.Query("_xsrf")
+		if token == "" {
+			token = c.Ctx.Request.Header.Get("X-Xsrftoken")
+		}
+		if token == "" {
+			token = c.Ctx.Request.Header.Get("X-Csrftoken")
+		}
+		if token == "" {
+			if c.IsAjax() {
+				c.JsonResult(403,"非法请求")
+			} else {
+				c.ShowErrorPage(403, "非法请求")
+			}
+		}
+		xsrfToken := c.XSRFToken()
+		if xsrfToken != token {
+			if c.IsAjax() {
+				c.JsonResult(403,"非法请求")
+			} else {
+				c.ShowErrorPage(403, "非法请求")
+			}
+		}
+	}
+}
 // Login 用户登录
 func (c *AccountController) Login() {
 	c.Prepare()
+
 	c.TplName = "account/login.tpl"
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {

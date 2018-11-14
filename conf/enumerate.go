@@ -234,10 +234,8 @@ func URLForWithCdnImage(p string) string {
 	cdn := beego.AppConfig.DefaultString("cdnimg", "")
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
-		baseUrl := beego.AppConfig.DefaultString("baseurl", "")
-		if baseUrl == "" {
-			baseUrl = BaseUrl
-		}
+		baseUrl := beego.AppConfig.DefaultString("baseurl", "/")
+
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 			return baseUrl + p[1:]
 		}
@@ -267,10 +265,8 @@ func URLForWithCdnCss(p string, v ...string) string {
 	}
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
-		baseUrl := beego.AppConfig.DefaultString("baseurl", "")
-		if baseUrl == "" {
-			baseUrl = BaseUrl
-		}
+		baseUrl := beego.AppConfig.DefaultString("baseurl", "/")
+
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 			return baseUrl + p[1:]
 		}
@@ -302,10 +298,8 @@ func URLForWithCdnJs(p string, v ...string) string {
 
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
-		baseUrl := beego.AppConfig.DefaultString("baseurl", "")
-		if baseUrl == "" {
-			baseUrl = BaseUrl
-		}
+		baseUrl := beego.AppConfig.DefaultString("baseurl", "/")
+
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 			return baseUrl + p[1:]
 		}
