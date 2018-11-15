@@ -213,6 +213,25 @@ func URLFor(endpoint string, values ...interface{}) string {
 	pathUrl := beego.URLFor(endpoint, values ...)
 
 	if baseUrl == "" {
+		baseUrl = BaseUrl
+	}
+	if strings.HasPrefix(pathUrl, "http://") {
+		return pathUrl
+	}
+	if strings.HasPrefix(pathUrl, "/") && strings.HasSuffix(baseUrl, "/") {
+		return baseUrl + pathUrl[1:]
+	}
+	if !strings.HasPrefix(pathUrl, "/") && !strings.HasSuffix(baseUrl, "/") {
+		return baseUrl + "/" + pathUrl
+	}
+	return baseUrl + beego.URLFor(endpoint, values ...)
+}
+
+func URLForNotHost(endpoint string,values ...interface{}) string  {
+	baseUrl := beego.AppConfig.DefaultString("baseurl", "")
+	pathUrl := beego.URLFor(endpoint, values ...)
+
+	if baseUrl == "" {
 		baseUrl = "/"
 	}
 	if strings.HasPrefix(pathUrl, "http://") {

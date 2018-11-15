@@ -413,7 +413,7 @@ func (c *ManagerController) DeleteBook() {
 		c.JsonResult(6002, "项目不存在")
 	}
 	if err != nil {
-		logs.Error("DeleteBook => ", err)
+		logs.Error("删除失败 -> ", err)
 		c.JsonResult(6003, "删除失败")
 	}
 	c.JsonResult(0, "ok")

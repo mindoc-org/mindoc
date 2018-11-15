@@ -533,14 +533,14 @@ func (c *BlogController) Upload() {
 
 		if err := attachment.Insert(); err != nil {
 			os.Remove(filePath)
-			beego.Error("保存文件附件失败 => ", err)
+			beego.Error("保存文件附件失败 -> ", err)
 			c.JsonResult(6006, "文件保存失败")
 		}
 		if attachment.HttpPath == "" {
-			attachment.HttpPath = conf.URLFor("BlogController.Download", ":id", blogId, ":attach_id", attachment.AttachmentId)
+			attachment.HttpPath = conf.URLForNotHost("BlogController.Download", ":id", blogId, ":attach_id", attachment.AttachmentId)
 
 			if err := attachment.Update(); err != nil {
-				beego.Error("SaveToFile => ", err)
+				beego.Error("保存文件失败 -> ",attachment.FilePath, err)
 				c.JsonResult(6005, "保存文件失败")
 			}
 		}

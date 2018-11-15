@@ -58,6 +58,7 @@
                             <div class="form-group">
                                 <label>标识</label>
                                 <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
+                                <p class="text">项目标识用来标记项目的唯一性，不可修改。</p>
                             </div>
                             <div class="form-group">
                                 <label>历史记录数量</label>
@@ -90,27 +91,6 @@
                                     </label>
                                 </div>
                             </div>
-                            <!--
-                            {{/*
-                            <div class="form-group">
-                            <label>开启评论</label>
-                            <div class="radio">
-                            <label class="radio-inline">
-                            <input type="radio" {{if eq .Model.CommentStatus "open"}}checked{{end}} name="comment_status" value="open">允许所有人评论<span class="text"></span>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" {{if eq .Model.CommentStatus "closed"}}checked{{end}} name="comment_status" value="closed">关闭评论<span class="text"></span>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" {{if eq .Model.CommentStatus "group_only"}}checked{{end}} name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" {{if eq .Model.CommentStatus "registered_only"}}checked{{end}} name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>
-                            </label>
-                    </div>
-                </div>
-                */}}
-                -->
                 {{if eq .Model.PrivatelyOwned 1}}
                 <div class="form-group">
                     <label>访问令牌</label>
@@ -137,6 +117,7 @@
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="autoRelease" name="auto_release"{{if .Model.AutoRelease }} checked{{end}} data-size="small">
                         </div>
+                        <p class="text">开启后，每次保存会自动发布到最新版本</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -145,6 +126,8 @@
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small" placeholder="开启导出">
                         </div>
+                        <p class="text">开启导出前请先配置导出程序，并在配置文件中同时开启导出功能</p>
+
                     </div>
                 </div>
                 <div class="form-group">
@@ -153,6 +136,7 @@
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="enableShare" name="enable_share"{{if .Model.IsEnableShare }} checked{{end}} data-size="small" placeholder="开启分享">
                         </div>
+                        <p class="text">分享只对公开项目生效，私有项目不支持分享</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -169,6 +153,7 @@
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="autoSave" name="auto_save"{{if .Model.AutoSave }} checked{{end}} data-size="small" placeholder="自动保存">
                         </div>
+                        <p class="text">开启后每隔30秒会自动保存</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -183,6 +168,7 @@
                         <img src="{{cdnimg .Model.Cover}}" onerror="this.src='{{cdnimg "/static/images/book.png"}}'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
                     </a>
                 </label>
+                <p class="text">点击图片可修改项目封面</p>
             </div>
             <div class="clearfix"></div>
 

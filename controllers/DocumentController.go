@@ -470,7 +470,7 @@ func (c *DocumentController) Upload() {
 	}
 
 	if attachment.HttpPath == "" {
-		attachment.HttpPath = conf.URLFor("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
+		attachment.HttpPath = conf.URLForNotHost("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update(); err != nil {
 			beego.Error("保存文件失败 ->", err)
