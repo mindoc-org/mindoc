@@ -895,18 +895,22 @@ func (c *BookController) TeamDelete() {
 
 	teamId, _ := c.GetInt("teamId")
 
+	if teamId <= 0 {
+		c.JsonResult(5001,"参数错误")
+	}
 	book, err := c.IsPermission()
 
 	if err != nil {
-		c.JsonResult(500, err.Error())
+		c.JsonResult(5002, err.Error())
 	}
+	beego.Error(book)
 	err = models.NewTeamRelationship().DeleteByBookId(book.BookId, teamId)
 
 	if err != nil {
 		if err == orm.ErrNoRows {
-			c.JsonResult(500, "团队未加入项目")
+			c.JsonResult(5003, "团队未加入项目")
 		}
-		c.JsonResult(500, err.Error())
+		c.JsonResult(5004, err.Error())
 	}
 	c.JsonResult(0, "OK")
 }

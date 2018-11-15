@@ -75,7 +75,8 @@ func (m *TeamRelationship) DeleteByBookId(bookId int, teamId int) error {
 		beego.Error("查询项目团队失败 ->", err)
 		return err
 	}
-	return m.Delete(teamId)
+	m.Include()
+	return m.Delete(m.TeamRelationshipId)
 }
 
 //保存团队项目.
