@@ -38,7 +38,7 @@ func init() {
 	beego.Router("/manager/label/list", &controllers.ManagerController{},"get:LabelList")
 	beego.Router("/manager/label/delete/:id", &controllers.ManagerController{},"post:LabelDelete")
 
-	beego.Router("/manager/config",  &controllers.ManagerController{}, "*:Config")
+	//beego.Router("/manager/config",  &controllers.ManagerController{}, "*:Config")
 
 	beego.Router("/manager/team", &controllers.ManagerController{}, "*:Team")
 	beego.Router("/manager/team/create", &controllers.ManagerController{}, "POST:TeamCreate")
