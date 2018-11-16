@@ -435,6 +435,11 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		o.Rollback()
 		return err
 	}
+	_,err = o.Raw(fmt.Sprintf("DELETE FROM %s WHERE book_id=?",NewTeamRelationship().TableNameWithPrefix()), book.BookId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
 	//删除模板
 	_, err = o.Raw("DELETE FROM "+NewTemplate().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
 	if err != nil {
