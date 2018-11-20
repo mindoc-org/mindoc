@@ -14,6 +14,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/cropper/2.3.4/cropper.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
 </head>
 <body>
@@ -48,6 +49,12 @@
                                 <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" disabled placeholder="项目标识">
                             </div>
                             <div class="form-group">
+                                <label>项目集</label>
+                                <select class="js-data-example-ajax form-control" multiple="multiple" name="itemId">
+                                    <option value="{{.Model.ItemId}}" selected="selected">{{.Model.ItemName}}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label>历史记录数量</label>
                                 <input type="text" class="form-control" name="history_count" value="{{.Model.HistoryCount}}" placeholder="历史记录数量">
                                 <p class="text">当开启文档历史时,该值会限制每个文档保存的历史数量</p>
@@ -73,23 +80,6 @@
                                 <input type="text" class="form-control" name="label" placeholder="项目标签" value="{{.Model.Label}}">
                                 <p class="text">最多允许添加10个标签，多个标签请用“;”分割</p>
                             </div>
-                            {{/*{*<div class="form-group">*}
-                                {*<label>开启评论</label>*}
-                                {*<div class="radio">*}
-                                    {*<label class="radio-inline">*}
-                                        {*<input type="radio" {{if eq .Model.CommentStatus "open"}}checked{{end}} name="comment_status" value="open">允许所有人评论<span class="text"></span>*}
-                                    {*</label>*}
-                                    {*<label class="radio-inline">*}
-                                        {*<input type="radio" {{if eq .Model.CommentStatus "closed"}}checked{{end}} name="comment_status" value="closed">关闭评论<span class="text"></span>*}
-                                    {*</label>*}
-                                    {*<label class="radio-inline">*}
-                                        {*<input type="radio" {{if eq .Model.CommentStatus "group_only"}}checked{{end}} name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>*}
-                                    {*</label>*}
-                                    {*<label class="radio-inline">*}
-                                        {*<input type="radio" {{if eq .Model.CommentStatus "registered_only"}}checked{{end}} name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>*}
-                                    {*</label>*}
-                                {*</div>*}
-                            {*</div>*} */}}
                             {{if eq .Model.PrivatelyOwned 1}}
                             <div class="form-group">
                                 <label>访问令牌</label>
@@ -103,6 +93,11 @@
                                     </div>
                                 </div>
                             </div>
+                                <div class="form-group">
+                                    <label>访问密码</label>
+                                    <input type="text" name="bPassword" id="bPassword" class="form-control" placeholder="访问密码" value="{{.Model.BookPassword}}">
+                                    <p class="text">没有访问权限访问项目时需要提供的密码</p>
+                                </div>
                             {{end}}
                             <div class="form-group">
                                 <label for="autoRelease">自动发布</label>
@@ -250,6 +245,8 @@
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/plugins/tagsinput/bootstrap-tagsinput.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-switch/js/bootstrap-switch.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/select2.full.min.js"}}"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/i18n/zh-CN.js"}}"></script>
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
@@ -354,6 +351,28 @@
             error :function () {
                 showError("服务器异常","#form-error-message1");
                 $("#btnChangePrivatelyOwned").button("reset");
+            }
+        });
+        $('.js-data-example-ajax').select2({
+            language: "zh-CN",
+            minimumInputLength : 1,
+            minimumResultsForSearch: Infinity,
+            maximumSelectionLength:1,
+            width : "100%",
+            ajax: {
+                url: '{{urlfor "BookController.ItemsetsSearch"}}',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results : data.data.results
+                    }
+                }
             }
         });
     });

@@ -173,7 +173,7 @@ func (c *BookController) SaveBook() {
 	book.Editor = editor
 	book.HistoryCount = historyCount
 	book.IsDownload = 0
-	book.BookPassword = c.GetString("bPassword")
+	book.BookPassword = strings.TrimSpace(c.GetString("bPassword"))
 	book.ItemId = itemId
 
 	if autoRelease {

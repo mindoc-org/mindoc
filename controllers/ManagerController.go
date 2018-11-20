@@ -340,6 +340,7 @@ func (c *ManagerController) EditBook() {
 		autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 		publisher := strings.TrimSpace(c.GetString("publisher"))
 		historyCount, _ := c.GetInt("history_count", 0)
+		itemId,_ := c.GetInt("itemId")
 
 		if strings.Count(description, "") > 500 {
 			c.JsonResult(6004, "项目描述不能大于500字")
@@ -353,6 +354,9 @@ func (c *ManagerController) EditBook() {
 				c.JsonResult(6005, "最多允许添加10个标签")
 			}
 		}
+		if !models.NewItemsets().Exist(itemId) {
+			c.JsonResult(6006,"项目集不存在")
+		}
 		book.Publisher = publisher
 		book.HistoryCount = historyCount
 		book.BookName = bookName
@@ -360,6 +364,8 @@ func (c *ManagerController) EditBook() {
 		book.CommentStatus = commentStatus
 		book.Label = tag
 		book.OrderIndex = orderIndex
+		book.ItemId = itemId
+		book.BookPassword = strings.TrimSpace(c.GetString("bPassword"))
 
 		if autoRelease {
 			book.AutoRelease = 1
@@ -1124,8 +1130,8 @@ func (c *ManagerController) Itemsets() {
 func (c *ManagerController) ItemsetsEdit() {
 	c.Prepare()
 	itemId, _ := c.GetInt("itemId")
-	itemName := c.GetString("itemName")
-	itemKey := c.GetString("itemKey")
+	itemName := strings.TrimSpace(c.GetString("itemName"))
+	itemKey := strings.TrimSpace(c.GetString("itemKey"))
 	if itemName == "" || itemKey == "" {
 		c.JsonResult(5001, "参数错误")
 	}
