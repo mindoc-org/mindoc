@@ -14,6 +14,7 @@
     <link href="{{cdncss "/static/cropper/2.3.4/cropper.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/bootstrap/plugins/tagsinput/bootstrap-tagsinput.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-switch/css/bootstrap3//bootstrap-switch.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
 
 </head>
@@ -59,6 +60,12 @@
                                 <label>标识</label>
                                 <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
                                 <p class="text">项目标识用来标记项目的唯一性，不可修改。</p>
+                            </div>
+                            <div class="form-group">
+                                <label>项目集</label>
+                                <select class="js-data-example-ajax form-control" multiple="multiple" name="itemId">
+                                    <option value="{{.Model.ItemId}}" selected="selected">{{.Model.ItemName}}</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label>历史记录数量</label>
@@ -312,6 +319,8 @@
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/plugins/tagsinput/bootstrap-tagsinput.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-switch/js/bootstrap-switch.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/select2.full.min.js"}}"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/i18n/zh-CN.js"}}"></script>
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
@@ -431,7 +440,28 @@
                 $("#btnTransferBook").button("reset");
             }
         });
-
+        $('.js-data-example-ajax').select2({
+            language: "zh-CN",
+            minimumInputLength : 1,
+            minimumResultsForSearch: Infinity,
+            maximumSelectionLength:1,
+            width : "100%",
+            ajax: {
+                url: '{{urlfor "BookController.ItemsetsSearch"}}',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results : data.data.results
+                    }
+                }
+            }
+        });
         try {
             var uploader = WebUploader.create({
                 auto: false,

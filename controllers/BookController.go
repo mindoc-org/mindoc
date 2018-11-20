@@ -144,6 +144,7 @@ func (c *BookController) SaveBook() {
 	enableShare := strings.TrimSpace(c.GetString("enable_share")) == "on"
 	isUseFirstDocument := strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
 	autoSave := strings.TrimSpace(c.GetString("auto_save")) == "on"
+	itemId,_ := c.GetInt("itemId")
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
@@ -156,6 +157,9 @@ func (c *BookController) SaveBook() {
 		if len(tags) > 10 {
 			c.JsonResult(6005, "最多允许添加10个标签")
 		}
+	}
+	if !models.NewItemsets().Exist(itemId) {
+		c.JsonResult(6006,"项目集不存在")
 	}
 	if editor != "markdown" && editor != "html" {
 		editor = "markdown"
@@ -170,6 +174,7 @@ func (c *BookController) SaveBook() {
 	book.HistoryCount = historyCount
 	book.IsDownload = 0
 	book.BookPassword = c.GetString("bPassword")
+	book.ItemId = itemId
 
 	if autoRelease {
 		book.AutoRelease = 1
@@ -432,6 +437,7 @@ func (c *BookController) Create() {
 		description := strings.TrimSpace(c.GetString("description", ""))
 		privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
 		commentStatus := c.GetString("comment_status")
+		itemId, _ := c.GetInt("itemId")
 
 		if bookName == "" {
 			c.JsonResult(6001, "项目名称不能为空")
@@ -450,6 +456,9 @@ func (c *BookController) Create() {
 		}
 		if privatelyOwned != 0 && privatelyOwned != 1 {
 			privatelyOwned = 1
+		}
+		if !models.NewItemsets().Exist(itemId) {
+			c.JsonResult(6005, "项目集不存在")
 		}
 		if commentStatus != "open" && commentStatus != "closed" && commentStatus != "group_only" && commentStatus != "registered_only" {
 			commentStatus = "closed"
@@ -503,6 +512,7 @@ func (c *BookController) Create() {
 		book.IsUseFirstDocument = 1
 		book.IsDownload = 1
 		book.AutoRelease = 0
+		book.ItemId = itemId
 
 		book.Editor = "markdown"
 		book.Theme = "default"
@@ -563,6 +573,7 @@ func (c *BookController) Import() {
 	identify := strings.TrimSpace(c.GetString("identify"))
 	description := strings.TrimSpace(c.GetString("description", ""))
 	privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
+	itemId, _ := c.GetInt("itemId")
 
 	if bookName == "" {
 		c.JsonResult(6001, "项目名称不能为空")
@@ -575,6 +586,9 @@ func (c *BookController) Import() {
 	}
 	if ok, err := regexp.MatchString(`^[a-z]+[a-zA-Z0-9_\-]*$`, identify); !ok || err != nil {
 		c.JsonResult(6003, "项目标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
+	}
+	if !models.NewItemsets().Exist(itemId) {
+		c.JsonResult(6007, "项目集不存在")
 	}
 	if strings.Count(identify, "") > 50 {
 		c.JsonResult(6004, "文档标识不能超过50字")
@@ -612,6 +626,7 @@ func (c *BookController) Import() {
 	book.MemberId = c.Member.MemberId
 	book.CommentCount = 0
 	book.Version = time.Now().Unix()
+	book.ItemId = itemId
 
 	book.Editor = "markdown"
 	book.Theme = "default"
@@ -896,7 +911,7 @@ func (c *BookController) TeamDelete() {
 	teamId, _ := c.GetInt("teamId")
 
 	if teamId <= 0 {
-		c.JsonResult(5001,"参数错误")
+		c.JsonResult(5001, "参数错误")
 	}
 	book, err := c.IsPermission()
 
@@ -915,6 +930,7 @@ func (c *BookController) TeamDelete() {
 	c.JsonResult(0, "OK")
 }
 
+//团队搜索.
 func (c *BookController) TeamSearch() {
 	c.Prepare()
 
@@ -928,7 +944,22 @@ func (c *BookController) TeamSearch() {
 	searchResult, err := models.NewTeamRelationship().FindNotJoinBookByBookIdentify(book.BookId, keyword, 10)
 
 	if err != nil {
-		c.JsonResult(500, err.Error())
+		c.JsonResult(500, err.Error(), searchResult)
+	}
+	c.JsonResult(0, "OK", searchResult)
+
+}
+
+//项目集搜索.
+func (c *BookController) ItemsetsSearch() {
+	c.Prepare()
+
+	keyword := strings.TrimSpace(c.GetString("q"))
+
+	searchResult, err := models.NewItemsets().FindItemsetsByName(keyword, 10)
+
+	if err != nil {
+		c.JsonResult(500, err.Error(), searchResult)
 	}
 	c.JsonResult(0, "OK", searchResult)
 

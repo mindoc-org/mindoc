@@ -1073,6 +1073,8 @@ func (c *ManagerController) TeamSearchBook() {
 	c.JsonResult(0, "OK", searchResult)
 
 }
+
+//删除团队项目.
 func (c *ManagerController) TeamBookDelete() {
 	c.Prepare()
 	teamRelationshipId, _ := c.GetInt("teamRelId")
@@ -1085,6 +1087,81 @@ func (c *ManagerController) TeamBookDelete() {
 
 	if err != nil {
 		c.JsonResult(5001, "删除失败")
+	}
+	c.JsonResult(0, "OK")
+}
+
+//项目集列表.
+func (c *ManagerController) Itemsets() {
+	c.Prepare()
+	c.TplName = "manager/itemsets.tpl"
+	pageIndex, _ := c.GetInt("page", 0)
+
+	items, totalCount, err := models.NewItemsets().FindToPager(pageIndex, conf.PageSize)
+
+	if err != nil && err != orm.ErrNoRows {
+		c.ShowErrorPage(500, err.Error())
+	}
+	if err == orm.ErrNoRows || len(items) <= 0 {
+		c.Data["Lists"] = items
+		c.Data["PageHtml"] = ""
+		return
+	}
+
+	if totalCount > 0 {
+		pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
+		c.Data["PageHtml"] = pager.HtmlPages()
+	} else {
+		c.Data["PageHtml"] = ""
+	}
+
+	c.Data["Lists"] = items
+
+
+}
+
+//编辑或添加项目集.
+func (c *ManagerController) ItemsetsEdit() {
+	c.Prepare()
+	itemId, _ := c.GetInt("itemId")
+	itemName := c.GetString("itemName")
+	itemKey := c.GetString("itemKey")
+	if itemName == "" || itemKey == "" {
+		c.JsonResult(5001, "参数错误")
+	}
+	var item *models.Itemsets
+	var err error
+	if itemId > 0 {
+		if item, err = models.NewItemsets().First(itemId); err != nil {
+			if err == orm.ErrNoRows {
+				c.JsonResult(5002, "项目集不存在")
+			} else {
+				c.JsonResult(5003, "查询项目集出错")
+			}
+		}
+	} else {
+		item = models.NewItemsets()
+	}
+
+	item.ItemKey = itemKey
+	item.ItemName = itemName
+	item.MemberId = c.Member.MemberId
+	item.ModifyAt = c.Member.MemberId
+
+	if err := item.Save(); err != nil {
+		c.JsonResult(5004, err.Error())
+	}
+
+	c.JsonResult(0, "OK")
+}
+
+//删除项目集.
+func (c *ManagerController) ItemsetsDelete() {
+	c.Prepare()
+	itemId, _ := c.GetInt("itemId")
+
+	if err := models.NewItemsets().Delete(itemId); err != nil {
+		c.JsonResult(5001, err.Error())
 	}
 	c.JsonResult(0, "OK")
 }

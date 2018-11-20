@@ -33,6 +33,8 @@ var (
 type BookResult struct {
 	BookId         int       `json:"book_id"`
 	BookName       string    `json:"book_name"`
+	ItemId         int       `json:"item_id"`
+	ItemName       string    `json:"item_name"`
 	Identify       string    `json:"identify"`
 	OrderIndex     int       `json:"order_index"`
 	Description    string    `json:"description"`
@@ -203,6 +205,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.HistoryCount = book.HistoryCount
 	m.IsDownload = book.IsDownload == 0
 	m.AutoSave = book.AutoSave == 1
+	m.ItemId = book.ItemId
 
 	if book.Theme == "" {
 		m.Theme = "default"
@@ -224,6 +227,11 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 		m.LastModifyText = member2.Account + " 于 " + doc.ModifyTime.Local().Format("2006-01-02 15:04:05")
 	}
 
+	if m.ItemId > 0 {
+		if item,err := NewItemsets().First(m.ItemId); err == nil {
+			m.ItemName = item.ItemName
+		}
+	}
 	return m
 }
 

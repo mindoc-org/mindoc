@@ -12,6 +12,7 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet" type="text/css">
     <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/css/fileinput.min.css"}}" rel="stylesheet" type="text/css">
     <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/themes/explorer-fa/theme.css"}}" rel="stylesheet" type="text/css">
+    <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -137,8 +138,19 @@
             <div class="modal-body">
                 <div class="form-group">
                     <div class="pull-left" style="width: 620px">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName">
+                        <div class="form-group required">
+                            <label class="text-label col-sm-2">项目集</label>
+                            <div class="col-sm-10">
+                                <select class="js-data-example-ajax-add form-control" multiple="multiple" name="itemId" id="itemId"></select>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="form-group required">
+                            <label class="text-label col-sm-2">项目标题</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName">
+                            </div>
+                            <div class="clearfix"></div>
                         </div>
                         <div class="form-group">
                             <div class="pull-left" style="padding: 7px 5px 6px 0">
@@ -194,6 +206,10 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
+                        <div class="form-group required">
+                            <label class="text-label">项目集</label>
+                            <select class="js-data-example-ajax-import form-control" multiple="multiple" name="itemId"></select>
+                        </div>
                         <div class="form-group required">
                             <label class="text-label">项目标题</label>
                             <input type="text" class="form-control" placeholder="项目标题(不超过100字)" name="book_name" maxlength="100" value="">
@@ -272,6 +288,8 @@
 <script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/js/fileinput.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-fileinput/4.4.7/js/locales/zh.js"}}"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/select2.full.min.js"}}"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/i18n/zh-CN.js"}}"></script>
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     /**
@@ -400,6 +418,28 @@
         $("#addBookDialogModal").on("show.bs.modal",function () {
             window.bookDialogModal = $(this).find("#addBookDialogForm").html();
             drawBookCover("bookCover","默认封面");
+            $('.js-data-example-ajax-add').select2({
+                language: "zh-CN",
+                minimumInputLength : 1,
+                minimumResultsForSearch: Infinity,
+                maximumSelectionLength:1,
+                width : "100%",
+                ajax: {
+                    url: '{{urlfor "BookController.ItemsetsSearch"}}',
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results : data.data.results
+                        }
+                    }
+                }
+            });
         }).on("hidden.bs.modal",function () {
             $(this).find("#addBookDialogForm").html(window.bookDialogModal);
         });
@@ -429,6 +469,28 @@
                     return book;
                 }
             });
+            $('.js-data-example-ajax-import').select2({
+                language: "zh-CN",
+                minimumInputLength : 1,
+                minimumResultsForSearch: Infinity,
+                maximumSelectionLength:1,
+                width : "100%",
+                ajax: {
+                    url: '{{urlfor "BookController.ItemsetsSearch"}}',
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            q: params.term, // search term
+                            page: params.page
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results : data.data.results
+                        }
+                    }
+                }
+            });
         }).on("hidden.bs.modal",function () {
             $(this).find("#importBookDialogForm").html(window.importBookDialogModal);
         });
@@ -439,7 +501,10 @@
         $("body").on("click","#btnSaveDocument",function () {
             var $this = $(this);
 
-
+            var itemId = $("#itemId").val();
+            if (itemId <= 0) {
+                return showError("请选择项目集")
+            }
             var bookName = $.trim($("#bookName").val());
             if (bookName === "") {
                 return showError("项目标题不能为空")
@@ -504,6 +569,10 @@
             console.log("aa");
             var $then = $(this).parents("#importBookDialogForm");
 
+            var itemId = $then.find("input[name='itemId']").val();
+            if (itemId <= 0) {
+                return showError("请选择项目集")
+            }
 
             var bookName = $.trim($then.find("input[name='book_name']").val());
 

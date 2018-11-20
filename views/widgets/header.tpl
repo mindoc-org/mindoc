@@ -16,8 +16,8 @@
                     <li {{if eq .ControllerName "BlogController"}}{{if eq  .ActionName "List" "Index"}}class="active"{{end}}{{end}}>
                         <a href="{{urlfor "BlogController.List" }}" title="文章">文章</a>
                     </li>
-                    <li {{if eq .ControllerName "LabelController"}}class="active"{{end}}>
-                        <a href="{{urlfor "LabelController.List" }}" title="标签">标签</a>
+                    <li {{if eq .ControllerName "ItemsetsController"}}class="active"{{end}}>
+                        <a href="{{urlfor "ItemsetsController.Index" }}" title="项目集">项目集</a>
                     </li>
                 </ul>
                 <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">

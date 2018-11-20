@@ -135,8 +135,18 @@ func initialization() {
 		book.Theme = "default"
 
 		if err := book.Insert(); err != nil {
-			panic("Book.Insert => " + err.Error())
-			os.Exit(0)
+			panic("初始化项目失败 -> " + err.Error())
+			os.Exit(1)
+		}
+	}
+
+	if !models.NewItemsets().Exist(1) {
+		item := models.NewItemsets()
+		item.ItemName = "默认项目"
+		item.MemberId = 1
+		if err := item.Save(); err != nil {
+			panic("初始化项目集失败 -> " + err.Error())
+			os.Exit(1)
 		}
 	}
 }

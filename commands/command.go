@@ -105,6 +105,7 @@ func RegisterModel() {
 		new(models.Team),
 		new(models.TeamMember),
 		new(models.TeamRelationship),
+		new(models.Itemsets),
 	)
 	gob.Register(models.Blog{})
 	gob.Register(models.Document{})
@@ -449,32 +450,33 @@ func RegisterAutoLoadConfig() {
 		}
 	}
 }
+
 //注册错误处理方法.
-func RegisterError()  {
+func RegisterError() {
 	beego.ErrorHandler("404", func(writer http.ResponseWriter, request *http.Request) {
 		var buf bytes.Buffer
 
-		data :=make(map[string]interface{})
+		data := make(map[string]interface{})
 		data["ErrorCode"] = 404
 		data["ErrorMessage"] = "页面未找到或已删除"
 
-		if err := beego.ExecuteViewPathTemplate(&buf,"errors/error.tpl",beego.BConfig.WebConfig.ViewsPath,data);err == nil {
-			fmt.Fprint(writer,buf.String())
+		if err := beego.ExecuteViewPathTemplate(&buf, "errors/error.tpl", beego.BConfig.WebConfig.ViewsPath, data); err == nil {
+			fmt.Fprint(writer, buf.String())
 		} else {
-			fmt.Fprint(writer,data["ErrorMessage"])
+			fmt.Fprint(writer, data["ErrorMessage"])
 		}
 	})
 	beego.ErrorHandler("401", func(writer http.ResponseWriter, request *http.Request) {
 		var buf bytes.Buffer
 
-		data :=make(map[string]interface{})
+		data := make(map[string]interface{})
 		data["ErrorCode"] = 401
 		data["ErrorMessage"] = "请与 Web 服务器的管理员联系，以确认您是否具有访问所请求资源的权限。"
 
-		if err := beego.ExecuteViewPathTemplate(&buf,"errors/error.tpl",beego.BConfig.WebConfig.ViewsPath,data);err == nil {
-			fmt.Fprint(writer,buf.String())
+		if err := beego.ExecuteViewPathTemplate(&buf, "errors/error.tpl", beego.BConfig.WebConfig.ViewsPath, data); err == nil {
+			fmt.Fprint(writer, buf.String())
 		} else {
-			fmt.Fprint(writer,data["ErrorMessage"])
+			fmt.Fprint(writer, data["ErrorMessage"])
 		}
 	})
 }

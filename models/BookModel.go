@@ -31,6 +31,8 @@ type Book struct {
 	BookId int `orm:"pk;auto;unique;column(book_id)" json:"book_id"`
 	// BookName 项目名称.
 	BookName string `orm:"column(book_name);size(500)" json:"book_name"`
+	//所属项目集
+	ItemId   int    `orm:"column(item_id);type(int);default(1)" json:"item_id"`
 	// Identify 项目唯一标识.
 	Identify string `orm:"column(identify);size(100);unique" json:"identify"`
 	//是否是自动发布 0 否/1 是
@@ -112,6 +114,9 @@ func (book *Book) Insert() error {
 	o := orm.NewOrm()
 	//	o.Begin()
 	book.BookName = utils.StripTags(book.BookName)
+	if book.ItemId <= 0 {
+		book.ItemId = 1
+	}
 	_, err := o.Insert(book)
 
 	if err == nil {
@@ -125,7 +130,7 @@ func (book *Book) Insert() error {
 		relationship.MemberId = book.MemberId
 		err = relationship.Insert()
 		if err != nil {
-			logs.Error("插入项目与用户关联 => ", err)
+			logs.Error("插入项目与用户关联 -> ", err)
 			//o.Rollback()
 			return err
 		}
@@ -435,7 +440,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		o.Rollback()
 		return err
 	}
-	_,err = o.Raw(fmt.Sprintf("DELETE FROM %s WHERE book_id=?",NewTeamRelationship().TableNameWithPrefix()), book.BookId).Exec()
+	_, err = o.Raw(fmt.Sprintf("DELETE FROM %s WHERE book_id=?", NewTeamRelationship().TableNameWithPrefix()), book.BookId).Exec()
 	if err != nil {
 		o.Rollback()
 		return err
