@@ -46,7 +46,7 @@
                             <td>{{$item.BookNumber}}</td>
                             <td>{{$item.CreateTimeString}}</td>
                             <td>
-                                <a href="{{urlfor "ItemsetsController.List" ":key" $item.ItemKey}}" class="btn btn-success btn-sm" target="_blank">详情</a>
+                                <a href="{{urlfor "ItemsetsController.List" ":key" $item.ItemKey}}" class="btn btn-success btn-sm" target="_blank" title="{{$item.ItemName}}">详情</a>
                             </td>
                         </tr>
                         {{else}}
