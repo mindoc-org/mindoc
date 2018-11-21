@@ -142,7 +142,7 @@ func initialization() {
 
 	if !models.NewItemsets().Exist(1) {
 		item := models.NewItemsets()
-		item.ItemName = "默认项目"
+		item.ItemName = "默认项目空间"
 		item.MemberId = 1
 		if err := item.Save(); err != nil {
 			panic("初始化项目空间失败 -> " + err.Error())
