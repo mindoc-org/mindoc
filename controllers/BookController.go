@@ -61,6 +61,9 @@ func (c *BookController) Index() {
 	} else {
 		c.Data["Result"] = template.JS(string(b))
 	}
+	if itemsets, err := models.NewItemsets().First(1); err == nil {
+		c.Data["Item"] = itemsets
+	}
 }
 
 // Dashboard 项目概要 .
@@ -144,7 +147,7 @@ func (c *BookController) SaveBook() {
 	enableShare := strings.TrimSpace(c.GetString("enable_share")) == "on"
 	isUseFirstDocument := strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
 	autoSave := strings.TrimSpace(c.GetString("auto_save")) == "on"
-	itemId,_ := c.GetInt("itemId")
+	itemId, _ := c.GetInt("itemId")
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, "项目描述不能大于500字")
@@ -159,7 +162,7 @@ func (c *BookController) SaveBook() {
 		}
 	}
 	if !models.NewItemsets().Exist(itemId) {
-		c.JsonResult(6006,"项目空间不存在")
+		c.JsonResult(6006, "项目空间不存在")
 	}
 	if editor != "markdown" && editor != "html" {
 		editor = "markdown"

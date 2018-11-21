@@ -141,7 +141,9 @@
                         <div class="form-group required">
                             <label class="text-label col-sm-2">项目空间</label>
                             <div class="col-sm-10">
-                                <select class="js-data-example-ajax-add form-control" multiple="multiple" name="itemId" id="itemId"></select>
+                                <select class="js-data-example-ajax-add form-control" multiple="multiple" name="itemId" id="itemId">
+                                {{if .Item}}<option value="{{.Item.ItemId}}" selected>{{.Item.ItemName}}</option> {{end}}
+                                </select>
                             </div>
                             <div class="clearfix"></div>
                         </div>
@@ -208,7 +210,9 @@
                     <div class="form-group">
                         <div class="form-group required">
                             <label class="text-label">项目空间</label>
-                            <select class="js-data-example-ajax-import form-control" multiple="multiple" name="itemId"></select>
+                            <select class="js-data-example-ajax-import form-control" multiple="multiple" name="itemId">
+                                {{if .Item}}<option value="{{.Item.ItemId}}" selected>{{.Item.ItemName}}</option> {{end}}
+                            </select>
                         </div>
                         <div class="form-group required">
                             <label class="text-label">项目标题</label>
