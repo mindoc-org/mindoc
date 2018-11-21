@@ -7,6 +7,8 @@ import (
 	"github.com/astaxie/beego"
 	"errors"
 	"github.com/lifei6671/mindoc/utils/cryptil"
+	"github.com/lifei6671/mindoc/utils"
+	"strings"
 )
 
 //项目空间
@@ -75,6 +77,10 @@ func (item *Itemsets) Exist(itemId int) bool {
 
 //保存
 func (item *Itemsets) Save() (err error) {
+
+	item.ItemName = strings.TrimSpace(utils.StripTags(item.ItemName))
+	item.Description = strings.TrimSpace(utils.StripTags(item.Description))
+	item.ItemKey = strings.TrimSpace(item.ItemKey)
 
 	if item.ItemName == "" {
 		return errors.New("项目空间名称不能为空")
