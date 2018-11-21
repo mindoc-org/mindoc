@@ -64,6 +64,20 @@ $(function () {
         }
     });
 
+    function insertToMarkdown(body) {
+        window.isLoad = true;
+        window.editor.insertValue(body);
+        window.editor.setCursor({ line: 0, ch: 0 });
+        resetEditorChanged(true);
+    }
+    function insertAndClearToMarkdown(body) {
+        window.isLoad = true;
+        window.editor.clear();
+        window.editor.insertValue(body);
+        window.editor.setCursor({ line: 0, ch: 0 });
+        resetEditorChanged(true);
+    }
+
     /**
      * 实现标题栏操作
      */
@@ -79,7 +93,9 @@ $(function () {
            $("#documentTemplateModal").modal("show");
        } else if(name === "save-template"){
            $("#saveTemplateModal").modal("show");
-       }else if (name === "sidebar") {
+       } else if(name === 'json'){
+           $("#convertJsonToTableModal").modal("show");
+       } else if (name === "sidebar") {
             $("#manualCategory").toggle(0, "swing", function () {
                 var $then = $("#manualEditorContainer");
                 var left = parseInt($then.css("left"));
@@ -521,4 +537,22 @@ $(function () {
         })
     });
 
+    $("#btnInsertTable").on("click",function () {
+       var content = $("#jsonContent").val();
+       if(content !== "") {
+           try {
+               var jsonObj = $.parseJSON(content);
+               var data = foreachJson(jsonObj,"");
+               var table = "| 参数名称  | 参数类型  | 示例值  |  备注 |\n| ------------ | ------------ | ------------ | ------------ |\n";
+               $.each(data,function (i,item) {
+                    table += "|" + item.key + "|" + item.type + "|" + item.value +"| |\n";
+               });
+                insertToMarkdown(table);
+           }catch (e) {
+               showError("Json 格式错误:" + e.toString(),"#json-error-message");
+               return;
+           }
+       }
+       $("#convertJsonToTableModal").modal("hide");
+    });
 });
