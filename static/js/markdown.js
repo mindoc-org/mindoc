@@ -555,4 +555,9 @@ $(function () {
        }
        $("#convertJsonToTableModal").modal("hide");
     });
+    $("#convertJsonToTableModal").on("hidden.bs.modal",function () {
+        $("#jsonContent").val("");
+    }).on("shown.bs.modal",function () {
+        $("#jsonContent").focus();
+    });
 });
