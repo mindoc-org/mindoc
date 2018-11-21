@@ -355,7 +355,7 @@ func (c *ManagerController) EditBook() {
 			}
 		}
 		if !models.NewItemsets().Exist(itemId) {
-			c.JsonResult(6006,"项目集不存在")
+			c.JsonResult(6006,"项目空间不存在")
 		}
 		book.Publisher = publisher
 		book.HistoryCount = historyCount
@@ -1097,7 +1097,7 @@ func (c *ManagerController) TeamBookDelete() {
 	c.JsonResult(0, "OK")
 }
 
-//项目集列表.
+//项目空间列表.
 func (c *ManagerController) Itemsets() {
 	c.Prepare()
 	c.TplName = "manager/itemsets.tpl"
@@ -1126,7 +1126,7 @@ func (c *ManagerController) Itemsets() {
 
 }
 
-//编辑或添加项目集.
+//编辑或添加项目空间.
 func (c *ManagerController) ItemsetsEdit() {
 	c.Prepare()
 	itemId, _ := c.GetInt("itemId")
@@ -1140,9 +1140,9 @@ func (c *ManagerController) ItemsetsEdit() {
 	if itemId > 0 {
 		if item, err = models.NewItemsets().First(itemId); err != nil {
 			if err == orm.ErrNoRows {
-				c.JsonResult(5002, "项目集不存在")
+				c.JsonResult(5002, "项目空间不存在")
 			} else {
-				c.JsonResult(5003, "查询项目集出错")
+				c.JsonResult(5003, "查询项目空间出错")
 			}
 		}
 	} else {
@@ -1161,7 +1161,7 @@ func (c *ManagerController) ItemsetsEdit() {
 	c.JsonResult(0, "OK")
 }
 
-//删除项目集.
+//删除项目空间.
 func (c *ManagerController) ItemsetsDelete() {
 	c.Prepare()
 	itemId, _ := c.GetInt("itemId")

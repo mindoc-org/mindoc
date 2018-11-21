@@ -145,7 +145,7 @@ func initialization() {
 		item.ItemName = "默认项目"
 		item.MemberId = 1
 		if err := item.Save(); err != nil {
-			panic("初始化项目集失败 -> " + err.Error())
+			panic("初始化项目空间失败 -> " + err.Error())
 			os.Exit(1)
 		}
 	}

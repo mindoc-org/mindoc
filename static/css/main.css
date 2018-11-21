@@ -947,7 +947,34 @@ textarea{
     margin: 0;
     padding: 1em 0
 }
-
+/**************项目空间样式******************/
+.ui-card{
+    display: inline-block;
+    width: 22%;
+    margin: 10px 15px;
+    border: solid 1px #d4d4d5;
+    border-radius: 4px;
+    padding: 15px 25px;
+    text-align: center;
+    color: #333333;
+}
+.ui-card:hover{
+    -webkit-box-shadow: 0 1px 3px 0 #d4d4d5,0 0 0 1px #d4d4d5;
+    box-shadow: 0 1px 3px 0 #d4d4d5,0 0 0 1px #d4d4d5;
+    -webkit-transition: -webkit-box-shadow .1s ease,-webkit-transform .1s ease;
+    transition: -webkit-box-shadow .1s ease,-webkit-transform .1s ease;
+    transition: box-shadow .1s ease,transform .1s ease;
+    transition: box-shadow .1s ease,transform .1s ease,-webkit-box-shadow .1s ease,-webkit-transform .1s ease;
+}
+.ui-card>.header{
+    font-weight: 500;
+    font-size: 18px;
+}
+.ui-card>.description{
+    font-size: 12px;
+    color: #666;
+    text-align: left;
+}
 /**************网站底部样式*************************/
 .footer{
     color: #777;

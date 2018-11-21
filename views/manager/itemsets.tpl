@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>项目集管理 - Powered by MinDoc</title>
+    <title>项目空间管理 - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">
@@ -22,9 +22,9 @@
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">项目集管理</strong>
+                        <strong class="box-title">项目空间管理</strong>
                     {{if eq .Member.Role 0}}
-                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addItemsetsDialogModal"><i class="fa fa-plus" aria-hidden="true"></i> 创建项目集</button>
+                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addItemsetsDialogModal"><i class="fa fa-plus" aria-hidden="true"></i> 创建项目空间</button>
                     {{end}}
                     </div>
                 </div>
@@ -34,8 +34,8 @@
                             <thead>
                             <tr>
                                 <th width="10%">#</th>
-                                <th width="30%">项目集名称</th>
-                                <th width="20%">项目集标识</th>
+                                <th width="30%">项目空间名称</th>
+                                <th width="20%">项目空间标识</th>
                                 <th width="20%">项目数量</th>
                                 <th>操作</th>
                             </tr>
@@ -75,20 +75,20 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">创建项目集</h4>
+                    <h4 class="modal-title" id="myModalLabel">创建项目空间</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="account">项目集名称<span class="error-message">*</span></label>
+                        <label class="col-sm-3 control-label" for="account">项目空间名称<span class="error-message">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" name="itemName" class="form-control" placeholder="项目集名称" id="itemName" maxlength="50">
+                            <input type="text" name="itemName" class="form-control" placeholder="项目空间名称" id="itemName" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="itemKey">项目集标识<span class="error-message">*</span></label>
+                        <label class="col-sm-3 control-label" for="itemKey">项目空间标识<span class="error-message">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" name="itemKey" id="itemKey" class="form-control" placeholder="项目集标识" maxlength="50">
-                            <p class="text">项目集标识只能由字母和数字组成且在2-100字符之间</p>
+                            <input type="text" name="itemKey" id="itemKey" class="form-control" placeholder="项目空间标识" maxlength="50">
+                            <p class="text">项目空间标识只能由字母和数字组成且在2-100字符之间</p>
                         </div>
                     </div>
                     <div class="clearfix"></div>
@@ -110,19 +110,19 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">编辑项目集</h4>
+                    <h4 class="modal-title" id="myModalLabel">编辑项目空间</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="itemName">项目集名称<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="text" name="itemName" id="itemName" class="form-control" placeholder="项目集名称" maxlength="50">
+                        <label class="col-sm-3 control-label" for="itemName">项目空间名称<span class="error-message">*</span></label>
+                        <div class="col-sm-9">
+                            <input type="text" name="itemName" id="itemName" class="form-control" placeholder="项目空间名称" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="itemKey">项目集标识<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
-                            <input type="text" name="itemKey" id="itemKey" class="form-control" placeholder="项目集标识" maxlength="50">
+                        <label class="col-sm-3 control-label" for="itemKey">项目空间标识<span class="error-message">*</span></label>
+                        <div class="col-sm-9">
+                            <input type="text" name="itemKey" id="itemKey" class="form-control" placeholder="项目空间标识" maxlength="50">
                         </div>
                     </div>
                     <div class="clearfix"></div>
@@ -164,10 +164,10 @@
                 var $itemKey =  addItemsetsDialogForm.find("input[name='itemKey']").val();
 
                 if ($itemName == "") {
-                    showError("项目集名称不能为空","#create-form-error-message");
+                    showError("项目空间名称不能为空","#create-form-error-message");
                 }
                 if ($itemKey == "") {
-                    showError("项目集标识不能为空","#create-form-error-message");
+                    showError("项目空间标识不能为空","#create-form-error-message");
                 }
                 $("#btnAddItemsets").button("loading");
                 showError("","#create-form-error-message");
@@ -194,10 +194,10 @@
                var $itemKey =  editItemsetsDialogForm.find("input[name='itemKey']").val();
 
                if ($itemName == "") {
-                   showError("项目集名称不能为空","#edit-form-error-message");
+                   showError("项目空间名称不能为空","#edit-form-error-message");
                }
                if ($itemKey == "") {
-                   showError("项目集标识不能为空","#edit-form-error-message");
+                   showError("项目空间标识不能为空","#edit-form-error-message");
                }
                $("#btnEditItemsets").button("loading");
                showError("","#edit-form-error-message");

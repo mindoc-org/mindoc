@@ -49,7 +49,7 @@
                                 <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" disabled placeholder="项目标识">
                             </div>
                             <div class="form-group">
-                                <label>项目集</label>
+                                <label>项目空间</label>
                                 <select class="js-data-example-ajax form-control" multiple="multiple" name="itemId">
                                     <option value="{{.Model.ItemId}}" selected="selected">{{.Model.ItemName}}</option>
                                 </select>

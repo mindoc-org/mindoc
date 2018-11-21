@@ -62,7 +62,7 @@
                                 <p class="text">项目标识用来标记项目的唯一性，不可修改。</p>
                             </div>
                             <div class="form-group">
-                                <label>项目集</label>
+                                <label>项目空间</label>
                                 <select class="js-data-example-ajax form-control" multiple="multiple" name="itemId">
                                     <option value="{{.Model.ItemId}}" selected="selected">{{.Model.ItemName}}</option>
                                 </select>

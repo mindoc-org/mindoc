@@ -9,7 +9,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/cryptil"
 )
 
-//项目集
+//项目空间
 type Itemsets struct {
 	ItemId      int       `orm:"column(item_id);pk;auto;unique" json:"item_id"`
 	ItemName    string    `orm:"column(item_name);size(500)" json:"item_name"`
@@ -22,6 +22,7 @@ type Itemsets struct {
 
 	BookNumber       int    `orm:"-" json:"book_number"`
 	CreateTimeString string `orm:"-" json:"create_time_string"`
+	CreateName       string `orm:"-" json:"create_name"`
 }
 
 // TableName 获取对应数据库表名.
@@ -51,21 +52,21 @@ func (item *Itemsets) First(itemId int) (*Itemsets, error) {
 	}
 	err := item.QueryTable().Filter("item_id", itemId).One(item)
 	if err != nil {
-		beego.Error("查询项目集失败 -> item_id=", itemId, err)
+		beego.Error("查询项目空间失败 -> item_id=", itemId, err)
 	} else {
 		item.Include()
 	}
 	return item, err
 }
 
-func (item *Itemsets) FindFirst(itemKey string) (*Itemsets,error) {
-	err := item.QueryTable().Filter("item_key",itemKey).One(item)
+func (item *Itemsets) FindFirst(itemKey string) (*Itemsets, error) {
+	err := item.QueryTable().Filter("item_key", itemKey).One(item)
 	if err != nil {
-		beego.Error("查询项目集失败 -> itemKey=", itemKey, err)
+		beego.Error("查询项目空间失败 -> itemKey=", itemKey, err)
 	} else {
 		item.Include()
 	}
-	return item,err
+	return item, err
 }
 
 func (item *Itemsets) Exist(itemId int) bool {
@@ -76,14 +77,14 @@ func (item *Itemsets) Exist(itemId int) bool {
 func (item *Itemsets) Save() (err error) {
 
 	if item.ItemName == "" {
-		return errors.New("项目集名称不能为空")
+		return errors.New("项目空间名称不能为空")
 	}
 	if item.ItemKey == "" {
 		item.ItemKey = cryptil.NewRandChars(16)
 	}
 
 	if item.QueryTable().Filter("item_id__ne", item.ItemId).Filter("item_key", item.ItemKey).Exist() {
-		return errors.New("项目集标识已存在")
+		return errors.New("项目空间标识已存在")
 	}
 	if item.ItemId > 0 {
 		_, err = orm.NewOrm().Update(item)
@@ -99,10 +100,10 @@ func (item *Itemsets) Delete(itemId int) (err error) {
 		return ErrInvalidParameter
 	}
 	if itemId == 1 {
-		return errors.New("默认项目集不能删除")
+		return errors.New("默认项目空间不能删除")
 	}
 	if !item.Exist(itemId) {
-		return errors.New("项目集不存在")
+		return errors.New("项目空间不存在")
 	}
 	o := orm.NewOrm()
 	if err := o.Begin(); err != nil {
@@ -111,12 +112,12 @@ func (item *Itemsets) Delete(itemId int) (err error) {
 	}
 	_, err = o.QueryTable(item.TableNameWithPrefix()).Filter("item_id", itemId).Delete()
 	if err != nil {
-		beego.Error("删除项目集失败 -> item_id=", itemId, err)
+		beego.Error("删除项目空间失败 -> item_id=", itemId, err)
 		o.Rollback()
 	}
 	_, err = o.Raw("update md_books set item_id=1 where item_id=?;", itemId).Exec()
 	if err != nil {
-		beego.Error("删除项目集失败 -> item_id=", itemId, err)
+		beego.Error("删除项目空间失败 -> item_id=", itemId, err)
 		o.Rollback()
 	}
 
@@ -126,6 +127,16 @@ func (item *Itemsets) Delete(itemId int) (err error) {
 func (item *Itemsets) Include() (*Itemsets, error) {
 
 	item.CreateTimeString = item.CreateTime.Format("2006-01-02 15:04:05")
+
+	if item.MemberId > 0 {
+		if m,err := NewMember().Find(item.MemberId,"account","real_name");err == nil {
+			if m.RealName != "" {
+				item.CreateName = m.RealName
+			} else {
+				item.CreateName = m.Account
+			}
+		}
+	}
 
 	i, err := NewBook().QueryTable().Filter("item_id", item.ItemId).Count()
 	if err != nil && err != orm.ErrNoRows {
@@ -159,7 +170,7 @@ func (item *Itemsets) FindToPager(pageIndex, pageSize int) (list []*Itemsets, to
 	return
 }
 
-//根据项目集名称查询.
+//根据项目空间名称查询.
 func (item *Itemsets) FindItemsetsByName(name string, limit int) (*SelectMemberResult, error) {
 	result := SelectMemberResult{}
 
@@ -172,7 +183,7 @@ func (item *Itemsets) FindItemsetsByName(name string, limit int) (*SelectMemberR
 		_, err = item.QueryTable().Filter("item_name__icontains", name).Limit(limit).All(&itemsets)
 	}
 	if err != nil {
-		beego.Error("查询项目集失败 ->", err)
+		beego.Error("查询项目空间失败 ->", err)
 		return &result, err
 	}
 
@@ -189,14 +200,14 @@ func (item *Itemsets) FindItemsetsByName(name string, limit int) (*SelectMemberR
 	return &result, err
 }
 
-//根据项目集标识查询项目集的项目列表.
-func (item *Itemsets) FindItemsetsByItemKey(key string, pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error){
+//根据项目空间标识查询项目空间的项目列表.
+func (item *Itemsets) FindItemsetsByItemKey(key string, pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
-	err = item.QueryTable().Filter("item_key",key).One(item)
+	err = item.QueryTable().Filter("item_key", key).One(item)
 
 	if err != nil {
-		return nil,0,err
+		return nil, 0, err
 	}
 	offset := (pageIndex - 1) * pageSize
 	//如果是登录用户

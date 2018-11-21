@@ -4,7 +4,7 @@
         <li{{if eq "users" .}} class="active"{{end}}><a href="{{urlfor "ManagerController.Users" }}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 用户管理</a> </li>
         <li{{if eq "team" .}} class="active"{{end}}><a href="{{urlfor "ManagerController.Team" }}" class="item"><i class="fa fa-group" aria-hidden="true"></i> 团队管理</a> </li>
         <li{{if eq "books" .}} class="active"{{end}}><a href="{{urlfor "ManagerController.Books" }}" class="item"><i class="fa fa-book" aria-hidden="true"></i> 项目管理</a> </li>
-        <li{{if eq "itemsets" .}} class="active"{{end}}><a href="{{urlfor "ManagerController.Itemsets" }}" class="item"><i class="fa fa-archive" aria-hidden="true"></i> 项目集管理</a> </li>
+        <li{{if eq "itemsets" .}} class="active"{{end}}><a href="{{urlfor "ManagerController.Itemsets" }}" class="item"><i class="fa fa-archive" aria-hidden="true"></i> 项目空间管理</a> </li>
 
     {{/*<li><a href="{{urlfor "ManagerController.Comments" }}" class="item"><i class="fa fa-comments-o" aria-hidden="true"></i> 评论管理</a> </li>*/}}
         <li{{if eq "setting" .}} class="active"{{end}}><a href="{{urlfor "ManagerController.Setting" }}" class="item"><i class="fa fa-cogs" aria-hidden="true"></i> 配置管理</a> </li>

@@ -159,7 +159,7 @@ func (c *BookController) SaveBook() {
 		}
 	}
 	if !models.NewItemsets().Exist(itemId) {
-		c.JsonResult(6006,"项目集不存在")
+		c.JsonResult(6006,"项目空间不存在")
 	}
 	if editor != "markdown" && editor != "html" {
 		editor = "markdown"
@@ -458,7 +458,7 @@ func (c *BookController) Create() {
 			privatelyOwned = 1
 		}
 		if !models.NewItemsets().Exist(itemId) {
-			c.JsonResult(6005, "项目集不存在")
+			c.JsonResult(6005, "项目空间不存在")
 		}
 		if commentStatus != "open" && commentStatus != "closed" && commentStatus != "group_only" && commentStatus != "registered_only" {
 			commentStatus = "closed"
@@ -588,7 +588,7 @@ func (c *BookController) Import() {
 		c.JsonResult(6003, "项目标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
 	}
 	if !models.NewItemsets().Exist(itemId) {
-		c.JsonResult(6007, "项目集不存在")
+		c.JsonResult(6007, "项目空间不存在")
 	}
 	if strings.Count(identify, "") > 50 {
 		c.JsonResult(6004, "文档标识不能超过50字")
@@ -950,7 +950,7 @@ func (c *BookController) TeamSearch() {
 
 }
 
-//项目集搜索.
+//项目空间搜索.
 func (c *BookController) ItemsetsSearch() {
 	c.Prepare()
 

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>项目集{{.Model.ItemName}}的项目列表 - Powered by MinDoc</title>
+    <title>项目空间{{.Model.ItemName}}的项目列表 - Powered by MinDoc</title>
     <meta name="keywords" content="MinDoc,文档在线管理系统,WIKI,wiki,wiki在线,文档在线管理,接口文档在线管理,接口文档管理,{{.Model.ItemName}}">
     <meta name="description" content="MinDoc文档在线管理系统 {{.site_description}}">
     <!-- Bootstrap -->
@@ -19,7 +19,7 @@
 {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="search-head">
-            <strong class="search-title">显示项目集为"{{.Model.ItemName}}"的项目</strong>
+            <strong class="search-title">显示项目空间为"{{.Model.ItemName}}"的项目</strong>
         </div>
         <div class="row">
             <div class="manual-list">

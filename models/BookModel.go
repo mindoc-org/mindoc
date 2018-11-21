@@ -31,7 +31,7 @@ type Book struct {
 	BookId int `orm:"pk;auto;unique;column(book_id)" json:"book_id"`
 	// BookName 项目名称.
 	BookName string `orm:"column(book_name);size(500)" json:"book_name"`
-	//所属项目集
+	//所属项目空间
 	ItemId   int    `orm:"column(item_id);type(int);default(1)" json:"item_id"`
 	// Identify 项目唯一标识.
 	Identify string `orm:"column(identify);size(100);unique" json:"identify"`

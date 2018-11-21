@@ -139,7 +139,7 @@
                 <div class="form-group">
                     <div class="pull-left" style="width: 620px">
                         <div class="form-group required">
-                            <label class="text-label col-sm-2">项目集</label>
+                            <label class="text-label col-sm-2">项目空间</label>
                             <div class="col-sm-10">
                                 <select class="js-data-example-ajax-add form-control" multiple="multiple" name="itemId" id="itemId"></select>
                             </div>
@@ -207,7 +207,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <div class="form-group required">
-                            <label class="text-label">项目集</label>
+                            <label class="text-label">项目空间</label>
                             <select class="js-data-example-ajax-import form-control" multiple="multiple" name="itemId"></select>
                         </div>
                         <div class="form-group required">
@@ -503,7 +503,7 @@
 
             var itemId = $("#itemId").val();
             if (itemId <= 0) {
-                return showError("请选择项目集")
+                return showError("请选择项目空间")
             }
             var bookName = $.trim($("#bookName").val());
             if (bookName === "") {
@@ -571,7 +571,7 @@
 
             var itemId = $then.find("input[name='itemId']").val();
             if (itemId <= 0) {
-                return showError("请选择项目集")
+                return showError("请选择项目空间")
             }
 
             var bookName = $.trim($then.find("input[name='book_name']").val());
