@@ -144,6 +144,7 @@
                                 <select class="js-data-example-ajax-add form-control" multiple="multiple" name="itemId" id="itemId">
                                 {{if .Item}}<option value="{{.Item.ItemId}}" selected>{{.Item.ItemName}}</option> {{end}}
                                 </select>
+                                <p class="text">每个项目必须归属一个项目空间，超级管理员可在后台管理和维护</p>
                             </div>
                             <div class="clearfix"></div>
                         </div>
@@ -151,16 +152,17 @@
                             <label class="text-label col-sm-2">项目标题</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName">
+                                <p class="text">项目名称不能超过100字符</p>
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <div class="form-group">
-                            <div class="pull-left" style="padding: 7px 5px 6px 0">
-                           {{urlfor "DocumentController.Index" ":key" ""}}
+                        <div class="form-group required">
+                           <label class="text-label col-sm-2">项目标识</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" placeholder="项目唯一标识(不超过50字)" name="identify" id="identify">
+                                <p class="text">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
                             </div>
-                            <input type="text" class="form-control pull-left" style="width: 410px;vertical-align: middle" placeholder="项目唯一标识(不超过50字)" name="identify" id="identify">
                             <div class="clearfix"></div>
-                            <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
                         </div>
                         <div class="form-group">
                             <textarea name="description" id="description" class="form-control" placeholder="描述信息不超过500个字符" style="height: 90px;"></textarea>
@@ -181,6 +183,7 @@
                     </div>
                     <div class="pull-right text-center" style="width: 235px;">
                         <canvas id="bookCover" height="230px" width="170px"><img src="{{cdnimg "/static/images/book.jpg"}}"> </canvas>
+                        <p class="text">项目图片可在项目设置中修改</p>
                     </div>
                 </div>
 
@@ -213,16 +216,18 @@
                             <select class="js-data-example-ajax-import form-control" multiple="multiple" name="itemId">
                                 {{if .Item}}<option value="{{.Item.ItemId}}" selected>{{.Item.ItemName}}</option> {{end}}
                             </select>
+                            <p class="text">每个项目必须归属一个项目空间，超级管理员可在后台管理和维护</p>
                         </div>
                         <div class="form-group required">
                             <label class="text-label">项目标题</label>
                             <input type="text" class="form-control" placeholder="项目标题(不超过100字)" name="book_name" maxlength="100" value="">
+                            <p class="text">项目名称不能超过100字符</p>
                         </div>
                         <div class="form-group required">
                             <label class="text-label">项目标识</label>
                             <input type="text" class="form-control"  placeholder="项目唯一标识(不超过50字)" name="identify" value="">
                             <div class="clearfix"></div>
-                            <p class="text" style="font-size: 12px;color: #999;margin-top: 6px;">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
+                            <p class="text">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
                         </div>
                         <div class="form-group">
                             <label class="text-label">项目描述</label>
