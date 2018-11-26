@@ -222,7 +222,7 @@
                     $.ajax({
                         url: "{{urlfor "ManagerController.TeamDelete"}}",
                         type: "post",
-                        data: {"id": id},
+                        data: {"teamId": id},
                         dataType: "json",
                         success: function (res) {
                             if (res.errcode === 0) {

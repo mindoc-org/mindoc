@@ -225,7 +225,8 @@
             var $this = $(this);
             $(this).button("loading");
             $.ajax({
-                url : "{{urlfor "ManagerController.ItemsetsDelete" ":id" ""}}" + id,
+                url : "{{urlfor "ManagerController.ItemsetsDelete"}}",
+                data: {"itemId":id},
                 type : "post",
                 dataType : "json",
                 success : function (res) {
