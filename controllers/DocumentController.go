@@ -183,7 +183,7 @@ func (c *DocumentController) Edit() {
 	bookResult := models.NewBookResult()
 
 	var err error
-	// 如果是超级管理者，则不判断权限
+	// 如果是管理者，则不判断权限
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
@@ -195,7 +195,7 @@ func (c *DocumentController) Edit() {
 		bookResult, err = models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
 		if err != nil {
-			if err == orm.ErrNoRows {
+			if err == orm.ErrNoRows || err == models.ErrPermissionDenied{
 				c.ShowErrorPage(403, "项目不存在或没有权限")
 			} else {
 				beego.Error("查询项目时出错 -> ", err)

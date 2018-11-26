@@ -58,7 +58,7 @@ WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE
   LEFT JOIN md_relationship AS rel1 ON doc.book_id = rel1.book_id AND rel1.member_id = ?
 			left join (select * from (select book_id,team_member_id,role_id
                    	from md_team_relationship as mtr
-					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team 
+					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.role_id,t.team_member_id,t.book_id) as team 
 					on team.book_id = book.book_id
 WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_id > 0)  AND (doc.document_name LIKE ? OR doc.release LIKE ?) `
 
@@ -69,7 +69,7 @@ WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_
   LEFT JOIN md_relationship AS rel1 ON doc.book_id = rel1.book_id AND rel1.member_id = ?
 			left join (select * from (select book_id,team_member_id,role_id
                    	from md_team_relationship as mtr
-					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team 
+					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.role_id,t.team_member_id,t.book_id) as team 
 					on team.book_id = book.book_id
 WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_id > 0)  AND (doc.document_name LIKE ? OR doc.release LIKE ?)
  ORDER BY doc.document_id DESC LIMIT ?,? `

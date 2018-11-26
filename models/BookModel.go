@@ -330,12 +330,12 @@ func (book *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookR
 count(*) AS total_count
 FROM md_books AS book
   LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.member_id = ?
-  left join (select *
+  left join (select book_id,min(role_id) as role_id
              from (select book_id,team_member_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id)
-			as team on team.book_id=book.book_id
-WHERE rel.relationship_id > 0 or team.team_member_id > 0`
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )
+					as t group by t.book_id)
+			as team on team.book_id=book.book_id WHERE rel.role_id >= 0 or team.role_id >= 0`
 
 	err = o.Raw(sql1, memberId, memberId).QueryRow(&totalCount)
 
@@ -357,14 +357,15 @@ WHERE rel.relationship_id > 0 or team.team_member_id > 0`
   m.account as create_name
 FROM md_books AS book
   LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.member_id = ?
-  left join (select *
+  left join (select book_id,min(role_id) as role_id
              from (select book_id,team_member_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team 
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )
+					as t group by book_id) as team 
 			on team.book_id=book.book_id
   LEFT JOIN md_relationship AS rel1 ON book.book_id = rel1.book_id AND rel1.role_id = 0
   LEFT JOIN md_members AS m ON rel1.member_id = m.member_id
-WHERE rel.relationship_id > 0 or team.team_member_id > 0
+WHERE rel.role_id >= 0 or team.role_id >= 0
 ORDER BY book.order_index, book.book_id DESC limit ?,?`
 
 	_, err = o.Raw(sql2, memberId, memberId, offset, pageSize).QueryRows(&books)
@@ -479,24 +480,26 @@ func (book *Book) FindForHomeToPager(pageIndex, pageSize, memberId int) (books [
 		sql1 := `SELECT COUNT(*)
 FROM md_books AS book
   LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
-  left join (select *
-             from (select book_id,team_member_id,role_id
+  left join (select book_id,min(role_id) AS role_id
+             from (select book_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team on team.book_id=book.book_id
-WHERE relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0`
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )
+as t group by book_id) as team on team.book_id=book.book_id
+WHERE book.privately_owned = 0 or rel.role_id >=0 or team.role_id >=0`
 		err = o.Raw(sql1, memberId, memberId).QueryRow(&totalCount)
 		if err != nil {
 			return
 		}
 		sql2 := `SELECT book.*,rel1.*,member.account AS create_name,member.real_name FROM md_books AS book
   LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
-  left join (select *
-             from (select book_id,team_member_id,role_id
+  left join (select book_id,min(role_id) AS role_id
+             from (select book_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team on team.book_id=book.book_id
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )
+as t group by book_id) as team on team.book_id=book.book_id
   LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
   LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
-WHERE rel.relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0 ORDER BY order_index ,book.book_id DESC LIMIT ?,?`
+WHERE book.privately_owned = 0 or rel.role_id >=0 or team.role_id >=0 ORDER BY order_index ,book.book_id DESC LIMIT ?,?`
 
 		_, err = o.Raw(sql2, memberId, memberId, offset, pageSize).QueryRows(&books)
 
@@ -534,7 +537,7 @@ FROM md_books AS book
   left join (select *
              from (select book_id,team_member_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team on team.book_id = book.book_id
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.role_id,t.team_member_id,t.book_id) as team on team.book_id = book.book_id
 WHERE (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0) AND book.label LIKE ?`
 
 		err = o.Raw(sql1, memberId, memberId, keyword).QueryRow(&totalCount)
@@ -545,7 +548,7 @@ WHERE (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
 			left join (select * from (select book_id,team_member_id,role_id
                    	from md_team_relationship as mtr
-					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team 
+					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.role_id,t.team_member_id,t.book_id) as team 
 					on team.book_id = book.book_id
 			LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
 			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id

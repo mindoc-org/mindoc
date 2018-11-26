@@ -411,7 +411,10 @@ func (c *BookController) Users() {
 		}
 		c.Abort("500")
 	}
-
+	//如果不是创始人也不是管理员则不能操作
+	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
+		c.Abort("403")
+	}
 	c.Data["Model"] = *book
 
 	members, totalCount, err := models.NewMemberRelationshipResult().FindForUsersByBookId(book.BookId, pageIndex, conf.PageSize)
@@ -854,7 +857,10 @@ func (c *BookController) Team() {
 		}
 		c.ShowErrorPage(500, "系统错误")
 	}
-
+	//如果不是创始人也不是管理员则不能操作
+	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
+		c.Abort("403")
+	}
 	c.Data["Model"] = book
 
 	members, totalCount, err := models.NewTeamRelationship().FindByBookToPager(book.BookId, pageIndex, conf.PageSize)
@@ -884,7 +890,10 @@ func (c *BookController) TeamAdd() {
 	if err != nil {
 		c.JsonResult(500, err.Error())
 	}
-
+	//如果不是创始人也不是管理员则不能操作
+	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
+		c.Abort("403")
+	}
 	_, err = models.NewTeam().First(teamId, "team_id")
 	if err != nil {
 		if err == orm.ErrNoRows {
@@ -921,7 +930,11 @@ func (c *BookController) TeamDelete() {
 	if err != nil {
 		c.JsonResult(5002, err.Error())
 	}
-	beego.Error(book)
+	//如果不是创始人也不是管理员则不能操作
+	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
+		c.Abort("403")
+	}
+
 	err = models.NewTeamRelationship().DeleteByBookId(book.BookId, teamId)
 
 	if err != nil {
@@ -944,6 +957,7 @@ func (c *BookController) TeamSearch() {
 	if err != nil {
 		c.JsonResult(500, err.Error())
 	}
+
 	searchResult, err := models.NewTeamRelationship().FindNotJoinBookByBookIdentify(book.BookId, keyword, 10)
 
 	if err != nil {
