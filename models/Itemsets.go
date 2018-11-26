@@ -135,7 +135,7 @@ func (item *Itemsets) Include() (*Itemsets, error) {
 	item.CreateTimeString = item.CreateTime.Format("2006-01-02 15:04:05")
 
 	if item.MemberId > 0 {
-		if m,err := NewMember().Find(item.MemberId,"account","real_name");err == nil {
+		if m, err := NewMember().Find(item.MemberId, "account", "real_name"); err == nil {
 			if m.RealName != "" {
 				item.CreateName = m.RealName
 			} else {
@@ -213,6 +213,7 @@ func (item *Itemsets) FindItemsetsByItemKey(key string, pageIndex, pageSize, mem
 	err = item.QueryTable().Filter("item_key", key).One(item)
 
 	if err != nil {
+		beego.Error("查询项目空间时出错 ->", key, err)
 		return nil, 0, err
 	}
 	offset := (pageIndex - 1) * pageSize
@@ -224,18 +225,19 @@ FROM md_books AS book
   left join (select *
              from (select book_id,team_member_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team on team.book_id = book.book_id
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team on team.book_id = book.book_id
 WHERE book.item_id = ? AND (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0)`
 
 		err = o.Raw(sql1, memberId, memberId, item.ItemId).QueryRow(&totalCount)
 		if err != nil {
+			beego.Error("查询项目空间时出错 ->", key, err)
 			return
 		}
 		sql2 := `SELECT book.*,rel1.*,member.account AS create_name FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
 			left join (select * from (select book_id,team_member_id,role_id
                    	from md_team_relationship as mtr
-					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team 
+					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team 
 					on team.book_id = book.book_id
 			LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
 			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id

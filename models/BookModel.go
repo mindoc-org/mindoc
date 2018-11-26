@@ -482,7 +482,7 @@ FROM md_books AS book
   left join (select *
              from (select book_id,team_member_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team on team.book_id=book.book_id
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team on team.book_id=book.book_id
 WHERE relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0`
 		err = o.Raw(sql1, memberId, memberId).QueryRow(&totalCount)
 		if err != nil {
@@ -493,7 +493,7 @@ WHERE relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0
   left join (select *
              from (select book_id,team_member_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team on team.book_id=book.book_id
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team on team.book_id=book.book_id
   LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
   LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
 WHERE rel.relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0 ORDER BY order_index ,book.book_id DESC LIMIT ?,?`
@@ -534,7 +534,7 @@ FROM md_books AS book
   left join (select *
              from (select book_id,team_member_id,role_id
                    from md_team_relationship as mtr
-                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team on team.book_id = book.book_id
+                     left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team on team.book_id = book.book_id
 WHERE (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0) AND book.label LIKE ?`
 
 		err = o.Raw(sql1, memberId, memberId, keyword).QueryRow(&totalCount)
@@ -545,7 +545,7 @@ WHERE (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
 			left join (select * from (select book_id,team_member_id,role_id
                    	from md_team_relationship as mtr
-					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id) as team 
+					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.book_id,t.team_member_id,t.book_id) as team 
 					on team.book_id = book.book_id
 			LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
 			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
