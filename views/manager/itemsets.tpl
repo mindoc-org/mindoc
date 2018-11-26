@@ -52,7 +52,7 @@
                                     {{if ne $item.ItemId 1}}
                                     <button type="button" data-method="delete" class="btn btn-danger btn-sm" data-id="{{$item.ItemId}}" data-loading-text="删除中...">删除</button>
                                     {{end}}
-                                    <a href="{{urlfor "ItemsetsController.Index" ":key" $item.ItemKey}}" class="btn btn-success btn-sm" target="_blank">详情</a>
+                                    <a href="{{urlfor "ItemsetsController.List" ":key" $item.ItemKey}}" class="btn btn-success btn-sm" target="_blank">详情</a>
                                 </td>
                             </tr>
                             {{else}}
