@@ -3,7 +3,7 @@ clone_folder: c:\gopath\src\github.com\lifei6671\mindoc
 
 environment:
   GOPATH: c:\gopath
-  GOVERSION: "1.10.3"
+  GOVERSION: "1.11.2"
   matrix:
     - tbs_arch: "x86"
       tbs_tools: "mingw"
