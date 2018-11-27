@@ -473,7 +473,8 @@
                     var $then = $("#importBookDialogForm");
                     book.book_name = $then.find("input[name='book_name']").val();
                     book.identify = $then.find("input[name='identify']").val();
-                    book.description = $then.find('textarea[name="description"]').val()
+                    book.description = $then.find('textarea[name="description"]').val();
+                    book.itemId = $then.find("select[name='itemId']").val();
 
                     return book;
                 }
@@ -575,7 +576,7 @@
                 drawBookCover("bookCover",txt);
             }
         }).on("click","#btnImportBook",function () {
-            console.log("aa");
+
             var $then = $(this).parents("#importBookDialogForm");
 
             var itemId = $then.find("input[name='itemId']").val();
@@ -601,7 +602,7 @@
                 return showError("描述信息不超过500个字符","#import-book-form-error-message");
             }
             var filesCount = $('#import-book-upload').fileinput('getFilesCount');
-            console.log(filesCount)
+
             if (filesCount <= 0) {
                 return showError("请选择需要上传的文件","#import-book-form-error-message");
             }
