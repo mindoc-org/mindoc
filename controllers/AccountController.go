@@ -20,6 +20,14 @@ type AccountController struct {
 	BaseController
 }
 
+func (c *AccountController) referer() string {
+	u, _ := url.PathUnescape(c.GetString("url"))
+	if u == "" {
+		u = conf.URLFor("HomeController.Index")
+	}
+	return u
+}
+
 func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
 	c.EnableXSRF = true
@@ -111,41 +119,23 @@ func (c *AccountController) Login() {
 					c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour * 24 * 30).Unix())
 				}
 			}
-			u, _ := url.PathUnescape(c.GetString("url"))
-			if u == "" {
-				u = c.Ctx.Request.Header.Get("Referer")
-			}
-			if u == "" {
-				u = conf.URLFor("HomeController.Index")
-			}
 
-			c.JsonResult(0, "ok", u)
+			c.JsonResult(0, "ok", c.referer())
 		} else {
 			beego.Error("用户登录 ->", err)
 			c.JsonResult(500, "账号或密码错误", nil)
 		}
 	} else {
-		u, _ := url.PathUnescape(c.GetString("url"))
-		if u == "" {
-			u = c.Ctx.Request.Header.Get("Referer")
-		}
-		if u == "" {
-			u = conf.URLFor("HomeController.Index")
-		}
-		c.Data["url"] = url.PathEscape(u)
+		c.Data["url"] = c.referer()
 	}
 }
 
 // 登录成功后的操作，如重定向到原始请求页面
 func (c *AccountController) LoggedIn(isPost bool) interface{} {
 
-	turl := c.GetString("url")
+	turl := c.referer()
 
 	if !isPost {
-		// 检查是否存在 turl 参数，如果有则重定向至 turl 处，否则进入 Home 页面
-		if turl == "" {
-			turl = conf.URLFor("HomeController.Index")
-		}
 		c.Redirect(turl, 302)
 		return nil
 	} else {
