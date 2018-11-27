@@ -48,12 +48,4 @@ func (c *HomeController) Index() {
 	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(pageSize)))
 
 	c.Data["Lists"] = books
-
-	labels, totalCount, err := models.NewLabel().FindToPager(1, 10)
-
-	if err != nil {
-		c.Data["Labels"] = make([]*models.Label, 0)
-	} else {
-		c.Data["Labels"] = labels
-	}
 }

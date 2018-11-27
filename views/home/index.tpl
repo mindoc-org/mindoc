@@ -21,20 +21,7 @@
     {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
-            {{if gt (.Labels|len) 1000000}}
-            <div class="hide tag-container-outer">
-                <span class="title">热门标签：</span>
-                <span class="tags">
-                    {{range  $index,$item := .Labels}}
-                    <a href="{{urlfor "LabelController.Index" ":key" $item.LabelName}}">{{$item.LabelName}}<span class="detail">{{$item.BookNumber}}</span></a>
-                    {{end}}
-
-                </span>
-            </div>
-
-            {{end}}
-
-            <div class="manual-list">
+             <div class="manual-list">
                 {{range $index,$item := .Lists}}
                     <div class="list-item">
                         <dl class="manual-item-standard">
