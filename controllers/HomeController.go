@@ -28,12 +28,12 @@ func (c *HomeController) Index() {
 	pageIndex, _ := c.GetInt("page", 1)
 	pageSize := 18
 
-	member_id := 0
+	memberId := 0
 
 	if c.Member != nil {
-		member_id = c.Member.MemberId
+		memberId = c.Member.MemberId
 	}
-	books, totalCount, err := models.NewBook().FindForHomeToPager(pageIndex, pageSize, member_id)
+	books, totalCount, err := models.NewBook().FindForHomeToPager(pageIndex, pageSize, memberId)
 
 	if err != nil {
 		beego.Error(err)
