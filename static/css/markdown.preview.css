@@ -40,7 +40,9 @@
 .editormd-preview-container table tr {
     background-color: #fff
 }
-
+.editormd-preview-container .sequence-diagram, .editormd-preview-container .flowchart, .editormd-html-preview .sequence-diagram, .editormd-html-preview .flowchart{
+    overflow: auto;
+}
 /**************TOC*******************/
 .editormd-preview-container{
     position: relative;
