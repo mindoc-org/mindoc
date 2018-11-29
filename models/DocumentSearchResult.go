@@ -5,6 +5,7 @@ import (
 
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego"
+	"strings"
 )
 
 type DocumentSearchResult struct {
@@ -31,7 +32,8 @@ func (m *DocumentSearchResult) FindToPager(keyword string, pageIndex, pageSize, 
 	o := orm.NewOrm()
 
 	offset := (pageIndex - 1) * pageSize
-	keyword = "%" + keyword + "%"
+
+	keyword = "%" + strings.Replace(keyword," ","%",-1) + "%"
 
 	if memberId <= 0 {
 		sql1 := `SELECT count(doc.document_id) as total_count FROM md_documents AS doc

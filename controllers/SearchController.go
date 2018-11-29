@@ -48,22 +48,24 @@ func (c *SearchController) Index() {
 			c.Data["PageHtml"] = ""
 		}
 		if len(searchResult) > 0 {
+			keywords := strings.Split(keyword," ")
+
 			for _, item := range searchResult {
-				item.DocumentName = strings.Replace(item.DocumentName, keyword, "<em>"+keyword+"</em>", -1)
+				for _,word := range keywords {
+					item.DocumentName = strings.Replace(item.DocumentName, word, "<em>"+word+"</em>", -1)
+					if item.Description != "" {
+						src := item.Description
 
-				if item.Description != "" {
-					src := item.Description
+						r := []rune(utils.StripTags(item.Description))
 
-					r := []rune(utils.StripTags(item.Description))
-
-					if len(r) > 100 {
-						src = string(r[:100])
-					} else {
-						src = string(r)
+						if len(r) > 100 {
+							src = string(r[:100])
+						} else {
+							src = string(r)
+						}
+						item.Description = strings.Replace(src, word, "<em>"+word+"</em>", -1)
 					}
-					item.Description = strings.Replace(src, keyword, "<em>"+keyword+"</em>", -1)
 				}
-
 				if item.Identify == "" {
 					item.Identify = strconv.Itoa(item.DocumentId)
 				}
