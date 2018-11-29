@@ -25,12 +25,22 @@
             <div class="manual-list">
                 {{range $index,$item := .Lists}}
                 <div class="search-item">
-                    <div class="title"><a href="{{urlfor "DocumentController.Read" ":key" $item.BookIdentify ":id" $item.Identify}}" title="{{$item.DocumentName}}" target="_blank">{{str2html $item.DocumentName}}</a> </div>
+                    <div class="title">
+                {{if eq $item.SearchType "document"}}
+                        <a href="{{urlfor "DocumentController.Read" ":key" $item.BookIdentify ":id" $item.Identify}}" title="{{$item.DocumentName}}" target="_blank">{{str2html $item.DocumentName}}</a>
+                 {{else}}
+                        <a href="{{urlfor "BlogController.Index" ":id" $item.DocumentId}}" title="{{$item.DocumentName}}" target="_blank">{{str2html $item.DocumentName}}</a>
+                {{end}}
+                    </div>
                     <div class="description">
                         {{str2html $item.Description}}
                     </div>
                     <div class="source">
-                        <span class="item">来自：<a href="{{urlfor "DocumentController.Index" ":key" $item.BookIdentify}}" target="_blank">{{$item.BookName}}</a></span>
+                        {{if eq $item.SearchType "document"}}
+                        <span class="item">来自项目：<a href="{{urlfor "DocumentController.Index" ":key" $item.BookIdentify}}" target="_blank">{{$item.BookName}}</a></span>
+                        {{else}}
+                        <span class="item">来自文章：<a href="{{urlfor "BlogController.Index" ":id" $item.DocumentId}}" target="_blank">{{$item.BookName}}</a></span>
+                        {{end}}
                         <span class="item">作者：{{$item.Author}}</span>
                         <span class="item">更新时间：{{date_format  $item.ModifyTime "2006-01-02 15:04:05"}}</span>
                     </div>

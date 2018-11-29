@@ -39,7 +39,6 @@ func (c *SearchController) Index() {
 		searchResult, totalCount, err := models.NewDocumentSearchResult().FindToPager(keyword, pageIndex, conf.PageSize, memberId)
 
 		if err != nil {
-			beego.Error("查询搜索结果失败 => ",err)
 			return
 		}
 		if totalCount > 0 {
