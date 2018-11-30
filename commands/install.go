@@ -122,6 +122,7 @@ func initialization() {
 		book.MemberId = member.MemberId
 		book.BookName = "MinDoc演示项目"
 		book.Status = 0
+		book.ItemId = 1
 		book.Description = "这是一个MinDoc演示项目，该项目是由系统初始化时自动创建。"
 		book.CommentCount = 0
 		book.PrivatelyOwned = 0
