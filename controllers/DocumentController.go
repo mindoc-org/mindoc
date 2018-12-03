@@ -1237,39 +1237,43 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 	}
 	// 如果文档是私有的
 	if book.PrivatelyOwned == 1 && (!c.isUserLoggedIn() || !c.Member.IsAdministrator()) {
+		if s,ok := c.GetSession(identify).(string); !ok || (!strings.EqualFold(s,book.PrivateToken) && !strings.EqualFold(s,book.BookPassword)) {
 
-		if book.PrivateToken != "" && !isOk && token != "" {
-			// 如果有访问的 Token，并且该项目设置了访问 Token，并且和用户提供的相匹配，则记录到 Session 中。
-			// 如果用户未提供 Token 且用户登录了，则判断用户是否参与了该项目。
-			// 如果用户未登录，则从 Session 中读取 Token。
-			if token != "" && strings.EqualFold(token, book.PrivateToken) {
-				c.SetSession(identify, token)
-			} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
-				c.ShowErrorPage(403, "权限不足")
-			}
-		} else if password := c.GetString("bPassword", "");!isOk && book.BookPassword != "" && password != ""{
-
-			//如果设置了密码，则判断密码是否正确
-			if book.BookPassword != password {
-				c.JsonResult(5001, "密码错误")
-			} else {
-				c.SetSession(identify, password)
-				c.JsonResult(0,"OK")
-			}
-
-		} else if !isOk {
-			//如果设置了密码，则显示密码输入页面
-			if book.BookPassword != "" {
-				//判断已存在的密码是否正确
-				if password, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(password, book.BookPassword) {
-					body, err := c.ExecuteViewPathTemplate("document/document_password.tpl", map[string]string{"Identify": book.Identify});
-					if err != nil {
-						beego.Error("显示密码页面失败 ->", err)
-					}
-					c.CustomAbort(200, body)
+			if book.PrivateToken != "" && !isOk && token != "" {
+				// 如果有访问的 Token，并且该项目设置了访问 Token，并且和用户提供的相匹配，则记录到 Session 中。
+				// 如果用户未提供 Token 且用户登录了，则判断用户是否参与了该项目。
+				// 如果用户未登录，则从 Session 中读取 Token。
+				if token != "" && strings.EqualFold(token, book.PrivateToken) {
+					c.SetSession(identify, token)
+				} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
+					beego.Info("尝试访问文档但权限不足 ->", identify, token)
+					c.ShowErrorPage(403, "权限不足")
 				}
-			} else {
-				c.ShowErrorPage(403, "权限不足")
+			} else if password := c.GetString("bPassword", ""); !isOk && book.BookPassword != "" && password != "" {
+
+				//如果设置了密码，则判断密码是否正确
+				if book.BookPassword != password {
+					c.JsonResult(5001, "密码错误")
+				} else {
+					c.SetSession(identify, password)
+					c.JsonResult(0, "OK")
+				}
+
+			} else if !isOk {
+				//如果设置了密码，则显示密码输入页面
+				if book.BookPassword != "" {
+					//判断已存在的密码是否正确
+					if password, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(password, book.BookPassword) {
+						body, err := c.ExecuteViewPathTemplate("document/document_password.tpl", map[string]string{"Identify": book.Identify});
+						if err != nil {
+							beego.Error("显示密码页面失败 ->", err)
+						}
+						c.CustomAbort(200, body)
+					}
+				} else {
+					beego.Info("尝试访问文档但权限不足 ->", identify, token)
+					c.ShowErrorPage(403, "权限不足")
+				}
 			}
 		}
 	}
