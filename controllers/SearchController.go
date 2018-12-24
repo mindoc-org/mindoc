@@ -6,6 +6,7 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
+	"github.com/lifei6671/mindoc/utils/sqltil"
 	"strconv"
 	"strings"
 )
@@ -36,7 +37,7 @@ func (c *SearchController) Index() {
 		if c.Member != nil {
 			memberId = c.Member.MemberId
 		}
-		searchResult, totalCount, err := models.NewDocumentSearchResult().FindToPager(keyword, pageIndex, conf.PageSize, memberId)
+		searchResult, totalCount, err := models.NewDocumentSearchResult().FindToPager(sqltil.EscapeLike(keyword), pageIndex, conf.PageSize, memberId)
 
 		if err != nil {
 			return
@@ -86,6 +87,7 @@ func (c *SearchController) User() {
 	if key == "" || keyword == "" {
 		c.JsonResult(404, "参数错误")
 	}
+	keyword = sqltil.EscapeLike(keyword)
 
 	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
 	if err != nil {

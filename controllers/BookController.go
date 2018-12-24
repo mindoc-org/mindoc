@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/lifei6671/mindoc/utils/sqltil"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -957,7 +958,7 @@ func (c *BookController) TeamSearch() {
 	if err != nil {
 		c.JsonResult(500, err.Error())
 	}
-
+	keyword = sqltil.EscapeLike(keyword)
 	searchResult, err := models.NewTeamRelationship().FindNotJoinBookByBookIdentify(book.BookId, keyword, 10)
 
 	if err != nil {
@@ -972,6 +973,7 @@ func (c *BookController) ItemsetsSearch() {
 	c.Prepare()
 
 	keyword := strings.TrimSpace(c.GetString("q"))
+	keyword = sqltil.EscapeLike(keyword)
 
 	searchResult, err := models.NewItemsets().FindItemsetsByName(keyword, 10)
 
