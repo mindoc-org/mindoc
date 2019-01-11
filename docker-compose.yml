@@ -1,5 +1,5 @@
 MinDoc_New:
-  image: registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc:v0.13
+  image: registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc:v2.0-beta.2
   privileged: false
   restart: always
   ports:
