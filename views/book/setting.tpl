@@ -83,11 +83,6 @@
                                 <p class="text">描述信息不超过500个字符,支持Markdown语法</p>
                             </div>
                             <div class="form-group">
-                                <label>标签</label>
-                                <input type="text" class="form-control" name="label" placeholder="项目标签" value="{{.Model.Label}}">
-                                <p class="text">最多允许添加10个标签，多个标签请用“,”分割</p>
-                            </div>
-                            <div class="form-group">
                                 <label>编辑器</label>
                                 <div class="radio">
                                     <label class="radio-inline">
@@ -99,18 +94,6 @@
                                 </div>
                             </div>
                 {{if eq .Model.PrivatelyOwned 1}}
-                <div class="form-group">
-                    <label>访问令牌</label>
-                    <div class="row">
-                        <div class="col-sm-10">
-                            <input type="text" name="token" id="token" class="form-control" placeholder="访问令牌" readonly value="{{.Model.PrivateToken}}">
-                        </div>
-                        <div class="col-sm-2">
-                            <button type="button" class="btn btn-success btn-sm" id="createToken" data-loading-text="生成" data-action="create">生成</button>
-                            <button type="button" class="btn btn-danger btn-sm" id="deleteToken" data-loading-text="删除" data-action="delete">删除</button>
-                        </div>
-                    </div>
-                </div>
                 <div class="form-group">
                     <label>访问密码</label>
                     <input type="text" name="bPassword" id="bPassword" class="form-control" placeholder="访问密码" value="{{.Model.BookPassword}}">

@@ -88,7 +88,6 @@ func init() {
 	beego.Router("/book/setting/open", &controllers.BookController{}, "post:PrivatelyOwned")
 	beego.Router("/book/setting/transfer", &controllers.BookController{}, "post:Transfer")
 	beego.Router("/book/setting/upload", &controllers.BookController{}, "post:UploadCover")
-	beego.Router("/book/setting/token", &controllers.BookController{}, "post:CreateToken")
 	beego.Router("/book/setting/delete", &controllers.BookController{}, "post:Delete")
 
 	beego.Router("/book/team/add", &controllers.BookController{}, "POST:TeamAdd")

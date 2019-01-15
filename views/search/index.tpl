@@ -27,9 +27,14 @@
                 <div class="search-item">
                     <div class="title">
                 {{if eq $item.SearchType "document"}}
+                    <span class="label mark-doc">文档</span>
                         <a href="{{urlfor "DocumentController.Read" ":key" $item.BookIdentify ":id" $item.Identify}}" title="{{$item.DocumentName}}" target="_blank">{{str2html $item.DocumentName}}</a>
-                 {{else}}
-                        <a href="{{urlfor "BlogController.Index" ":id" $item.DocumentId}}" title="{{$item.DocumentName}}" target="_blank">{{str2html $item.DocumentName}}</a>
+                 {{else if eq $item.SearchType "book"}}
+                    <span class="label mark-book">项目</span>
+                    <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="{{$item.BookName}}" target="_blank"> {{str2html $item.DocumentName}}</a>
+                {{else}}
+                    <span class="label mark-blog">文章</span>
+                        <a href="{{urlfor "BlogController.Index" ":id" $item.DocumentId}}" title="{{$item.DocumentName}}" target="_blank"> {{str2html $item.DocumentName}}</a>
                 {{end}}
                     </div>
                     <div class="description">
@@ -38,6 +43,8 @@
                     <div class="source">
                         {{if eq $item.SearchType "document"}}
                         <span class="item">来自项目：<a href="{{urlfor "DocumentController.Index" ":key" $item.BookIdentify}}" target="_blank">{{$item.BookName}}</a></span>
+                        {{else if eq $item.SearchType "book"}}
+                            <span class="item">项目：<a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" target="_blank">{{$item.BookName}}</a></span>
                         {{else}}
                         <span class="item">来自文章：<a href="{{urlfor "BlogController.Index" ":id" $item.DocumentId}}" target="_blank">{{$item.BookName}}</a></span>
                         {{end}}

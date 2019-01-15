@@ -139,7 +139,7 @@ func (c *BookController) SaveBook() {
 	bookName := strings.TrimSpace(c.GetString("book_name"))
 	description := strings.TrimSpace(c.GetString("description", ""))
 	commentStatus := c.GetString("comment_status")
-	tag := strings.TrimSpace(c.GetString("label"))
+	//tag := strings.TrimSpace(c.GetString("label"))
 	editor := strings.TrimSpace(c.GetString("editor"))
 	autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 	publisher := strings.TrimSpace(c.GetString("publisher"))
@@ -156,12 +156,7 @@ func (c *BookController) SaveBook() {
 	if commentStatus != "open" && commentStatus != "closed" && commentStatus != "group_only" && commentStatus != "registered_only" {
 		commentStatus = "closed"
 	}
-	if tag != "" {
-		tags := strings.Split(tag, ",")
-		if len(tags) > 10 {
-			c.JsonResult(6005, "最多允许添加10个标签")
-		}
-	}
+
 	if !models.NewItemsets().Exist(itemId) {
 		c.JsonResult(6006, "项目空间不存在")
 	}
@@ -173,7 +168,7 @@ func (c *BookController) SaveBook() {
 	book.Description = description
 	book.CommentStatus = commentStatus
 	book.Publisher = publisher
-	book.Label = tag
+	//book.Label = tag
 	book.Editor = editor
 	book.HistoryCount = historyCount
 	book.IsDownload = 0
@@ -211,7 +206,6 @@ func (c *BookController) SaveBook() {
 	bookResult.BookName = bookName
 	bookResult.Description = description
 	bookResult.CommentStatus = commentStatus
-	bookResult.Label = tag
 
 	beego.Info("用户 [", c.Member.Account, "] 修改了项目 ->", book)
 
@@ -646,49 +640,49 @@ func (c *BookController) Import() {
 }
 
 // CreateToken 创建访问来令牌.
-func (c *BookController) CreateToken() {
-
-	action := c.GetString("action")
-
-	bookResult, err := c.IsPermission()
-
-	if err != nil {
-		if err == models.ErrPermissionDenied {
-			c.JsonResult(403, "权限不足")
-		}
-		if err == orm.ErrNoRows {
-			c.JsonResult(404, "项目不存在")
-		}
-		logs.Error("生成阅读令牌失败 =>", err)
-		c.JsonResult(6002, err.Error())
-	}
-	book := models.NewBook()
-
-	if _, err := book.Find(bookResult.BookId); err != nil {
-		c.JsonResult(6001, "项目不存在")
-	}
-	if action == "create" {
-		if bookResult.PrivatelyOwned == 0 {
-			c.JsonResult(6001, "公开项目不能创建阅读令牌")
-		}
-
-		book.PrivateToken = string(utils.Krand(conf.GetTokenSize(), utils.KC_RAND_KIND_ALL))
-		if err := book.Update(); err != nil {
-			logs.Error("生成阅读令牌失败 => ", err)
-			c.JsonResult(6003, "生成阅读令牌失败")
-		}
-		beego.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
-		c.JsonResult(0, "ok", conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
-	} else {
-		book.PrivateToken = ""
-		if err := book.Update(); err != nil {
-			logs.Error("CreateToken => ", err)
-			c.JsonResult(6004, "删除令牌失败")
-		}
-		beego.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
-		c.JsonResult(0, "ok", "")
-	}
-}
+//func (c *BookController) CreateToken() {
+//
+//	action := c.GetString("action")
+//
+//	bookResult, err := c.IsPermission()
+//
+//	if err != nil {
+//		if err == models.ErrPermissionDenied {
+//			c.JsonResult(403, "权限不足")
+//		}
+//		if err == orm.ErrNoRows {
+//			c.JsonResult(404, "项目不存在")
+//		}
+//		logs.Error("生成阅读令牌失败 =>", err)
+//		c.JsonResult(6002, err.Error())
+//	}
+//	book := models.NewBook()
+//
+//	if _, err := book.Find(bookResult.BookId); err != nil {
+//		c.JsonResult(6001, "项目不存在")
+//	}
+//	if action == "create" {
+//		if bookResult.PrivatelyOwned == 0 {
+//			c.JsonResult(6001, "公开项目不能创建阅读令牌")
+//		}
+//
+//		book.PrivateToken = string(utils.Krand(conf.GetTokenSize(), utils.KC_RAND_KIND_ALL))
+//		if err := book.Update(); err != nil {
+//			logs.Error("生成阅读令牌失败 => ", err)
+//			c.JsonResult(6003, "生成阅读令牌失败")
+//		}
+//		beego.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
+//		c.JsonResult(0, "ok", conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
+//	} else {
+//		book.PrivateToken = ""
+//		if err := book.Update(); err != nil {
+//			logs.Error("CreateToken => ", err)
+//			c.JsonResult(6004, "删除令牌失败")
+//		}
+//		beego.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
+//		c.JsonResult(0, "ok", "")
+//	}
+//}
 
 // Delete 删除项目.
 func (c *BookController) Delete() {

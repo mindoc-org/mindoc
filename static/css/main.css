@@ -441,6 +441,19 @@ textarea{
     font-size: 16px;
     font-weight: 400;
 }
+.manual-search-reader .search-item .title .label{
+    color: #fff;
+    padding-top: .3em;
+}
+.manual-search-reader .search-item .title .mark-book{
+    background-color: #009a61;
+}
+.manual-search-reader .search-item .title .mark-blog{
+    background-color: #0084FF;
+}
+.manual-search-reader .search-item .title .mark-doc{
+    background-color: #337ab7;
+}
 .manual-search-reader .search-item .description{
     color: #666;
     line-height: 25px;
