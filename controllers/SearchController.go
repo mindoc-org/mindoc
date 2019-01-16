@@ -98,7 +98,8 @@ func (c *SearchController) User() {
 		c.JsonResult(500, "项目不存在")
 	}
 
-	members, err := models.NewMemberRelationshipResult().FindNotJoinUsersByAccount(book.BookId, 10, "%"+keyword+"%")
+	//members, err := models.NewMemberRelationshipResult().FindNotJoinUsersByAccount(book.BookId, 10, "%"+keyword+"%")
+	members, err := models.NewMemberRelationshipResult().FindNotJoinUsersByAccountOrRealName(book.BookId, 10, "%"+keyword+"%")
 	if err != nil {
 		beego.Error("查询用户列表出错：" + err.Error())
 		c.JsonResult(500, err.Error())
@@ -109,7 +110,7 @@ func (c *SearchController) User() {
 	for _, member := range members {
 		item := models.KeyValueItem{}
 		item.Id = member.MemberId
-		item.Text = member.Account
+		item.Text = member.Account + "[" + member.RealName + "]"
 		items = append(items, item)
 	}
 

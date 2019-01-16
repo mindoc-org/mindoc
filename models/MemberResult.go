@@ -108,3 +108,17 @@ func (m *MemberRelationshipResult) FindNotJoinUsersByAccount(bookId, limit int, 
 
 	return members, err
 }
+
+// 根据姓名以及用户名模糊查询指定文档中不存在的用户列表
+func (m *MemberRelationshipResult) FindNotJoinUsersByAccountOrRealName(bookId, limit int, keyWord string) ([]*Member, error) {
+	o := orm.NewOrm()
+
+	sql := "SELECT m.* FROM md_members as m LEFT JOIN md_relationship as rel ON rel.member_id = m.member_id AND rel.book_id = ? WHERE rel.relationship_id IS NULL AND (m.real_name LIKE ?) OR (m.account LIKE ?) LIMIT 0,?;"
+
+	var members []*Member
+
+	_, err := o.Raw(sql, bookId, keyWord,keyWord, limit).QueryRows(&members)
+
+	return members, err
+}
+
