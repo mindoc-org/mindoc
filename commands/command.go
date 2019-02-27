@@ -11,22 +11,22 @@ import (
 	"strings"
 	"time"
 
+	"bytes"
 	"encoding/json"
 	"github.com/astaxie/beego"
 	beegoCache "github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/memcache"
+	"github.com/astaxie/beego/cache/redis"
 	_ "github.com/astaxie/beego/cache/redis"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"github.com/howeyc/fsnotify"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/lifei6671/mindoc/cache"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils/filetil"
-	"github.com/astaxie/beego/cache/redis"
-	"github.com/howeyc/fsnotify"
 	"net/http"
-	"bytes"
 )
 
 // RegisterDataBase 注册数据库
@@ -210,9 +210,13 @@ func RegisterCommand() {
 
 //注册模板函数
 func RegisterFunction() {
-	beego.AddFuncMap("config", models.GetOptionValue)
+	err := beego.AddFuncMap("config", models.GetOptionValue)
 
-	beego.AddFuncMap("cdn", func(p string) string {
+	if err != nil {
+		beego.Error("注册函数 config 出错 ->",err)
+		os.Exit(-1)
+	}
+	err = beego.AddFuncMap("cdn", func(p string) string {
 		cdn := beego.AppConfig.DefaultString("cdn", "")
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
@@ -237,15 +241,39 @@ func RegisterFunction() {
 		}
 		return cdn + p
 	})
+	if err != nil {
+		beego.Error("注册函数 cdn 出错 ->",err)
+		os.Exit(-1)
+	}
 
-	beego.AddFuncMap("cdnjs", conf.URLForWithCdnJs)
-	beego.AddFuncMap("cdncss", conf.URLForWithCdnCss)
-	beego.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
+	err = beego.AddFuncMap("cdnjs", conf.URLForWithCdnJs)
+	if err != nil {
+		beego.Error("注册函数 cdnjs 出错 ->",err)
+		os.Exit(-1)
+	}
+	err = beego.AddFuncMap("cdncss", conf.URLForWithCdnCss)
+	if err != nil {
+		beego.Error("注册函数 cdncss 出错 ->",err)
+		os.Exit(-1)
+	}
+	err = beego.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
+	if err != nil {
+		beego.Error("注册函数 cdnimg 出错 ->",err)
+		os.Exit(-1)
+	}
 	//重写url生成，支持配置域名以及域名前缀
-	beego.AddFuncMap("urlfor", conf.URLFor)
-	beego.AddFuncMap("date_format", func(t time.Time, format string) string {
+	err = beego.AddFuncMap("urlfor", conf.URLFor)
+	if err != nil {
+		beego.Error("注册函数 urlfor 出错 ->",err)
+		os.Exit(-1)
+	}
+	err = beego.AddFuncMap("date_format", func(t time.Time, format string) string {
 		return t.Local().Format(format)
 	})
+	if err != nil {
+		beego.Error("注册函数 date_format 出错 ->",err)
+		os.Exit(-1)
+	}
 }
 
 //解析命令
