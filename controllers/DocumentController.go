@@ -419,7 +419,7 @@ func (c *DocumentController) Upload() {
 	filePath := filepath.Join(conf.WorkingDirectory, "uploads", identify)
 
 	//将图片和文件分开存放
-	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
+	if filetil.IsImageExt(moreFile.Filename) {
 		filePath = filepath.Join(filePath, "images", fileName+ext)
 	} else {
 		filePath = filepath.Join(filePath, "files", fileName+ext)

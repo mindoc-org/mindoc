@@ -224,6 +224,18 @@ func HasFileOfExt(path string,exts []string) bool {
 
 	return err == os.ErrExist
 }
+// IsImageExt 判断是否是图片后缀
+func IsImageExt(filename string) bool {
+	ext := filepath.Ext(filename)
+
+	return strings.EqualFold(ext, ".jpg") ||
+		strings.EqualFold(ext, ".jpeg") ||
+		strings.EqualFold(ext, ".png") ||
+		strings.EqualFold(ext, ".gif") ||
+		strings.EqualFold(ext,".svg") ||
+		strings.EqualFold(ext,".bmp") ||
+		strings.EqualFold(ext,".webp")
+}
 //忽略字符串中的BOM头
 func ReadFileAndIgnoreUTF8BOM(filename string) ([]byte,error) {
 
