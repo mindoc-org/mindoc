@@ -10,7 +10,7 @@ before_install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 script:
-  - dep ensure && GO_ENABLED=1 go build -v -x -tags "pam"
+  - dep ensure && GO_ENABLED=1 go build -v -x -tags "pam" && go install
 
 before_deploy:
   - dep ensure -v && CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go build -o mindoc_linux_amd64 -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=$TRAVIS_TAG -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`github.com/lifei6671/mindoc/go version`'"
