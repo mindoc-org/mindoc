@@ -16,7 +16,7 @@ before_install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 
 script:
-  - dep ensure -v && GO_ENABLED=1 go build -v -x -tags "pam" && go install
+  - dep ensure && GO_ENABLED=1 go build -v -x -tags "pam" && go install
 
 before_deploy:
   - sudo apt-get -qq update
