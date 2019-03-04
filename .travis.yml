@@ -4,7 +4,7 @@ go:
   - "1.12"
 
 sudo: true
-install: false
+install: true
 
 before_install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
