@@ -1,15 +1,15 @@
 package controllers
 
 import (
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
-	"net/url"
 
-	"github.com/lifei6671/mindoc/mail"
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/lifei6671/mindoc/conf"
+	"github.com/lifei6671/mindoc/mail"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"html/template"
@@ -31,7 +31,7 @@ func (c *AccountController) referer() string {
 func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
 	c.EnableXSRF = true
-	c.Data["xsrfdata"]=template.HTML(c.XSRFFormHTML())
+	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
 	if c.Ctx.Input.IsPost() {
 		token := c.Ctx.Input.Query("_xsrf")
 		if token == "" {
@@ -42,7 +42,7 @@ func (c *AccountController) Prepare() {
 		}
 		if token == "" {
 			if c.IsAjax() {
-				c.JsonResult(403,"非法请求")
+				c.JsonResult(403, "非法请求")
 			} else {
 				c.ShowErrorPage(403, "非法请求")
 			}
@@ -50,13 +50,14 @@ func (c *AccountController) Prepare() {
 		xsrfToken := c.XSRFToken()
 		if xsrfToken != token {
 			if c.IsAjax() {
-				c.JsonResult(403,"非法请求")
+				c.JsonResult(403, "非法请求")
 			} else {
 				c.ShowErrorPage(403, "非法请求")
 			}
 		}
 	}
 }
+
 // Login 用户登录
 func (c *AccountController) Login() {
 	c.Prepare()
