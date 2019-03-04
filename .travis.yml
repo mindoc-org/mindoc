@@ -1,7 +1,7 @@
 language: go
 
 go:
-  - "1.11.4"
+  - "1.12"
 
 sudo: true
 install: false
@@ -35,4 +35,4 @@ deploy:
     overwrite: true
     tags: true
     all_branches: true
-    go: "1.11.2"
+    go: "1.12"
