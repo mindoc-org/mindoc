@@ -6,18 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>{{.LabelName}} - Powered by MinDoc</title>
-
+    <meta name="keywords" content="MinDoc,文档在线管理系统,WIKI,wiki,wiki在线,文档在线管理,接口文档在线管理,接口文档管理,{{.LabelName}}">
+    <meta name="description" content="MinDoc文档在线管理系统 {{.site_description}}">
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
 
-    <link href="/static/css/main.css" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
 </head>
 <body>
 <div class="manual-reader manual-container manual-search-reader">
@@ -33,7 +28,7 @@
                     <dl class="manual-item-standard">
                         <dt>
                             <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="{{$item.BookName}}-{{$item.CreateName}}" target="_blank">
-                                <img src="{{$item.Cover}}" class="cover" alt="{{$item.BookName}}-{{$item.CreateName}}">
+                                <img src="{{cdnimg $item.Cover}}" class="cover" alt="{{$item.BookName}}-{{$item.CreateName}}">
                             </a>
                         </dt>
                         <dd>
@@ -43,11 +38,13 @@
                             <span class="author">
                                 <b class="text">作者</b>
                                 <b class="text">-</b>
-                                <b class="text">{{$item.CreateName}}</b>
+                                <b class="text">{{if eq $item.RealName "" }}{{$item.CreateName}}{{else}}{{$item.RealName}}{{end}}</b>
                             </span>
                         </dd>
                     </dl>
                 </div>
+                {{else}}
+                    <div class="text-center" style="height: 200px;margin: 100px;font-size: 28px;">暂无项目</div>
                 {{end}}
 
                 <div class="clearfix"></div>
@@ -61,5 +58,6 @@
 </div>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
+{{.Scripts}}
 </body>
 </html>

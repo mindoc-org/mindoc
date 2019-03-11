@@ -3,11 +3,11 @@
 [![Build Status](https://travis-ci.org/lifei6671/mindoc.svg?branch=master)](https://travis-ci.org/lifei6671/mindoc)
 [![Build status](https://ci.appveyor.com/api/projects/status/ik70whjrioyvfy18/branch/master?svg=true)](https://ci.appveyor.com/project/lifei6671/godoc/branch/master)
 
-MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。 
+MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。
 
 MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 laravel 开发的一款文档管理系统。因 PHP 的部署对普通用户来说太复杂，所以改用 Golang 开发。可以方便用户部署和实用。
 
-开发缘起是公司IT部门需要一款简单实用的项目接口文档管理和分享的系统。其功能和界面源于 kancloud 。 
+开发缘起是公司IT部门需要一款简单实用的项目接口文档管理和分享的系统。其功能和界面源于 kancloud 。
 
 可以用来储存日常接口文档，数据库字典，手册说明等文档。内置项目管理，用户管理，权限管理等功能，能够满足大部分中小团队的文档管理需求。
 
@@ -21,12 +21,12 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 
 对于没有Golang使用经验的用户，可以从 [https://github.com/lifei6671/mindoc/releases](https://github.com/lifei6671/mindoc/releases) 这里下载编译完的程序。
 
-如果有Golang开发经验，建议通过编译安装。
+如果有Golang开发经验，建议通过编译安装，在此之前，您需要先安装Golang官方包管理工具，详见[Install dep](https://golang.github.io/dep/docs/installation.html)。
 
 ```bash
 git clone https://github.com/lifei6671/mindoc.git
 
-glide update
+dep ensure
 
 go build -ldflags "-w"
 
@@ -39,53 +39,9 @@ go build -ldflags "-w"
 MinDoc 使用MySQL储存数据，且编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 conf/app.conf 中。
 
 如果conf目录下不存在 app.conf 请重命名 app.conf.example 为 app.conf。
- 
+
 **默认程序会自动初始化一个超级管理员用户：admin 密码：123456 。请登录后重新设置密码。**
 
-## Linux 下后台运行
-
-在 Linux 如果想让程序后台运行可以执行如下命令：
-
-```bash
-#使程序后台运行
-nohup ./mindoc &
-```
-
-该命令会使程序后台执行，但是服务器重启后不会自动启动服务。
-
-使用 supervisor 做服务，可以使服务器重启后自动重启 MinDoc。
-
-## Windows 下后台运行
-
-Windows 下后台运行需要借助 CMD 命令行命令：
-
-```bash
-#在MinDoc跟目录下新建一个slave.vbs文件：
-
-Set ws = CreateObject("Wscript.Shell") 
-ws.run "cmd /c start.bat",vbhide 
-
-#再建一个start.bat文件：
-@echo off
-
-mindoc_windows_amd64.exe
-
-```
-
-启动时双击slave.vbs即可，等待程序初始化完数据库会在该目录下创建一个install.lock文件，标识已安装成功。
-
-如果是自己编译，可以用以下命令即可编译出不依赖cmd命令的后台运行的程序：
-
-```bash
-go build -ldflags "-H=windowsgui"
-```
-通过该命令编译的Golang程序在Windows上默认后台运行。
-
-请将将 MinDoc 加入开机启动列表，使程序开机启动。
-
-## 密码找回功能
-
-密码找回功能依赖邮件服务，因此，需要配置邮件服务才能使用该功能,该配置位于 `conf/app.conf` 中：
 
 ```bash
 
@@ -108,12 +64,12 @@ mail_expired=30
 
 
 # 使用Docker部署
-
 如果是Docker用户，可参考项目内置的Dockerfile文件编译镜像。
 
 在启动镜像时需要提供如下的环境变量：
 
 ```ini
+DB_ADAPTER                  制定 DB
 MYSQL_PORT_3306_TCP_ADDR    MySQL地址
 MYSQL_PORT_3306_TCP_PORT    MySQL端口号
 MYSQL_INSTANCE_NAME         MySQL数据库名称
@@ -125,8 +81,36 @@ HTTP_PORT                   程序监听的端口号
 举个栗子
 
 ```bash
-docker run -p 8181:8181 -e MYSQL_PORT_3306_TCP_ADDR=127.0.0.1 -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc_db -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
+docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP_ADDR=10.xxx.xxx.xxx -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
 ```
+### docker-compose 一键安装
+
+1. 修改配置文件
+    修改`docker-compose.yml`中的配置信息，主要修改`volumes`节点，将宿主机的两个目录映射到容器内。
+    `environment`节点，配置自己的环境变量。
+    
+2. 一键完成所有环境搭建
+    > docker-compose up -d
+3. 浏览器访问
+    > http://localhost:8181/
+
+    整个部署完成了
+4. 常用命令参考
+   - 启动
+        > docker-compose up -d
+   - 停止
+        > docker-compose stop
+   - 重启
+        > docker-compose restart
+   - 停止删除容器，释放所有资源
+        > docker-compose down
+   - 删除并重新创建
+        > docker-compose -f docker-compose.yml down && docker-compose up -d
+   更多 docker-compose 的使用相关的内容 请查看官网文档或百度
+   
+# 支持 MinDoc
+
+![支付宝](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/alipay.png) ![微信支付](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/weixin.png)
 
 # 项目截图
 
@@ -169,12 +153,11 @@ docker run -p 8181:8181 -e MYSQL_PORT_3306_TCP_ADDR=127.0.0.1 -e MYSQL_PORT_3306
 
 # 使用的技术
 
-- beego 1.8.1
+- beego 1.10.0
 - mysql 5.6
-- editor.md
+- editor.md Markdown 编辑器
 - bootstrap 3.2
 - jquery 库
-- layer 弹出层框架
 - webuploader 文件上传框架
 - Nprogress 库
 - jstree 树状结构库
@@ -183,7 +166,8 @@ docker run -p 8181:8181 -e MYSQL_PORT_3306_TCP_ADDR=127.0.0.1 -e MYSQL_PORT_3306
 - layer 弹出层框架
 - highlight 代码高亮库
 - to-markdown HTML转Markdown库
-- wangEditor 富文本编辑器
+- quill 富文本编辑器
+- vue 框架
 
 
 # 主要功能

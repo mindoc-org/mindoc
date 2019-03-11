@@ -1,20 +1,23 @@
 <header class="navbar navbar-static-top navbar-fixed-top manual-header" role="banner">
     <div class="container">
-        <div class="navbar-header col-sm-12 col-md-7 col-lg-6">
-            <a href="/" class="navbar-brand" title="{{.SITE_NAME}}">
+        <div class="navbar-header col-sm-12 col-md-9 col-lg-8">
+            <a href="{{.BaseUrl}}/" class="navbar-brand" title="{{.SITE_NAME}}">
                 {{if .SITE_TITLE}}
                 {{.SITE_TITLE}}
                 {{else}}
                 {{.SITE_NAME}}
                 {{end}}
             </a>
-            <nav class="collapse navbar-collapse">
+            <nav class="collapse navbar-collapse col-sm-10">
                 <ul class="nav navbar-nav">
-                    <li>
+                    <li {{if eq .ControllerName "HomeController"}}class="active"{{end}}>
                         <a href="{{urlfor "HomeController.Index" }}" title="首页">首页</a>
                     </li>
-                    <li>
-                        <a href="{{urlfor "LabelController.List" }}" title="标签">标签</a>
+                    <li {{if eq .ControllerName "BlogController"}}{{if eq  .ActionName "List" "Index"}}class="active"{{end}}{{end}}>
+                        <a href="{{urlfor "BlogController.List" }}" title="文章">文章</a>
+                    </li>
+                    <li {{if eq .ControllerName "ItemsetsController"}}class="active"{{end}}>
+                        <a href="{{urlfor "ItemsetsController.Index" }}" title="项目空间">项目空间</a>
                     </li>
                 </ul>
                 <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">
@@ -27,8 +30,6 @@
                 </div>
             </nav>
 
-
-
             <div class="btn-group dropdown-menu-right pull-right slidebar visible-xs-inline-block visible-sm-inline-block">
                 <button class="btn btn-default dropdown-toggle hidden-lg" type="button" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>
                 <ul class="dropdown-menu" role="menu">
@@ -38,6 +39,9 @@
                             </li>
                             <li>
                                 <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
+                            </li>
+                            <li>
+                                <a href="{{urlfor "BlogController.ManageList"}}" title="我的文章"><i class="fa fa-file" aria-hidden="true"></i> 我的文章</a>
                             </li>
                             {{if eq .Member.Role 0 }}
                             <li>
@@ -60,7 +64,7 @@
                 {{if gt .Member.MemberId 0}}
                 <li>
                     <div class="img user-info" data-toggle="dropdown">
-                        <img src="{{cdnimg .Member.Avatar}}" class="img-circle userbar-avatar" alt="{{.Member.Account}}">
+                        <img src="{{cdnimg .Member.Avatar}}" onerror="this.src='{{cdnimg "/static/images/headimgurl.jpg"}}';" class="img-circle userbar-avatar" alt="{{.Member.Account}}">
                         <div class="userbar-content">
                             <span>{{.Member.Account}}</span>
                             <div>{{.Member.RoleName}}</div>
@@ -73,6 +77,9 @@
                         </li>
                         <li>
                             <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
+                        </li>
+                        <li>
+                            <a href="{{urlfor "BlogController.ManageList"}}" title="我的文章"><i class="fa fa-file" aria-hidden="true"></i> 我的文章</a>
                         </li>
                         {{if eq .Member.Role 0  1}}
                         <li>

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="author" content="SmartWiki" />
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>找回密码 - Powered by MinDoc</title>
     <style type="text/css">
@@ -67,7 +66,7 @@
 <div>
     <div class="wrapper" style="margin: 20px auto 0; width: 500px; padding-top:16px; padding-bottom:10px;">
         <div class="header clearfix">
-            <a class="logo" href="https://www.iminho.me/" target="_blank"><b>{{.SITE_NAME}}</b></a>
+            <a class="logo" href="{{.BaseUrl}}" target="_blank"><b>{{.SITE_NAME}}</b></a>
         </div>
         <br style="clear:both; height:0">
         <div class="content" style="background: none repeat scroll 0 0 #FFFFFF; border: 1px solid #E9E9E9; margin: 2px 0 0; padding: 30px;">
@@ -89,7 +88,7 @@
             </p>
             <p class="footer" style="border-top: 1px solid #DDDDDD; padding-top:6px; margin-top:25px; color:#838383;">
                 请勿回复本邮件, 此邮箱未受监控, 您不会得到任何回复. 要获得帮助, 请登录网站<br><br>
-                <a href="https://www.iminho.me/" target="_blank">MinDoc</a>
+                <a href="{{.BaseUrl}}" target="_blank">{{.SITE_NAME}}</a>
             </p>
         </div>
     </div>

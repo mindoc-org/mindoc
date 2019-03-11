@@ -6,18 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>搜索 - Powered by MinDoc</title>
-
+    <meta name="keywords" content="MinDoc,文档在线管理系统,WIKI,wiki,wiki在线,文档在线管理,接口文档在线管理,接口文档管理,{{.Keyword}}">
+    <meta name="description" content="MinDoc文档在线管理系统 {{.site_description}}">
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
 
-    <link href="/static/css/main.css" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
 </head>
 <body>
 <div class="manual-reader manual-container manual-search-reader">
@@ -30,20 +25,36 @@
             <div class="manual-list">
                 {{range $index,$item := .Lists}}
                 <div class="search-item">
-                    <div class="title"><a href="{{urlfor "DocumentController.Read" ":key" $item.BookIdentify ":id" $item.Identify}}" title="{{$item.DocumentName}}" target="_blank">{{str2html $item.DocumentName}}</a> </div>
+                    <div class="title">
+                {{if eq $item.SearchType "document"}}
+                    <span class="label mark-doc">文档</span>
+                        <a href="{{urlfor "DocumentController.Read" ":key" $item.BookIdentify ":id" $item.Identify}}" title="{{$item.DocumentName}}" target="_blank">{{str2html $item.DocumentName}}</a>
+                 {{else if eq $item.SearchType "book"}}
+                    <span class="label mark-book">项目</span>
+                    <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="{{$item.BookName}}" target="_blank"> {{str2html $item.DocumentName}}</a>
+                {{else}}
+                    <span class="label mark-blog">文章</span>
+                        <a href="{{urlfor "BlogController.Index" ":id" $item.DocumentId}}" title="{{$item.DocumentName}}" target="_blank"> {{str2html $item.DocumentName}}</a>
+                {{end}}
+                    </div>
                     <div class="description">
                         {{str2html $item.Description}}
                     </div>
-                    <div class="site">{{$.BaseUrl}}{{urlfor "DocumentController.Read" ":key" $item.BookIdentify ":id" $item.Identify}}</div>
                     <div class="source">
-                        <span class="item">来自：<a href="{{urlfor "DocumentController.Index" ":key" $item.BookIdentify}}" target="_blank">{{$item.BookName}}</a></span>
+                        {{if eq $item.SearchType "document"}}
+                        <span class="item">来自项目：<a href="{{urlfor "DocumentController.Index" ":key" $item.BookIdentify}}" target="_blank">{{$item.BookName}}</a></span>
+                        {{else if eq $item.SearchType "book"}}
+                            <span class="item">项目：<a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" target="_blank">{{$item.BookName}}</a></span>
+                        {{else}}
+                        <span class="item">来自文章：<a href="{{urlfor "BlogController.Index" ":id" $item.DocumentId}}" target="_blank">{{$item.BookName}}</a></span>
+                        {{end}}
                         <span class="item">作者：{{$item.Author}}</span>
-                        <span class="item">更新时间：{{date  $item.ModifyTime "Y-m-d H:i:s"}}</span>
+                        <span class="item">更新时间：{{date_format  $item.ModifyTime "2006-01-02 15:04:05"}}</span>
                     </div>
                 </div>
                 {{else}}
                 <div class="search-empty">
-                    <img src="/static/images/search_empty.png" class="empty-image">
+                    <img src="{{cdnimg "/static/images/search_empty.png"}}" class="empty-image">
 					<span class="empty-text">暂无相关搜索结果</span>
                 </div>
                 {{end}}
@@ -58,5 +69,6 @@
 </div>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
+{{.Scripts}}
 </body>
 </html>

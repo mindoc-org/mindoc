@@ -1,6 +1,8 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+)
 
 func JoinURI(elem ...string) string {
 	if len(elem) <= 0 {
@@ -8,17 +10,17 @@ func JoinURI(elem ...string) string {
 	}
 	uri := ""
 
-	for i,u := range elem {
-		u = strings.Replace(u,"\\","/",-1)
+	for i, u := range elem {
+		u = strings.Replace(u, "\\", "/", -1)
 
 		if i == 0 {
-			if !strings.HasSuffix(u,"/") {
+			if !strings.HasSuffix(u, "/") {
 				u = u + "/"
 			}
 			uri = u
-		}else{
-			u = strings.Replace(u,"//","/",-1)
-			if strings.HasPrefix(u,"/") {
+		} else {
+			u = strings.Replace(u, "//", "/", -1)
+			if strings.HasPrefix(u, "/") {
 				u = string(u[1:])
 			}
 			uri += u

@@ -1,6 +1,6 @@
 # MinDoc 简介
 
-[![Build Status](https://travis-ci.org/lifei6671/godoc.svg?branch=master)](https://travis-ci.org/lifei6671/godoc)
+[![Build Status](https://travis-ci.org/lifei6671/mindoc.svg?branch=master)](https://travis-ci.org/lifei6671/mindoc)
 
 MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。
 
@@ -126,46 +126,46 @@ HTTP_PORT                   程序监听的端口号
 举个栗子
 
 ```bash
-docker run -p 8181:8181 -e MYSQL_PORT_3306_TCP_ADDR=127.0.0.1 -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc_db -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/godoc:latest
+docker run -p 8181:8181 -e MYSQL_PORT_3306_TCP_ADDR=127.0.0.1 -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc_db -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
 ```
 
 # 项目截图
 
 **创建项目**
 
-![创建项目](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501204438.png)
+![创建项目](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501204438.png)
 
 **项目列表**
 
-![项目列表](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501203542.png)
+![项目列表](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203542.png)
 
 **项目概述**
 
-![项目概述](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501203619.png)
+![项目概述](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203619.png)
 
 **项目成员**
 
-![项目成员](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501203637.png)
+![项目成员](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203637.png)
 
 **项目设置**
 
-![项目设置](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501203656.png)
+![项目设置](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203656.png)
 
 **基于Editor.md开发的Markdown编辑器**
 
-![基于Editor.md开发的Markdown编辑器](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501203854.png)
+![基于Editor.md开发的Markdown编辑器](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203854.png)
 
 **基于wangEditor开发的富文本编辑器**
 
-![基于wangEditor开发的富文本编辑器](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501204651.png)
+![基于wangEditor开发的富文本编辑器](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501204651.png)
 
 **项目预览**
 
-![项目预览](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501204609.png)
+![项目预览](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501204609.png)
 
 **超级管理员后台**
 
-![超级管理员后台](https://raw.githubusercontent.com/lifei6671/godoc/master/uploads/20170501204710.png)
+![超级管理员后台](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501204710.png)
 
 
 # 使用的技术

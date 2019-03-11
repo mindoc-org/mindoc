@@ -1,6 +1,64 @@
 /**
  * Created by lifei6671 on 2017/4/29 0029.
  */
+
+/**
+ * 打开最后选中的节点
+ */
+function openLastSelectedNode() {
+    //如果文档树或编辑器没有准备好则不加载文档
+    if (window.treeCatalog == null || window.editor == null) {
+        return false;
+    }
+    var $isSelected = false;
+    if(window.localStorage){
+        var $selectedNodeId = window.sessionStorage.getItem("MinDoc::LastLoadDocument:" + window.book.identify);
+        try{
+            if($selectedNodeId){
+                //遍历文档树判断是否存在节点
+                $.each(window.documentCategory,function (i, n) {
+                    if(n.id == $selectedNodeId && !$isSelected){
+                        var $node = {"id" : n.id};
+                        window.treeCatalog.deselect_all();
+                        window.treeCatalog.select_node($node);
+                        $isSelected = true;
+                    }
+                });
+
+            }
+        }catch($ex){
+            console.log($ex)
+        }
+    }
+
+    //如果节点不存在，则默认选中第一个节点
+    if (!$isSelected && window.documentCategory.length > 0){
+        var doc = window.documentCategory[0];
+
+        if(doc && doc.id > 0){
+            var node = {"id": doc.id};
+            $("#sidebar").jstree(true).select_node(node);
+            $isSelected = true;
+        }
+    }
+    return $isSelected;
+}
+
+/**
+ * 设置最后选中的文档
+ * @param $node
+ */
+function setLastSelectNode($node) {
+    if(window.localStorage) {
+        if (typeof $node === "undefined" || !$node) {
+            window.sessionStorage.removeItem("MinDoc::LastLoadDocument:" + window.book.identify);
+        } else {
+            var nodeId = $node.id ? $node.id : $node.node.id;
+            window.sessionStorage.setItem("MinDoc::LastLoadDocument:" + window.book.identify, nodeId);
+        }
+    }
+}
+
 /**
  * 保存排序
  * @param node
@@ -23,8 +81,6 @@ function jstree_save(node, parent) {
     var index = layer.load(1, {
         shade: [0.1, '#fff'] //0.1透明度的白色背景
     });
-
-    console.log(JSON.stringify(nodeData));
 
     $.ajax({
         url : window.sortURL,
@@ -50,6 +106,8 @@ function openCreateCatalogDialog($node) {
     var doc_id = $node ? $node.id : 0;
 
     $then.find("input[name='parent_id']").val(doc_id);
+    $then.find("input[name='doc_id']").val('');
+    $then.find("input[name='doc_name']").val('');
 
     $then.modal("show");
 }
@@ -88,7 +146,13 @@ function openDeleteDocumentDialog($node) {
             layer.close(index);
             if(res.errcode === 0){
                 window.treeCatalog.delete_node($node);
-                resetEditor($node);
+                window.documentCategory.remove(function (item) {
+                   return item.id == $node.id;
+                });
+
+
+                // console.log(window.documentCategory)
+                setLastSelectNode();
             }else{
                 layer.msg("删除失败",{icon : 2})
             }
@@ -110,9 +174,16 @@ function openEditCatalogDialog($node) {
     var text = $node ? $node.text : '';
     var parentId = $node && $node.parent !== '#' ? $node.parent : 0;
 
+
     $then.find("input[name='doc_id']").val(doc_id);
     $then.find("input[name='parent_id']").val(parentId);
     $then.find("input[name='doc_name']").val(text);
+
+    if($node.a_attr && $node.a_attr.is_open){
+        $then.find("input[name='is_open'][value='1']").prop("checked","checked");
+    }else{
+        $then.find("input[name='is_open'][value='0']").prop("checked","checked");
+    }
 
     for (var index in window.documentCategory){
         var item = window.documentCategory[index];
@@ -135,7 +206,6 @@ function pushDocumentCategory($node) {
         if(item.id === $node.id){
 
             window.documentCategory[index] = $node;
-            console.log( window.documentCategory[index]);
             return;
         }
     }
@@ -148,12 +218,29 @@ function pushDocumentCategory($node) {
 function pushVueLists($lists) {
 
     window.vueApp.lists = [];
-    for(var j in $lists){
-        var item = $lists[j];
+    $.each($lists,function (i, item) {
         window.vueApp.lists.push(item);
-    }
+    });
 }
 
+/**
+ * 发布项目
+ */
+function releaseBook() {
+    $.ajax({
+        url: window.releaseURL,
+        data: { "identify": window.book.identify },
+        type: "post",
+        dataType: "json",
+        success: function (res) {
+            if (res.errcode === 0) {
+                layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
+            } else {
+                layer.msg(res.message);
+            }
+        }
+    });
+}
 //实现小提示
 $("[data-toggle='tooltip']").hover(function () {
     var title = $(this).attr('data-title');
@@ -180,9 +267,16 @@ $("#btnAddDocument").on("click",function () {
 });
 //用于还原创建文档的遮罩层
 $("#addDocumentModal").on("hidden.bs.modal",function () {
-    $(this).find("form").html(window.addDocumentModalFormHtml);
+     $(this).find("form").html(window.sessionStorage.getItem("MinDoc::addDocumentModal"));
+    var $then =  $("#addDocumentModal");
+
+    $then.find("input[name='parent_id']").val('');
+    $then.find("input[name='doc_id']").val('');
+    $then.find("input[name='doc_name']").val('');
 }).on("shown.bs.modal",function () {
     $(this).find("input[name='doc_name']").focus();
+}).on("show.bs.modal",function () {
+     window.sessionStorage.setItem("MinDoc::addDocumentModal",$(this).find("form").html())
 });
 
 function showError($msg,$id) {
@@ -220,71 +314,81 @@ window.documentHistory = function() {
         }
     });
 };
-//格式化文件大小
-function formatBytes($size) {
-    var $units = [" B", " KB", " MB", " GB", " TB"];
-
-    for ($i = 0; $size >= 1024 && $i < 4; $i++) $size /= 1024;
-
-    return $size.toFixed(2) + $units[$i];
-}
 
 function uploadImage($id,$callback) {
     /** 粘贴上传图片 **/
     document.getElementById($id).addEventListener('paste', function(e) {
+        if(e.clipboardData && e.clipboardData.items) {
+            var clipboard = e.clipboardData;
+            for (var i = 0, len = clipboard.items.length; i < len; i++) {
+                if (clipboard.items[i].kind === 'file' || clipboard.items[i].type.indexOf('image') > -1) {
 
-        var clipboard = e.clipboardData;
-        for (var i = 0, len = clipboard.items.length; i < len; i++) {
-            if (clipboard.items[i].kind === 'file' || clipboard.items[i].type.indexOf('image') > -1) {
+                    var imageFile = clipboard.items[i].getAsFile();
 
-                var imageFile = clipboard.items[i].getAsFile();
+                    var fileName = String((new Date()).valueOf());
 
-                console.log(imageFile)
-                var fileName = Date.parse(new Date());
-
-                switch (imageFile.type){
-                    case "image/png" : fileName += ".png";break;
-                    case "image/jpg" : fileName += ".jpg";break
-                    case "image/jpeg" : fileName += ".jpeg";break;
-                    case "image/gif" : fileName += ".gif";break;
-                    default : layer.msg("不支持的图片格式");return;
-                }
-                var form = new FormData();
-
-                form.append('editormd-image-file', imageFile, fileName);
-
-                var layerIndex = 0;
-
-                $.ajax({
-                    url: window.imageUploadURL,
-                    type: "POST",
-                    dataType: "json",
-                    data: form,
-                    processData: false,
-                    contentType: false,
-                    beforeSend: function() {
-                        layerIndex = $callback('before');
-                    },
-                    error: function() {
-                        layer.close(layerIndex);
-                        $callback('error');
-                        layer.msg("图片上传失败");
-                    },
-                    success: function(data) {
-                        layer.close(layerIndex);
-                        $callback('success', data);
-                        if(data.errcode !== 0){
-                            layer.msg(data.message);
-                        }
-
+                    switch (imageFile.type) {
+                        case "image/png" :
+                            fileName += ".png";
+                            break;
+                        case "image/jpg" :
+                            fileName += ".jpg";
+                            break;
+                        case "image/jpeg" :
+                            fileName += ".jpeg";
+                            break;
+                        case "image/gif" :
+                            fileName += ".gif";
+                            break;
+                        default :
+                            layer.msg("不支持的图片格式");
+                            return;
                     }
-                });
-                e.preventDefault();
+                    var form = new FormData();
+
+                    form.append('editormd-image-file', imageFile, fileName);
+
+                    var layerIndex = 0;
+
+                    $.ajax({
+                        url: window.imageUploadURL,
+                        type: "POST",
+                        dataType: "json",
+                        data: form,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function () {
+                            layerIndex = $callback('before');
+                        },
+                        error: function () {
+                            layer.close(layerIndex);
+                            $callback('error');
+                            layer.msg("图片上传失败");
+                        },
+                        success: function (data) {
+                            layer.close(layerIndex);
+                            $callback('success', data);
+                            if (data.errcode !== 0) {
+                                layer.msg(data.message);
+                            }
+
+                        }
+                    });
+                    e.preventDefault();
+                }
             }
         }
     });
 }
 
+/**
+ * 初始化代码高亮
+ */
+function initHighlighting() {
+    $('pre code,pre.ql-syntax').each(function (i, block) {
+        hljs.highlightBlock(block);
+    });
+}
 $(function () {
     window.vueApp = new Vue({
         el : "#attachList",
@@ -310,7 +414,6 @@ $(function () {
                     type : "post",
                     data : { "attach_id" : $attach_id},
                     success : function (res) {
-                        console.log(res);
                         if(res.errcode === 0){
                             $this.lists = $this.lists.filter(function ($item) {
                                 return $item.attachment_id != $attach_id;
@@ -328,5 +431,26 @@ $(function () {
             }
         }
     });
-
+    /**
+     * 启动自动保存，默认30s自动保存一次
+     */
+    if(window.book && window.book.auto_save){
+        setTimeout(function () {
+            setInterval(function () {
+                var $then =  $("#markdown-save");
+                if(!window.saveing && $then.hasClass("change")){
+                    $then.trigger("click");
+                }
+            },30000);
+        },30000);
+    }
+    /**
+     * 当离开窗口时存在未保存的文档会提示保存
+     */
+    $(window).on("beforeunload",function () {
+        if($("#markdown-save").hasClass("change")){
+            return '您输入的内容尚未保存，确定离开此页面吗？';
+        }
+    });
 });
+

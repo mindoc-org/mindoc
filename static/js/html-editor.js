@@ -48,6 +48,14 @@ $(function () {
         }
     };
 
+    window.editor.onchange = function () {
+        // 判断内容是否改变
+        if (window.source !== this.$txt.html()) {
+            window.editor.menus.save.$domNormal.addClass('selected');
+        } else {
+            window.editor.menus.save.$domNormal.removeClass('selected');
+        }
+    };
 
     window.editor.create();
 
@@ -72,6 +80,8 @@ $(function () {
                 window.isLoad = true;
                 window.editor.clear();
                 window.editor.$txt.html(res.data.content);
+                // 将原始内容备份
+                window.source = res.data.content;
                 var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
                 pushDocumentCategory(node);
                 window.selectNode = node;
@@ -136,6 +146,10 @@ $(function () {
                             break;
                         }
                     }
+                    // 更新内容备份
+                    window.source = res.data.content;
+                    // 触发编辑器 onchange 回调函数
+                    window.editor.onchange();
                     if(typeof callback === "function"){
                         callback();
                     }
@@ -253,7 +267,7 @@ $(function () {
     }).on('loaded.jstree', function () {
         window.treeCatalog = $(this).jstree();
     }).on('select_node.jstree', function (node, selected, event) {
-        if($("#markdown-save").hasClass('change')) {
+        if(window.editor.menus.save.$domNormal.hasClass('selected')) {
             if(confirm("编辑内容未保存，需要保存吗？")){
                 saveDocument(false,function () {
                     loadDocument(selected);
@@ -269,6 +283,11 @@ $(function () {
 
     window.releaseBook = function () {
         if(Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0){
+            if(window.editor.menus.save.$domNormal.hasClass('selected')) {
+                if(confirm("编辑内容未保存，需要保存吗？")) {
+                    saveDocument();
+                }
+            }
             $.ajax({
                 url : window.releaseURL,
                 data :{"identify" : window.book.identify },

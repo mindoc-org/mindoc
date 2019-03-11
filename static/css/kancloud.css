@@ -15,7 +15,9 @@ body {
     font-size: 14px;
     word-wrap: break-word;
     line-height: 1em;
+    -webkit-font-smoothing: antialiased;
 }
+
 h1,h2,h3,h4,h5,h6,strong,input,select,textarea,button,body,code {
     font-family: "Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
 }
@@ -138,6 +140,7 @@ table>tbody>tr:hover{
     border-right: 1px solid #ddd;
     background-color: #fafafa;
 }
+
 .m-manual .manual-tab .tab-navg {
     zoom:1;border-bottom: 1px solid #ddd
 }
@@ -417,7 +420,8 @@ table>tbody>tr:hover{
 }
 .manual-article .article-head {
     position: relative;
-    zoom:1;padding: 10px 20px
+    zoom: 1;
+    padding: 10px 20px
 }
 .manual-reader .book-title{
     color: #333333;
@@ -429,18 +433,33 @@ table>tbody>tr:hover{
 
 .manual-article .article-head h1 {
     margin: 0;
-    font-size: 20px;
+    font-size: 36px;
+    font-weight: 400;
+    text-align: center;
+    line-height: 42px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #636363;
+}
+.manual-article .article-head h3 {
+    margin: 0;
+    font-size: 12px;
     font-weight: 200;
     text-align: center;
-    line-height: 30px;
+    line-height: 18px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #444
 }
+.manual-article .article-info{
+    padding: 5px;
+    color: #AAA !important;
+}
 .manual-article .article-content{
     min-width: 980px;
-    max-width: 98%;
+    max-width: 90%;
     padding: 10px 20px;
     margin-left: auto!important;
     margin-right: auto!important
@@ -450,6 +469,7 @@ table>tbody>tr:hover{
         min-width: inherit;
     }
 }
+
 .manual-article .article-content .article-body{
     min-height: 90px;
     padding: 5px;
@@ -458,6 +478,16 @@ table>tbody>tr:hover{
     list-style: none;
     border-top: 1px solid #DDDDDD;
     padding-top: 15px;
+    clear: both;
+}
+.manual-article .wiki-bottom{
+    border-top: 1px solid #E5E5E5;
+    line-height: 25px;color: #333;
+    text-align:right;
+    font-size: 12px;
+    margin-bottom: 20px;
+    margin-top: 30px;
+    padding: 5px;
 }
 .manual-article .jump-top .view-backtop{
     position: fixed;

@@ -3,7 +3,7 @@
 <html lang="zh-cn">
 <head>
     <meta charset="utf-8">
-    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="{{cdnimg "/favicon.ico"}}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -42,7 +42,7 @@
             {{range $index,$item := .List}}
             <tr>
                 <td>{{$item.HistoryId}}</td>
-                <td>{{date $item.ModifyTime "Y-m-d H:i:s"}}</td>
+                <td>{{date_format $item.ModifyTime "2006-01-02 15:04:05"}}</td>
                 <td>{{$item.ModifyName}}</td>
                 <td>{{$item.Version}}</td>
                 <td>

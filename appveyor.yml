@@ -3,7 +3,7 @@ clone_folder: c:\gopath\src\github.com\lifei6671\mindoc
 
 environment:
   GOPATH: c:\gopath
-  GOVERSION: 1.8
+  GOVERSION: "1.12"
   matrix:
     - tbs_arch: "x86"
       tbs_tools: "mingw"
@@ -27,10 +27,17 @@ install:
             Start-FileDownload "http://libgd.blob.core.windows.net/mingw/i686-4.9.1-release-posix-dwarf-rt_v3-rev1.7z" -FileName mingw_x86.7z;
             7z x -oC:\ mingw_x86.7z | out-null;
         }
-  - ps:  Start-FileDownload  https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-windows-amd64.zip;
-         7z x -oC:\ glide-v0.12.3-windows-amd64.zip | out-null;
-         copy C:\windows-amd64\glide.exe c:\go\bin\ ;
-  - set PATH=%GOBIN%;%PATH%
+  - ps: if($env:tbs_arch -eq 'x86')
+        {
+           Start-FileDownload  https://github.com/golang/dep/releases/download/v0.4.1/dep-windows-386.exe;
+           copy dep-windows-386.exe c:\go\bin\dep.exe;
+        }
+  - ps: if($env:tbs_arch -eq 'x64')
+        {
+            Start-FileDownload  https://github.com/golang/dep/releases/download/v0.4.1/dep-windows-amd64.exe;
+            copy dep-windows-amd64.exe c:\go\bin\dep.exe;
+        }
+  - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
   - echo %PATH%
   - echo %GOPATH%
   - go version
@@ -40,8 +47,9 @@ build_script:
   - if [%tbs_tools%]==[mingw] if [%tbs_arch%]==[x86] SET PATH=C:\mingw32\bin;%PATH%
   - if [%tbs_tools%]==[mingw] if [%tbs_arch%]==[x64] SET PATH=C:\mingw64\bin;%PATH%
   - set CGO_ENABLED=1
-  - glide update
   - for /f "delims=" %%i in ('go version') do (set GO_VERSION=%%i)
+  - cd c:\gopath\src\github.com\lifei6671\mindoc
+  - dep ensure -v
   - go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
   - 7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
 test_script:

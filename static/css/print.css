@@ -1,0 +1,6 @@
+body {font-size: 12pt !important;}
+.m-manual .manual-left,.navbar {display: none;height: 0 !important; width: 0!important;}
+.m-manual .manual-right{position: relative;left: 0 !important; top: 0;}
+.manual-article .article-content{ min-width: initial !important;max-width: initial !important; width: inherit !important;padding: auto !important;}
+pre, code {white-space: pre-wrap !important;word-wrap: break-word !important;}
+a:link, a:visited {color: blue !important;text-decoration: underline !important;}

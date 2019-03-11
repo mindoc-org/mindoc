@@ -33,13 +33,14 @@ body{
     width: 280px;
     position: fixed;
     border-top: 1px solid #DDDDDD;
-    bottom: 0px;
+    bottom: 0;
     top: 40px;
     background-color: #FAFAFA;
     left: 0;
     right: 0;
     padding-bottom: 15px;
     overflow-y:auto;
+    z-index: 999;
 }
 .manual-category .manual-nav {
     font-size: 14px;
@@ -131,17 +132,16 @@ body{
     left: 0;
     right: 0;
 }
+.btn-toolbar{position: absolute;}
 .editormd-group{
     float: left;
     height: 32px;
     margin-right: 10px;
 }
-.editormd-group a{
+.editormd-group a,.editormd-group .editor-item{
     float: left;
 }
-.editormd-group a.change{
 
-}
 .editormd-group .change i{
     color: #ffffff;
     background-color: #44B036 !important;
@@ -158,10 +158,10 @@ body{
     opacity: .6;
     cursor: default
 }
-.editormd-group a>i {
+.editormd-group a>i{
     display: inline-block;
-    width: 34px;
-    height: 30px;
+    width: 34px !important;
+    height: 30px !important;
     line-height: 30px;
     text-align: center;
     color: #4b4b4b;

@@ -13,13 +13,10 @@
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/cropper/2.3.4/cropper.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/bootstrap/plugins/tagsinput/bootstrap-tagsinput.css"}}" rel="stylesheet">
-    <link href="/static/css/main.css" rel="stylesheet">
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="/static/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="/static/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <link href="{{cdncss "/static/bootstrap/plugins/bootstrap-switch/css/bootstrap3//bootstrap-switch.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/select2/4.0.5/css/select2.min.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+
 </head>
 <body>
 <div class="manual-reader">
@@ -29,7 +26,8 @@
             <div class="page-left">
                 <ul class="menu">
                     <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
-                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-users" aria-hidden="true"></i> 成员</a> </li>
+                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 成员</a> </li>
+                    <li><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> 团队</a> </li>
                     <li class="active"><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
                 </ul>
 
@@ -46,7 +44,6 @@
                         <button type="button"  class="btn btn-danger btn-sm pull-right" data-toggle="modal" data-target="#changePrivatelyOwnedModal" style="margin-right: 5px;">转为私有</button>
                         {{end}}
                         <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;" data-toggle="modal" data-target="#deleteBookModal">删除项目</button>
-
                         {{end}}
 
                     </div>
@@ -61,17 +58,29 @@
                             </div>
                             <div class="form-group">
                                 <label>标识</label>
-                                <input type="text" class="form-control" value="{{.BaseUrl}}{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
+                                <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
+                                <p class="text">项目标识用来标记项目的唯一性，不可修改。</p>
+                            </div>
+                            <div class="form-group">
+                                <label>项目空间</label>
+                                <select class="js-data-example-ajax form-control" multiple="multiple" name="itemId">
+                                    <option value="{{.Model.ItemId}}" selected="selected">{{.Model.ItemName}}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>历史记录数量</label>
+                                <input type="text" class="form-control" name="history_count" value="{{.Model.HistoryCount}}" placeholder="历史记录数量">
+                                <p class="text">当开启文档历史时,该值会限制每个文档保存的历史数量</p>
+                            </div>
+                            <div class="form-group">
+                                <label>公司标识</label>
+                                <input type="text" class="form-control" name="publisher" value="{{.Model.Publisher}}" placeholder="公司名称">
+                                <p class="text">导出文档PDF文档时显示的页脚</p>
                             </div>
                             <div class="form-group">
                                 <label>描述</label>
                                 <textarea rows="3" class="form-control" name="description" style="height: 90px" placeholder="项目描述">{{.Model.Description}}</textarea>
                                 <p class="text">描述信息不超过500个字符,支持Markdown语法</p>
-                            </div>
-                            <div class="form-group">
-                                <label>标签</label>
-                                <input type="text" class="form-control" name="label" placeholder="项目标签" value="{{.Model.Label}}">
-                                <p class="text">最多允许添加10个标签，多个标签请用“,”分割</p>
                             </div>
                             <div class="form-group">
                                 <label>编辑器</label>
@@ -84,41 +93,59 @@
                                     </label>
                                 </div>
                             </div>
-                            <!--
-                            {{/*
-                            <div class="form-group">
-                            <label>开启评论</label>
-                            <div class="radio">
-                            <label class="radio-inline">
-                            <input type="radio" {{if eq .Model.CommentStatus "open"}}checked{{end}} name="comment_status" value="open">允许所有人评论<span class="text"></span>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" {{if eq .Model.CommentStatus "closed"}}checked{{end}} name="comment_status" value="closed">关闭评论<span class="text"></span>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" {{if eq .Model.CommentStatus "group_only"}}checked{{end}} name="comment_status" value="group_only">仅允许参与者评论<span class="text"></span>
-                            </label>
-                            <label class="radio-inline">
-                                <input type="radio" {{if eq .Model.CommentStatus "registered_only"}}checked{{end}} name="comment_status" value="registered_only">仅允许注册者评论<span class="text"></span>
-                            </label>
-                    </div>
-                </div>
-                */}}
-                -->
                 {{if eq .Model.PrivatelyOwned 1}}
                 <div class="form-group">
-                    <label>访问令牌</label>
-                    <div class="row">
-                        <div class="col-sm-10">
-                            <input type="text" name="token" id="token" class="form-control" placeholder="访问令牌" readonly value="{{.Model.PrivateToken}}">
+                    <label>访问密码</label>
+                    <input type="text" name="bPassword" id="bPassword" class="form-control" placeholder="访问密码" value="{{.Model.BookPassword}}">
+                    <p class="text">没有访问权限访问项目时需要提供的密码</p>
+                </div>
+                {{end}}
+
+                <div class="form-group">
+                    <label for="autoRelease">自动发布</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="autoRelease" name="auto_release"{{if .Model.AutoRelease }} checked{{end}} data-size="small">
                         </div>
-                        <div class="col-sm-2">
-                            <button type="button" class="btn btn-success btn-sm" id="createToken" data-loading-text="生成" data-action="create">生成</button>
-                            <button type="button" class="btn btn-danger btn-sm" id="deleteToken" data-loading-text="删除" data-action="delete">删除</button>
+                        <p class="text">开启后，每次保存会自动发布到最新版本</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="autoRelease">开启导出</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small" placeholder="开启导出">
+                        </div>
+                        <p class="text">开启导出前请先配置导出程序，并在配置文件中同时开启导出功能</p>
+
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="autoRelease">开启分享</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="enableShare" name="enable_share"{{if .Model.IsEnableShare }} checked{{end}} data-size="small" placeholder="开启分享">
+                        </div>
+                        <p class="text">分享只对公开项目生效，私有项目不支持分享</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="autoRelease">设置第一篇文档为默认首页</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="isUseFirstDocument" name="is_use_first_document"{{if .Model.IsUseFirstDocument }} checked{{end}} data-size="small" placeholder="设置第一篇文档为默认首页">
                         </div>
                     </div>
                 </div>
-                {{end}}
+                <div class="form-group">
+                    <label for="autoRelease">自动保存</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="autoSave" name="auto_save"{{if .Model.AutoSave }} checked{{end}} data-size="small" placeholder="自动保存">
+                        </div>
+                        <p class="text">开启后每隔30秒会自动保存</p>
+                    </div>
+                </div>
                 <div class="form-group">
                     <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
                     <span id="form-error-message" class="error-message"></span>
@@ -128,9 +155,10 @@
             <div class="form-right">
                 <label>
                     <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
-                        <img src="{{.Model.Cover}}" onerror="this.src='/static/images/book.png'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
+                        <img src="{{cdnimg .Model.Cover}}" onerror="this.src='{{cdnimg "/static/images/book.png"}}'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
                     </a>
                 </label>
+                <p class="text">点击图片可修改项目封面</p>
             </div>
             <div class="clearfix"></div>
 
@@ -273,7 +301,10 @@
 <script src="{{cdnjs "/static/cropper/2.3.4/cropper.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/plugins/tagsinput/bootstrap-tagsinput.min.js"}}" type="text/javascript"></script>
-<script src="/static/js/main.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/bootstrap/plugins/bootstrap-switch/js/bootstrap-switch.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/select2.full.min.js"}}"></script>
+<script src="{{cdnjs "/static/select2/4.0.5/js/i18n/zh-CN.js"}}"></script>
+<script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#upload-logo-panel").on("hidden.bs.modal",function () {
@@ -281,6 +312,7 @@
         }).on("show.bs.modal",function () {
             window.modalHtml = $("#upload-logo-panel").find(".modal-body").html();
         });
+        $("#autoRelease,#enableShare,#isDownload,#isUseFirstDocument,#autoSave").bootstrapSwitch();
 
         $('input[name="label"]').tagsinput({
             confirmKeys: [13,44],
@@ -391,11 +423,32 @@
                 $("#btnTransferBook").button("reset");
             }
         });
-
+        $('.js-data-example-ajax').select2({
+            language: "zh-CN",
+            minimumInputLength : 1,
+            minimumResultsForSearch: Infinity,
+            maximumSelectionLength:1,
+            width : "100%",
+            ajax: {
+                url: '{{urlfor "BookController.ItemsetsSearch"}}',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                        page: params.page
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results : data.data.results
+                    }
+                }
+            }
+        });
         try {
             var uploader = WebUploader.create({
                 auto: false,
-                swf: '/static/webuploader/Uploader.swf',
+                swf: '{{.BaseUrl}}/static/webuploader/Uploader.swf',
                 server: '{{urlfor "BookController.UploadCover"}}',
                 formData : { "identify" : {{.Model.Identify}} },
                 pick: "#filePicker",

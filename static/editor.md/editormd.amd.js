@@ -26,7 +26,10 @@
             var cmAddonPath = "codemirror/addon/";
 
             var codeMirrorModules = [
-                "jquery", "marked", "prettify",
+                "jquery", "marked",
+                //"prettify",
+                "highlight/highlight",
+                "mermaid/mermaid",
                 "katex", "raphael", "underscore", "flowchart",  "jqueryflowchart",  "sequenceDiagram",
 
                 "codemirror/lib/codemirror",
@@ -238,7 +241,11 @@
         tex                  : false,          // TeX(LaTeX), based on KaTeX
         flowChart            : false,          // flowChart.js only support IE9+
         sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
+        mermaidGantt         : false,          //mermaid/mermaid.js
+        mermaidSequence      : false,
+        mermaidFlowChat      : false,
         previewCodeHighlight : true,
+        highlightStyle       : "github",
                 
         toolbar              : true,           // show/hide toolbar
         toolbarAutoFixed     : true,           // on window scroll auto fixed position
@@ -575,7 +582,12 @@
                     
                     return ;
                 }
-
+                if (settings.mermaidGantt || settings.mermaidFlowChat || settings.mermaidSequence) {
+                    console.log("aa")
+                    editormd.loadScript(loadPath + "mermaid/mermaid.min", function () {
+                        _this.loadedDisplay();
+                    });
+                }
                 if (settings.flowChart || settings.sequenceDiagram) 
                 {
                     editormd.loadScript(loadPath + "raphael.min", function() {
@@ -653,7 +665,10 @@
                                 
                             if (settings.previewCodeHighlight) 
                             {
-                                editormd.loadScript(loadPath + "prettify.min", function() {
+                                // editormd.loadScript(loadPath + "prettify.min", function() {
+                                //     loadFlowChartOrSequenceDiagram();
+                                // });
+                                editormd.loadScript(loadPath + "highlight/highlight", function() {
                                     loadFlowChartOrSequenceDiagram();
                                 });
                             } 
@@ -1543,11 +1558,16 @@
             
             if (settings.previewCodeHighlight) 
             {
-                previewContainer.find("pre").addClass("prettyprint linenums");
-                
-                if (typeof prettyPrint !== "undefined")
-                {                    
-                    prettyPrint();
+                // previewContainer.find("pre").addClass("prettyprint");
+                //
+                // if (typeof prettyPrint !== "undefined")
+                // {
+                //     prettyPrint();
+                // }
+                if (typeof hljs !== "undefined") {
+                    previewContainer.find('pre').each(function (i, block) {
+                        hljs.highlightBlock(block);
+                    });
                 }
             }
 
@@ -3693,7 +3713,9 @@
             if (lang === "seq" || lang === "sequence")
             {
                 return "<div class=\"sequence-diagram\">" + code + "</div>";
-            } 
+            } else  if (lang === "gantt"){
+                return "<div class=\"mermain-gantt\""> + code + "</div>"
+            }
             else if ( lang === "flow")
             {
                 return "<div class=\"flowchart\">" + code + "</div>";
@@ -4064,8 +4086,11 @@
             
         if (settings.previewCodeHighlight) 
         {
-            div.find("pre").addClass("prettyprint linenums");
-            prettyPrint();
+            //div.find("pre").addClass("prettyprint");
+            //prettyPrint();
+            div.find("pre").each(function (i, block) {
+                hljs.highlightBlock(block);
+            });
         }
         
         if (!editormd.isIE8) 

@@ -9,6 +9,7 @@ import (
 	"github.com/lifei6671/mindoc/commands"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/controllers"
+	"path/filepath"
 )
 
 type Daemon struct {
@@ -19,10 +20,10 @@ type Daemon struct {
 func NewDaemon() *Daemon {
 
 	config := &service.Config{
-		Name:             "mindocd",                         //服务显示名称
+		Name:             "mindocd",                               //服务显示名称
 		DisplayName:      "MinDoc service",                        //服务名称
 		Description:      "A document online management program.", //服务描述
-		WorkingDirectory: commands.WorkingDirectory,
+		WorkingDirectory: conf.WorkingDirectory,
 		Arguments:        os.Args[1:],
 	}
 
@@ -43,13 +44,24 @@ func (d *Daemon) Start(s service.Service) error {
 
 func (d *Daemon) Run() {
 
+
 	commands.ResolveCommand(d.config.Arguments)
 
 	commands.RegisterFunction()
 
+	commands.RegisterAutoLoadConfig()
+
+	commands.RegisterError()
+
 	beego.ErrorController(&controllers.ErrorController{})
 
-	fmt.Printf("MinDoc version => %s\nbuild time => %s\nstart directory => %s\n%s\n", conf.VERSION, conf.BUILD_TIME, os.Args[0], conf.GO_VERSION)
+	f,err := filepath.Abs(os.Args[0])
+
+	if err != nil {
+		f = os.Args[0]
+	}
+
+	fmt.Printf("MinDoc version => %s\nbuild time => %s\nstart directory => %s\n%s\n", conf.VERSION, conf.BUILD_TIME, f, conf.GO_VERSION)
 
 	beego.Run()
 }

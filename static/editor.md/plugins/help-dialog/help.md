@@ -4,7 +4,7 @@
 - [Mastering Markdown](https://guides.github.com/features/mastering-markdown/ "Mastering Markdown")
 - [Markdown Basics](https://help.github.com/articles/markdown-basics/ "Markdown Basics")
 - [GitHub Flavored Markdown](https://help.github.com/articles/github-flavored-markdown/ "GitHub Flavored Markdown")
-- [Markdown 语法说明（简体中文）](http://www.markdown.cn/ "Markdown 语法说明（简体中文）")
+- [Markdown 语法说明（简体中文）](https://www.iminho.me/wiki/docs/mindoc/markdown-basic.md "Markdown 语法说明（简体中文）")
 - [Markdown 語法說明（繁體中文）](http://markdown.tw/ "Markdown 語法說明（繁體中文）")
 
 ##### 键盘快捷键 (Keyboard shortcuts)
@@ -66,11 +66,15 @@
 
 ##### 流程图参考 (Flowchart reference)
 
-[http://adrai.github.io/flowchart.js/](http://adrai.github.io/flowchart.js/)
+[https://www.iminho.me/wiki/docs/mindoc/flowchart.md](https://www.iminho.me/wiki/docs/mindoc/flowchart.md)
 
 ##### 时序图参考 (SequenceDiagram reference)
 
-[http://bramp.github.io/js-sequence-diagrams/](http://bramp.github.io/js-sequence-diagrams/)
+[https://www.iminho.me/wiki/docs/mindoc/sequence.md](https://www.iminho.me/wiki/docs/mindoc/sequence.md)
+
+#### 基于 mermaid 的甘特图、时序图以及流程图
+
+<https://www.iminho.me/wiki/docs/mindoc/mermaid.md>
 
 ##### TeX/LaTeX reference
 

@@ -28,11 +28,12 @@
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/wangEditor/css/wangEditor.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/highlight/styles/zenburn.css"}}" rel="stylesheet">
+
+    <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
 
-    <link href="/static/css/jstree.css" rel="stylesheet">
-    <link href="/static/css/markdown.css" rel="stylesheet">
+    <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.css"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -195,8 +196,8 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/to-markdown/dist/to-markdown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
-<script src="/static/js/editor.js" type="text/javascript"></script>
-<script src="/static/js/html-editor.js" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/html-editor.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         $("#attachInfo").on("click",function () {
@@ -211,7 +212,7 @@
                     window.uploader = WebUploader.create({
                         auto: true,
                         dnd : true,
-                        swf: '/static/webuploader/Uploader.swf',
+                        swf: '{{.BaseUrl}}/static/webuploader/Uploader.swf',
                         server: '{{urlfor "DocumentController.Upload"}}',
                         formData : { "identify" : {{.Model.Identify}},"doc_id" :  window.selectNode.id },
                         pick: "#filePicker",
@@ -270,8 +271,6 @@
                 }
             }
         });
-
-
     });
 </script>
 </body>
