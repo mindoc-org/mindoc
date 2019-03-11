@@ -53,7 +53,7 @@ func (c *BlogController) Index() {
 			c.JsonResult(6001, "文章密码不正确")
 		} else if blog.BlogStatus == "password" && password == blog.Password {
 			//如果密码输入正确，则存入session中
-			c.CruSession.Set(blogReadSession, blogId)
+			_ = c.CruSession.Set(blogReadSession, blogId)
 			c.JsonResult(0, "OK")
 		}
 		c.JsonResult(0, "OK")
@@ -61,8 +61,11 @@ func (c *BlogController) Index() {
 		//如果不存在已输入密码的标记
 		c.TplName = "blog/index_password.tpl"
 	}
-	//加载文章附件
-	blog.LinkAttach();
+	if blog.BlogType != 1 {
+		//加载文章附件
+		_ = blog.LinkAttach()
+	}
+
 	c.Data["Model"] = blog
 	c.Data["Content"] = template.HTML(blog.BlogRelease)
 
