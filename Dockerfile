@@ -46,6 +46,7 @@ LABEL maintainer="longfei6671@163.com"
 
 RUN apk add --update && \
     apk add --no-cache --upgrade \
+    tzdata \
     mesa-gl \
     python \
     qt5-qtbase-x11 \
