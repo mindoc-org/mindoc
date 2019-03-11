@@ -452,7 +452,8 @@ func (c *DocumentController) Upload() {
 		attachment.DocumentId = docId
 	}
 
-	if strings.EqualFold(ext, ".jpg") || strings.EqualFold(ext, ".jpeg") || strings.EqualFold(ext, ".png") || strings.EqualFold(ext, ".gif") {
+
+	if filetil.IsImageExt(moreFile.Filename) {
 		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
 		if strings.HasPrefix(attachment.HttpPath, "//") {
 			attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))

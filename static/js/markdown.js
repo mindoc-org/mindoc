@@ -11,7 +11,7 @@ $(function () {
         toolbar: true,
         placeholder: "本编辑器支持 Markdown 编辑，左边编写，右边预览。",
         imageUpload: true,
-        imageFormats: ["jpg", "jpeg", "gif", "png", "JPG", "JPEG", "GIF", "PNG"],
+        imageFormats: ["jpg", "jpeg", "gif", "png","svg", "JPG", "JPEG", "GIF", "PNG","SVG"],
         imageUploadURL: window.imageUploadURL,
         toolbarModes: "full",
         fileUpload: true,
