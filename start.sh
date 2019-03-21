@@ -9,4 +9,4 @@ fi
 
 export ZONEINFO=/mindoc/lib/time/zoneinfo.zip
 /mindoc/mindoc_linux_amd64 install
-/mindoc/mindoc_linux_amd64
+exec /mindoc/mindoc_linux_amd64
