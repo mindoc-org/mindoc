@@ -176,3 +176,6 @@
 .editormd-preview-container ol.linenums>li:last-child ,.editormd-html-preview ol.linenums>li:last-child{
     padding-bottom: 10px;
 }
+.editormd-preview-container ul>li{
+    line-height: 2em;
+}
