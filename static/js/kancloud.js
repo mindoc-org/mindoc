@@ -279,13 +279,4 @@ $(function () {
             console.log($param);
         }
     };
-    try {
-        var $node = window.jsTree.jstree().get_selected();
-        if ($node instanceof Array && $node.length) {
-            $node = window.jsTree.jstree().get_node({ id: $node[0] });
-            events.trigger('article.open', { $url: $node.a_attr.href, $id: $node.id });
-        }
-    } catch (e) {
-        console.log(e);
-    }
 });
