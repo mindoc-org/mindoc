@@ -135,6 +135,11 @@ ldap_user_role=2
 #ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
 ldap_filter=objectClass=posixAccount
 
+############# HTTP自定义接口登录 ################
+http_login_url=
+
+##################################
+
 ###############配置CDN加速##################
 cdn="${MINDOC_CDN_URL}"
 cdnjs="${MINDOC_CDN_JS_URL}"
