@@ -753,14 +753,7 @@ func (c *BookController) Release() {
 		}
 		bookId = book.BookId
 	}
-	go func(identify string) {
-		models.NewBook().ReleaseContent(bookId)
-
-		//当文档发布后，需要删除已缓存的转换项目
-		outputPath := filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(bookId))
-		_ = os.RemoveAll(outputPath)
-
-	}(identify)
+	go models.NewBook().ReleaseContent(bookId)
 
 	c.JsonResult(0, "发布任务已推送到任务队列，稍后将在后台执行。")
 }

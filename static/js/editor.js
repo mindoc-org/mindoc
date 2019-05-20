@@ -11,14 +11,14 @@ function openLastSelectedNode() {
         return false;
     }
     var $isSelected = false;
-    if(window.localStorage){
+    if (window.localStorage) {
         var $selectedNodeId = window.sessionStorage.getItem("MinDoc::LastLoadDocument:" + window.book.identify);
-        try{
-            if($selectedNodeId){
+        try {
+            if ($selectedNodeId) {
                 //遍历文档树判断是否存在节点
-                $.each(window.documentCategory,function (i, n) {
-                    if(n.id == $selectedNodeId && !$isSelected){
-                        var $node = {"id" : n.id};
+                $.each(window.documentCategory, function (i, n) {
+                    if (n.id == $selectedNodeId && !$isSelected) {
+                        var $node = {"id": n.id};
                         window.treeCatalog.deselect_all();
                         window.treeCatalog.select_node($node);
                         $isSelected = true;
@@ -26,16 +26,16 @@ function openLastSelectedNode() {
                 });
 
             }
-        }catch($ex){
+        } catch ($ex) {
             console.log($ex)
         }
     }
 
     //如果节点不存在，则默认选中第一个节点
-    if (!$isSelected && window.documentCategory.length > 0){
+    if (!$isSelected && window.documentCategory.length > 0) {
         var doc = window.documentCategory[0];
 
-        if(doc && doc.id > 0){
+        if (doc && doc.id > 0) {
             var node = {"id": doc.id};
             $("#sidebar").jstree(true).select_node(node);
             $isSelected = true;
@@ -49,7 +49,7 @@ function openLastSelectedNode() {
  * @param $node
  */
 function setLastSelectNode($node) {
-    if(window.localStorage) {
+    if (window.localStorage) {
         if (typeof $node === "undefined" || !$node) {
             window.sessionStorage.removeItem("MinDoc::LastLoadDocument:" + window.book.identify);
         } else {
@@ -83,14 +83,14 @@ function jstree_save(node, parent) {
     });
 
     $.ajax({
-        url : window.sortURL,
-        type :"post",
-        data : JSON.stringify(nodeData),
-        success : function (res) {
+        url: window.sortURL,
+        type: "post",
+        data: JSON.stringify(nodeData),
+        success: function (res) {
             layer.close(index);
-            if (res.errcode === 0){
+            if (res.errcode === 0) {
                 layer.msg("保存排序成功");
-            }else{
+            } else {
                 layer.msg(res.message);
             }
         }
@@ -101,7 +101,7 @@ function jstree_save(node, parent) {
  * 创建文档
  */
 function openCreateCatalogDialog($node) {
-    var $then =  $("#addDocumentModal");
+    var $then = $("#addDocumentModal");
 
     var doc_id = $node ? $node.id : 0;
 
@@ -117,16 +117,16 @@ function openCreateCatalogDialog($node) {
  * @param node
  * @returns {Array}
  */
-function getSiblingSort (node) {
+function getSiblingSort(node) {
     var data = [];
 
-    for(var key in node.children){
+    for (var key in node.children) {
         var index = data.length;
 
         data[index] = {
-            "id" : parseInt(node.children[key]),
-            "sort" : parseInt(key),
-            "parent" : Number(node.id) ? Number(node.id) : 0
+            "id": parseInt(node.children[key]),
+            "sort": parseInt(key),
+            "parent": Number(node.id) ? Number(node.id) : 0
         };
     }
     return data;
@@ -139,26 +139,26 @@ function getSiblingSort (node) {
  */
 function openDeleteDocumentDialog($node) {
     var index = layer.confirm('你确定要删除该文档吗？', {
-        btn: ['确定','取消'] //按钮
-    }, function(){
+        btn: ['确定', '取消'] //按钮
+    }, function () {
 
-        $.post(window.deleteURL,{"identify" : window.book.identify,"doc_id" : $node.id}).done(function (res) {
+        $.post(window.deleteURL, {"identify": window.book.identify, "doc_id": $node.id}).done(function (res) {
             layer.close(index);
-            if(res.errcode === 0){
+            if (res.errcode === 0) {
                 window.treeCatalog.delete_node($node);
                 window.documentCategory.remove(function (item) {
-                   return item.id == $node.id;
+                    return item.id == $node.id;
                 });
 
 
                 // console.log(window.documentCategory)
                 setLastSelectNode();
-            }else{
-                layer.msg("删除失败",{icon : 2})
+            } else {
+                layer.msg("删除失败", {icon: 2})
             }
         }).fail(function () {
             layer.close(index);
-            layer.msg("删除失败",{icon : 2})
+            layer.msg("删除失败", {icon: 2})
         });
 
     });
@@ -169,7 +169,7 @@ function openDeleteDocumentDialog($node) {
  * @param $node
  */
 function openEditCatalogDialog($node) {
-    var $then =  $("#addDocumentModal");
+    var $then = $("#addDocumentModal");
     var doc_id = parseInt($node ? $node.id : 0);
     var text = $node ? $node.text : '';
     var parentId = $node && $node.parent !== '#' ? $node.parent : 0;
@@ -179,21 +179,21 @@ function openEditCatalogDialog($node) {
     $then.find("input[name='parent_id']").val(parentId);
     $then.find("input[name='doc_name']").val(text);
 
-    if($node.a_attr && $node.a_attr.is_open){
-        $then.find("input[name='is_open'][value='1']").prop("checked","checked");
-    }else{
-        $then.find("input[name='is_open'][value='0']").prop("checked","checked");
-    }
+    var open = $node.a_attr && $node.a_attr.opened ? $node.a_attr.opened  : 0;
 
-    for (var index in window.documentCategory){
+
+    console.log($node)
+    $then.find("input[name='is_open'][value='" + open + "']").prop("checked", "checked");
+
+    for (var index in window.documentCategory) {
         var item = window.documentCategory[index];
-        if(item.id === doc_id){
+        if (item.id === doc_id) {
             $then.find("input[name='doc_identify']").val(item.identify);
             break;
         }
     }
 
-    $then.modal({ show : true });
+    $then.modal({show: true});
 }
 
 /**
@@ -201,9 +201,9 @@ function openEditCatalogDialog($node) {
  * @param $node
  */
 function pushDocumentCategory($node) {
-    for (var index in window.documentCategory){
+    for (var index in window.documentCategory) {
         var item = window.documentCategory[index];
-        if(item.id === $node.id){
+        if (item.id === $node.id) {
 
             window.documentCategory[index] = $node;
             return;
@@ -211,6 +211,7 @@ function pushDocumentCategory($node) {
     }
     window.documentCategory.push($node);
 }
+
 /**
  * 将数据重置到Vue列表中
  * @param $lists
@@ -218,7 +219,7 @@ function pushDocumentCategory($node) {
 function pushVueLists($lists) {
 
     window.vueApp.lists = [];
-    $.each($lists,function (i, item) {
+    $.each($lists, function (i, item) {
         window.vueApp.lists.push(item);
     });
 }
@@ -229,7 +230,7 @@ function pushVueLists($lists) {
 function releaseBook() {
     $.ajax({
         url: window.releaseURL,
-        data: { "identify": window.book.identify },
+        data: {"identify": window.book.identify},
         type: "post",
         dataType: "json",
         success: function (res) {
@@ -241,18 +242,19 @@ function releaseBook() {
         }
     });
 }
+
 //实现小提示
 $("[data-toggle='tooltip']").hover(function () {
     var title = $(this).attr('data-title');
     var direction = $(this).attr("data-direction");
     var tips = 3;
-    if(direction === "top"){
+    if (direction === "top") {
         tips = 1;
-    }else if(direction === "right"){
+    } else if (direction === "right") {
         tips = 2;
-    }else if(direction === "bottom"){
+    } else if (direction === "bottom") {
         tips = 3;
-    }else if(direction === "left"){
+    } else if (direction === "left") {
         tips = 4;
     }
     index = layer.tips(title, this, {
@@ -262,52 +264,54 @@ $("[data-toggle='tooltip']").hover(function () {
     layer.close(index);
 });
 //弹出创建文档的遮罩层
-$("#btnAddDocument").on("click",function () {
+$("#btnAddDocument").on("click", function () {
     $("#addDocumentModal").modal("show");
 });
 //用于还原创建文档的遮罩层
-$("#addDocumentModal").on("hidden.bs.modal",function () {
-     $(this).find("form").html(window.sessionStorage.getItem("MinDoc::addDocumentModal"));
-    var $then =  $("#addDocumentModal");
+$("#addDocumentModal").on("hidden.bs.modal", function () {
+    $(this).find("form").html(window.sessionStorage.getItem("MinDoc::addDocumentModal"));
+    var $then = $("#addDocumentModal");
 
     $then.find("input[name='parent_id']").val('');
     $then.find("input[name='doc_id']").val('');
     $then.find("input[name='doc_name']").val('');
-}).on("shown.bs.modal",function () {
+}).on("shown.bs.modal", function () {
     $(this).find("input[name='doc_name']").focus();
-}).on("show.bs.modal",function () {
-     window.sessionStorage.setItem("MinDoc::addDocumentModal",$(this).find("form").html())
+}).on("show.bs.modal", function () {
+    window.sessionStorage.setItem("MinDoc::addDocumentModal", $(this).find("form").html())
 });
 
-function showError($msg,$id) {
-    if(!$id){
+function showError($msg, $id) {
+    if (!$id) {
         $id = "#form-error-message"
     }
     $($id).addClass("error-message").removeClass("success-message").text($msg);
     return false;
 }
 
-function showSuccess($msg,$id) {
-    if(!$id){
+function showSuccess($msg, $id) {
+    if (!$id) {
         $id = "#form-error-message"
     }
     $($id).addClass("success-message").removeClass("error-message").text($msg);
     return true;
 }
 
-window.documentHistory = function() {
+window.documentHistory = function () {
     layer.open({
         type: 2,
         title: '历史版本',
         shadeClose: true,
         shade: 0.8,
-        area: ['700px','80%'],
+        area: ['700px', '80%'],
         content: window.historyURL + "?identify=" + window.book.identify + "&doc_id=" + window.selectNode.id,
-        end : function () {
-            if(window.SelectedId){
-                var selected = {node:{
-                    id : window.SelectedId
-                }};
+        end: function () {
+            if (window.SelectedId) {
+                var selected = {
+                    node: {
+                        id: window.SelectedId
+                    }
+                };
                 window.loadDocument(selected);
                 window.SelectedId = null;
             }
@@ -315,10 +319,10 @@ window.documentHistory = function() {
     });
 };
 
-function uploadImage($id,$callback) {
+function uploadImage($id, $callback) {
     /** 粘贴上传图片 **/
-    document.getElementById($id).addEventListener('paste', function(e) {
-        if(e.clipboardData && e.clipboardData.items) {
+    document.getElementById($id).addEventListener('paste', function (e) {
+        if (e.clipboardData && e.clipboardData.items) {
             var clipboard = e.clipboardData;
             for (var i = 0, len = clipboard.items.length; i < len; i++) {
                 if (clipboard.items[i].kind === 'file' || clipboard.items[i].type.indexOf('image') > -1) {
@@ -389,44 +393,45 @@ function initHighlighting() {
         hljs.highlightBlock(block);
     });
 }
+
 $(function () {
     window.vueApp = new Vue({
-        el : "#attachList",
-        data : {
-            lists : []
+        el: "#attachList",
+        data: {
+            lists: []
         },
-        delimiters : ['${','}'],
-        methods : {
-            removeAttach : function ($attach_id) {
+        delimiters: ['${', '}'],
+        methods: {
+            removeAttach: function ($attach_id) {
                 var $this = this;
                 var item = $this.lists.filter(function ($item) {
                     return $item.attachment_id == $attach_id;
                 });
 
-                if(item && item[0].hasOwnProperty("state")){
+                if (item && item[0].hasOwnProperty("state")) {
                     $this.lists = $this.lists.filter(function ($item) {
                         return $item.attachment_id != $attach_id;
                     });
                     return;
                 }
                 $.ajax({
-                    url : window.removeAttachURL,
-                    type : "post",
-                    data : { "attach_id" : $attach_id},
-                    success : function (res) {
-                        if(res.errcode === 0){
+                    url: window.removeAttachURL,
+                    type: "post",
+                    data: {"attach_id": $attach_id},
+                    success: function (res) {
+                        if (res.errcode === 0) {
                             $this.lists = $this.lists.filter(function ($item) {
                                 return $item.attachment_id != $attach_id;
                             });
-                        }else{
+                        } else {
                             layer.msg(res.message);
                         }
                     }
                 });
             }
         },
-        watch : {
-            lists : function ($lists) {
+        watch: {
+            lists: function ($lists) {
                 $("#attachInfo").text(" " + $lists.length + " 个附件")
             }
         }
@@ -434,21 +439,21 @@ $(function () {
     /**
      * 启动自动保存，默认30s自动保存一次
      */
-    if(window.book && window.book.auto_save){
+    if (window.book && window.book.auto_save) {
         setTimeout(function () {
             setInterval(function () {
-                var $then =  $("#markdown-save");
-                if(!window.saveing && $then.hasClass("change")){
+                var $then = $("#markdown-save");
+                if (!window.saveing && $then.hasClass("change")) {
                     $then.trigger("click");
                 }
-            },30000);
-        },30000);
+            }, 30000);
+        }, 30000);
     }
     /**
      * 当离开窗口时存在未保存的文档会提示保存
      */
-    $(window).on("beforeunload",function () {
-        if($("#markdown-save").hasClass("change")){
+    $(window).on("beforeunload", function () {
+        if ($("#markdown-save").hasClass("change")) {
             return '您输入的内容尚未保存，确定离开此页面吗？';
         }
     });

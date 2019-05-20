@@ -167,17 +167,21 @@
 
                 </div>
                 <div class="form-group">
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <label>
                                 <input type="radio" name="is_open" value="1"> 展开<span class="text">(在阅读时会自动展开节点)</span>
                             </label>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <label>
                                 <input type="radio" name="is_open" value="0" checked> 关闭<span class="text">(在阅读时会关闭节点)</span>
                             </label>
                         </div>
-
+                    <div class="col-lg-4">
+                        <label>
+                            <input type="radio" name="is_open" value="2"> 空目录<span class="text">(单击时会展开下级节点)</span>
+                        </label>
+                    </div>
                     <div class="clearfix"></div>
                 </div>
             </div>

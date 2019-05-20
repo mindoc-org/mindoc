@@ -2984,102 +2984,170 @@
         h1 : function() {
             var cm        = this.cm;
             var cursor    = cm.getCursor();
-            var selection = cm.getSelection();
-
-            if (cursor.ch !== 0)
-            {
-                cm.setCursor(cursor.line, 0);
-                cm.replaceSelection("# " + selection);
-                cm.setCursor(cursor.line, cursor.ch + 2);
+            var selection = cm.getLine(cursor.line);
+            var patt1=new RegExp("^#{1}[ ]");//如果存在H1
+            var patt2=new RegExp("^#{1,6}[ ]");//如果存在H2-H6
+            //如果存在H1,取消H1的设置
+            if (patt1.test(selection)===true){
+                selection=selection.replace(/^#{1}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection(selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch -2);
             }
-            else
+            //如果存在H1-H6,取消H2-H6,并替换为H1
+            else if(patt2.test(selection)===true){
+                selection=selection.replace(/^#{1,6}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("# "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +2);
+
+            }else
+            //设置为H1
             {
-                cm.replaceSelection("# " + selection);
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("# "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +2);
             }
         },
 
         h2 : function() {
             var cm        = this.cm;
             var cursor    = cm.getCursor();
-            var selection = cm.getSelection();
+            var selection = cm.getLine(cursor.line);
+            var patt1=new RegExp("^#{2}[ ]");//如果存在H1
+            var patt2=new RegExp("^#{1,6}[ ]");//如果存在H1-H6
+            //如果存在H2,取消H2的设置
+            if (patt1.test(selection)===true){
+                selection=selection.replace(/^#{2}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection(selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch -3);
+            }else if(patt2.test(selection)===true){
+                selection=selection.replace(/^#{1,6}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("## "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +3);
 
-            if (cursor.ch !== 0)
-            {
-                cm.setCursor(cursor.line, 0);
-                cm.replaceSelection("## " + selection);
-                cm.setCursor(cursor.line, cursor.ch + 3);
-            }
-            else
-            {
-                cm.replaceSelection("## " + selection);
+            }else{
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("## "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +3);
             }
         },
 
         h3 : function() {
             var cm        = this.cm;
             var cursor    = cm.getCursor();
-            var selection = cm.getSelection();
-
-            if (cursor.ch !== 0)
-            {
-                cm.setCursor(cursor.line, 0);
-                cm.replaceSelection("### " + selection);
-                cm.setCursor(cursor.line, cursor.ch + 4);
+            var selection = cm.getLine(cursor.line);
+            var patt1=new RegExp("^#{3}[ ]");//如果存在H3
+            var patt2=new RegExp("^#{1,6}[ ]");//如果存在H1-H6
+            //如果存在H3,取消H3的设置
+            if (patt1.test(selection)===true){
+                selection=selection.replace(/^#{3}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection(selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch -4);
             }
-            else
+            //如果存在H1-H6,取消H1-H6,并替换为H3
+            else if(patt2.test(selection)===true){
+                selection=selection.replace(/^#{1,6}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("### "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +4);
+
+            }else
+            //设置为H3
             {
-                cm.replaceSelection("### " + selection);
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("### "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +4);
             }
         },
 
         h4 : function() {
             var cm        = this.cm;
             var cursor    = cm.getCursor();
-            var selection = cm.getSelection();
-
-            if (cursor.ch !== 0)
-            {
-                cm.setCursor(cursor.line, 0);
-                cm.replaceSelection("#### " + selection);
-                cm.setCursor(cursor.line, cursor.ch + 5);
+            var selection = cm.getLine(cursor.line);
+            var patt1=new RegExp("^#{4}[ ]");//如果存在H4
+            var patt2=new RegExp("^#{1,6}[ ]");//如果存在H1-H6
+            //如果存在H4,取消H4的设置
+            if (patt1.test(selection)===true){
+                selection=selection.replace(/^#{4}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection(selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch -5);
             }
-            else
+            //如果存在H1-H6,取消H1-H6,并替换为H4
+            else if(patt2.test(selection)===true){
+                selection=selection.replace(/^#{1,6}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("#### "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +5);
+
+            }else
+            //设置为H4
             {
-                cm.replaceSelection("#### " + selection);
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("#### "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +5);
             }
         },
 
         h5 : function() {
             var cm        = this.cm;
             var cursor    = cm.getCursor();
-            var selection = cm.getSelection();
-
-            if (cursor.ch !== 0)
-            {
-                cm.setCursor(cursor.line, 0);
-                cm.replaceSelection("##### " + selection);
-                cm.setCursor(cursor.line, cursor.ch + 6);
+            var selection = cm.getLine(cursor.line);
+            var patt1=new RegExp("^#{5}[ ]");//如果存在H5
+            var patt2=new RegExp("^#{1,6}[ ]");//如果存在H1-H6
+            //如果存在H5,取消H5的设置
+            if (patt1.test(selection)===true){
+                selection=selection.replace(/^#{5}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection(selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch -6);
             }
-            else
+            //如果存在H1-H6,取消H1-H6,并替换为H5
+            else if(patt2.test(selection)===true){
+                selection=selection.replace(/^#{1,6}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("##### "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +6);
+
+            }else
+            //设置为H5
             {
-                cm.replaceSelection("##### " + selection);
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("##### "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +6);
             }
         },
 
         h6 : function() {
             var cm        = this.cm;
             var cursor    = cm.getCursor();
-            var selection = cm.getSelection();
-
-            if (cursor.ch !== 0)
-            {
-                cm.setCursor(cursor.line, 0);
-                cm.replaceSelection("###### " + selection);
-                cm.setCursor(cursor.line, cursor.ch + 7);
+            var selection = cm.getLine(cursor.line);
+            var patt1=new RegExp("^#{6}[ ]");//如果存在H6
+            var patt2=new RegExp("^#{1,6}[ ]");//如果存在H1-H6
+            //如果存在H6,取消H6的设置
+            if (patt1.test(selection)===true){
+                selection=selection.replace(/^#{6}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection(selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch -7);
             }
-            else
+            //如果存在H1-H6,取消H1-H6,并替换为H6
+            else if(patt2.test(selection)===true){
+                selection=selection.replace(/^#{1,6}[ ]/,"");
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("###### "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +7);
+
+            }else
+            //设置为H6
             {
-                cm.replaceSelection("###### " + selection);
+                cm.setSelection({line:cursor.line, ch:0}, {line:cursor.line+1, ch:0 });
+                cm.replaceSelection("###### "+selection+"\n");
+                cm.setCursor(cursor.line, cursor.ch +7);
             }
         },
 
@@ -3087,20 +3155,36 @@
             var cm        = this.cm;
             var cursor    = cm.getCursor();
             var selection = cm.getSelection();
-
+            var patt1=new RegExp("^-{1}[ ]");
+            var cnt =0;
+            //如果未选择，将该行设置为无序列表
             if (selection === "")
             {
+                cm.setCursor(cursor.line, 0);
                 cm.replaceSelection("- " + selection);
+                cm.setCursor(cursor.line, cursor.ch + 2);
             }
             else
             {
                 var selectionText = selection.split("\n");
-
+                //判断取中内容是否已作无序列表标记
                 for (var i = 0, len = selectionText.length; i < len; i++)
                 {
-                    selectionText[i] = (selectionText[i] === "") ? "" : "- " + selectionText[i];
+                    if (patt1.test(selectionText[i])===true ){cnt++;}
                 }
+                //如果全作了无序列表标记，取消标记
+                if(cnt===selectionText.length){
+                    for (var i = 0, len = selectionText.length; i < len; i++){
+                        selectionText[i] = (selectionText[i] === "") ? "" : selectionText[i].replace(/^-{1}[ ]/,"");
+                    }
+                }else
+                //对未打上无序列表标记，打上标记
+                {
+                    for (var i = 0, len = selectionText.length; i < len; i++){
+                        selectionText[i] = (selectionText[i] === "") ? "" : "- "+selectionText[i].replace(/^-{1}[ ]/,"");
+                    }
 
+                }
                 cm.replaceSelection(selectionText.join("\n"));
             }
         },
@@ -3109,20 +3193,36 @@
             var cm        = this.cm;
             var cursor    = cm.getCursor();
             var selection = cm.getSelection();
-
-            if(selection === "")
+            var patt1=new RegExp("^[0-9]+[\.][ ]");
+            var cnt =0;
+            //如果未选择，将该行设置为有序列表
+            if (selection === "")
             {
+                cm.setCursor(cursor.line, 0);
                 cm.replaceSelection("1. " + selection);
+                cm.setCursor(cursor.line, cursor.ch + 3);
             }
             else
             {
                 var selectionText = selection.split("\n");
-
+                //判断取中内容是否已作有序列表标记
                 for (var i = 0, len = selectionText.length; i < len; i++)
                 {
-                    selectionText[i] = (selectionText[i] === "") ? "" : (i+1) + ". " + selectionText[i];
+                    if (patt1.test(selectionText[i])===true ){cnt++;}
                 }
+                //如果全作了有序列表标记，取消标记
+                if(cnt===selectionText.length){
+                    for (var i = 0, len = selectionText.length; i < len; i++){
+                        selectionText[i] = (selectionText[i] === "") ? "" : selectionText[i].replace(/^[0-9]+[\.][ ]/,"");
+                    }
+                }else
+                //对未打上有序列表标记，打上标记
+                {
+                    for (var i = 0, len = selectionText.length; i < len; i++){
+                        selectionText[i] = (selectionText[i] === "") ? "" : (i+1)+". "+selectionText[i].replace(/^[0-9]+[\.][ ]/,"");
+                    }
 
+                }
                 cm.replaceSelection(selectionText.join("\n"));
             }
         },
@@ -4765,7 +4865,14 @@
 
         return datefmt;
     };
-
+    /**
+     * 获取指定行的内容
+     * @param n
+     * @returns {*}
+     */
+    editormd.getLine = function(n) {
+        return this.cm.getLine(n);
+    };
     return editormd;
 
 }));

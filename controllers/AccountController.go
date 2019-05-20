@@ -107,7 +107,7 @@ func (c *AccountController) Login() {
 		member, err := models.NewMember().Login(account, password)
 		if err == nil {
 			member.LastLoginTime = time.Now()
-			member.Update()
+			_ = member.Update("last_login_time")
 
 			c.SetMember(*member)
 

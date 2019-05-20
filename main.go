@@ -7,7 +7,6 @@ import (
 	_ "github.com/astaxie/beego/session/memcache"
 	_ "github.com/astaxie/beego/session/mysql"
 	_ "github.com/astaxie/beego/session/redis"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/kardianos/service"
 	"github.com/lifei6671/mindoc/commands"
 	"github.com/lifei6671/mindoc/commands/daemon"

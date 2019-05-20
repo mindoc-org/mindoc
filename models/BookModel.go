@@ -11,20 +11,24 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	"encoding/json"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
+	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/cryptil"
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/requests"
 	"github.com/lifei6671/mindoc/utils/ziptil"
 	"gopkg.in/russross/blackfriday.v2"
-	"encoding/json"
-	"github.com/lifei6671/mindoc/utils"
 )
+
+var releaseQueue = make(chan int, 500)
+var once = sync.Once{}
 
 // Book struct .
 type Book struct {
@@ -32,7 +36,7 @@ type Book struct {
 	// BookName 项目名称.
 	BookName string `orm:"column(book_name);size(500)" json:"book_name"`
 	//所属项目空间
-	ItemId   int    `orm:"column(item_id);type(int);default(1)" json:"item_id"`
+	ItemId int `orm:"column(item_id);type(int);default(1)" json:"item_id"`
 	// Identify 项目唯一标识.
 	Identify string `orm:"column(identify);size(100);unique" json:"identify"`
 	//是否是自动发布 0 否/1 是
@@ -375,7 +379,7 @@ ORDER BY book.order_index, book.book_id DESC limit ?,?`
 	}
 	sql := "SELECT m.account,doc.modify_time FROM md_documents AS doc LEFT JOIN md_members AS m ON doc.modify_at=m.member_id WHERE book_id = ? LIMIT 1 ORDER BY doc.modify_time DESC"
 
-	if err == nil && len(books) > 0 {
+	if len(books) > 0 {
 		for index, book := range books {
 			var text struct {
 				Account    string
@@ -580,22 +584,37 @@ WHERE (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 
 	}
 }
 
-//发布文档
+// ReleaseContent 批量发布文档
 func (book *Book) ReleaseContent(bookId int) {
+	releaseQueue <- bookId
+	once.Do(func() {
+		go func() {
+			defer func() {
+				if err := recover(); err != nil {
+					beego.Error("协程崩溃 ->", err)
+				}
+			}()
+			for bookId := range releaseQueue {
+				o := orm.NewOrm()
 
-	o := orm.NewOrm()
+				var docs []*Document
+				_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).All(&docs)
 
-	var docs []*Document
-	_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).All(&docs)
+				if err != nil {
+					beego.Error("发布失败 =>", bookId, err)
+					continue
+				}
+				for _, item := range docs {
+					item.BookId = bookId
+					_ = item.ReleaseContent()
+				}
 
-	if err != nil {
-		beego.Error("发布失败 =>", bookId, err)
-		return
-	}
-	for _, item := range docs {
-		item.BookId = bookId
-		_ = item.ReleaseContent()
-	}
+				//当文档发布后，需要删除已缓存的转换项目
+				outputPath := filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(bookId))
+				_ = os.RemoveAll(outputPath)
+			}
+		}()
+	})
 }
 
 //重置文档数量

@@ -203,6 +203,7 @@ func (c *DocumentController) Edit() {
 				beego.Error("查询项目时出错 -> ", err)
 				c.ShowErrorPage(500, "查询项目时出错")
 			}
+			return
 		}
 		if bookResult.RoleId == conf.BookObserver {
 			c.JsonResult(6002, "项目不存在或权限不足")
@@ -318,6 +319,8 @@ func (c *DocumentController) Create() {
 
 	if isOpen == 1 {
 		document.IsOpen = 1
+	} else if isOpen == 2 {
+		document.IsOpen = 2
 	} else {
 		document.IsOpen = 0
 	}
@@ -742,6 +745,7 @@ func (c *DocumentController) Content() {
 
 		doc.Version = time.Now().Unix()
 		doc.Content = content
+		doc.ModifyAt = c.Member.MemberId
 
 		if err := doc.InsertOrUpdate(); err != nil {
 			beego.Error("InsertOrUpdate => ", err)
@@ -775,6 +779,7 @@ func (c *DocumentController) Content() {
 	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
 		c.JsonResult(6003, "文档不存在")
+		return
 	}
 
 	attach, err := models.NewAttachment().FindListByDocumentId(doc.DocumentId)

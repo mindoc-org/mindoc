@@ -125,9 +125,11 @@ $(function () {
            // 插入 GFM 任务列表
            var cm = window.editor.cm;
            var selection = cm.getSelection();
-
+           var cursor    = cm.getCursor();
            if (selection === "") {
+               cm.setCursor(cursor.line, 0);
                cm.replaceSelection("- [x] " + selection);
+               cm.setCursor(cursor.line, cursor.ch + 6);
            } else {
                var selectionText = selection.split("\n");
 
@@ -194,6 +196,10 @@ $(function () {
 
         if (!node) {
             layer.msg("获取当前文档信息失败");
+            return;
+        }
+        if (node.a_attr && node.a_attr.disabled) {
+            layer.msg("空节点不能添加内容");
             return;
         }
 
@@ -381,7 +387,7 @@ $(function () {
 
         //如果没有选中节点则选中默认节点
         // openLastSelectedNode();
-    }).on('select_node.jstree', function (node, selected, event) {
+    }).on('select_node.jstree', function (node, selected) {
 
         if ($("#markdown-save").hasClass('change')) {
             if (confirm("编辑内容未保存，需要保存吗？")) {
@@ -391,6 +397,12 @@ $(function () {
                 return true;
             }
         }
+        //如果是空目录则直接出发展开下一级功能
+        if (selected.node.a_attr && selected.node.a_attr.disabled) {
+            selected.instance.toggle_node(selected.node);
+            return false
+        }
+
 
         loadDocument(selected);
     }).on("move_node.jstree", jstree_save).on("delete_node.jstree",function($node,$parent) {

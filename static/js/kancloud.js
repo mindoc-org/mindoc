@@ -199,7 +199,12 @@ $(function () {
             "multiple" : false,
             'animation' : 0
         }
-    }).on('select_node.jstree', function (node, selected, event) {
+    }).on('select_node.jstree', function (node, selected) {
+        //如果是空目录则直接出发展开下一级功能
+        if (selected.node.a_attr && selected.node.a_attr.disabled) {
+            selected.instance.toggle_node(selected.node);
+            return false
+        }
         $(".m-manual").removeClass('manual-mobile-show-left');
         loadDocument(selected.node.a_attr.href, selected.node.id,selected.node.a_attr['data-version']);
     });

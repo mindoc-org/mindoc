@@ -38,7 +38,7 @@ type Document struct {
 	ModifyTime time.Time `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	ModifyAt   int       `orm:"column(modify_at);type(int)" json:"-"`
 	Version    int64     `orm:"column(version);type(bigint);" json:"version"`
-	//是否展开子目录：0 否/1 是
+	//是否展开子目录：0 否/1 是 /2 空间节点，单击时展开下一级
 	IsOpen     int           `orm:"column(is_open);type(int);default(0)" json:"is_open"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
 }
@@ -301,7 +301,18 @@ func (item *Document) Processor() *Document {
 			if selector := docQuery.Find("div.wiki-bottom").First(); selector.Size() <= 0 && item.MemberId > 0 {
 				//处理文档结尾信息
 				docCreator, err := NewMember().Find(item.MemberId, "real_name", "account")
-				release := "<div class=\"wiki-bottom\">文档更新时间: " + item.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者："
+				release := "<div class=\"wiki-bottom\">"
+				if item.ModifyAt > 0 {
+					docModify, err := NewMember().Find(item.ModifyAt, "real_name", "account")
+					if err == nil {
+						if docModify.RealName != "" {
+							release += "最后编辑: " + docModify.RealName + " &nbsp;"
+						} else {
+							release += "最后编辑: " + docModify.Account + " &nbsp;"
+						}
+					}
+				}
+				release += "文档更新时间: " + item.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者："
 				if err == nil && docCreator != nil {
 					if docCreator.RealName != "" {
 						release += docCreator.RealName
@@ -324,7 +335,7 @@ func (item *Document) Processor() *Document {
 				if src, ok := selection.Attr("src"); ok {
 					src = strings.TrimSpace(strings.ToLower(src))
 					//过滤掉没有链接的图片标签
-					if src == "" || strings.HasPrefix(src,"data:text/html"){
+					if src == "" || strings.HasPrefix(src, "data:text/html") {
 						selection.Remove()
 						return
 					}
@@ -348,6 +359,7 @@ func (item *Document) Processor() *Document {
 					//移除危险脚本链接
 					if strings.HasPrefix(val, "data:text/html") ||
 						strings.HasPrefix(val, "vbscript:") ||
+						strings.HasPrefix(val, "&#106;avascript:") ||
 						strings.HasPrefix(val, "javascript:") {
 						selection.SetAttr("href", "#")
 					}

@@ -2,8 +2,12 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -67,8 +71,11 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 
 	if err != nil {
 		if beego.AppConfig.DefaultBool("ldap_enable", false) == true {
-			logs.Info("转入LDAP登陆")
+			logs.Info("转入LDAP登陆 ->", account)
 			return member.ldapLogin(account, password)
+		} else if beego.AppConfig.String("http_login_url") != "" {
+			logs.Info("转入 HTTP 接口登陆 ->", account)
+			return member.httpLogin(account, password)
 		} else {
 			logs.Error("用户登录 ->", err)
 			return member, ErrMemberNoExist
@@ -85,6 +92,8 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 		}
 	case "ldap":
 		return member.ldapLogin(account, password)
+	case "http":
+		return member.httpLogin(account, password)
 	default:
 		return member, ErrMemberAuthMethodInvalid
 	}
@@ -131,7 +140,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		beego.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrorMemberPasswordError
 	}
-	if m.Account == "" {
+	if m.MemberId <= 0 {
 		m.Account = account
 		m.Email = searchResult.Entries[0].GetAttributeValue("mail")
 		m.AuthMethod = "ldap"
@@ -145,6 +154,73 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 			return m, ErrorMemberPasswordError
 		}
 		m.ResolveRoleName()
+	}
+	return m, nil
+}
+
+func (m *Member) httpLogin(account, password string) (*Member, error) {
+	urlStr := beego.AppConfig.String("http_login_url")
+	if urlStr == "" {
+		return nil, ErrMemberAuthMethodInvalid
+	}
+
+	val := url.Values{"": []string{""}}
+	resp, err := http.PostForm(urlStr, val)
+	if err != nil {
+		beego.Error("通过接口登录失败 -> ", urlStr, account, err)
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		beego.Error("读取接口返回值失败 -> ", urlStr, account, err)
+		return nil, err
+	}
+	beego.Info("HTTP 登录接口返回数据 ->", string(body))
+
+	var result map[string]interface{}
+
+	if err := json.Unmarshal(body, &result); err != nil {
+		beego.Error("解析接口返回值失败 -> ", urlStr, account, string(body))
+		return nil, errors.New("解析接口返回值失败")
+	}
+
+	if code, ok := result["errcode"]; !ok || code.(float64) != 200 {
+
+		if msg, ok := result["message"]; ok {
+			return nil, errors.New(msg.(string))
+		}
+		return nil, errors.New("接口返回值格式不正确")
+	}
+	if m.MemberId <= 0 {
+		member := NewMember()
+
+		if email, ok := result["email"]; !ok || email == "" {
+			return nil, errors.New("接口返回的数据缺少邮箱字段")
+		} else {
+			member.Email = email.(string)
+		}
+
+		if avatar, ok := result["avater"]; ok && avatar != "" {
+			member.Avatar = avatar.(string)
+		} else {
+			member.Avatar = conf.URLForWithCdnImage("/static/images/headimgurl.jpg")
+		}
+		if realName, ok := result["real_name"]; ok && realName != "" {
+			member.RealName = realName.(string)
+		}
+		member.Account = account
+		member.Password = password
+		member.AuthMethod = "http"
+		member.Role = conf.SystemRole(beego.AppConfig.DefaultInt("ldap_user_role", 2))
+		member.CreateTime = time.Now()
+		if err := member.Add(); err != nil {
+			beego.Error("自动注册用户错误", err)
+			return m, ErrorMemberPasswordError
+		}
+		member.ResolveRoleName()
+		*m = *member
 	}
 	return m, nil
 }
@@ -219,7 +295,6 @@ func (m *Member) Find(id int, cols ...string) (*Member, error) {
 	return m, nil
 }
 
-
 func (m *Member) ResolveRoleName() {
 	if m.Role == conf.MemberSuperRole {
 		m.RoleName = "超级管理员"
@@ -283,11 +358,11 @@ func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int, error) {
 	return members, int(totalCount), nil
 }
 
-func (c *Member) IsAdministrator() bool {
-	if c == nil || c.MemberId <= 0 {
+func (m *Member) IsAdministrator() bool {
+	if m == nil || m.MemberId <= 0 {
 		return false
 	}
-	return c.Role == 0 || c.Role == 1
+	return m.Role == 0 || m.Role == 1
 }
 
 //根据指定字段查找用户.
@@ -425,7 +500,7 @@ func (m *Member) Delete(oldId int, newId int) error {
 		o.Rollback()
 		return err
 	}
-	_,err = o.QueryTable(NewTeamMember()).Filter("member_id",oldId).Delete()
+	_, err = o.QueryTable(NewTeamMember()).Filter("member_id", oldId).Delete()
 
 	if err != nil {
 		o.Rollback()
