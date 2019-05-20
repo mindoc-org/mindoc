@@ -84,6 +84,7 @@ func (c *BookController) Dashboard() {
 			c.Abort("403")
 		}
 		c.Abort("500")
+		return
 	}
 
 	c.Data["Description"] = template.HTML(blackfriday.Run([]byte(book.Description)))
@@ -110,6 +111,7 @@ func (c *BookController) Setting() {
 			c.Abort("403")
 		}
 		c.Abort("500")
+		return
 	}
 	//如果不是创始人也不是管理员则不能操作
 	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
@@ -231,6 +233,7 @@ func (c *BookController) PrivatelyOwned() {
 
 	if err != nil {
 		c.JsonResult(6001, err.Error())
+		return
 	}
 	//只有创始人才能变更私有状态
 	if bookResult.RoleId != conf.BookFounder {
@@ -241,6 +244,7 @@ func (c *BookController) PrivatelyOwned() {
 
 	if err != nil {
 		c.JsonResult(6005, "项目不存在")
+		return
 	}
 	book.PrivatelyOwned = state
 
@@ -278,6 +282,7 @@ func (c *BookController) Transfer() {
 
 	if err != nil {
 		c.JsonResult(6001, err.Error())
+		return
 	}
 
 	err = models.NewRelationship().Transfer(bookResult.BookId, c.Member.MemberId, member.MemberId)
@@ -296,6 +301,7 @@ func (c *BookController) UploadCover() {
 
 	if err != nil {
 		c.JsonResult(6001, err.Error())
+		return
 	}
 	book, err := models.NewBook().Find(bookResult.BookId)
 
@@ -309,6 +315,7 @@ func (c *BookController) UploadCover() {
 	if err != nil {
 		logs.Error("获取上传文件失败 ->", err.Error())
 		c.JsonResult(500, "读取文件异常")
+		return
 	}
 	defer file.Close()
 
@@ -405,6 +412,7 @@ func (c *BookController) Users() {
 			c.Abort("403")
 		}
 		c.Abort("500")
+		return
 	}
 	//如果不是创始人也不是管理员则不能操作
 	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
@@ -692,6 +700,7 @@ func (c *BookController) Delete() {
 
 	if err != nil {
 		c.JsonResult(6001, err.Error())
+		return
 	}
 
 	if bookResult.RoleId != conf.BookFounder {
@@ -721,7 +730,9 @@ func (c *BookController) Release() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-
+			beego.Error("发布文档失败 ->", err)
+			c.JsonResult(6003, "文档不存在")
+			return
 		}
 		bookId = book.BookId
 	} else {
@@ -747,7 +758,7 @@ func (c *BookController) Release() {
 
 		//当文档发布后，需要删除已缓存的转换项目
 		outputPath := filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(bookId))
-		os.RemoveAll(outputPath)
+		_ = os.RemoveAll(outputPath)
 
 	}(identify)
 
@@ -763,13 +774,14 @@ func (c *BookController) SaveSort() {
 		c.Abort("404")
 	}
 
-	book_id := 0
+	bookId := 0
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
-		if err != nil {
-
+		if err != nil || book == nil {
+			c.JsonResult(6001,"项目不存在")
+			return
 		}
-		book_id = book.BookId
+		bookId = book.BookId
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil {
@@ -780,7 +792,7 @@ func (c *BookController) SaveSort() {
 		if bookResult.RoleId == conf.BookObserver {
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
-		book_id = bookResult.BookId
+		bookId = bookResult.BookId
 	}
 
 	content := c.Ctx.Input.RequestBody
@@ -795,13 +807,13 @@ func (c *BookController) SaveSort() {
 	}
 
 	for _, item := range docs {
-		if doc_id, ok := item["id"].(float64); ok {
-			doc, err := models.NewDocument().Find(int(doc_id))
+		if docId, ok := item["id"].(float64); ok {
+			doc, err := models.NewDocument().Find(int(docId))
 			if err != nil {
 				beego.Error(err)
 				continue
 			}
-			if doc.BookId != book_id {
+			if doc.BookId != bookId {
 				logs.Info("%s", "权限错误")
 				continue
 			}
@@ -810,18 +822,18 @@ func (c *BookController) SaveSort() {
 				beego.Info("排序数字转换失败 => ", item)
 				continue
 			}
-			parent_id, ok := item["parent"].(float64)
+			parentId, ok := item["parent"].(float64)
 			if !ok {
 				beego.Info("父分类转换失败 => ", item)
 				continue
 			}
-			if parent_id > 0 {
-				if parent, err := models.NewDocument().Find(int(parent_id)); err != nil || parent.BookId != book_id {
+			if parentId > 0 {
+				if parent, err := models.NewDocument().Find(int(parentId)); err != nil || parent.BookId != bookId {
 					continue
 				}
 			}
 			doc.OrderSort = int(sort)
-			doc.ParentId = int(parent_id)
+			doc.ParentId = int(parentId)
 			if err := doc.InsertOrUpdate(); err != nil {
 				fmt.Printf("%s", err.Error())
 				beego.Error(err)
@@ -846,11 +858,12 @@ func (c *BookController) Team() {
 	}
 
 	book, err := models.NewBookResult().FindByIdentify(key, c.Member.MemberId)
-	if err != nil {
+	if err != nil || book == nil {
 		if err == models.ErrPermissionDenied {
 			c.ShowErrorPage(403, "权限不足")
 		}
 		c.ShowErrorPage(500, "系统错误")
+		return
 	}
 	//如果不是创始人也不是管理员则不能操作
 	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
@@ -884,6 +897,7 @@ func (c *BookController) TeamAdd() {
 
 	if err != nil {
 		c.JsonResult(500, err.Error())
+		return
 	}
 	//如果不是创始人也不是管理员则不能操作
 	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {
@@ -905,6 +919,7 @@ func (c *BookController) TeamAdd() {
 	err = teamRel.Save()
 	if err != nil {
 		c.JsonResult(5004, "加入项目失败")
+		return
 	}
 	teamRel.Include()
 
@@ -924,6 +939,7 @@ func (c *BookController) TeamDelete() {
 
 	if err != nil {
 		c.JsonResult(5002, err.Error())
+		return
 	}
 	//如果不是创始人也不是管理员则不能操作
 	if book.RoleId != conf.BookFounder && book.RoleId != conf.BookAdmin {

@@ -25,7 +25,7 @@ func init() {
 
 				ctx.ResponseWriter.Write(returnJSON)
 			} else {
-				ctx.Redirect(302, conf.URLFor("AccountController.Login") + "?url=" +  url.PathEscape(conf.BaseUrl + ctx.Request.URL.RequestURI()))
+				ctx.Redirect(302, conf.URLFor("AccountController.Login")+"?url="+url.PathEscape(conf.BaseUrl+ctx.Request.URL.RequestURI()))
 			}
 		}
 	}
@@ -36,11 +36,12 @@ func init() {
 	beego.InsertFilter("/book", beego.BeforeRouter, FilterUser)
 	beego.InsertFilter("/book/*", beego.BeforeRouter, FilterUser)
 	beego.InsertFilter("/api/*", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/manage/*", beego.BeforeRouter,FilterUser)
+	beego.InsertFilter("/manage/*", beego.BeforeRouter, FilterUser)
 
 	var FinishRouter = func(ctx *context.Context) {
 		ctx.ResponseWriter.Header().Add("MinDoc-Version", conf.VERSION)
 		ctx.ResponseWriter.Header().Add("MinDoc-Site", "https://www.iminho.me")
+		ctx.ResponseWriter.Header().Add("X-XSS-Protection", "1; mode=block")
 	}
 
 	var StartRouter = func(ctx *context.Context) {

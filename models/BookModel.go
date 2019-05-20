@@ -594,7 +594,7 @@ func (book *Book) ReleaseContent(bookId int) {
 	}
 	for _, item := range docs {
 		item.BookId = bookId
-		item.ReleaseContent()
+		_ = item.ReleaseContent()
 	}
 }
 

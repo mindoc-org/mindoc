@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"strconv"
 
+	"bytes"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/cache"
 	"github.com/lifei6671/mindoc/conf"
+	"github.com/lifei6671/mindoc/utils"
 	"os"
 	"path/filepath"
-	"github.com/PuerkitoBio/goquery"
-	"bytes"
 	"strings"
-	"github.com/lifei6671/mindoc/utils"
 )
 
 // Document struct.
@@ -317,15 +317,48 @@ func (item *Document) Processor() *Document {
 					selector.First().AppendHtml(release)
 				}
 			}
+			cdnimg := beego.AppConfig.String("cdnimg")
 
-			//设置图片为CDN地址
-			if cdnimg := beego.AppConfig.String("cdnimg"); cdnimg != "" {
-				docQuery.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
-					if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
-						contentSelection.SetAttr("src", utils.JoinURI(cdnimg, src))
+			docQuery.Find("img").Each(func(i int, selection *goquery.Selection) {
+
+				if src, ok := selection.Attr("src"); ok {
+					src = strings.TrimSpace(strings.ToLower(src))
+					//过滤掉没有链接的图片标签
+					if src == "" || strings.HasPrefix(src,"data:text/html"){
+						selection.Remove()
+						return
 					}
-				})
-			}
+
+					//设置图片为CDN地址
+					if cdnimg != "" && strings.HasPrefix(src, "/uploads/") {
+						selection.SetAttr("src", utils.JoinURI(cdnimg, src))
+					}
+
+				}
+				selection.RemoveAttr("onerror").RemoveAttr("onload")
+			})
+			//过滤A标签的非法连接
+			docQuery.Find("a").Each(func(i int, selection *goquery.Selection) {
+				if val, exists := selection.Attr("href"); exists {
+					if val == "" {
+						selection.SetAttr("href", "#")
+						return
+					}
+					val = strings.ReplaceAll(strings.ToLower(val), " ", "")
+					//移除危险脚本链接
+					if strings.HasPrefix(val, "data:text/html") ||
+						strings.HasPrefix(val, "vbscript:") ||
+						strings.HasPrefix(val, "javascript:") {
+						selection.SetAttr("href", "#")
+					}
+				}
+				//移除所有 onerror 属性
+				selection.RemoveAttr("onerror").RemoveAttr("onload").RemoveAttr("onclick")
+			})
+
+			docQuery.Find("script").Remove()
+			docQuery.Find("link").Remove()
+			docQuery.Find("vbscript").Remove()
 
 			if html, err := docQuery.Html(); err == nil {
 				item.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html), "<html><head></head><body>"), "</body></html>")

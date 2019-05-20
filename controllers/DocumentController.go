@@ -2,30 +2,30 @@ package controllers
 
 import (
 	"encoding/json"
-	"html/template"
-	"net/http"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
-	"net/url"
-	"image/png"
 	"fmt"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
-	"github.com/lifei6671/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
 	"github.com/lifei6671/mindoc/utils/cryptil"
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/gopool"
-	"github.com/astaxie/beego/logs"
+	"github.com/lifei6671/mindoc/utils/pagination"
+	"gopkg.in/russross/blackfriday.v2"
+	"html/template"
+	"image/png"
+	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 )
 
 // DocumentController struct
@@ -113,19 +113,21 @@ func (c *DocumentController) Read() {
 
 	if docId, err := strconv.Atoi(id); err == nil {
 		doc, err = doc.FromCacheById(docId)
-		if err != nil {
+		if err != nil || doc == nil {
 			beego.Error("从缓存中读取文档时失败 ->", err)
 			c.ShowErrorPage(404, "文档不存在或已删除")
+			return
 		}
 	} else {
 		doc, err = doc.FromCacheByIdentify(id, bookResult.BookId)
-		if err != nil {
+		if err != nil || doc == nil {
 			if err == orm.ErrNoRows {
 				c.ShowErrorPage(404, "文档不存在或已删除")
 			} else {
 				beego.Error("从缓存查询文档时出错 ->", err)
 				c.ShowErrorPage(500, "未知异常")
 			}
+			return
 		}
 	}
 
@@ -195,7 +197,7 @@ func (c *DocumentController) Edit() {
 		bookResult, err = models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
 		if err != nil {
-			if err == orm.ErrNoRows || err == models.ErrPermissionDenied{
+			if err == orm.ErrNoRows || err == models.ErrPermissionDenied {
 				c.ShowErrorPage(403, "项目不存在或没有权限")
 			} else {
 				beego.Error("查询项目时出错 -> ", err)
@@ -341,11 +343,12 @@ func (c *DocumentController) Upload() {
 	name := "editormd-file-file"
 
 	file, moreFile, err := c.GetFile(name)
-	if err == http.ErrMissingFile {
+	if err == http.ErrMissingFile || moreFile == nil {
 		name = "editormd-image-file"
 		file, moreFile, err = c.GetFile(name)
-		if err == http.ErrMissingFile {
+		if err == http.ErrMissingFile || moreFile == nil {
 			c.JsonResult(6003, "没有发现需要上传的文件")
+			return
 		}
 	}
 
@@ -427,7 +430,7 @@ func (c *DocumentController) Upload() {
 
 	path := filepath.Dir(filePath)
 
-	os.MkdirAll(path, os.ModePerm)
+	_ = os.MkdirAll(path, os.ModePerm)
 
 	err = c.SaveToFile(name, filePath)
 
@@ -451,7 +454,6 @@ func (c *DocumentController) Upload() {
 	if docId > 0 {
 		attachment.DocumentId = docId
 	}
-
 
 	if filetil.IsImageExt(moreFile.Filename) {
 		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
@@ -675,8 +677,9 @@ func (c *DocumentController) Content() {
 	// 如果是超级管理员，则忽略权限
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
-		if err != nil {
+		if err != nil || book == nil {
 			c.JsonResult(6002, "项目不存在或权限不足")
+			return
 		}
 
 		bookId = book.BookId
@@ -705,8 +708,9 @@ func (c *DocumentController) Content() {
 
 		doc, err := models.NewDocument().Find(docId)
 
-		if err != nil {
+		if err != nil || doc == nil {
 			c.JsonResult(6003, "读取文档错误")
+			return
 		}
 
 		if doc.BookId != bookId {
@@ -781,25 +785,7 @@ func (c *DocumentController) Content() {
 	c.JsonResult(0, "ok", doc)
 }
 
-//
-//func (c *DocumentController) GetDocumentById(id string) (doc *models.Document, err error) {
-//	doc = models.NewDocument()
-//	if doc_id, err := strconv.Atoi(id); err == nil {
-//		doc, err = doc.Find(doc_id)
-//		if err != nil {
-//			return nil, err
-//		}
-//	} else {
-//		doc, err = doc.FindByFieldFirst("identify", id)
-//		if err != nil {
-//			return nil, err
-//		}
-//	}
-//
-//	return doc, nil
-//}
-
-// 导出
+// Export 导出
 func (c *DocumentController) Export() {
 	c.Prepare()
 
@@ -1201,8 +1187,9 @@ func (c *DocumentController) Compare() {
 	}
 
 	doc, err := models.NewDocument().Find(history.DocumentId)
-	if doc.BookId != bookId {
-		c.ShowErrorPage(60002, "参数错误")
+	if err != nil || doc == nil || doc.BookId != bookId {
+		c.ShowErrorPage(60002, "文档不存在或已删除")
+		return
 	}
 
 	c.Data["HistoryId"] = historyId
@@ -1238,7 +1225,7 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 	}
 	// 如果文档是私有的
 	if book.PrivatelyOwned == 1 && (!c.isUserLoggedIn() || !c.Member.IsAdministrator()) {
-		if s,ok := c.GetSession(identify).(string); !ok || (!strings.EqualFold(s,book.PrivateToken) && !strings.EqualFold(s,book.BookPassword)) {
+		if s, ok := c.GetSession(identify).(string); !ok || (!strings.EqualFold(s, book.PrivateToken) && !strings.EqualFold(s, book.BookPassword)) {
 
 			if book.PrivateToken != "" && !isOk && token != "" {
 				// 如果有访问的 Token，并且该项目设置了访问 Token，并且和用户提供的相匹配，则记录到 Session 中。
