@@ -17,7 +17,7 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 
 **如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。**
 
-更多信息请查看手册： [MinDoc 使用手册](https://github.com/lifei6671/mindoc/wiki)
+更多信息请查看手册： [MinDoc 使用手册](https://www.iminho.me/wiki/docs/mindoc/mindoc-summary.md)
 
 对于没有Golang使用经验的用户，可以从 [https://github.com/lifei6671/mindoc/releases](https://github.com/lifei6671/mindoc/releases) 这里下载编译完的程序。
 
@@ -36,9 +36,11 @@ go build -ldflags "-w"
 
 ```
 
-MinDoc 使用MySQL储存数据，且编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 conf/app.conf 中。
+MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 `conf/app.conf` 中。
 
-如果conf目录下不存在 app.conf 请重命名 app.conf.example 为 app.conf。
+如果使用 `SQLite` 数据库，则直接在配置文件中配置数据库路径即可.
+
+如果conf目录下不存在 `app.conf` 请重命名 `app.conf.example` 为 `app.conf`。
 
 **默认程序会自动初始化一个超级管理员用户：admin 密码：123456 。请登录后重新设置密码。**
 
@@ -108,10 +110,6 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
         > docker-compose -f docker-compose.yml down && docker-compose up -d
    更多 docker-compose 的使用相关的内容 请查看官网文档或百度
    
-# 支持 MinDoc
-
-![支付宝](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/alipay.png) ![微信支付](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/weixin.png)
-
 # 项目截图
 
 **创建项目**
@@ -189,3 +187,7 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 # 关于作者
 
 一个不纯粹的PHPer，一个不自由的 gopher 。
+
+# 支持 MinDoc
+
+![支付宝](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/alipay.png) ![微信支付](https://raw.githubusercontent.com/lifei6671/mindoc/master/static/images/weixin.png)
