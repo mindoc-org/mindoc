@@ -2,6 +2,8 @@
 package models
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -164,7 +167,16 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		return nil, ErrMemberAuthMethodInvalid
 	}
 
-	val := url.Values{"": []string{""}}
+	val := url.Values{
+		"account":  []string{account},
+		"password": []string{password},
+		"time":     []string{strconv.FormatInt(time.Now().Unix(), 10)},
+	}
+	h := md5.New()
+	h.Write([]byte(val.Encode() + beego.AppConfig.DefaultString("http_login_secret","")))
+
+	val.Add("sn", hex.EncodeToString(h.Sum(nil)))
+
 	resp, err := http.PostForm(urlStr, val)
 	if err != nil {
 		beego.Error("通过接口登录失败 -> ", urlStr, account, err)

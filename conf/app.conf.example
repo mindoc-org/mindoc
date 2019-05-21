@@ -137,7 +137,8 @@ ldap_filter=objectClass=posixAccount
 
 ############# HTTP自定义接口登录 ################
 http_login_url=
-
+#md5计算的秘钥
+http_login_secret=hzsp*THJUqwbCU%s
 ##################################
 
 ###############配置CDN加速##################
