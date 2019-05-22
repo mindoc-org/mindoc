@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	_ "github.com/astaxie/beego/session/memcache"
@@ -36,5 +37,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	s.Run()
+	if err := s.Run(); err != nil {
+		log.Fatal("启动程序失败 ->", err)
+	}
 }
