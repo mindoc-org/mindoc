@@ -1,0 +1,33 @@
+package: github.com/lifei6671/mindoc
+import:
+- package: github.com/PuerkitoBio/goquery
+  version: ~1.5.0
+- package: github.com/astaxie/beego
+  version: ~1.12.0
+  subpackages:
+  - cache
+  - cache/memcache
+  - cache/redis
+  - context
+  - logs
+  - orm
+  - session/memcache
+  - session/mysql
+  - session/redis
+- package: github.com/boombuler/barcode
+  version: ~1.0.0
+  subpackages:
+  - qr
+- package: github.com/howeyc/fsnotify
+  version: ~0.9.0
+- package: github.com/kardianos/service
+  version: ~1.0.0
+- package: github.com/lifei6671/gocaptcha
+  version: ~0.1.0
+- package: github.com/mattn/go-sqlite3
+  version: ~1.11.0
+- package: github.com/nfnt/resize
+- package: gopkg.in/ldap.v2
+  version: ~3.0.3
+- package: gopkg.in/russross/blackfriday.v2
+  version: ~2.0.1

@@ -1,0 +1,104 @@
+hash: 0ebd1171e345fd539a9ca9f6466435c98640c3b9bd86132fabfd181e89f91c23
+updated: 2019-07-31T10:53:09.875894047+08:00
+imports:
+- name: github.com/andybalholm/cascadia
+  version: 901648c87902174f774fac311d7f176f8647bdaa
+- name: github.com/astaxie/beego
+  version: 32ee728078c84c28f2642c70745afc8f6830044d
+  subpackages:
+  - cache
+  - cache/memcache
+  - cache/redis
+  - config
+  - context
+  - context/param
+  - grace
+  - logs
+  - orm
+  - session
+  - session/memcache
+  - session/mysql
+  - session/redis
+  - toolbox
+  - utils
+- name: github.com/boombuler/barcode
+  version: 3cfea5ab600ae37946be2b763b8ec2c1cf2d272d
+  subpackages:
+  - qr
+  - utils
+- name: github.com/bradfitz/gomemcache
+  version: 551aad21a6682b95329c1f5bd62ee5060d64f7e8
+  subpackages:
+  - memcache
+- name: github.com/go-sql-driver/mysql
+  version: 72cd26f257d44c1114970e19afddcd812016007e
+- name: github.com/golang/freetype
+  version: e2365dfdc4a05e4b8299a783240d4a7d5a65d4e4
+  subpackages:
+  - raster
+  - truetype
+- name: github.com/gomodule/redigo
+  version: 9c11da706d9b7902c6da69c592f75637793fe121
+  subpackages:
+  - internal
+  - redis
+- name: github.com/howeyc/fsnotify
+  version: 441bbc86b167f3c1f4786afae9931403b99fdacf
+- name: github.com/kardianos/service
+  version: 56787a3ea05e9b262708192e7ce3b500aba73561
+- name: github.com/lifei6671/gocaptcha
+  version: 4ee5eae8060325104defaace04ff94b79c26a887
+- name: github.com/mattn/go-sqlite3
+  version: b612a2feea6aa87c6d052d9086572551df06497e
+- name: github.com/nfnt/resize
+  version: 83c6a9932646f83e3267f353373d47347b6036b2
+- name: github.com/PuerkitoBio/goquery
+  version: 2d2796f41742ece03e8086188fa4db16a3a0b458
+- name: github.com/shiena/ansicolor
+  version: a422bbe96644373c5753384a59d678f7d261ff10
+- name: github.com/shurcooL/sanitized_anchor_name
+  version: 7bfe4c7ecddb3666a94b053b422cdd8f5aaa3615
+- name: golang.org/x/crypto
+  version: 4def268fd1a49955bfb3dda92fe3db4f924f2285
+  subpackages:
+  - acme
+  - acme/autocert
+- name: golang.org/x/image
+  version: 1bd0cf57649315a0106c88938931e54f3c0f88e5
+  subpackages:
+  - font
+  - math/fixed
+- name: golang.org/x/net
+  version: ca1201d0de80cfde86cb01aea620983605dfe99b
+  subpackages:
+  - html
+  - html/atom
+  - idna
+- name: golang.org/x/sys
+  version: 1393eb0183657fb29200106b17a5042ec6e48dbe
+  subpackages:
+  - windows
+  - windows/registry
+  - windows/svc
+  - windows/svc/eventlog
+  - windows/svc/mgr
+- name: golang.org/x/text
+  version: 342b2e1fbaa52c93f31447ad2c6abc048c63e475
+  subpackages:
+  - secure/bidirule
+  - transform
+  - unicode/bidi
+  - unicode/norm
+- name: google.golang.org/appengine
+  version: b2f4a3cf3c67576a2ee09e1fe62656a5086ce880
+  subpackages:
+  - cloudsql
+- name: gopkg.in/asn1-ber.v1
+  version: f715ec2f112d1e4195b827ad68cf44017a3ef2b1
+- name: gopkg.in/ldap.v2
+  version: 9f0d712775a0973b7824a1585a86a4ea1d5263d9
+- name: gopkg.in/russross/blackfriday.v2
+  version: d3b5b032dc8e8927d31a5071b56e14c89f045135
+- name: gopkg.in/yaml.v2
+  version: 674ba3eaed223079f9377fbb0c98c0951bf6ec10
+testImports: []
