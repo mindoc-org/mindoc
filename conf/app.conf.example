@@ -141,6 +141,16 @@ http_login_url=
 http_login_secret=hzsp*THJUqwbCU%s
 ##################################
 
+############## Proxy 认证配置 #################
+# 是否开启代理认证
+proxy_enabled = false
+# 获取用户账号的请求头
+proxy_header_name = X-WEBAUTH-USER
+# 获取用户邮箱地址的请求头
+proxy_header_email=X-WEBAUTH-EMAIL
+
+
+
 ###############配置CDN加速##################
 cdn="${MINDOC_CDN_URL}"
 cdnjs="${MINDOC_CDN_JS_URL}"

@@ -1,4 +1,4 @@
-FROM golang:1.11.4-alpine3.8 AS build
+FROM golang:1.12.7-alpine3.10 AS build
 
 #新增 GLIBC
 ENV GLIBC_VERSION "2.28-r0"
