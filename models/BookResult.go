@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"github.com/juju/errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -9,21 +10,21 @@ import (
 	"strings"
 	"time"
 
+	"encoding/json"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/converter"
+	"github.com/lifei6671/mindoc/utils/cryptil"
 	"github.com/lifei6671/mindoc/utils/filetil"
+	"github.com/lifei6671/mindoc/utils/gopool"
+	"github.com/lifei6671/mindoc/utils/requests"
 	"github.com/lifei6671/mindoc/utils/ziptil"
 	"gopkg.in/russross/blackfriday.v2"
-	"regexp"
-	"github.com/lifei6671/mindoc/utils/cryptil"
-	"github.com/lifei6671/mindoc/utils/requests"
-	"github.com/lifei6671/mindoc/utils/gopool"
 	"net/http"
-	"encoding/json"
+	"regexp"
 )
 
 var (
@@ -228,7 +229,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	}
 
 	if m.ItemId > 0 {
-		if item,err := NewItemsets().First(m.ItemId); err == nil {
+		if item, err := NewItemsets().First(m.ItemId); err == nil {
 			m.ItemName = item.ItemName
 		}
 	}
@@ -243,12 +244,13 @@ func BackgroundConvert(sessionId string, bookResult *BookResult) error {
 		return err
 	}
 	err := exportLimitWorkerChannel.LoadOrStore(bookResult.Identify, func() {
-		bookResult.Converter(sessionId)
+		if _, err := bookResult.Converter(sessionId); err != nil {
+			beego.Error("转换文档失败 -> ", errors.Details(err))
+		}
 	})
 
 	if err != nil {
-
-		beego.Error("将导出任务加入任务队列失败 -> ", err)
+		beego.Error("将导出任务加入任务队列失败 -> ", errors.Details(err))
 		return err
 	}
 	exportLimitWorkerChannel.Start()
@@ -271,20 +273,22 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	//先将转换的文件储存到临时目录
 	tempOutputPath := filepath.Join(os.TempDir(), sessionId, m.Identify, "source") //filepath.Abs(filepath.Join("cache", sessionId))
 
-	sourceDir := strings.TrimSuffix(tempOutputPath, "source");
+	sourceDir := strings.TrimSuffix(tempOutputPath, "source")
 	if filetil.FileExists(sourceDir) {
 		if err := os.RemoveAll(sourceDir); err != nil {
 			beego.Error("删除临时目录失败 ->", sourceDir, err)
 		}
 	}
 
-	if err := os.MkdirAll(outputPath, 0766); err != nil {
+	if err := filetil.MkdirAll(outputPath, 0755); err != nil {
 		beego.Error("创建目录失败 -> ", outputPath, err)
 	}
-	if err := os.MkdirAll(tempOutputPath, 0766); err != nil {
+	if err := os.MkdirAll(tempOutputPath, 0755); err != nil {
 		beego.Error("创建目录失败 -> ", tempOutputPath, err)
 	}
-	os.MkdirAll(filepath.Join(tempOutputPath, "Images"), 0755)
+	if err := filetil.MkdirAll(filepath.Join(tempOutputPath, "Images"), 0755); err != nil {
+		return convertBookResult, errors.Trace(err)
+	}
 
 	//defer os.RemoveAll(strings.TrimSuffix(tempOutputPath,"source"))
 
@@ -377,15 +381,12 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		}
 		html := buf.String()
 
-		if err != nil {
-
-			f.Close()
-			return convertBookResult, err
-		}
-
 		bufio := bytes.NewReader(buf.Bytes())
 
 		doc, err := goquery.NewDocumentFromReader(bufio)
+		if err != nil {
+			return convertBookResult, errors.Trace(err)
+		}
 		doc.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
 			if src, ok := contentSelection.Attr("src"); ok {
 				//var encodeString string
@@ -437,11 +438,13 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 		html, err = doc.Html()
 		if err != nil {
-			f.Close()
-			return convertBookResult, err
+			_ = f.Close()
+			return convertBookResult, errors.Trace(err)
 		}
-		f.WriteString(html)
-		f.Close()
+		if _, err := f.WriteString(html); err != nil {
+			return convertBookResult, errors.Trace(err)
+		}
+		_ = f.Close()
 	}
 
 	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "css", "kancloud.css"), filepath.Join(tempOutputPath, "styles", "css", "kancloud.css")); err != nil {
@@ -476,7 +479,9 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		ProcessNum: conf.GetExportProcessNum(),
 	}
 
-	os.MkdirAll(eBookConverter.OutputPath, 0766)
+	if err := filetil.MkdirAll(eBookConverter.OutputPath, 0755); err != nil {
+		return convertBookResult, errors.Trace(err)
+	}
 
 	if err := eBookConverter.Convert(); err != nil {
 		beego.Error("转换文件错误：" + m.BookName + " -> " + err.Error())
@@ -509,9 +514,14 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 func (m *BookResult) ExportMarkdown(sessionId string) (string, error) {
 	outputPath := filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(m.BookId), "book.zip")
 
-	os.MkdirAll(filepath.Dir(outputPath), 0644)
+	if err := filetil.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
+		return "", errors.Trace(err)
+	}
 
 	tempOutputPath := filepath.Join(os.TempDir(), sessionId, "markdown")
+	if err := filetil.MkdirAll(tempOutputPath, 0755); err != nil {
+		return "", errors.Trace(err)
+	}
 
 	defer os.RemoveAll(tempOutputPath)
 

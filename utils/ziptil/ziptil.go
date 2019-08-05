@@ -163,7 +163,6 @@ func Compress(dst string, src string) (err error) {
 
 	src = strings.Replace(src, "\\", "/", -1)
 	f, err := os.Open(src)
-
 	if err != nil {
 		return errors.Trace(err)
 	}
