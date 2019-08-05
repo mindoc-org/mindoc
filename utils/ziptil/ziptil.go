@@ -2,6 +2,7 @@ package ziptil
 
 import (
 	"archive/zip"
+	"github.com/juju/errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -24,14 +25,14 @@ func Unzip(zipFile, dest string) (err error) {
 	for _, f := range r.File {
 		if !f.FileInfo().IsDir() { //非目录，且不包含__MACOSX
 			if folder := dest + filepath.Dir(f.Name); !strings.Contains(folder, "__MACOSX") {
-				os.MkdirAll(folder, 0777)
+				_ = os.MkdirAll(folder, 0777)
 				if fcreate, err := os.Create(dest + strings.TrimPrefix(f.Name, "./")); err == nil {
 					if rc, err := f.Open(); err == nil {
-						io.Copy(fcreate, rc)
-						rc.Close() //不要用defer来关闭，如果文件太多的话，会报too many open files 的错误
-						fcreate.Close()
+						_, _ = io.Copy(fcreate, rc)
+						_ = rc.Close() //不要用defer来关闭，如果文件太多的话，会报too many open files 的错误
+						_ = fcreate.Close()
 					} else {
-						fcreate.Close()
+						_ = fcreate.Close()
 						return err
 					}
 				} else {
@@ -55,7 +56,7 @@ func Zip(source, target string) error {
 	defer archive.Close()
 	source = strings.Replace(source, "\\", "/", -1)
 
-	filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -152,7 +153,10 @@ func Zip(source, target string) error {
 //}
 
 func Compress(dst string, src string) (err error) {
-	d, _ := os.Create(dst)
+	d, err := os.Create(dst)
+	if err != nil {
+		return errors.Trace(err)
+	}
 	defer d.Close()
 	w := zip.NewWriter(d)
 	defer w.Close()
@@ -161,15 +165,13 @@ func Compress(dst string, src string) (err error) {
 	f, err := os.Open(src)
 
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
-
-	//prefix := src[strings.LastIndex(src,"/"):]
 
 	err = compress(f, "", w)
 
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 
 	return nil
