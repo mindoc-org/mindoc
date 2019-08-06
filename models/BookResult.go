@@ -97,8 +97,8 @@ func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult,
 	err := NewBook().QueryTable().Filter("identify", identify).One(&book)
 
 	if err != nil {
-		beego.Error("获取项目失败 ->", err)
-		return m, err
+		beego.Error("获取项目失败 ->", errors.Details(err))
+		return m, errors.Trace(err)
 	}
 
 	roleId, err := NewBook().FindForRoleId(book.BookId, memberId)
@@ -112,13 +112,13 @@ func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult,
 	err = NewRelationship().QueryTable().Filter("book_id", book.BookId).Filter("role_id", 0).One(&relationship2)
 
 	if err != nil {
-		logs.Error("根据项目标识查询项目以及指定用户权限的信息 -> ", err)
+		logs.Error("根据项目标识查询项目以及指定用户权限的信息 -> ", errors.Details(err))
 		return m, ErrPermissionDenied
 	}
 
 	member, err := NewMember().Find(relationship2.MemberId)
 	if err != nil {
-		return m, err
+		return m, errors.Trace(err)
 	}
 
 	m.ToBookResult(book)
@@ -240,8 +240,8 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 func BackgroundConvert(sessionId string, bookResult *BookResult) error {
 
 	if err := converter.CheckConvertCommand(); err != nil {
-		beego.Error("检查转换程序失败 -> ", err)
-		return err
+		beego.Error("检查转换程序失败 -> ", errors.Details(err))
+		return errors.Trace(err)
 	}
 	err := exportLimitWorkerChannel.LoadOrStore(bookResult.Identify, func() {
 		if _, err := bookResult.Converter(sessionId); err != nil {
@@ -251,7 +251,7 @@ func BackgroundConvert(sessionId string, bookResult *BookResult) error {
 
 	if err != nil {
 		beego.Error("将导出任务加入任务队列失败 -> ", errors.Details(err))
-		return err
+		return errors.Trace(err)
 	}
 	exportLimitWorkerChannel.Start()
 	return nil
@@ -276,15 +276,15 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	sourceDir := strings.TrimSuffix(tempOutputPath, "source")
 	if filetil.FileExists(sourceDir) {
 		if err := os.RemoveAll(sourceDir); err != nil {
-			beego.Error("删除临时目录失败 ->", sourceDir, err)
+			beego.Error("删除临时目录失败 ->", sourceDir, errors.Details(err))
 		}
 	}
 
 	if err := filetil.MkdirAll(outputPath, 0755); err != nil {
-		beego.Error("创建目录失败 -> ", outputPath, err)
+		beego.Error("创建目录失败 -> ", outputPath, errors.Details(err))
 	}
-	if err := os.MkdirAll(tempOutputPath, 0755); err != nil {
-		beego.Error("创建目录失败 -> ", tempOutputPath, err)
+	if err := filetil.MkdirAll(tempOutputPath, 0755); err != nil {
+		beego.Error("创建目录失败 -> ", tempOutputPath, errors.Details(err))
 	}
 	if err := filetil.MkdirAll(filepath.Join(tempOutputPath, "Images"), 0755); err != nil {
 		return convertBookResult, errors.Trace(err)
@@ -302,7 +302,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	docs, err := NewDocument().FindListByBookId(m.BookId)
 	if err != nil {
-		return convertBookResult, err
+		return convertBookResult, errors.Trace(err)
 	}
 
 	tocList := make([]converter.Toc, 0)
@@ -363,7 +363,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	if tempOutputPath, err = filepath.Abs(tempOutputPath); err != nil {
 		beego.Error("导出目录配置错误：" + err.Error())
-		return convertBookResult, err
+		return convertBookResult, errors.Trace(err)
 	}
 
 	for _, item := range docs {
@@ -372,12 +372,12 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 		f, err := os.OpenFile(fpath, os.O_CREATE|os.O_RDWR, 0755)
 		if err != nil {
-			return convertBookResult, err
+			return convertBookResult, errors.Trace(err)
 		}
 		var buf bytes.Buffer
 
 		if err := beego.ExecuteViewPathTemplate(&buf, "document/export.tpl", viewPath, map[string]interface{}{"Model": m, "Lists": item, "BaseUrl": conf.BaseUrl}); err != nil {
-			return convertBookResult, err
+			return convertBookResult, errors.Trace(err)
 		}
 		html := buf.String()
 

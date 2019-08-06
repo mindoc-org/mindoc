@@ -1,6 +1,7 @@
 package filetil
 
 import (
+	"github.com/juju/errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,7 +52,7 @@ func ScanFiles(dir string) (fl []FileList, err error) {
 func CopyFile(source string, dst string) (err error) {
 	sourceFile, err := os.Open(source)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 
 	defer sourceFile.Close()
@@ -60,16 +61,18 @@ func CopyFile(source string, dst string) (err error) {
 
 	if err != nil {
 		if os.IsNotExist(err) {
-			os.MkdirAll(filepath.Dir(dst),0766)
+			if err := MkdirAll(filepath.Dir(dst),0755);err != nil {
+				return errors.Trace(err)
+			}
 		}else{
-			return err
+			return errors.Trace(err)
 		}
 	}
 
 
 	destFile, err := os.Create(dst)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 
 	defer destFile.Close()
@@ -78,9 +81,9 @@ func CopyFile(source string, dst string) (err error) {
 	if err == nil {
 		sourceInfo, err := os.Stat(source)
 		if err != nil {
-			err = os.Chmod(dst, sourceInfo.Mode())
+			return errors.Trace(err)
 		}
-
+		err = os.Chmod(dst, sourceInfo.Mode())
 	}
 
 	return
@@ -92,13 +95,13 @@ func CopyDir(source string, dest string) (err error) {
 	// get properties of source dir
 	sourceInfo, err := os.Stat(source)
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 
 	// create dest dir
-	err = os.MkdirAll(dest, sourceInfo.Mode())
+	err = MkdirAll(dest, sourceInfo.Mode())
 	if err != nil {
-		return err
+		return errors.Trace(err)
 	}
 
 	directory, _ := os.Open(source)
