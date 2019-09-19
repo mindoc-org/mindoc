@@ -437,13 +437,10 @@ func (c *AccountController) Logout() {
 func (c *AccountController) Captcha() {
 	c.Prepare()
 
-	captchaImage:= gocaptcha.NewCaptchaImage(140, 40, gocaptcha.RandLightColor())
-	err:=captchaImage.DrawNoise(gocaptcha.CaptchaComplexLower)
-	if err != nil {
-		beego.Error(err)
-		c.Abort("500")
-	}
-
+	captchaImage := gocaptcha.NewCaptchaImage(140, 40, gocaptcha.RandLightColor())
+	
+	
+	captchaImage.DrawNoise(gocaptcha.CaptchaComplexLower)
 	// captchaImage.DrawTextNoise(gocaptcha.CaptchaComplexHigh)
 	txt := gocaptcha.RandText(4)
 
@@ -454,6 +451,10 @@ func (c *AccountController) Captcha() {
 	captchaImage.DrawBorder(gocaptcha.ColorToRGB(0x17A7A7A))
 	// captchaImage.DrawHollowLine()
 
-	captchaImage.SaveImage(c.Ctx.ResponseWriter, gocaptcha.ImageFormatJpeg)
+	err := captchaImage.SaveImage(c.Ctx.ResponseWriter, gocaptcha.ImageFormatJpeg)
+	if err != nil {
+		beego.Error(err)
+		c.Abort("500")
+	}
 	c.StopRun()
 }
