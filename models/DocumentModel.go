@@ -355,7 +355,7 @@ func (item *Document) Processor() *Document {
 						selection.SetAttr("href", "#")
 						return
 					}
-					val = strings.ReplaceAll(strings.ToLower(val), " ", "")
+					val = strings.Replace(strings.ToLower(val), " ", "",-1)
 					//移除危险脚本链接
 					if strings.HasPrefix(val, "data:text/html") ||
 						strings.HasPrefix(val, "vbscript:") ||
