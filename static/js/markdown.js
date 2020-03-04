@@ -88,7 +88,18 @@ $(function () {
             saveDocument(false);
        } else if (name === "template") {
            $("#documentTemplateModal").modal("show");
-       } else if (name === "sidebar") {
+       } else if (name=="word2md"){
+			$("#word2mdform")[0].reset();
+			$("#output").html("");
+			$("#messages").html("");
+			$("#word2md").modal("show");
+			
+		}else if (name=="Pasteoffice"){
+			$("#Pasteofficeform")[0].reset();
+			$("#Pastearea").innerText="";
+			$("#officeoutmd").val("");
+			$("#Pasteoffice").modal("show");
+		}else if (name === "sidebar") {
             $("#manualCategory").toggle(0, "swing", function () {
                 var $then = $("#manualEditorContainer");
                 var left = parseInt($then.css("left"));
@@ -425,6 +436,216 @@ $(function () {
 
         loadDocument(selected);
     }).on("move_node.jstree", jstree_save);
+    
+    	//对html进行预处理
+	function firstfilter(str) {
+	    //去掉头部描述
+	    return str.replace(/<head>[\s\S]*<\/head>/gi, "")
+	    //去掉注释
+	    .replace(/<!--[\s\S]*?-->/ig, "")
+	    //去掉隐藏元素
+	    .replace(/<([a-z0-9]*)[^>]*\s*display:none[\s\S]*?><\/\1>/gi, '');
+	}
+	
+
+	//去除冗余属性和标签
+	function filterPasteWord(str) {
+	    return str.replace(/[\t\r\n]+/g, ' ').replace(/<!--[\s\S]*?-->/ig, "")
+	    //转换图片
+	    .replace(/<v:shape [^>]*>[\s\S]*?.<\/v:shape>/gi,
+	        function (str) {
+	        //opera能自己解析出image所这里直接返回空
+	        if (!!window.opera && window.opera.version) {
+	            return '';
+	        }
+	        try {
+	            //有可能是bitmap占为图，无用，直接过滤掉，主要体现在粘贴excel表格中
+	            if (/Bitmap/i.test(str)) {
+	                return '';
+	            }
+	            var src = str.match(/src=\s*"([^"]*)"/i)[1];
+	            return '<img  src="' + src + '" />';
+	        } catch (e) {
+	            return '';
+	        }
+	    })
+
+	    //针对wps添加的多余标签处理
+	    .replace(/<\/?div[^>]*>/g, '')
+	    .replace(/<\/?span[^>]*>/g, '')
+	    .replace(/<\/?font[^>]*>/g, '')
+	    .replace(/<\/?col[^>]*>/g, '')
+	    .replace(/<\/?(span|div|o:p|v:.*?|input|label)[\s\S]*?>/g, '')
+	    //去掉所有属性,需要保留单元格合并
+	    //.replace(/<([a-zA-Z]+)\s*[^><]*>/g, "<$1>")
+	    //去掉多余的属性
+	    .replace(/v:\w+=(["']?)[^'"]+\1/g, '')
+	    .replace(/<(!|script[^>]*>.*?<\/script(?=[>\s])|\/?(\?xml(:\w+)?|xml|meta|link|style|\w+:\w+)(?=[\s\/>]))[^>]*>/gi, "").replace(/<p [^>]*class="?MsoHeading"?[^>]*>(.*?)<\/p>/gi, "<p><strong>$1</strong></p>")
+	    //去掉多余的属性
+	    .replace(/\s+(class|lang|align)\s*=\s*(['"]?)([\w-]+)\2/gi, '')
+	    //清除多余的font/span不能匹配&nbsp;有可能是空格
+	    .replace(/<(font|span)[^>]*>(\s*)<\/\1>/gi,
+	        function (a, b, c) {
+	        return c.replace(/[\t\r\n ]+/g, " ");
+	    })
+	    //去掉style属性
+	    .replace(/(<[a-z][^>]*)\sstyle=(["'])([^\2]*?)\2/gi, "$1")
+	    // 去除不带引号的属性
+	    .replace(/(class|border|cellspacing|MsoNormalTable|valign|width|center|&nbsp;|x:str|height|x:num|cellpadding)(=[^ \f\n\r\t\v>]*)?/g, "")
+	    // 去除多余空格
+	    .replace(/(\S+)(\s+)/g, function (match, p1, p2) {
+	        return p1 + ' ';
+	    })
+	    .replace(/(\s)(>|<)/g, function (match, p1, p2) {
+	        return p2;
+	    })
+	    //处理表格中的p标签
+	    .replace(/(<table[^>]*[\s\S]*?><\/table>)/gi, function (a) {
+			//嵌套表格不处理
+	        if (a.match(/(<table>)/gi).length > 1) {
+	            return a
+
+	        }
+	        if (!/<thead>/i.test(a) && !/(rowspan|colspan)/i.test(a)) {
+	            //没有表头，将第一行作为表头
+	            const firstrow = "<table><thead>" + a.match(/<tr>[\s\S]*?(?=<tr>)/i)[0] + "</thead>";
+	            a = a.replace(/<tr>[\s\S]*?(?=<tr>)/i, "")
+	                .replace(/<table>/, firstrow);
+	        } else if (/<thead>/i.test(a) && /(rowspan|colspan)/i.test(a)) {
+				a=a.replace(/<thead>/, "");
+			}
+			return a.replace(/<\/p><p>/ig, "<br/>")
+	            .replace(/<\/?p[^>]*>/ig, '')
+				//.replace(/<td><\/td>/ig,"<td>&nbsp;</td>")
+	            .replace(/<td>&nbsp;<\/td>/g, "<td></td>")
+	    });
+
+	}
+
+	//判断粘贴的内容是否来自office
+	function isWordDocument(str) {
+	    return /(class="?Mso|style="[^"]*\bmso\-|w:WordDocument|<(v|o):|lang=)/ig.test(str) || /\"urn:schemas-microsoft-com:office:office/ig.test(str);
+	}
+	
+	//excel表格处理
+	function pasteClipboardHtml(html) {
+	    const startFramgmentStr = '<!--StartFragment-->';
+	    const endFragmentStr = '<!--EndFragment-->';
+	    const startFragmentIndex = html.indexOf(startFramgmentStr);
+	    const endFragmentIndex = html.lastIndexOf(endFragmentStr);
+
+	    if (startFragmentIndex > -1 && endFragmentIndex > -1) {
+	        html = html.slice(startFragmentIndex + startFramgmentStr.length, endFragmentIndex);
+	    }
+
+	    // Wrap with <tr> if html contains dangling <td> tags
+	    // Dangling <td> tag is that tag does not have <tr> as parent node.
+	    if (/<\/td>((?!<\/tr>)[\s\S])*$/i.test(html)) {
+	        html = '<tr>' + html + '</tr>';
+	    }
+	    // Wrap with <table> if html contains dangling <tr> tags
+	    // Dangling <tr> tag is that tag does not have <table> as parent node.
+	    if (/<\/tr>((?!<\/table>)[\s\S])*$/i.test(html)) {
+	        html = '<table>' + html + '</table>';
+	    }
+
+	    return html;
+	}
+	
+	//将html转换为markdown
+	function html2md(str) {
+	    var gfm = turndownPluginGfm.gfm;
+	    var turndownService = new TurndownService({
+	            headingStyle: 'atx',
+	            hr: '- - -',
+	            bulletListMarker: '-',
+	            codeBlockStyle: 'indented',
+	            fence: '```',
+	            emDelimiter: '_',
+	            strongDelimiter: '**'
+	        });
+	    turndownService.use(gfm);
+	    turndownService.keep(['sub', 'sup']);//保留标签
+		str=firstfilter(str);
+		//str=pasteClipboardHtml(str);
+		str=filterPasteWord(str);
+	    return turndownService.turndown(str);
+	}
+	
+	//将word转换的html转换为markdown，并插入编辑器
+	$("#btnhtml2md").click(function (e) {
+	    e.preventDefault();
+	    if ($(this).hasClass("disabled"))
+	        return false;
+	    var str = $("#output").html();
+	    var cm =  window.editor.cm;
+	    var cursor = cm.getCursor();
+	    var selection = cm.getSelection();
+	    cm.replaceSelection(html2md(str)+"\n\n");
+	    $("#btnhtml2md").removeClass("disabled");
+	    $("#word2md").modal('hide');
+	    cm.focus();
+	});
+	//粘贴Pastearea自动获得焦点
+	 $('#Pasteoffice').on('shown.bs.modal', function (event) {
+        var modal = $(this);
+		var form=modal.find("#Pasteofficeform");
+		var renameInput =form.find("#Pastearea");
+		//获得焦点时文本全选
+        renameInput.focus(function () {
+            this.select();
+        });
+        renameInput.focus();
+    });
+	
+	//粘贴解析
+	$("#Pastearea")[0].addEventListener('paste', function (e) {
+	    var clipboard = e.clipboardData;
+	    if (!(clipboard && clipboard.items)) {
+	        return;
+	    }
+	    for (var i = 0, len = clipboard.items.length; i < len; i++) {
+	        var item = clipboard.items[i];
+	        if (item.kind === "string" && item.type === "text/html") {
+	            item.getAsString(function (str) {
+	                if (/<img [^>]*src=['"]([^'"]+)[^>]*>/gi.test(str)) {
+	                    layer.msg("粘贴的内容中包含有图片，建议使用word转markdown模块处理！");
+	                }
+	                var markdown = html2md(str);
+	                $("#officeoutmd").val(markdown);
+	            });
+
+	        }
+	    }
+
+	});
+	
+	//解析html源码为markdown
+	$("#HtmlToMarkdown").click(function (e) {
+	    e.preventDefault();
+	    var str = $("#Pastearea").val();
+	    var markdown = html2md(str);
+	    $("#officeoutmd").val(markdown);
+
+	});
+
+	
+	//将html转换为markdown，并插入编辑器
+	$("#office2md").click(function (e) {
+	    e.preventDefault();
+	    if ($(this).hasClass("disabled"))
+	        return false;
+	    var str =  $("#officeoutmd").val();
+	    var cm =  window.editor.cm;
+	    var cursor = cm.getCursor();
+	    var selection = cm.getSelection();
+	    cm.replaceSelection(str+"\n\n");
+	    $("#office2md").removeClass("disabled");
+	    $("#Pasteoffice").modal('hide');
+	    cm.focus();
+	});
+    
+    
     /**
      * 打开文档模板
      */
