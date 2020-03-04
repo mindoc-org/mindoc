@@ -51,6 +51,8 @@
         </div>
         <div class="editormd-group">
             <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="word转换为markdown"><i class="fa  fa-file-word-o item" name="word2md" aria-hidden="true"></i></a>
+			<a href="javascript:;" data-toggle="tooltip" data-title="从office粘贴转换"><i class="fa  fa-file-excel-o item" name="Pasteoffice" aria-hidden="true"></i></a>
         </div>
         <div class="editormd-group">
             <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
@@ -231,6 +233,64 @@
     </div>
 </div>
 
+<!-- word2md -->
+<div class="modal fade" id="word2md" tabindex="-1" role="dialog" aria-labelledby="ModalReplaceLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+		<form  class="form-horizontal" id="word2mdform">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h1 class="modal-title" id="ModalReplaceLabel" style="text-align:center;">word转换为markdown</h1>
+				<input id="document" type="file" accept=".docx"/></div>
+			<div class="modal-body" style="overflow-y:auto; height:400px;">
+			<div id="output" class="well">
+          </div>
+			</div>
+			<div class="modal-footer">
+			<h3 style="margin-top:0px;text-align:center;">信息提示</h3>
+          <div id="messages" class="well" align="left">
+          </div>
+				<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="btnhtml2md" >确定</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button></div>
+			</div>
+		
+		</form>
+		</div>
+	</div>
+</div>
+
+
+<!-- Pasteoffice -->
+<div class="modal fade" id="Pasteoffice" tabindex="-1" role="dialog" aria-labelledby="ModalReplaceLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+		<form  class="form-horizontal" id="Pasteofficeform">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span></button>
+				<h1 class="modal-title" id="ModalReplaceLabel" style="text-align:center;">将office/html内容粘贴在下方</h1>
+				</div>
+			<div class="modal-body" style="overflow-y:auto; height:400px;">
+			<textarea name="Pastearea"   id="Pastearea" style="height:100px;width:100%"></textarea>
+			<h2 style="margin-top:0px;text-align:center;">结果预览</h2>
+			<textarea id="officeoutmd" style="height:200px;width:100%"></textarea>
+			</div>
+			<div class="modal-footer">
+			
+          
+				<div class="modal-footer">
+				<button type="button" class="btn btn-info" id="HtmlToMarkdown" >解析html源码</button>
+				<button type="button" class="btn btn-primary" id="office2md" >确定</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button></div>
+			</div>
+		
+		</form>
+		</div>
+	</div>
+</div>
+
 <div class="modal fade" id="documentTemplateModal" tabindex="-1" role="dialog" aria-labelledby="请选择模板类型" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -292,6 +352,13 @@
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/markdown.js"}}" type="text/javascript"></script>
+
+<script src="/static/word2md/turndown.js"></script>
+<script src="/static/word2md/turndown-plugin-gfm.js"></script>
+<script src="/static/word2md/mammoth.browser.js"></script>
+<script src="/static/word2md/word2md.js"></script>
+
+
 <script type="text/javascript">
     $(function () {
 
