@@ -599,8 +599,9 @@ function Node (node) {
 }
 
 function isBlank (node) {
+	//如果要忽略掉空白的表，请删除'TABLE','THEAD','TBODY','TR'
   return (
-    ['A', 'TH', 'TD', 'IFRAME', 'SCRIPT', 'AUDIO', 'VIDEO'].indexOf(node.nodeName) === -1 &&
+    ['A', 'TABLE','THEAD','TBODY','TR','TH', 'TD', 'IFRAME', 'SCRIPT', 'AUDIO', 'VIDEO'].indexOf(node.nodeName) === -1 &&
     /^\s*$/i.test(node.textContent) &&
     !isVoid(node) &&
     !hasVoid(node)
