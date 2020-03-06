@@ -439,6 +439,10 @@ $(function () {
     
     	//对html进行预处理
 	function firstfilter(str) {
+        //处理一下html,忽略从WORD粘贴时特殊情况下尾部乱码
+	    if (/(<html[\s\S]*<\/html>)/gi.test(str)) {
+	        str = str.match(/(<html[\s\S]*<\/html>)/gi)[0];
+	    }		
 	    //去掉头部描述
 	    return str.replace(/<head>[\s\S]*<\/head>/gi, "")
 	    //去掉注释
@@ -508,8 +512,9 @@ $(function () {
 	        }
 	        if (!/<thead>/i.test(a) && !/(rowspan|colspan)/i.test(a)) {
 	            //没有表头，将第一行作为表头
-	            const firstrow = "<table><thead>" + a.match(/<tr>[\s\S]*?(?=<tr>)/i)[0] + "</thead>";
-	            a = a.replace(/<tr>[\s\S]*?(?=<tr>)/i, "")
+		   //修复，当表格只有一行时，正则错误 
+	            const firstrow = "<table><thead>" + a.match(/<tr>[\s\S]*?(<\/tr>)/i)[0] + "</thead>";
+	            a = a.replace(/<tr>[\s\S]*?(<\/tr>)/i, "")
 	                .replace(/<table>/, firstrow);
 	        } else if (/<thead>/i.test(a) && /(rowspan|colspan)/i.test(a)) {
 				a=a.replace(/<thead>/, "");
