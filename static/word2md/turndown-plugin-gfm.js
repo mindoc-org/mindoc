@@ -120,11 +120,18 @@ function isFirstTbody (element) {
   )
 }
 
-function cell (content, node) {
-  var index = indexOf.call(node.parentNode.childNodes, node);
-  var prefix = ' ';
-  if (index === 0) prefix = '| ';
-  return prefix + content + ' |'
+//修复，当表格中有换行时，解析不正确，修复表格为空时，增加3个空格，确保能正确解析
+function cell(content, node) {
+    var index = indexOf.call(node.parentNode.childNodes, node);
+    var prefix = ' ';
+    content = content.replace("\n", "<br/>")
+        if (index === 0)
+            prefix = '| ';
+        let filteredContent = content.trim().replace(/\n\r/g, '<br/>').replace(/\n/g, "<br/>");
+    filteredContent = filteredContent.replace(/\|+/g, '\\|');
+    while (filteredContent.length < 3)
+        filteredContent += ' ';
+    return prefix + filteredContent + ' |'
 }
 
 function tables (turndownService) {
