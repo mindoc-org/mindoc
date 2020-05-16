@@ -83,6 +83,8 @@ HTTP_PORT                   程序监听的端口号
 举个栗子
 
 ```bash
+docker pull registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc:v0.12
+
 docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP_ADDR=10.xxx.xxx.xxx -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc
 ```
 ### docker-compose 一键安装
