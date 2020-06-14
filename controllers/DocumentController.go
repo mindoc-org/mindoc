@@ -15,7 +15,7 @@ import (
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/gopool"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 	"html/template"
 	"image/png"
 	"net/http"
@@ -246,7 +246,7 @@ func (c *DocumentController) Edit() {
 	if conf.GetUploadFileSize() > 0 {
 		c.Data["UploadFileSize"] = conf.GetUploadFileSize()
 	} else {
-		c.Data["UploadFileSize"] = "undefined";
+		c.Data["UploadFileSize"] = "undefined"
 	}
 }
 
@@ -1257,7 +1257,7 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 				if book.BookPassword != "" {
 					//判断已存在的密码是否正确
 					if password, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(password, book.BookPassword) {
-						body, err := c.ExecuteViewPathTemplate("document/document_password.tpl", map[string]string{"Identify": book.Identify});
+						body, err := c.ExecuteViewPathTemplate("document/document_password.tpl", map[string]string{"Identify": book.Identify})
 						if err != nil {
 							beego.Error("显示密码页面失败 ->", err)
 						}

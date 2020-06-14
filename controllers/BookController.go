@@ -23,7 +23,7 @@ import (
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 type BookController struct {
@@ -771,7 +771,7 @@ func (c *BookController) SaveSort() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil || book == nil {
-			c.JsonResult(6001,"项目不存在")
+			c.JsonResult(6001, "项目不存在")
 			return
 		}
 		bookId = book.BookId

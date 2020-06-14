@@ -9,21 +9,21 @@ import (
 	"strings"
 	"time"
 
+	"encoding/json"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/converter"
-	"github.com/lifei6671/mindoc/utils/filetil"
-	"github.com/lifei6671/mindoc/utils/ziptil"
-	"gopkg.in/russross/blackfriday.v2"
-	"regexp"
 	"github.com/lifei6671/mindoc/utils/cryptil"
-	"github.com/lifei6671/mindoc/utils/requests"
+	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/gopool"
+	"github.com/lifei6671/mindoc/utils/requests"
+	"github.com/lifei6671/mindoc/utils/ziptil"
+	"github.com/russross/blackfriday/v2"
 	"net/http"
-	"encoding/json"
+	"regexp"
 )
 
 var (
@@ -228,7 +228,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	}
 
 	if m.ItemId > 0 {
-		if item,err := NewItemsets().First(m.ItemId); err == nil {
+		if item, err := NewItemsets().First(m.ItemId); err == nil {
 			m.ItemName = item.ItemName
 		}
 	}
@@ -271,7 +271,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	//先将转换的文件储存到临时目录
 	tempOutputPath := filepath.Join(os.TempDir(), sessionId, m.Identify, "source") //filepath.Abs(filepath.Join("cache", sessionId))
 
-	sourceDir := strings.TrimSuffix(tempOutputPath, "source");
+	sourceDir := strings.TrimSuffix(tempOutputPath, "source")
 	if filetil.FileExists(sourceDir) {
 		if err := os.RemoveAll(sourceDir); err != nil {
 			beego.Error("删除临时目录失败 ->", sourceDir, err)
@@ -484,7 +484,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	}
 	beego.Info("文档转换完成：" + m.BookName)
 
-	if err := filetil.CopyFile(filepath.Join(eBookConverter.OutputPath, "output", "book.mobi"), mobipath, ); err != nil {
+	if err := filetil.CopyFile(filepath.Join(eBookConverter.OutputPath, "output", "book.mobi"), mobipath); err != nil {
 		beego.Error("复制文档失败 -> ", filepath.Join(eBookConverter.OutputPath, "output", "book.mobi"), err)
 	}
 	if err := filetil.CopyFile(filepath.Join(eBookConverter.OutputPath, "output", "book.pdf"), pdfpath); err != nil {

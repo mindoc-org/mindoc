@@ -18,7 +18,7 @@ import (
 	"github.com/lifei6671/mindoc/utils"
 	"github.com/lifei6671/mindoc/utils/filetil"
 	"github.com/lifei6671/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 	"io/ioutil"
 	"os"
 )
@@ -340,7 +340,7 @@ func (c *ManagerController) EditBook() {
 		autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 		publisher := strings.TrimSpace(c.GetString("publisher"))
 		historyCount, _ := c.GetInt("history_count", 0)
-		itemId,_ := c.GetInt("itemId")
+		itemId, _ := c.GetInt("itemId")
 
 		if strings.Count(description, "") > 500 {
 			c.JsonResult(6004, "项目描述不能大于500字")
@@ -355,7 +355,7 @@ func (c *ManagerController) EditBook() {
 			}
 		}
 		if !models.NewItemsets().Exist(itemId) {
-			c.JsonResult(6006,"项目空间不存在")
+			c.JsonResult(6006, "项目空间不存在")
 		}
 		book.Publisher = publisher
 		book.HistoryCount = historyCount
@@ -1122,7 +1122,6 @@ func (c *ManagerController) Itemsets() {
 	}
 
 	c.Data["Lists"] = items
-
 
 }
 
