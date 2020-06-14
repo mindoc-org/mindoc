@@ -286,7 +286,7 @@ func ResolveCommand(args []string) {
 	if err := flagSet.Parse(args); err != nil {
 		log.Fatal("解析命令失败 ->", err)
 	}
-
+	fmt.Println(conf.WorkingDirectory)
 	if conf.WorkingDirectory == "" {
 		if p, err := filepath.Abs(os.Args[0]); err == nil {
 			conf.WorkingDirectory = filepath.Dir(p)
@@ -519,7 +519,7 @@ func init() {
 		conf.ConfigurationFile = configPath
 	}
 	if err := gocaptcha.ReadFonts(conf.WorkingDir("static", "fonts"), ".ttf"); err != nil {
-		log.Fatal("读取字体文件失败 ->", err)
+		beego.Error("读取字体文件失败 ->", err)
 	}
 	gob.Register(models.Member{})
 

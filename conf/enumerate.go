@@ -2,13 +2,14 @@
 package conf
 
 import (
+	"os/exec"
 	"strings"
 
-	"github.com/astaxie/beego"
-	"strconv"
-	"path/filepath"
-	"os"
 	"fmt"
+	"github.com/astaxie/beego"
+	"os"
+	"path/filepath"
+	"strconv"
 )
 
 // 登录用户的Session名
@@ -158,7 +159,7 @@ func GetExportProcessNum() int {
 	if exportProcessNum <= 0 || exportProcessNum > 4 {
 		exportProcessNum = 1
 	}
-	return exportProcessNum;
+	return exportProcessNum
 }
 
 //导出项目队列的并发数量
@@ -168,7 +169,7 @@ func GetExportLimitNum() int {
 	if exportLimitNum < 0 {
 		exportLimitNum = 1
 	}
-	return exportLimitNum;
+	return exportLimitNum
 }
 
 //等待导出队列的长度
@@ -210,7 +211,7 @@ func IsAllowUploadFileExt(ext string) bool {
 //重写生成URL的方法，加上完整的域名
 func URLFor(endpoint string, values ...interface{}) string {
 	baseUrl := beego.AppConfig.DefaultString("baseurl", "")
-	pathUrl := beego.URLFor(endpoint, values ...)
+	pathUrl := beego.URLFor(endpoint, values...)
 
 	if baseUrl == "" {
 		baseUrl = BaseUrl
@@ -224,12 +225,12 @@ func URLFor(endpoint string, values ...interface{}) string {
 	if !strings.HasPrefix(pathUrl, "/") && !strings.HasSuffix(baseUrl, "/") {
 		return baseUrl + "/" + pathUrl
 	}
-	return baseUrl + beego.URLFor(endpoint, values ...)
+	return baseUrl + beego.URLFor(endpoint, values...)
 }
 
-func URLForNotHost(endpoint string,values ...interface{}) string  {
+func URLForNotHost(endpoint string, values ...interface{}) string {
 	baseUrl := beego.AppConfig.DefaultString("baseurl", "")
-	pathUrl := beego.URLFor(endpoint, values ...)
+	pathUrl := beego.URLFor(endpoint, values...)
 
 	if baseUrl == "" {
 		baseUrl = "/"
@@ -243,7 +244,7 @@ func URLForNotHost(endpoint string,values ...interface{}) string  {
 	if !strings.HasPrefix(pathUrl, "/") && !strings.HasSuffix(baseUrl, "/") {
 		return baseUrl + "/" + pathUrl
 	}
-	return baseUrl + beego.URLFor(endpoint, values ...)
+	return baseUrl + beego.URLFor(endpoint, values...)
 }
 
 func URLForWithCdnImage(p string) string {
@@ -344,11 +345,11 @@ func WorkingDir(elem ...string) string {
 }
 
 func init() {
+	if p, err := exec.LookPath(os.Args[0]); err == nil {
+		WorkingDirectory = p
+	}
 	if p, err := filepath.Abs("./conf/app.conf"); err == nil {
 		ConfigurationFile = p
-	}
-	if p, err := filepath.Abs("./"); err == nil {
-		WorkingDirectory = p
 	}
 	if p, err := filepath.Abs("./runtime/logs"); err == nil {
 		LogFile = p
