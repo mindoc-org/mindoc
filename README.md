@@ -13,6 +13,23 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 
 演示站点： [http://doc.iminho.me](http://doc.iminho.me)
 
+---
+
+<details>
+<summary>开发维护召集令</summary>
+
+感谢作者 [lifei6671](https://github.com/lifei6671) 创造了MinDoc，并持续维护了很久。
+
+本人向公司推广了MinDoc，反向很好。受益于开源，便想回馈于开源。但看到MinDoc似乎停更了一年，尝试和作者沟通后，得知作者因工作等原因，精力有限，无法持续维护，请求得到了GitHub仓库的部分维护权限。
+本人技术能力有限，且业余时间并不充裕，处理 Issues 和 Pull Requests 的进度缓慢，希望能和热心开发者一起持续维护MinDoc。
+维护权限需要作者添加，有意向者请添加下方QQ群，或通过发送邮件(`gsw945#foxmail.com`, 请替换`#`为`@`)，私聊我加入作者所在的微信群。
+</details>
+
+遇到问题请提 [Issues](https://github.com/lifei6671/mindoc/issues )，欢迎使用者和贡献者加入QQ群 `1051164153`
+<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=bHFR7P3Qp1nsSPbsTw4KN_ZpFLUAblIU&jump_from=webapi"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="MinDoc使用&amp;开发交流群" title="MinDoc使用&amp;开发交流群"></a>
+
+---
+
 # 安装与使用
 
 **如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。**
