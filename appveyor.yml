@@ -49,7 +49,7 @@ build_script:
   - set CGO_ENABLED=1
   - for /f "delims=" %%i in ('go version') do (set GO_VERSION=%%i)
   - cd c:\gopath\src\github.com\lifei6671\mindoc
-  - dep ensure -v
+  - go mod tidy
   - go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
   - 7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
 test_script:
