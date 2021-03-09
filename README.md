@@ -88,7 +88,7 @@ mail_expired=30
 在启动镜像时需要提供如下的环境变量：
 
 ```ini
-DB_ADAPTER                  制定 DB
+DB_ADAPTER                  指定 DB
 MYSQL_PORT_3306_TCP_ADDR    MySQL地址
 MYSQL_PORT_3306_TCP_PORT    MySQL端口号
 MYSQL_INSTANCE_NAME         MySQL数据库名称
@@ -109,6 +109,7 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
     `environment`节点，配置自己的环境变量。
     
 2. 一键完成所有环境搭建
+    
     > docker-compose up -d
 3. 浏览器访问
     > http://localhost:8181/
@@ -116,12 +117,16 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
     整个部署完成了
 4. 常用命令参考
    - 启动
+        
         > docker-compose up -d
    - 停止
+        
         > docker-compose stop
    - 重启
+        
         > docker-compose restart
    - 停止删除容器，释放所有资源
+        
         > docker-compose down
    - 删除并重新创建
         > docker-compose -f docker-compose.yml down && docker-compose up -d
