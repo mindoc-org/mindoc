@@ -1,11 +1,12 @@
 package mail
 
 import (
-	"os"
+	// "os"
 	"testing"
 )
 
 func TestSend(t *testing.T) {
+	/*
 	conf := &SMTPConfig{
 		Username: "swh@adm***.com",
 		Password: "",
@@ -26,4 +27,5 @@ func TestSend(t *testing.T) {
 	} else {
 		t.Log("发送成功")
 	}
+	*/
 }
