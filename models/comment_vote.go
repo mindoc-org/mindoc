@@ -1,9 +1,10 @@
 package models
 
 import (
+	"time"
+
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
-	"time"
 )
 
 type CommentVote struct {
