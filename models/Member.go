@@ -17,12 +17,13 @@ import (
 
 	"gopkg.in/ldap.v2"
 
+	"math"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/utils"
-	"math"
 )
 
 type Member struct {
@@ -167,13 +168,17 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		return nil, ErrMemberAuthMethodInvalid
 	}
 
+	tmpH := md5.New()
+	tmpH.Write([]byte(password))
+	password = strings.ToUpper(hex.EncodeToString(tmpH.Sum(nil)))
+
 	val := url.Values{
 		"account":  []string{account},
 		"password": []string{password},
 		"time":     []string{strconv.FormatInt(time.Now().Unix(), 10)},
 	}
 	h := md5.New()
-	h.Write([]byte(val.Encode() + beego.AppConfig.DefaultString("http_login_secret","")))
+	h.Write([]byte(val.Encode() + beego.AppConfig.DefaultString("http_login_secret", "")))
 
 	val.Add("sn", hex.EncodeToString(h.Sum(nil)))
 
