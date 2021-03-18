@@ -185,14 +185,14 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 	resp, err := http.PostForm(urlStr, val)
 	if err != nil {
 		beego.Error("通过接口登录失败 -> ", urlStr, account, err)
-		return nil, err
+		return nil, ErrHTTPServerFail
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		beego.Error("读取接口返回值失败 -> ", urlStr, account, err)
-		return nil, err
+		return nil, ErrHTTPServerFail
 	}
 	beego.Info("HTTP 登录接口返回数据 ->", string(body))
 
@@ -200,7 +200,7 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 
 	if err := json.Unmarshal(body, &result); err != nil {
 		beego.Error("解析接口返回值失败 -> ", urlStr, account, string(body))
-		return nil, errors.New("解析接口返回值失败")
+		return nil, ErrHTTPServerFail
 	}
 
 	if code, ok := result["errcode"]; !ok || code.(float64) != 200 {
@@ -208,7 +208,7 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		if msg, ok := result["message"]; ok {
 			return nil, errors.New(msg.(string))
 		}
-		return nil, errors.New("接口返回值格式不正确")
+		return nil, ErrHTTPServerFail
 	}
 	if m.MemberId <= 0 {
 		member := NewMember()

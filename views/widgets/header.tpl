@@ -29,6 +29,10 @@
                     </form>
                 </div>
             </nav>
+            <div style="display: inline-block;" class="navbar-mobile">
+                <a href="{{urlfor "HomeController.Index" }}" title="首页">首页</a>
+                <a href="{{urlfor "BlogController.List" }}" title="文章">文章</a>
+            </div>
 
             <div class="btn-group dropdown-menu-right pull-right slidebar visible-xs-inline-block visible-sm-inline-block">
                 <button class="btn btn-default dropdown-toggle hidden-lg" type="button" data-toggle="dropdown"><i class="fa fa-align-justify"></i></button>

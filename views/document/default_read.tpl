@@ -30,6 +30,19 @@
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
     <script type="text/javascript">window.book={"identify":"{{.Model.Identify}}"};</script>
+    <style>
+        .btn-mobile {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        @media screen and (min-width: 840px) {
+            .btn-mobile{
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="m-manual manual-mode-view manual-reader">
@@ -40,6 +53,7 @@
                 <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" title="{{.Model.BookName}}" class="book-title">{{.Model.BookName}}</a>
                 <span style="font-size: 12px;font-weight: 100;"></span>
             </div>
+            <a href="{{urlfor "HomeController.Index"}}" class="btn btn-default btn-mobile"> <i class="fa fa-home" aria-hidden="true"></i>首页</a>
             <div class="navbar-header pull-right manual-menu">
                 <a href="javascript:window.print();" id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> 打印</a>
                 {{if gt .Member.MemberId 0}}
