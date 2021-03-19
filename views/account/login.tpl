@@ -87,26 +87,42 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/dingtalk-jsapi.js"}}" type="text/javascript"></script>
-<!-- <script src="https://g.alicdn.com/dingding/dingtalk-jsapi/2.10.3/dingtalk.open.js"></script> -->
 <script type="text/javascript">
     if (dd.env.platform !== "notInDingTalk"){
         dd.ready(function() {
             dd.runtime.permission.requestAuthCode({
-                corpId: "dingd55b04400e53d11cbc961a6cb783455b", // 企业id
+                corpId: {{ .corpID }} , // 企业id
                 onSuccess: function (info) {
-                    $.post("http://192.168.0.51/token?action=AuthCorpUser", {"code": info.code}, function(rdata){
-                        if (rdata.status == 0) {
-                            $(window).attr('location', rdata.data.url)
-
-                        }else{
-                            alert(rdata.msg)
-                        }
+                    var index = layer.load(1, {
+                        shade: [0.1, '#fff'] // 0.1 透明度的白色背景
                     })
-                //    alert(info.code) // 通过该免登授权码可以获取用户身份
+
+                    var formData = $("form").serializeArray()
+                    formData.push({"name": "code", "value": info.code})
+
+                    $.ajax({
+                        url: "{{urlfor "AccountController.DingTalkLogin"}} ",
+                        data: formData,
+                        dataType: "json",
+                        type: "POST",
+                        complete: function(){
+                            layer.close(index)
+                        },
+                        success: function (res) {
+                            if (res.errcode !== 0) {
+                                layer.msg(res.message)
+                            } else {
+                                window.location = "/"
+                            }
+                        },
+                        // error: function () {
+                        // }
+                    })
                 }
             });
         });
     }
+
 </script>
 <script type="text/javascript">
     $(function () {

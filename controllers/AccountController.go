@@ -18,6 +18,7 @@ import (
 	"github.com/lifei6671/mindoc/mail"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils"
+	"github.com/lifei6671/mindoc/utils/dingtalk"
 )
 
 // AccountController 用户登录与注册
@@ -37,6 +38,7 @@ func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
 	c.EnableXSRF = true
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
+	c.Data["corpID"] = beego.AppConfig.String("dingtalk_corpid")
 	if c.Ctx.Input.IsPost() {
 		token := c.Ctx.Input.Query("_xsrf")
 		if token == "" {
@@ -134,6 +136,50 @@ func (c *AccountController) Login() {
 	} else {
 		c.Data["url"] = c.referer()
 	}
+}
+
+// 钉钉登录
+func (c *AccountController) DingTalkLogin() {
+	c.Prepare()
+
+	code := c.GetString("code")
+	if code == "" {
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+	}
+
+	appKey := beego.AppConfig.String("dingtalk_app_key")
+	appSecret := beego.AppConfig.String("dingtalk_app_secret")
+	tmpReader := beego.AppConfig.String("dingtalk_tmp_reader")
+
+	if appKey == "" || appSecret == "" || tmpReader == "" {
+		c.JsonResult(500, "未开启钉钉自动登录功能", nil)
+		c.StopRun()
+	}
+
+	dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
+	err := dingtalkAgent.GetAccesstoken()
+	if err != nil {
+		beego.Warn("获取钉钉临时Token失败 ->", err)
+		c.JsonResult(500, "自动登录失败", nil)
+		c.StopRun()
+	}
+
+	username, err := dingtalkAgent.GetUserNameByCode(code)
+	if err != nil {
+		beego.Warn("钉钉自动登录失败 ->", err)
+		c.JsonResult(500, "自动登录失败", nil)
+		c.StopRun()
+	}
+
+	member, err := models.NewMember().TmpLogin(tmpReader)
+	if err == nil {
+		member.LastLoginTime = time.Now()
+		_ = member.Update("last_login_time")
+
+		c.SetMember(*member)
+		c.LoggedIn(false)
+	}
+	c.JsonResult(0, "ok", username)
 }
 
 // 临时登录

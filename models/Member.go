@@ -105,6 +105,17 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 	return member, ErrorMemberPasswordError
 }
 
+// TmpLogin 用于钉钉临时登录
+func (m *Member) TmpLogin(account string) (*Member, error) {
+	o := orm.NewOrm()
+	member := &Member{}
+	err := o.Raw("select * from md_members where account = ? and status = 0 limit 1;", account).QueryRow(member)
+	if err != nil {
+		return member, ErrorMemberPasswordError
+	}
+	return member, nil
+}
+
 //ldapLogin 通过LDAP登陆
 func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	if beego.AppConfig.DefaultBool("ldap_enable", false) == false {
