@@ -144,7 +144,7 @@ func (c *AccountController) DingTalkLogin() {
 
 	code := c.GetString("code")
 	if code == "" {
-		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+		c.JsonResult(500, "获取身份信息失败", nil)
 	}
 
 	appKey := beego.AppConfig.String("dingtalk_app_key")
