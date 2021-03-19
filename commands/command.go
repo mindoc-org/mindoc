@@ -34,6 +34,7 @@ func RegisterDataBase() {
 	beego.Info("正在初始化数据库配置.")
 	adapter := beego.AppConfig.String("db_adapter")
 	orm.DefaultTimeLoc = time.Local
+	orm.DefaultRowsLimit = -1
 
 	if strings.EqualFold(adapter, "mysql") {
 		host := beego.AppConfig.String("db_host")
