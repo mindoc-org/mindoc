@@ -3,11 +3,11 @@ package controllers
 import (
 	"errors"
 
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/astaxie/beego"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/models"
 )
 
 type BookMemberController struct {

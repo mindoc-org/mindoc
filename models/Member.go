@@ -17,12 +17,13 @@ import (
 
 	"gopkg.in/ldap.v2"
 
+	"math"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/utils"
-	"math"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/utils"
 )
 
 type Member struct {

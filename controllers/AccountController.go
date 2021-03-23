@@ -6,13 +6,14 @@ import (
 	"strings"
 	"time"
 
+	"html/template"
+
 	"github.com/astaxie/beego"
 	"github.com/lifei6671/gocaptcha"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/mail"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
-	"html/template"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/mail"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils"
 )
 
 // AccountController 用户登录与注册

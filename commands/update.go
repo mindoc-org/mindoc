@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/astaxie/beego"
-	"github.com/lifei6671/mindoc/conf"
+	"github.com/mindoc-org/mindoc/conf"
 )
 
 //检查最新版本.

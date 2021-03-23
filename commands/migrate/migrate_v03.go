@@ -3,10 +3,11 @@ package migrate
 import (
 	"errors"
 	"fmt"
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/models"
 	"strings"
 	"time"
+
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/models"
 )
 
 type MigrationVersion03 struct {

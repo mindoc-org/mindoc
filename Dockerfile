@@ -27,17 +27,17 @@ ENV PATH $PATH:/opt/calibre/bin
 
 RUN curl -Lo /var/linux-installer.py https://download.calibre-ebook.com/linux-installer.py
 
-#RUN mkdir -p /go/src/github.com/lifei6671/ && cd /go/src/github.com/lifei6671/ && git clone https://github.com/lifei6671/mindoc.git && cd mindoc
+#RUN mkdir -p /go/src/github.com/lifei6671/ && cd /go/src/github.com/lifei6671/ && git clone https://github.com/mindoc-org/mindoc.git && cd mindoc
 
-ADD . /go/src/github.com/lifei6671/mindoc
+ADD . /go/src/github.com/mindoc-org/mindoc
 
-WORKDIR /go/src/github.com/lifei6671/mindoc
+WORKDIR /go/src/github.com/mindoc-org/mindoc
 
 RUN	 go get -u github.com/golang/dep/cmd/dep && dep ensure  && \
-	CGO_ENABLE=1 go build -v -a -o mindoc_linux_amd64 -ldflags="-w -s -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" && \
+    CGO_ENABLE=1 go build -v -a -o mindoc_linux_amd64 -ldflags="-w -s -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" && \
     rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock simsun.ttc
 
-ADD start.sh /go/src/github.com/lifei6671/mindoc
+ADD start.sh /go/src/github.com/mindoc-org/mindoc
 ADD simsun.ttc /usr/share/fonts/win/
 
 FROM alpine:latest
@@ -67,7 +67,7 @@ COPY --from=build /etc/apk/keys/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
 COPY --from=build /var/linux-installer.py .
 COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /go/src/github.com/lifei6671/mindoc /mindoc
+COPY --from=build /go/src/github.com/mindoc-org/mindoc /mindoc
 
 RUN  apk add glibc-bin.apk glibc.apk && \
     /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \

@@ -18,10 +18,11 @@ import (
 
 	"container/list"
 	"fmt"
+	"log"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/models"
-	"log"
+	"github.com/mindoc-org/mindoc/models"
 )
 
 var (

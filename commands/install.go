@@ -5,12 +5,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/models"
 	"flag"
-	"github.com/lifei6671/mindoc/utils"
+
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils"
 )
 
 //系统安装.

@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/conf"
 )
 
 type DocumentHistory struct {

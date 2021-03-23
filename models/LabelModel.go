@@ -1,10 +1,11 @@
 package models
 
 import (
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
 	"strings"
+
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/conf"
 )
 
 type Label struct {

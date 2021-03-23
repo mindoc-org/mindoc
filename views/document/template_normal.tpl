@@ -16,18 +16,18 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 
 **如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。**
 
-**Windows 教程:** [https://github.com/lifei6671/mindoc/blob/master/README_WIN.md](docs/README_WIN.md)
+**Windows 教程:** [https://github.com/mindoc-org/mindoc/blob/master/README_WIN.md](docs/README_WIN.md)
 
-**Linux  教程:**  [https://github.com/lifei6671/mindoc/blob/master/README_LINUX.md](docs/README_LINUX.md)
+**Linux  教程:**  [https://github.com/mindoc-org/mindoc/blob/master/README_LINUX.md](docs/README_LINUX.md)
 
-**PDF 导出配置教程**  [https://github.com/lifei6671/mindoc/blob/master/docs/README_LINUX.md](docs/WKHTMLTOPDF.md)
+**PDF 导出配置教程**  [https://github.com/mindoc-org/mindoc/blob/master/docs/README_LINUX.md](docs/WKHTMLTOPDF.md)
 
-对于没有Golang使用经验的用户，可以从 [https://github.com/lifei6671/mindoc/releases](https://github.com/lifei6671/mindoc/releases) 这里下载编译完的程序。
+对于没有Golang使用经验的用户，可以从 [https://github.com/mindoc-org/mindoc/releases](https://github.com/mindoc-org/mindoc/releases) 这里下载编译完的程序。
 
 如果有Golang开发经验，建议通过编译安装。
 
 ```bash
-git clone https://github.com/lifei6671/mindoc.git
+git clone https://github.com/mindoc-org/mindoc.git
 
 go get -d ./...
 

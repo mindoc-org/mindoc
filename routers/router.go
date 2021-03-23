@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/astaxie/beego"
-	"github.com/lifei6671/mindoc/controllers"
+	"github.com/mindoc-org/mindoc/controllers"
 )
 
 func init() {
@@ -35,8 +35,8 @@ func init() {
 	beego.Router("/manager/attach/list", &controllers.ManagerController{}, "*:AttachList")
 	beego.Router("/manager/attach/detailed/:id", &controllers.ManagerController{}, "*:AttachDetailed")
 	beego.Router("/manager/attach/delete", &controllers.ManagerController{}, "post:AttachDelete")
-	beego.Router("/manager/label/list", &controllers.ManagerController{},"get:LabelList")
-	beego.Router("/manager/label/delete/:id", &controllers.ManagerController{},"post:LabelDelete")
+	beego.Router("/manager/label/list", &controllers.ManagerController{}, "get:LabelList")
+	beego.Router("/manager/label/delete/:id", &controllers.ManagerController{}, "post:LabelDelete")
 
 	//beego.Router("/manager/config",  &controllers.ManagerController{}, "*:Config")
 
@@ -51,16 +51,14 @@ func init() {
 	beego.Router("/manager/team/member/change_role", &controllers.ManagerController{}, "POST:TeamChangeMemberRole")
 	beego.Router("/manager/team/member/search", &controllers.ManagerController{}, "*:TeamSearchMember")
 
-
 	beego.Router("/manager/team/book/list/:id", &controllers.ManagerController{}, "*:TeamBookList")
 	beego.Router("/manager/team/book/add", &controllers.ManagerController{}, "POST:TeamBookAdd")
 	beego.Router("/manager/team/book/delete", &controllers.ManagerController{}, "POST:TeamBookDelete")
 	beego.Router("/manager/team/book/search", &controllers.ManagerController{}, "*:TeamSearchBook")
 
-	beego.Router("/manager/itemsets", &controllers.ManagerController{},"*:Itemsets")
-	beego.Router("/manager/itemsets/edit", &controllers.ManagerController{},"post:ItemsetsEdit")
-	beego.Router("/manager/itemsets/delete", &controllers.ManagerController{},"post:ItemsetsDelete")
-
+	beego.Router("/manager/itemsets", &controllers.ManagerController{}, "*:Itemsets")
+	beego.Router("/manager/itemsets/edit", &controllers.ManagerController{}, "post:ItemsetsEdit")
+	beego.Router("/manager/itemsets/delete", &controllers.ManagerController{}, "post:ItemsetsDelete")
 
 	beego.Router("/setting", &controllers.SettingController{}, "*:Index")
 	beego.Router("/setting/password", &controllers.SettingController{}, "*:Password")
@@ -74,15 +72,14 @@ func init() {
 	beego.Router("/book/:key/sort", &controllers.BookController{}, "post:SaveSort")
 	beego.Router("/book/:key/teams", &controllers.BookController{}, "*:Team")
 
-
 	beego.Router("/book/create", &controllers.BookController{}, "*:Create")
 	beego.Router("/book/itemsets/search", &controllers.BookController{}, "*:ItemsetsSearch")
 
 	beego.Router("/book/users/create", &controllers.BookMemberController{}, "post:AddMember")
 	beego.Router("/book/users/change", &controllers.BookMemberController{}, "post:ChangeRole")
 	beego.Router("/book/users/delete", &controllers.BookMemberController{}, "post:RemoveMember")
-	beego.Router("/book/users/import", &controllers.BookController{},"post:Import")
-	beego.Router("/book/users/copy", &controllers.BookController{},"post:Copy")
+	beego.Router("/book/users/import", &controllers.BookController{}, "post:Import")
+	beego.Router("/book/users/copy", &controllers.BookController{}, "post:Copy")
 
 	beego.Router("/book/setting/save", &controllers.BookController{}, "post:SaveBook")
 	beego.Router("/book/setting/open", &controllers.BookController{}, "post:PrivatelyOwned")
@@ -94,26 +91,24 @@ func init() {
 	beego.Router("/book/team/delete", &controllers.BookController{}, "POST:TeamDelete")
 	beego.Router("/book/team/search", &controllers.BookController{}, "*:TeamSearch")
 
-
 	//管理文章的路由
-	beego.Router("/manage/blogs", &controllers.BlogController{},"*:ManageList")
+	beego.Router("/manage/blogs", &controllers.BlogController{}, "*:ManageList")
 	beego.Router("/manage/blogs/setting/?:id", &controllers.BlogController{}, "*:ManageSetting")
-	beego.Router("/manage/blogs/edit/?:id",&controllers.BlogController{}, "*:ManageEdit")
-	beego.Router("/manage/blogs/delete",&controllers.BlogController{}, "post:ManageDelete")
-	beego.Router("/manage/blogs/upload",&controllers.BlogController{}, "post:Upload")
-	beego.Router("/manage/blogs/attach/:id",&controllers.BlogController{}, "post:RemoveAttachment")
-
+	beego.Router("/manage/blogs/edit/?:id", &controllers.BlogController{}, "*:ManageEdit")
+	beego.Router("/manage/blogs/delete", &controllers.BlogController{}, "post:ManageDelete")
+	beego.Router("/manage/blogs/upload", &controllers.BlogController{}, "post:Upload")
+	beego.Router("/manage/blogs/attach/:id", &controllers.BlogController{}, "post:RemoveAttachment")
 
 	//读文章的路由
 	beego.Router("/blogs", &controllers.BlogController{}, "*:List")
-	beego.Router("/blog-attach/:id:int/:attach_id:int", &controllers.BlogController{},"get:Download")
-	beego.Router("/blog-:id([0-9]+).html",&controllers.BlogController{}, "*:Index")
+	beego.Router("/blog-attach/:id:int/:attach_id:int", &controllers.BlogController{}, "get:Download")
+	beego.Router("/blog-:id([0-9]+).html", &controllers.BlogController{}, "*:Index")
 
 	//模板相关接口
-	beego.Router("/api/template/get", &controllers.TemplateController{},"get:Get")
-	beego.Router("/api/template/list", &controllers.TemplateController{},"post:List")
-	beego.Router("/api/template/add", &controllers.TemplateController{},"post:Add")
-	beego.Router("/api/template/remove", &controllers.TemplateController{},"post:Delete")
+	beego.Router("/api/template/get", &controllers.TemplateController{}, "get:Get")
+	beego.Router("/api/template/list", &controllers.TemplateController{}, "post:List")
+	beego.Router("/api/template/add", &controllers.TemplateController{}, "post:Add")
+	beego.Router("/api/template/remove", &controllers.TemplateController{}, "post:Delete")
 
 	beego.Router("/api/attach/remove/", &controllers.DocumentController{}, "post:RemoveAttachment")
 	beego.Router("/api/:key/edit/?:id", &controllers.DocumentController{}, "*:Edit")
@@ -145,7 +140,7 @@ func init() {
 	beego.Router("/tag/:key", &controllers.LabelController{}, "get:Index")
 	beego.Router("/tags", &controllers.LabelController{}, "get:List")
 
-	beego.Router("/items", &controllers.ItemsetsController{},"get:Index")
-	beego.Router("/items/:key", &controllers.ItemsetsController{},"get:List")
+	beego.Router("/items", &controllers.ItemsetsController{}, "get:Index")
+	beego.Router("/items/:key", &controllers.ItemsetsController{}, "get:List")
 
 }

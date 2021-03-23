@@ -5,9 +5,9 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils/pagination"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils/pagination"
 )
 
 type LabelController struct {
