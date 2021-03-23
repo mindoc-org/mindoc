@@ -24,7 +24,7 @@ import (
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
 	"github.com/mindoc-org/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 type BookController struct {

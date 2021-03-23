@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
 

@@ -24,7 +24,7 @@ import (
 	"github.com/mindoc-org/mindoc/utils/filetil"
 	"github.com/mindoc-org/mindoc/utils/requests"
 	"github.com/mindoc-org/mindoc/utils/ziptil"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 var releaseQueue = make(chan int, 500)

@@ -6,8 +6,8 @@ import (
 
 	"path/filepath"
 
-	"github.com/astaxie/beego/logs"
 	"github.com/beego/beego/v2/adapter"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/kardianos/service"
 	"github.com/mindoc-org/mindoc/commands"

@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego/logs"
 	"github.com/beego/beego/v2/adapter"
 	"github.com/beego/beego/v2/adapter/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/mindoc-org/mindoc/conf"
@@ -27,7 +27,7 @@ import (
 	"github.com/mindoc-org/mindoc/utils/filetil"
 	"github.com/mindoc-org/mindoc/utils/gopool"
 	"github.com/mindoc-org/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 // DocumentController struct

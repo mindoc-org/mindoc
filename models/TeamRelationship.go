@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/astaxie/beego/logs"
 	"github.com/beego/beego/v2/adapter/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
 

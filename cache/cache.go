@@ -7,7 +7,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/client/cache"
 )
 
@@ -20,7 +20,7 @@ func Get(key string, e interface{}) error {
 	val, err := bm.Get(nilctx, key)
 
 	if err != nil {
-		return errors.New("get cache error:"+ err.Error())
+		return errors.New("get cache error:" + err.Error())
 	}
 
 	if val == nil {
