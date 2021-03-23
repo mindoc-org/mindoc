@@ -13,11 +13,14 @@ import (
 
 	"bytes"
 	"encoding/json"
+	"net/http"
+
 	"github.com/astaxie/beego"
 	beegoCache "github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/memcache"
-	"github.com/astaxie/beego/cache/redis"
-	_ "github.com/astaxie/beego/cache/redis"
+
+	// "github.com/astaxie/beego/cache/redis"
+	// _ "github.com/astaxie/beego/cache/redis"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/howeyc/fsnotify"
@@ -26,7 +29,6 @@ import (
 	"github.com/lifei6671/mindoc/conf"
 	"github.com/lifei6671/mindoc/models"
 	"github.com/lifei6671/mindoc/utils/filetil"
-	"net/http"
 )
 
 // RegisterDataBase 注册数据库
@@ -324,6 +326,7 @@ func ResolveCommand(args []string) {
 	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
 	beego.BConfig.WebConfig.StaticDir["/uploads"] = uploads
 	beego.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")
+	beego.BConfig.WebConfig.Session.SessionCookieSameSite = http.SameSiteLaxMode
 
 	fonts := conf.WorkingDir("static", "fonts")
 
@@ -381,38 +384,38 @@ func RegisterCache() {
 		memory := beegoCache.NewMemoryCache()
 		beegoCache.DefaultEvery = cacheInterval
 		cache.Init(memory)
-	} else if cacheProvider == "redis" {
-		//设置Redis前缀
-		if key := beego.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
-			redis.DefaultKey = key
-		}
-		var redisConfig struct {
-			Conn     string `json:"conn"`
-			Password string `json:"password"`
-			DbNum    int    `json:"dbNum"`
-		}
-		redisConfig.DbNum = 0
-		redisConfig.Conn = beego.AppConfig.DefaultString("cache_redis_host", "")
-		if pwd := beego.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
-			redisConfig.Password = pwd
-		}
-		if dbNum := beego.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
-			redisConfig.DbNum = dbNum
-		}
+		// } else if cacheProvider == "redis" {
+		// 	//设置Redis前缀
+		// 	if key := beego.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
+		// 		redis.DefaultKey = key
+		// 	}
+		// 	var redisConfig struct {
+		// 		Conn     string `json:"conn"`
+		// 		Password string `json:"password"`
+		// 		DbNum    int    `json:"dbNum"`
+		// 	}
+		// 	redisConfig.DbNum = 0
+		// 	redisConfig.Conn = beego.AppConfig.DefaultString("cache_redis_host", "")
+		// 	if pwd := beego.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
+		// 		redisConfig.Password = pwd
+		// 	}
+		// 	if dbNum := beego.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
+		// 		redisConfig.DbNum = dbNum
+		// 	}
 
-		bc, err := json.Marshal(&redisConfig)
-		if err != nil {
-			beego.Error("初始化Redis缓存失败:", err)
-			os.Exit(1)
-		}
-		redisCache, err := beegoCache.NewCache("redis", string(bc))
+		// 	bc, err := json.Marshal(&redisConfig)
+		// 	if err != nil {
+		// 		beego.Error("初始化Redis缓存失败:", err)
+		// 		os.Exit(1)
+		// 	}
+		// 	redisCache, err := beegoCache.NewCache("redis", string(bc))
 
-		if err != nil {
-			beego.Error("初始化Redis缓存失败:", err)
-			os.Exit(1)
-		}
+		// 	if err != nil {
+		// 		beego.Error("初始化Redis缓存失败:", err)
+		// 		os.Exit(1)
+		// 	}
 
-		cache.Init(redisCache)
+		// 	cache.Init(redisCache)
 	} else if cacheProvider == "memcache" {
 
 		var memcacheConfig struct {
