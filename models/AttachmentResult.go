@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/utils/filetil"
+	"github.com/mindoc-org/mindoc/utils/filetil"
 )
 
 type AttachmentResult struct {
@@ -36,9 +36,9 @@ func (m *AttachmentResult) Find(id int) (*AttachmentResult, error) {
 
 	if attach.BookId == 0 && attach.DocumentId > 0 {
 		blog := NewBlog()
-		if err := o.QueryTable(blog.TableNameWithPrefix()).Filter("blog_id",attach.DocumentId).One(blog,"blog_title");err  == nil {
+		if err := o.QueryTable(blog.TableNameWithPrefix()).Filter("blog_id", attach.DocumentId).One(blog, "blog_title"); err == nil {
 			m.BookName = blog.BlogTitle
-		}else{
+		} else {
 			m.BookName = "[文章不存在]"
 		}
 	} else {

@@ -1,4 +1,4 @@
-module github.com/lifei6671/mindoc
+module github.com/mindoc-org/mindoc
 
 go 1.12
 

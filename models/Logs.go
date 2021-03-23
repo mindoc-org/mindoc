@@ -2,10 +2,11 @@ package models
 
 import (
 	"errors"
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
 	"sync/atomic"
 	"time"
+
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/conf"
 )
 
 var loggerQueue = &logQueue{channel: make(chan *Logger, 100), isRuning: 0}

@@ -10,17 +10,18 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"io/ioutil"
+	"os"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
-	"github.com/lifei6671/mindoc/utils/filetil"
-	"github.com/lifei6671/mindoc/utils/pagination"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils"
+	"github.com/mindoc-org/mindoc/utils/filetil"
+	"github.com/mindoc-org/mindoc/utils/pagination"
 	"gopkg.in/russross/blackfriday.v2"
-	"io/ioutil"
-	"os"
 )
 
 type ManagerController struct {

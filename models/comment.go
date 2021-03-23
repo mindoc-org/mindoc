@@ -2,9 +2,10 @@ package models
 
 import (
 	"errors"
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
 	"time"
+
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/conf"
 )
 
 //Comment struct

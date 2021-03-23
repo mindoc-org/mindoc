@@ -1,11 +1,12 @@
 package utils
 
 import (
+	"bytes"
 	"regexp"
 	"strings"
+
 	"github.com/PuerkitoBio/goquery"
-	"bytes"
-	"github.com/lifei6671/mindoc/conf"
+	"github.com/mindoc-org/mindoc/conf"
 )
 
 func StripTags(s string) string  {

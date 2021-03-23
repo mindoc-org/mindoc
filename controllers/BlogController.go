@@ -1,22 +1,23 @@
 package controllers
 
 import (
-	"strings"
-	"github.com/lifei6671/mindoc/models"
-	"time"
-	"github.com/astaxie/beego"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/utils/pagination"
-	"strconv"
-	"fmt"
-	"os"
-	"net/http"
-	"path/filepath"
-	"github.com/astaxie/beego/orm"
-	"html/template"
 	"encoding/json"
-	"github.com/lifei6671/mindoc/utils"
+	"fmt"
+	"html/template"
+	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils"
+	"github.com/mindoc-org/mindoc/utils/pagination"
 )
 
 type BlogController struct {

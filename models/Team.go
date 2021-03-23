@@ -1,11 +1,12 @@
 package models
 
 import (
-	"time"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/astaxie/beego/orm"
 	"errors"
+	"time"
+
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/conf"
 )
 
 //团队.

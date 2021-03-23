@@ -3,10 +3,11 @@ package models
 import (
 	"bytes"
 	"fmt"
-	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
 	"html/template"
 	"math"
+
+	"github.com/astaxie/beego/orm"
+	"github.com/mindoc-org/mindoc/conf"
 )
 
 type DocumentTree struct {

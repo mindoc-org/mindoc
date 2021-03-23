@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"path/filepath"
+
 	"github.com/astaxie/beego"
 	"github.com/kardianos/service"
-	"github.com/lifei6671/mindoc/commands"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/controllers"
-	"path/filepath"
+	"github.com/mindoc-org/mindoc/commands"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/controllers"
 )
 
 type Daemon struct {

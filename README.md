@@ -25,7 +25,7 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 维护权限需要作者添加，有意向者请添加下方QQ群，或通过发送邮件(`gsw945#foxmail.com`, 请替换`#`为`@`)，私聊我加入作者所在的微信群。
 </details>
 
-遇到问题请提 [Issues](https://github.com/lifei6671/mindoc/issues )，欢迎使用者和贡献者加入QQ群 `1051164153`
+遇到问题请提 [Issues](https://github.com/mindoc-org/mindoc/issues )，欢迎使用者和贡献者加入QQ群 `1051164153`
 <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=bHFR7P3Qp1nsSPbsTw4KN_ZpFLUAblIU&jump_from=webapi"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="MinDoc使用&amp;开发交流群" title="MinDoc使用&amp;开发交流群"></a>
 
 ---
@@ -36,12 +36,12 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 
 更多信息请查看手册： [MinDoc 使用手册](https://www.iminho.me/wiki/docs/mindoc/mindoc-summary.md)
 
-对于没有Golang使用经验的用户，可以从 [https://github.com/lifei6671/mindoc/releases](https://github.com/lifei6671/mindoc/releases) 这里下载编译完的程序。
+对于没有Golang使用经验的用户，可以从 [https://github.com/mindoc-org/mindoc/releases](https://github.com/mindoc-org/mindoc/releases) 这里下载编译完的程序。
 
 如果有Golang开发经验，建议通过编译安装，在此之前，您需要先安装Golang官方包管理工具，详见[Install dep](https://golang.github.io/dep/docs/installation.html)。
 
 ```bash
-git clone https://github.com/lifei6671/mindoc.git
+git clone https://github.com/mindoc-org/mindoc.git
 
 dep ensure
 

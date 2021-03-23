@@ -13,6 +13,8 @@ import (
 
 	"bytes"
 	"encoding/json"
+	"net/http"
+
 	"github.com/astaxie/beego"
 	beegoCache "github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/memcache"
@@ -22,11 +24,10 @@ import (
 	"github.com/astaxie/beego/orm"
 	"github.com/howeyc/fsnotify"
 	"github.com/lifei6671/gocaptcha"
-	"github.com/lifei6671/mindoc/cache"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils/filetil"
-	"net/http"
+	"github.com/mindoc-org/mindoc/cache"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils/filetil"
 )
 
 // RegisterDataBase 注册数据库

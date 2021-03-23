@@ -16,17 +16,16 @@ environment:
       GOARCH: amd64
 
 install:
-
   - ps: if($env:tbs_tools -eq 'mingw' -and $env:tbs_arch -eq 'x64')
-        {
-            Start-FileDownload "http://libgd.blob.core.windows.net/mingw/x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z" -FileName mingw_x86_64.7z;
-            7z x -oC:\ mingw_x86_64.7z | out-null;
-        }
+      {
+      Start-FileDownload "http://libgd.blob.core.windows.net/mingw/x86_64-4.9.1-release-posix-seh-rt_v3-rev1.7z" -FileName mingw_x86_64.7z;
+      7z x -oC:\ mingw_x86_64.7z | out-null;
+      }
   - ps: if($env:tbs_tools -eq 'mingw' -and $env:tbs_arch -eq 'x86')
-        {
-            Start-FileDownload "http://libgd.blob.core.windows.net/mingw/i686-4.9.1-release-posix-dwarf-rt_v3-rev1.7z" -FileName mingw_x86.7z;
-            7z x -oC:\ mingw_x86.7z | out-null;
-        }
+      {
+      Start-FileDownload "http://libgd.blob.core.windows.net/mingw/i686-4.9.1-release-posix-dwarf-rt_v3-rev1.7z" -FileName mingw_x86.7z;
+      7z x -oC:\ mingw_x86.7z | out-null;
+      }
   - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
   - echo %PATH%
   - echo %GOPATH%
@@ -40,7 +39,7 @@ build_script:
   - for /f "delims=" %%i in ('go version') do (set GO_VERSION=%%i)
   - cd c:\gopath\src\github.com\lifei6671\mindoc
   - go mod tidy
-  - go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/lifei6671/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/lifei6671/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
+  - go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/mindoc-org/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
   - 7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
 test_script:
   - mindoc_windows_%GOARCH%.exe version
@@ -58,9 +57,9 @@ artifacts:
 deploy:
   - provider: GitHub
     auth_token:
-        secure: "Qkhxloft5lBKti7O+vVS+Vrxh7CBAUVhlfdZ9ptBXjFtjt6jHXnaBA2uv2OYbISB"
+      secure: "Qkhxloft5lBKti7O+vVS+Vrxh7CBAUVhlfdZ9ptBXjFtjt6jHXnaBA2uv2OYbISB"
     draft: false
     prerelease: false
-    artifact:  mindoc_windows_%GOARCH%.7z
+    artifact: mindoc_windows_%GOARCH%.7z
     on:
       appveyor_repo_tag: true

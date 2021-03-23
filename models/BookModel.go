@@ -15,15 +15,16 @@ import (
 	"time"
 
 	"encoding/json"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/utils"
-	"github.com/lifei6671/mindoc/utils/cryptil"
-	"github.com/lifei6671/mindoc/utils/filetil"
-	"github.com/lifei6671/mindoc/utils/requests"
-	"github.com/lifei6671/mindoc/utils/ziptil"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/utils"
+	"github.com/mindoc-org/mindoc/utils/cryptil"
+	"github.com/mindoc-org/mindoc/utils/filetil"
+	"github.com/mindoc-org/mindoc/utils/requests"
+	"github.com/mindoc-org/mindoc/utils/ziptil"
 	"gopkg.in/russross/blackfriday.v2"
 )
 

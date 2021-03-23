@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/lifei6671/mindoc/utils/sqltil"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -13,16 +12,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mindoc-org/mindoc/utils/sqltil"
+
 	"net/http"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/graphics"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
-	"github.com/lifei6671/mindoc/utils/pagination"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/graphics"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils"
+	"github.com/mindoc-org/mindoc/utils/pagination"
 	"gopkg.in/russross/blackfriday.v2"
 )
 

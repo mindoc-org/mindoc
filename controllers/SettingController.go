@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/astaxie/beego/logs"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/graphics"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/graphics"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils"
 )
 
 type SettingController struct {
@@ -34,7 +34,7 @@ func (c *SettingController) Index() {
 		member.Email = email
 		member.Phone = phone
 		member.Description = description
-		member.RealName = strings.TrimSpace(c.GetString("real_name",""))
+		member.RealName = strings.TrimSpace(c.GetString("real_name", ""))
 		if err := member.Update(); err != nil {
 			c.JsonResult(602, err.Error())
 		}

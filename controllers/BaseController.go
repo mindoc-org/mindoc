@@ -8,13 +8,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
-	"github.com/lifei6671/mindoc/conf"
-	"github.com/lifei6671/mindoc/models"
-	"github.com/lifei6671/mindoc/utils"
-	"path/filepath"
-	"io/ioutil"
 	"html/template"
+	"io/ioutil"
+	"path/filepath"
+
+	"github.com/astaxie/beego"
+	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/models"
+	"github.com/mindoc-org/mindoc/utils"
 )
 
 type BaseController struct {
