@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
 	"github.com/mindoc-org/mindoc/utils/cryptil"
@@ -55,7 +55,7 @@ func (item *Itemsets) First(itemId int) (*Itemsets, error) {
 	}
 	err := item.QueryTable().Filter("item_id", itemId).One(item)
 	if err != nil {
-		beego.Error("查询项目空间失败 -> item_id=", itemId, err)
+		logs.Error("查询项目空间失败 -> item_id=", itemId, err)
 	} else {
 		item.Include()
 	}
@@ -65,7 +65,7 @@ func (item *Itemsets) First(itemId int) (*Itemsets, error) {
 func (item *Itemsets) FindFirst(itemKey string) (*Itemsets, error) {
 	err := item.QueryTable().Filter("item_key", itemKey).One(item)
 	if err != nil {
-		beego.Error("查询项目空间失败 -> itemKey=", itemKey, err)
+		logs.Error("查询项目空间失败 -> itemKey=", itemKey, err)
 	} else {
 		item.Include()
 	}
@@ -114,17 +114,17 @@ func (item *Itemsets) Delete(itemId int) (err error) {
 	}
 	o := orm.NewOrm()
 	if err := o.Begin(); err != nil {
-		beego.Error("开启事物失败 ->", err)
+		logs.Error("开启事物失败 ->", err)
 		return err
 	}
 	_, err = o.QueryTable(item.TableNameWithPrefix()).Filter("item_id", itemId).Delete()
 	if err != nil {
-		beego.Error("删除项目空间失败 -> item_id=", itemId, err)
+		logs.Error("删除项目空间失败 -> item_id=", itemId, err)
 		o.Rollback()
 	}
 	_, err = o.Raw("update md_books set item_id=1 where item_id=?;", itemId).Exec()
 	if err != nil {
-		beego.Error("删除项目空间失败 -> item_id=", itemId, err)
+		logs.Error("删除项目空间失败 -> item_id=", itemId, err)
 		o.Rollback()
 	}
 
@@ -190,7 +190,7 @@ func (item *Itemsets) FindItemsetsByName(name string, limit int) (*SelectMemberR
 		_, err = item.QueryTable().Filter("item_name__icontains", name).Limit(limit).All(&itemsets)
 	}
 	if err != nil {
-		beego.Error("查询项目空间失败 ->", err)
+		logs.Error("查询项目空间失败 ->", err)
 		return &result, err
 	}
 
@@ -214,7 +214,7 @@ func (item *Itemsets) FindItemsetsByItemKey(key string, pageIndex, pageSize, mem
 	err = item.QueryTable().Filter("item_key", key).One(item)
 
 	if err != nil {
-		beego.Error("查询项目空间时出错 ->", key, err)
+		logs.Error("查询项目空间时出错 ->", key, err)
 		return nil, 0, err
 	}
 	offset := (pageIndex - 1) * pageSize
@@ -232,7 +232,7 @@ WHERE book.item_id = ? AND (book.privately_owned = 0 or rel.role_id >= 0 or team
 
 		err = o.Raw(sql1, memberId, memberId, item.ItemId).QueryRow(&totalCount)
 		if err != nil {
-			beego.Error("查询项目空间时出错 ->", key, err)
+			logs.Error("查询项目空间时出错 ->", key, err)
 			return
 		}
 		sql2 := `SELECT book.*,rel1.*,member.account AS create_name FROM md_books AS book

@@ -1,36 +1,39 @@
 package cache
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 type NullCache struct {
 
 }
 
 
-func (bm *NullCache) Get(key string) interface{} {
-	return nil
+func (bm *NullCache) Get(ctx context.Context, key string) (interface{}, error) {
+	return nil, nil
 }
 
-func (bm *NullCache)GetMulti(keys []string) []interface{} {
-	return nil
+func (bm *NullCache)GetMulti(ctx context.Context, keys []string) ([]interface{}, error) {
+	return nil, nil
 }
 
-func (bm *NullCache)Put(key string, val interface{}, timeout time.Duration) error {
+func (bm *NullCache)Put(ctx context.Context,key string, val interface{}, timeout time.Duration) error {
 	return nil
 }
-func (bm *NullCache)Delete(key string) error {
+func (bm *NullCache)Delete(ctx context.Context,key string) error {
 	return nil
 }
-func (bm *NullCache)Incr(key string) error {
+func (bm *NullCache)Incr(ctx context.Context,key string) error {
 	return nil
 }
-func (bm *NullCache)Decr(key string) error {
+func (bm *NullCache)Decr(ctx context.Context,key string) error {
 	return nil
 }
-func (bm *NullCache)IsExist(key string) bool {
-	return false
+func (bm *NullCache)IsExist(ctx context.Context,key string) (bool, error) {
+	return false, nil
 }
-func (bm *NullCache)ClearAll() error{
+func (bm *NullCache)ClearAll(ctx context.Context) error{
 	return nil
 }
 

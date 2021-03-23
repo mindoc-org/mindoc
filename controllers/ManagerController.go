@@ -13,9 +13,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/adapter"
+	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
@@ -210,7 +210,7 @@ func (c *ManagerController) EditMember() {
 	member, err := models.NewMember().Find(member_id)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.Abort("404")
 	}
 	if c.Ctx.Input.IsPost() {
@@ -235,7 +235,7 @@ func (c *ManagerController) EditMember() {
 		if password1 != "" {
 			password, err := utils.PasswordHash(password1)
 			if err != nil {
-				beego.Error(err)
+				logs.Error(err)
 				c.JsonResult(6003, "对用户密码加密时出错")
 			}
 			member.Password = password
@@ -261,7 +261,7 @@ func (c *ManagerController) DeleteMember() {
 	member, err := models.NewMember().Find(member_id)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(500, "用户不存在")
 	}
 	if member.Role == conf.MemberSuperRole {
@@ -270,14 +270,14 @@ func (c *ManagerController) DeleteMember() {
 	superMember, err := models.NewMember().FindByFieldFirst("role", 0)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(5001, "未能找到超级管理员")
 	}
 
 	err = models.NewMember().Delete(member_id, superMember.MemberId)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(5002, "删除失败")
 	}
 	c.JsonResult(0, "ok")
@@ -341,7 +341,7 @@ func (c *ManagerController) EditBook() {
 		autoRelease := strings.TrimSpace(c.GetString("auto_release")) == "on"
 		publisher := strings.TrimSpace(c.GetString("publisher"))
 		historyCount, _ := c.GetInt("history_count", 0)
-		itemId,_ := c.GetInt("itemId")
+		itemId, _ := c.GetInt("itemId")
 
 		if strings.Count(description, "") > 500 {
 			c.JsonResult(6004, "项目描述不能大于500字")
@@ -356,7 +356,7 @@ func (c *ManagerController) EditBook() {
 			}
 		}
 		if !models.NewItemsets().Exist(itemId) {
-			c.JsonResult(6006,"项目空间不存在")
+			c.JsonResult(6006, "项目空间不存在")
 		}
 		book.Publisher = publisher
 		book.HistoryCount = historyCount
@@ -517,7 +517,7 @@ func (c *ManagerController) Transfer() {
 	rel, err := models.NewRelationship().FindFounder(book.BookId)
 
 	if err != nil {
-		beego.Error("FindFounder => ", err)
+		logs.Error("FindFounder => ", err)
 		c.JsonResult(6009, "查询项目创始人失败")
 	}
 	if member.MemberId == rel.MemberId {
@@ -647,7 +647,7 @@ func (c *ManagerController) AttachDetailed() {
 	attach, err := models.NewAttachmentResult().Find(attach_id)
 
 	if err != nil {
-		beego.Error("AttachDetailed => ", err)
+		logs.Error("AttachDetailed => ", err)
 		if err == orm.ErrNoRows {
 			c.Abort("404")
 		} else {
@@ -674,13 +674,13 @@ func (c *ManagerController) AttachDelete() {
 	attach, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
-		beego.Error("AttachDelete => ", err)
+		logs.Error("AttachDelete => ", err)
 		c.JsonResult(6001, err.Error())
 	}
 	attach.FilePath = filepath.Join(conf.WorkingDirectory, attach.FilePath)
 
 	if err := attach.Delete(); err != nil {
-		beego.Error("AttachDelete => ", err)
+		logs.Error("AttachDelete => ", err)
 		c.JsonResult(6002, err.Error())
 	}
 	c.JsonResult(0, "ok")
@@ -714,7 +714,7 @@ func (c *ManagerController) LabelDelete() {
 	labelId, err := strconv.Atoi(c.Ctx.Input.Param(":id"))
 
 	if err != nil {
-		beego.Error("获取删除标签参数时出错:", err)
+		logs.Error("获取删除标签参数时出错:", err)
 		c.JsonResult(50001, "参数错误")
 	}
 	if labelId <= 0 {
@@ -723,7 +723,7 @@ func (c *ManagerController) LabelDelete() {
 
 	label, err := models.NewLabel().FindFirst("label_id", labelId)
 	if err != nil {
-		beego.Error("查询标签时出错:", err)
+		logs.Error("查询标签时出错:", err)
 		c.JsonResult(50001, "查询标签时出错:"+err.Error())
 	}
 	if err := label.Delete(); err != nil {
@@ -744,22 +744,22 @@ func (c *ManagerController) Config() {
 		tf, err := ioutil.TempFile(os.TempDir(), "mindoc")
 
 		if err != nil {
-			beego.Error("创建临时文件失败 ->", err)
+			logs.Error("创建临时文件失败 ->", err)
 			c.JsonResult(5001, "创建临时文件失败")
 		}
 		defer tf.Close()
 
 		tf.WriteString(content)
 
-		err = beego.LoadAppConfig("ini", tf.Name())
+		err = adapter.LoadAppConfig("ini", tf.Name())
 
 		if err != nil {
-			beego.Error("加载配置文件失败 ->", err)
+			logs.Error("加载配置文件失败 ->", err)
 			c.JsonResult(5002, "加载配置文件失败")
 		}
 		err = filetil.CopyFile(tf.Name(), conf.ConfigurationFile)
 		if err != nil {
-			beego.Error("保存配置文件失败 ->", err)
+			logs.Error("保存配置文件失败 ->", err)
 			c.JsonResult(5003, "保存配置文件失败")
 		}
 		c.JsonResult(0, "保存成功")
@@ -903,7 +903,7 @@ func (c *ManagerController) TeamMemberList() {
 	b, err := json.Marshal(teams)
 
 	if err != nil {
-		beego.Error("编码 JSON 结果失败 ->", err)
+		logs.Error("编码 JSON 结果失败 ->", err)
 		c.Data["Result"] = template.JS("[]")
 	} else {
 		c.Data["Result"] = template.JS(string(b))
@@ -1030,7 +1030,7 @@ func (c *ManagerController) TeamBookList() {
 	b, err := json.Marshal(teams)
 
 	if err != nil {
-		beego.Error("编码 JSON 结果失败 ->", err)
+		logs.Error("编码 JSON 结果失败 ->", err)
 		c.Data["Result"] = template.JS("[]")
 	} else {
 		c.Data["Result"] = template.JS(string(b))
@@ -1123,7 +1123,6 @@ func (c *ManagerController) Itemsets() {
 	}
 
 	c.Data["Lists"] = items
-
 
 }
 

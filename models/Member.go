@@ -19,9 +19,9 @@ import (
 
 	"math"
 
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/adapter"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
 )
@@ -74,10 +74,10 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 	err := o.Raw("select * from md_members where (account = ? or email = ?) and status = 0 limit 1;", account, account).QueryRow(member)
 
 	if err != nil {
-		if beego.AppConfig.DefaultBool("ldap_enable", false) == true {
+		if adapter.AppConfig.DefaultBool("ldap_enable", false) == true {
 			logs.Info("转入LDAP登陆 ->", account)
 			return member.ldapLogin(account, password)
-		} else if beego.AppConfig.String("http_login_url") != "" {
+		} else if adapter.AppConfig.String("http_login_url") != "" {
 			logs.Info("转入 HTTP 接口登陆 ->", account)
 			return member.httpLogin(account, password)
 		} else {
@@ -107,32 +107,32 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 
 //ldapLogin 通过LDAP登陆
 func (m *Member) ldapLogin(account string, password string) (*Member, error) {
-	if beego.AppConfig.DefaultBool("ldap_enable", false) == false {
+	if adapter.AppConfig.DefaultBool("ldap_enable", false) == false {
 		return m, ErrMemberAuthMethodInvalid
 	}
 	var err error
-	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", beego.AppConfig.String("ldap_host"), beego.AppConfig.DefaultInt("ldap_port", 3268)))
+	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", adapter.AppConfig.String("ldap_host"), adapter.AppConfig.DefaultInt("ldap_port", 3268)))
 	if err != nil {
-		beego.Error("绑定 LDAP 用户失败 ->", err)
+		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrLDAPConnect
 	}
 	defer lc.Close()
-	err = lc.Bind(beego.AppConfig.String("ldap_user"), beego.AppConfig.String("ldap_password"))
+	err = lc.Bind(adapter.AppConfig.String("ldap_user"), adapter.AppConfig.String("ldap_password"))
 	if err != nil {
-		beego.Error("绑定 LDAP 用户失败 ->", err)
+		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrLDAPFirstBind
 	}
 	searchRequest := ldap.NewSearchRequest(
-		beego.AppConfig.String("ldap_base"),
+		adapter.AppConfig.String("ldap_base"),
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		//修改objectClass通过配置文件获取值
-		fmt.Sprintf("(&(%s)(%s=%s))", beego.AppConfig.String("ldap_filter"), beego.AppConfig.String("ldap_attribute"), account),
+		fmt.Sprintf("(&(%s)(%s=%s))", adapter.AppConfig.String("ldap_filter"), adapter.AppConfig.String("ldap_attribute"), account),
 		[]string{"dn", "mail"},
 		nil,
 	)
 	searchResult, err := lc.Search(searchRequest)
 	if err != nil {
-		beego.Error("绑定 LDAP 用户失败 ->", err)
+		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrLDAPSearch
 	}
 	if len(searchResult.Entries) != 1 {
@@ -141,7 +141,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	userdn := searchResult.Entries[0].DN
 	err = lc.Bind(userdn, password)
 	if err != nil {
-		beego.Error("绑定 LDAP 用户失败 ->", err)
+		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrorMemberPasswordError
 	}
 	if m.MemberId <= 0 {
@@ -149,12 +149,12 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		m.Email = searchResult.Entries[0].GetAttributeValue("mail")
 		m.AuthMethod = "ldap"
 		m.Avatar = "/static/images/headimgurl.jpg"
-		m.Role = conf.SystemRole(beego.AppConfig.DefaultInt("ldap_user_role", 2))
+		m.Role = conf.SystemRole(adapter.AppConfig.DefaultInt("ldap_user_role", 2))
 		m.CreateTime = time.Now()
 
 		err = m.Add()
 		if err != nil {
-			beego.Error("自动注册LDAP用户错误", err)
+			logs.Error("自动注册LDAP用户错误", err)
 			return m, ErrorMemberPasswordError
 		}
 		m.ResolveRoleName()
@@ -163,7 +163,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 }
 
 func (m *Member) httpLogin(account, password string) (*Member, error) {
-	urlStr := beego.AppConfig.String("http_login_url")
+	urlStr := adapter.AppConfig.String("http_login_url")
 	if urlStr == "" {
 		return nil, ErrMemberAuthMethodInvalid
 	}
@@ -174,28 +174,28 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		"time":     []string{strconv.FormatInt(time.Now().Unix(), 10)},
 	}
 	h := md5.New()
-	h.Write([]byte(val.Encode() + beego.AppConfig.DefaultString("http_login_secret","")))
+	h.Write([]byte(val.Encode() + adapter.AppConfig.DefaultString("http_login_secret", "")))
 
 	val.Add("sn", hex.EncodeToString(h.Sum(nil)))
 
 	resp, err := http.PostForm(urlStr, val)
 	if err != nil {
-		beego.Error("通过接口登录失败 -> ", urlStr, account, err)
+		logs.Error("通过接口登录失败 -> ", urlStr, account, err)
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		beego.Error("读取接口返回值失败 -> ", urlStr, account, err)
+		logs.Error("读取接口返回值失败 -> ", urlStr, account, err)
 		return nil, err
 	}
-	beego.Info("HTTP 登录接口返回数据 ->", string(body))
+	logs.Info("HTTP 登录接口返回数据 ->", string(body))
 
 	var result map[string]interface{}
 
 	if err := json.Unmarshal(body, &result); err != nil {
-		beego.Error("解析接口返回值失败 -> ", urlStr, account, string(body))
+		logs.Error("解析接口返回值失败 -> ", urlStr, account, string(body))
 		return nil, errors.New("解析接口返回值失败")
 	}
 
@@ -226,10 +226,10 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		member.Account = account
 		member.Password = password
 		member.AuthMethod = "http"
-		member.Role = conf.SystemRole(beego.AppConfig.DefaultInt("ldap_user_role", 2))
+		member.Role = conf.SystemRole(adapter.AppConfig.DefaultInt("ldap_user_role", 2))
 		member.CreateTime = time.Now()
 		if err := member.Add(); err != nil {
-			beego.Error("自动注册用户错误", err)
+			logs.Error("自动注册用户错误", err)
 			return m, ErrorMemberPasswordError
 		}
 		member.ResolveRoleName()
@@ -263,7 +263,7 @@ func (m *Member) Add() error {
 	hash, err := utils.PasswordHash(m.Password)
 
 	if err != nil {
-		beego.Error("加密用户密码失败 =>", err)
+		logs.Error("加密用户密码失败 =>", err)
 		return errors.New("加密用户密码失败")
 	}
 
@@ -274,7 +274,7 @@ func (m *Member) Add() error {
 	_, err = o.Insert(m)
 
 	if err != nil {
-		beego.Error("保存用户数据到数据时失败 =>", err)
+		logs.Error("保存用户数据到数据时失败 =>", err)
 		return errors.New("保存用户失败")
 	}
 	m.ResolveRoleName()
@@ -292,7 +292,7 @@ func (m *Member) Update(cols ...string) error {
 		return errors.New("邮箱已被使用")
 	}
 	if _, err := o.Update(m, cols...); err != nil {
-		beego.Error("保存用户信息失败=>", err)
+		logs.Error("保存用户信息失败=>", err)
 		return errors.New("保存用户信息失败")
 	}
 	return nil
@@ -541,18 +541,18 @@ func (m *Member) Delete(oldId int, newId int) error {
 				err = o.QueryTable(relationship.TableNameWithPrefix()).Filter("book_id", relationship.BookId).Filter("member_id", newId).One(rel)
 				if err == nil {
 					if _, err := o.Delete(relationship); err != nil {
-						beego.Error(err)
+						logs.Error(err)
 					}
 					relationship.RelationshipId = rel.RelationshipId
 				}
 				relationship.MemberId = newId
 				relationship.RoleId = 0
 				if _, err := o.Update(relationship); err != nil {
-					beego.Error(err)
+					logs.Error(err)
 				}
 			} else {
 				if _, err := o.Delete(relationship); err != nil {
-					beego.Error(err)
+					logs.Error(err)
 				}
 			}
 		}

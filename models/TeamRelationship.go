@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -52,7 +52,7 @@ func (m *TeamRelationship) First(teamId int, cols ...string) (*TeamRelationship,
 	}
 	err := m.QueryTable().Filter("team_id", teamId).One(m, cols...)
 	if err != nil {
-		beego.Error("查询项目团队失败 ->", err)
+		logs.Error("查询项目团队失败 ->", err)
 	}
 	return m, err
 }
@@ -64,7 +64,7 @@ func (m *TeamRelationship) FindByBookId(bookId int, teamId int) (*TeamRelationsh
 	}
 	err := m.QueryTable().Filter("team_id", teamId).Filter("book_id", bookId).One(m)
 	if err != nil {
-		beego.Error("查询项目团队失败 ->", err)
+		logs.Error("查询项目团队失败 ->", err)
 	}
 	return m, err
 }
@@ -73,7 +73,7 @@ func (m *TeamRelationship) FindByBookId(bookId int, teamId int) (*TeamRelationsh
 func (m *TeamRelationship) DeleteByBookId(bookId int, teamId int) error {
 	err := m.QueryTable().Filter("team_id", teamId).Filter("book_id", bookId).One(m)
 	if err != nil {
-		beego.Error("查询项目团队失败 ->", err)
+		logs.Error("查询项目团队失败 ->", err)
 		return err
 	}
 	m.Include()
@@ -95,7 +95,7 @@ func (m *TeamRelationship) Save(cols ...string) (err error) {
 		_, err = orm.NewOrm().Insert(m)
 	}
 	if err != nil {
-		beego.Error("保存团队项目时出错 ->", err)
+		logs.Error("保存团队项目时出错 ->", err)
 	}
 	return
 }
@@ -107,7 +107,7 @@ func (m *TeamRelationship) Delete(teamRelId int) (err error) {
 	_, err = m.QueryTable().Filter("team_relationship_id", teamRelId).Delete()
 
 	if err != nil {
-		beego.Error("删除团队项目失败 ->", err)
+		logs.Error("删除团队项目失败 ->", err)
 	}
 	return
 }
@@ -125,13 +125,13 @@ func (m *TeamRelationship) FindToPager(teamId, pageIndex, pageSize int) (list []
 	_, err = o.QueryTable(m.TableNameWithPrefix()).Filter("team_id", teamId).OrderBy("-team_relationship_id").Offset(offset).Limit(pageSize).All(&list)
 
 	if err != nil {
-		beego.Error("查询团队项目时出错 ->", err)
+		logs.Error("查询团队项目时出错 ->", err)
 		return
 	}
 	count, err := m.QueryTable().Filter("team_id", teamId).Count()
 
 	if err != nil {
-		beego.Error("查询团队项目时出错 ->", err)
+		logs.Error("查询团队项目时出错 ->", err)
 		return
 	}
 	totalCount = int(count)
@@ -162,8 +162,8 @@ func (m *TeamRelationship) Include() (*TeamRelationship, error) {
 			}
 		}
 	}
-	if m.TeamId > 0{
-		team ,err := NewTeam().First(m.TeamId)
+	if m.TeamId > 0 {
+		team, err := NewTeam().First(m.TeamId)
 		if err == nil {
 			m.TeamName = team.TeamName
 			m.MemberCount = team.MemberCount
@@ -189,7 +189,7 @@ and book.book_name like ? order by book_id desc limit ?;`
 	_, err := o.Raw(sql, teamId, "%"+bookName+"%", limit).QueryRows(&books)
 
 	if err != nil {
-		beego.Error("查询团队项目时出错 ->", err)
+		logs.Error("查询团队项目时出错 ->", err)
 		return nil, err
 	}
 
@@ -224,7 +224,7 @@ order by team.team_id desc limit ?;`
 	_, err := o.Raw(sql, bookId, "%"+teamName+"%", limit).QueryRows(&teams)
 
 	if err != nil {
-		beego.Error("查询团队项目时出错 ->", err)
+		logs.Error("查询团队项目时出错 ->", err)
 		return nil, err
 	}
 
@@ -257,13 +257,13 @@ func (m *TeamRelationship) FindByBookToPager(bookId, pageIndex, pageSize int) (l
 	_, err = o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", bookId).OrderBy("-team_relationship_id").Offset(offset).Limit(pageSize).All(&list)
 
 	if err != nil {
-		beego.Error("查询团队项目时出错 ->", err)
+		logs.Error("查询团队项目时出错 ->", err)
 		return
 	}
 	count, err := m.QueryTable().Filter("book_id", bookId).Count()
 
 	if err != nil {
-		beego.Error("查询团队项目时出错 ->", err)
+		logs.Error("查询团队项目时出错 ->", err)
 		return
 	}
 	totalCount = int(count)

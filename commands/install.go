@@ -7,8 +7,8 @@ import (
 
 	"flag"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
@@ -40,7 +40,7 @@ func Version() {
 
 //修改用户密码
 func ModifyPassword() {
-	var account,password string
+	var account, password string
 
 	//账号和密码需要解析参数后才能获取
 	if len(os.Args) >= 2 && os.Args[1] == "password" {
@@ -50,7 +50,7 @@ func ModifyPassword() {
 		flagSet.StringVar(&password, "password", "", "用户密码.")
 
 		if err := flagSet.Parse(os.Args[2:]); err != nil {
-			beego.Error("解析参数失败 -> ",err)
+			logs.Error("解析参数失败 -> ", err)
 			os.Exit(1)
 		}
 
@@ -67,29 +67,28 @@ func ModifyPassword() {
 			fmt.Println("Password cannot be empty.")
 			os.Exit(1)
 		}
-		member,err := models.NewMember().FindByAccount(account)
+		member, err := models.NewMember().FindByAccount(account)
 
 		if err != nil {
-			fmt.Println("Failed to change password:",err)
+			fmt.Println("Failed to change password:", err)
 			os.Exit(1)
 		}
-		pwd,err := utils.PasswordHash(password)
+		pwd, err := utils.PasswordHash(password)
 
 		if err != nil {
-			fmt.Println("Failed to change password:",err)
+			fmt.Println("Failed to change password:", err)
 			os.Exit(1)
 		}
 		member.Password = pwd
 
 		err = member.Update("password")
 		if err != nil {
-			fmt.Println("Failed to change password:",err)
+			fmt.Println("Failed to change password:", err)
 			os.Exit(1)
 		}
 		fmt.Println("Successfully modified.")
 		os.Exit(0)
 	}
-
 
 }
 

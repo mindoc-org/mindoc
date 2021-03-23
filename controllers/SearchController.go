@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/astaxie/beego"
+	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
@@ -41,20 +41,20 @@ func (c *SearchController) Index() {
 		searchResult, totalCount, err := models.NewDocumentSearchResult().FindToPager(sqltil.EscapeLike(keyword), pageIndex, conf.PageSize, memberId)
 
 		if err != nil {
-			beego.Error("搜索失败 ->",err)
+			logs.Error("搜索失败 ->", err)
 			return
 		}
 		if totalCount > 0 {
-			pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize,c.BaseUrl())
+			pager := pagination.NewPagination(c.Ctx.Request, totalCount, conf.PageSize, c.BaseUrl())
 			c.Data["PageHtml"] = pager.HtmlPages()
 		} else {
 			c.Data["PageHtml"] = ""
 		}
 		if len(searchResult) > 0 {
-			keywords := strings.Split(keyword," ")
+			keywords := strings.Split(keyword, " ")
 
 			for _, item := range searchResult {
-				for _,word := range keywords {
+				for _, word := range keywords {
 					item.DocumentName = strings.Replace(item.DocumentName, word, "<em>"+word+"</em>", -1)
 					if item.Description != "" {
 						src := item.Description
@@ -102,7 +102,7 @@ func (c *SearchController) User() {
 	//members, err := models.NewMemberRelationshipResult().FindNotJoinUsersByAccount(book.BookId, 10, "%"+keyword+"%")
 	members, err := models.NewMemberRelationshipResult().FindNotJoinUsersByAccountOrRealName(book.BookId, 10, "%"+keyword+"%")
 	if err != nil {
-		beego.Error("查询用户列表出错：" + err.Error())
+		logs.Error("查询用户列表出错：" + err.Error())
 		c.JsonResult(500, err.Error())
 	}
 	result := models.SelectMemberResult{}

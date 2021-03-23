@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,9 +17,8 @@ import (
 
 	"net/http"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/graphics"
 	"github.com/mindoc-org/mindoc/models"
@@ -210,7 +210,7 @@ func (c *BookController) SaveBook() {
 	bookResult.Description = description
 	bookResult.CommentStatus = commentStatus
 
-	beego.Info("用户 [", c.Member.Account, "] 修改了项目 ->", book)
+	logs.Info("用户 [", c.Member.Account, "] 修改了项目 ->", book)
 
 	c.JsonResult(0, "ok", bookResult)
 }
@@ -255,7 +255,7 @@ func (c *BookController) PrivatelyOwned() {
 		logs.Error("PrivatelyOwned => ", err)
 		c.JsonResult(6004, "保存失败")
 	}
-	beego.Info("用户 【", c.Member.Account, "]修改了项目权限 ->", state)
+	logs.Info("用户 【", c.Member.Account, "]修改了项目权限 ->", state)
 	c.JsonResult(0, "ok")
 }
 
@@ -390,7 +390,7 @@ func (c *BookController) UploadCover() {
 	if oldCover != conf.GetDefaultCover() {
 		os.Remove("." + oldCover)
 	}
-	beego.Info("用户[", c.Member.Account, "]上传了项目封面 ->", book.BookName, book.BookId, book.Cover)
+	logs.Info("用户[", c.Member.Account, "]上传了项目封面 ->", book.BookName, book.BookId, book.Cover)
 
 	c.JsonResult(0, "ok", url)
 }
@@ -534,10 +534,10 @@ func (c *BookController) Create() {
 		bookResult, err := models.NewBookResult().FindByIdentify(book.Identify, c.Member.MemberId)
 
 		if err != nil {
-			beego.Error(err)
+			logs.Error(err)
 		}
 
-		beego.Info("用户[", c.Member.Account, "]创建了项目 ->", book)
+		logs.Info("用户[", c.Member.Account, "]创建了项目 ->", book)
 		c.JsonResult(0, "ok", bookResult)
 	}
 	c.JsonResult(6001, "error")
@@ -562,7 +562,7 @@ func (c *BookController) Copy() {
 		} else {
 			bookResult, err := models.NewBookResult().FindByIdentify(book.Identify, c.Member.MemberId)
 			if err != nil {
-				beego.Error("查询失败")
+				logs.Error("查询失败")
 			}
 			c.JsonResult(0, "ok", bookResult)
 		}
@@ -614,7 +614,7 @@ func (c *BookController) Import() {
 		c.JsonResult(6006, "项目标识已存在")
 	}
 
-	tempPath := filepath.Join(os.TempDir(), c.CruSession.SessionID())
+	tempPath := filepath.Join(os.TempDir(), c.CruSession.SessionID(context.TODO()))
 
 	os.MkdirAll(tempPath, 0766)
 
@@ -643,7 +643,7 @@ func (c *BookController) Import() {
 
 	go book.ImportBook(tempPath)
 
-	beego.Info("用户[", c.Member.Account, "]导入了项目 ->", book)
+	logs.Info("用户[", c.Member.Account, "]导入了项目 ->", book)
 
 	c.JsonResult(0, "项目正在后台转换中，请稍后查看")
 }
@@ -680,7 +680,7 @@ func (c *BookController) Import() {
 //			logs.Error("生成阅读令牌失败 => ", err)
 //			c.JsonResult(6003, "生成阅读令牌失败")
 //		}
-//		beego.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
+//		logs.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
 //		c.JsonResult(0, "ok", conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken))
 //	} else {
 //		book.PrivateToken = ""
@@ -688,7 +688,7 @@ func (c *BookController) Import() {
 //			logs.Error("CreateToken => ", err)
 //			c.JsonResult(6004, "删除令牌失败")
 //		}
-//		beego.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
+//		logs.Info("用户[", c.Member.Account, "]创建项目令牌 ->", book.PrivateToken)
 //		c.JsonResult(0, "ok", "")
 //	}
 //}
@@ -716,7 +716,7 @@ func (c *BookController) Delete() {
 		logs.Error("删除项目 => ", err)
 		c.JsonResult(6003, "删除失败")
 	}
-	beego.Info("用户[", c.Member.Account, "]删除了项目 ->", bookResult)
+	logs.Info("用户[", c.Member.Account, "]删除了项目 ->", bookResult)
 	c.JsonResult(0, "ok")
 }
 
@@ -731,7 +731,7 @@ func (c *BookController) Release() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error("发布文档失败 ->", err)
+			logs.Error("发布文档失败 ->", err)
 			c.JsonResult(6003, "文档不存在")
 			return
 		}
@@ -746,7 +746,7 @@ func (c *BookController) Release() {
 			if err == orm.ErrNoRows {
 				c.JsonResult(6002, "项目不存在")
 			}
-			beego.Error(err)
+			logs.Error(err)
 			c.JsonResult(6003, "未知错误")
 		}
 		if book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder && book.RoleId != conf.BookEditor {
@@ -772,14 +772,14 @@ func (c *BookController) SaveSort() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil || book == nil {
-			c.JsonResult(6001,"项目不存在")
+			c.JsonResult(6001, "项目不存在")
 			return
 		}
 		bookId = book.BookId
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil {
-			beego.Error("DocumentController.Edit => ", err)
+			logs.Error("DocumentController.Edit => ", err)
 
 			c.Abort("403")
 		}
@@ -796,7 +796,7 @@ func (c *BookController) SaveSort() {
 	err := json.Unmarshal(content, &docs)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6003, "数据错误")
 	}
 
@@ -804,7 +804,7 @@ func (c *BookController) SaveSort() {
 		if docId, ok := item["id"].(float64); ok {
 			doc, err := models.NewDocument().Find(int(docId))
 			if err != nil {
-				beego.Error(err)
+				logs.Error(err)
 				continue
 			}
 			if doc.BookId != bookId {
@@ -813,12 +813,12 @@ func (c *BookController) SaveSort() {
 			}
 			sort, ok := item["sort"].(float64)
 			if !ok {
-				beego.Info("排序数字转换失败 => ", item)
+				logs.Info("排序数字转换失败 => ", item)
 				continue
 			}
 			parentId, ok := item["parent"].(float64)
 			if !ok {
-				beego.Info("父分类转换失败 => ", item)
+				logs.Info("父分类转换失败 => ", item)
 				continue
 			}
 			if parentId > 0 {
@@ -830,7 +830,7 @@ func (c *BookController) SaveSort() {
 			doc.ParentId = int(parentId)
 			if err := doc.InsertOrUpdate(); err != nil {
 				fmt.Printf("%s", err.Error())
-				beego.Error(err)
+				logs.Error(err)
 			}
 		} else {
 			fmt.Printf("文档ID转换失败 => %+v", item)

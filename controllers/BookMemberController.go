@@ -3,9 +3,8 @@ package controllers
 import (
 	"errors"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 )
@@ -17,9 +16,9 @@ type BookMemberController struct {
 // AddMember 参加参与用户.
 func (c *BookMemberController) AddMember() {
 	identify := c.GetString("identify")
-	account,_ := c.GetInt("account")
+	account, _ := c.GetInt("account")
 	roleId, _ := c.GetInt("role_id", 3)
-	beego.Info(account)
+	logs.Info(account)
 	if identify == "" || account <= 0 {
 		c.JsonResult(6001, "参数错误")
 	}
@@ -28,7 +27,6 @@ func (c *BookMemberController) AddMember() {
 	if err != nil {
 		c.JsonResult(6001, err.Error())
 	}
-
 
 	member := models.NewMember()
 

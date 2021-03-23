@@ -11,6 +11,7 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 // License for the specific language governing permissions and limitations
 // under the License.
+
 package migrate
 
 import (
@@ -20,8 +21,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/adapter"
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/mindoc-org/mindoc/models"
 )
 
@@ -113,17 +114,17 @@ func RunMigration() {
 
 //导出数据库的表结构
 func ExportDatabaseTable() ([]string, error) {
-	db_adapter := beego.AppConfig.String("db_adapter")
-	db_database := beego.AppConfig.String("db_database")
+	dbadapter := adapter.AppConfig.String("db_adapter")
+	dbdatabase := adapter.AppConfig.String("db_database")
 	tables := make([]string, 0)
 
 	o := orm.NewOrm()
-	switch db_adapter {
+	switch dbadapter {
 	case "mysql":
 		{
 			var lists []orm.Params
 
-			_, err := o.Raw(fmt.Sprintf("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s'", db_database)).Values(&lists)
+			_, err := o.Raw(fmt.Sprintf("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s'", dbdatabase)).Values(&lists)
 			if err != nil {
 				return tables, err
 			}

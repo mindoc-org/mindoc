@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -21,7 +21,7 @@ type DocumentHistory struct {
 	ModifyTime   time.Time `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
 	ModifyAt     int       `orm:"column(modify_at);type(int)" json:"-"`
 	Version      int64     `orm:"type(bigint);column(version)" json:"version"`
-	IsOpen	   int 			 `orm:"column(is_open);type(int);default(0)" json:"is_open"`
+	IsOpen       int       `orm:"column(is_open);type(int);default(0)" json:"is_open"`
 }
 
 type DocumentHistorySimpleResult struct {
@@ -127,22 +127,22 @@ func (m *DocumentHistory) InsertOrUpdate() (history *DocumentHistory, err error)
 	} else {
 		_, err = o.Insert(m)
 		if err == nil {
-			if doc,e := NewDocument().Find(m.DocumentId);e == nil {
-				if book,e := NewBook().Find(doc.BookId);e == nil && book.HistoryCount > 0 {
+			if doc, e := NewDocument().Find(m.DocumentId); e == nil {
+				if book, e := NewBook().Find(doc.BookId); e == nil && book.HistoryCount > 0 {
 					//如果已存在的历史记录大于指定的记录，则清除旧记录
-					if c,e := o.QueryTable(m.TableNameWithPrefix()).Filter("document_id",doc.DocumentId).Count(); e == nil && c > int64(book.HistoryCount) {
+					if c, e := o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc.DocumentId).Count(); e == nil && c > int64(book.HistoryCount) {
 
 						count := c - int64(book.HistoryCount)
-						beego.Info("需要删除的历史文档数量：" ,count)
+						logs.Info("需要删除的历史文档数量：", count)
 						var lists []DocumentHistory
 
-						if _,e := o.QueryTable(m.TableNameWithPrefix()).Filter("document_id",doc.DocumentId).OrderBy("history_id").Limit(count).All(&lists,"history_id"); e == nil {
-							for _,d := range lists  {
+						if _, e := o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc.DocumentId).OrderBy("history_id").Limit(count).All(&lists, "history_id"); e == nil {
+							for _, d := range lists {
 								o.Delete(&d)
 							}
 						}
-					}else{
-						beego.Info(book.HistoryCount)
+					} else {
+						logs.Info(book.HistoryCount)
 					}
 				}
 			}

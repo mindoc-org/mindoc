@@ -3,8 +3,8 @@ package models
 import (
 	"strings"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -74,10 +74,11 @@ func (m *Label) InsertOrUpdateMulti(labels string) {
 		}
 	}
 }
+
 //删除标签
 func (m *Label) Delete() error {
 	o := orm.NewOrm()
-	_,err := o.Raw("DELETE FROM " + m.TableNameWithPrefix() + " WHERE label_id= ?",m.LabelId).Exec()
+	_, err := o.Raw("DELETE FROM "+m.TableNameWithPrefix()+" WHERE label_id= ?", m.LabelId).Exec()
 
 	if err != nil {
 		return err
@@ -101,13 +102,9 @@ func (m *Label) FindToPager(pageIndex, pageSize int) (labels []*Label, totalCoun
 	_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-book_number").Offset(offset).Limit(pageSize).All(&labels)
 
 	if err == orm.ErrNoRows {
-		beego.Info("没有查询到标签 ->",err)
+		logs.Info("没有查询到标签 ->", err)
 		err = nil
 		return
 	}
 	return
 }
-
-
-
-

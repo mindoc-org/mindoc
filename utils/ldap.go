@@ -3,7 +3,8 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"github.com/astaxie/beego"
+
+	"github.com/astaxie/beego/logs"
 	"gopkg.in/ldap.v2"
 )
 
@@ -24,14 +25,14 @@ func ValidLDAPLogin(password string) (result bool, err error) {
 	err = nil
 	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.3.104", 389))
 	if err != nil {
-		beego.Error("Dial => ", err)
+		logs.Error("Dial => ", err)
 		return
 	}
 
 	defer lc.Close()
 	err = lc.Bind("cn=admin,dc=minho,dc=com", "123456")
 	if err != nil {
-		beego.Error("Bind => ", err)
+		logs.Error("Bind => ", err)
 		return
 	}
 	searchRequest := ldap.NewSearchRequest(
@@ -43,7 +44,7 @@ func ValidLDAPLogin(password string) (result bool, err error) {
 	)
 	searchResult, err := lc.Search(searchRequest)
 	if err != nil {
-		beego.Error("Search => ", err)
+		logs.Error("Search => ", err)
 		return
 	}
 	if len(searchResult.Entries) != 1 {
@@ -58,7 +59,7 @@ func ValidLDAPLogin(password string) (result bool, err error) {
 	if err == nil {
 		result = true
 	} else {
-		beego.Error("Bind2 => ", err)
+		logs.Error("Bind2 => ", err)
 		err = nil
 	}
 	return
@@ -67,7 +68,7 @@ func ValidLDAPLogin(password string) (result bool, err error) {
 func AddMember(account, password string) error {
 	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.3.104", 389))
 	if err != nil {
-		beego.Error("Dial => ", err)
+		logs.Error("Dial => ", err)
 		return err
 	}
 
@@ -84,33 +85,33 @@ func AddMember(account, password string) error {
 
 		err = lc.Bind(user, "")
 		if err != nil {
-			beego.Error("Bind => ", err)
+			logs.Error("Bind => ", err)
 			return err
 		}
 		passwordModifyRequest := ldap.NewPasswordModifyRequest(user, "", "1q2w3e__ABC")
 		_, err = lc.PasswordModify(passwordModifyRequest)
 
 		if err != nil {
-			beego.Error("PasswordModify => ", err)
+			logs.Error("PasswordModify => ", err)
 			return err
 		}
 		return nil
 	}
-	beego.Error("Add => ", err)
+	logs.Error("Add => ", err)
 	return err
 }
 
 func ModifyPassword(account, old_password, new_password string) error {
 	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.3.104", 389))
 	if err != nil {
-		beego.Error("Dial => ", err)
+		logs.Error("Dial => ", err)
 	}
 	defer l.Close()
 
 	user := fmt.Sprintf("cn=%s,dc=minho,dc=com", account)
 	err = l.Bind(user, old_password)
 	if err != nil {
-		beego.Error("Bind => ", err)
+		logs.Error("Bind => ", err)
 		return err
 	}
 
@@ -118,7 +119,7 @@ func ModifyPassword(account, old_password, new_password string) error {
 	_, err = l.PasswordModify(passwordModifyRequest)
 
 	if err != nil {
-		beego.Error(fmt.Sprintf("Password could not be changed: %s", err.Error()))
+		logs.Error(fmt.Sprintf("Password could not be changed: %s", err.Error()))
 		return err
 	}
 	return nil

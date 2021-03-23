@@ -3,9 +3,10 @@ package models
 import (
 	"time"
 
-	"github.com/astaxie/beego/orm"
-	"github.com/astaxie/beego"
 	"strings"
+
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 )
 
 type DocumentSearchResult struct {
@@ -33,7 +34,7 @@ func (m *DocumentSearchResult) FindToPager(keyword string, pageIndex, pageSize, 
 
 	offset := (pageIndex - 1) * pageSize
 
-	keyword = "%" + strings.Replace(keyword," ","%",-1) + "%"
+	keyword = "%" + strings.Replace(keyword, " ", "%", -1) + "%"
 
 	if memberId <= 0 {
 		sql1 := `SELECT count(doc.document_id) as total_count FROM md_documents AS doc
@@ -99,7 +100,7 @@ LIMIT ?, ?;`
 
 		err = o.Raw(sql1, keyword, keyword).QueryRow(&totalCount)
 		if err != nil {
-			beego.Error("查询搜索结果失败 -> ",err)
+			logs.Error("查询搜索结果失败 -> ", err)
 			return
 		}
 		sql3 := `       SELECT
@@ -110,7 +111,7 @@ LIMIT ?, ?;`
 		c := 0
 		err = o.Raw(sql3, keyword, keyword).QueryRow(&c)
 		if err != nil {
-			beego.Error("查询搜索结果失败 -> ",err)
+			logs.Error("查询搜索结果失败 -> ", err)
 			return
 		}
 
@@ -121,15 +122,15 @@ WHERE book.privately_owned = 0 AND (book.book_name LIKE ? OR book.description LI
 
 		err = o.Raw(sql4, keyword, keyword).QueryRow(&c)
 		if err != nil {
-			beego.Error("查询搜索结果失败 -> ",err)
+			logs.Error("查询搜索结果失败 -> ", err)
 			return
 		}
 
 		totalCount += c
 
-		_, err = o.Raw(sql2, keyword, keyword,keyword,keyword,keyword,keyword, offset, pageSize).QueryRows(&searchResult)
+		_, err = o.Raw(sql2, keyword, keyword, keyword, keyword, keyword, keyword, offset, pageSize).QueryRows(&searchResult)
 		if err != nil {
-			beego.Error("查询搜索结果失败 -> ",err)
+			logs.Error("查询搜索结果失败 -> ", err)
 			return
 		}
 	} else {
@@ -236,9 +237,9 @@ LIMIT ?, ?;`
              (blog.blog_release LIKE ? OR blog.blog_title LIKE ?);`
 
 		c := 0
-		err = o.Raw(sql3,memberId, keyword, keyword).QueryRow(&c)
+		err = o.Raw(sql3, memberId, keyword, keyword).QueryRow(&c)
 		if err != nil {
-			beego.Error("查询搜索结果失败 -> ",err)
+			logs.Error("查询搜索结果失败 -> ", err)
 			return
 		}
 
@@ -253,15 +254,15 @@ LIMIT ?, ?;`
 					on team.book_id = book.book_id
 WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_id > 0)  AND (book.book_name LIKE ? OR book.description LIKE ?);`
 
-		err = o.Raw(sql4,memberId, memberId,keyword, keyword).QueryRow(&c)
+		err = o.Raw(sql4, memberId, memberId, keyword, keyword).QueryRow(&c)
 		if err != nil {
-			beego.Error("查询搜索结果失败 -> ",err)
+			logs.Error("查询搜索结果失败 -> ", err)
 			return
 		}
 
 		totalCount += c
 
-		_, err = o.Raw(sql2, memberId, memberId, keyword, keyword,memberId,memberId,keyword, keyword,memberId,keyword, keyword,offset, pageSize).QueryRows(&searchResult)
+		_, err = o.Raw(sql2, memberId, memberId, keyword, keyword, memberId, memberId, keyword, keyword, memberId, keyword, keyword, offset, pageSize).QueryRows(&searchResult)
 		if err != nil {
 			return
 		}

@@ -3,8 +3,8 @@ package models
 import (
 	"errors"
 
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -36,7 +36,7 @@ func (m *Relationship) TableUnique() [][]string {
 	}
 }
 
-func (m *Relationship) QueryTable() orm.QuerySeter  {
+func (m *Relationship) QueryTable() orm.QuerySeter {
 	return orm.NewOrm().QueryTable(m.TableNameWithPrefix())
 }
 func NewRelationship() *Relationship {

@@ -1,6 +1,6 @@
 package models
 
-import "github.com/astaxie/beego/orm"
+import "github.com/beego/beego/v2/adapter/orm"
 
 type CommentResult struct {
 	Comment

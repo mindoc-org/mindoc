@@ -6,7 +6,9 @@ import (
 
 	"path/filepath"
 
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/adapter"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/kardianos/service"
 	"github.com/mindoc-org/mindoc/commands"
 	"github.com/mindoc-org/mindoc/conf"
@@ -45,7 +47,6 @@ func (d *Daemon) Start(s service.Service) error {
 
 func (d *Daemon) Run() {
 
-
 	commands.ResolveCommand(d.config.Arguments)
 
 	commands.RegisterFunction()
@@ -54,9 +55,14 @@ func (d *Daemon) Run() {
 
 	commands.RegisterError()
 
-	beego.ErrorController(&controllers.ErrorController{})
+	/* TODO: which ErrorController to use? currently there are
+	*  		two ErrorController avalable, one is beego/v2/server/web.ErrorController,
+	*		and another is beego/v2/adapter.ErrorController, which is actually a calling to the first one
+	*		here the first one is used, which is the original implementation.
+	 */
+	web.ErrorController(&controllers.ErrorController{})
 
-	f,err := filepath.Abs(os.Args[0])
+	f, err := filepath.Abs(os.Args[0])
 
 	if err != nil {
 		f = os.Args[0]
@@ -64,7 +70,7 @@ func (d *Daemon) Run() {
 
 	fmt.Printf("MinDoc version => %s\nbuild time => %s\nstart directory => %s\n%s\n", conf.VERSION, conf.BUILD_TIME, f, conf.GO_VERSION)
 
-	beego.Run()
+	adapter.Run()
 }
 
 func (d *Daemon) Stop(s service.Service) error {
@@ -81,15 +87,15 @@ func Install() {
 	s, err := service.New(d, d.config)
 
 	if err != nil {
-		beego.Error("Create service error => ", err)
+		logs.Error("Create service error => ", err)
 		os.Exit(1)
 	}
 	err = s.Install()
 	if err != nil {
-		beego.Error("Install service error:", err)
+		logs.Error("Install service error:", err)
 		os.Exit(1)
 	} else {
-		beego.Info("Service installed!")
+		logs.Info("Service installed!")
 	}
 
 	os.Exit(0)
@@ -100,15 +106,15 @@ func Uninstall() {
 	s, err := service.New(d, d.config)
 
 	if err != nil {
-		beego.Error("Create service error => ", err)
+		logs.Error("Create service error => ", err)
 		os.Exit(1)
 	}
 	err = s.Uninstall()
 	if err != nil {
-		beego.Error("Install service error:", err)
+		logs.Error("Install service error:", err)
 		os.Exit(1)
 	} else {
-		beego.Info("Service uninstalled!")
+		logs.Info("Service uninstalled!")
 	}
 	os.Exit(0)
 }
@@ -118,15 +124,15 @@ func Restart() {
 	s, err := service.New(d, d.config)
 
 	if err != nil {
-		beego.Error("Create service error => ", err)
+		logs.Error("Create service error => ", err)
 		os.Exit(1)
 	}
 	err = s.Restart()
 	if err != nil {
-		beego.Error("Install service error:", err)
+		logs.Error("Install service error:", err)
 		os.Exit(1)
 	} else {
-		beego.Info("Service Restart!")
+		logs.Info("Service Restart!")
 	}
 	os.Exit(0)
 }
