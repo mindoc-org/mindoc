@@ -205,16 +205,16 @@ func (m *TeamMember) FindNotJoinMemberByAccount(teamId int, account string, limi
 	}
 	o := orm.NewOrm()
 
-	sql := `select member.member_id,member.account,team.team_member_id
+	sql := `select member.member_id,member.account,member.real_name,team.team_member_id
 from md_members as member 
   left join md_team_member as team on team.team_id = ? and member.member_id = team.member_id
-  where member.account like ? AND team_member_id IS NULL
+  where member.account like ? or member.real_name like ? AND team_member_id IS NULL
   order by member.member_id desc 
 limit ?;`
 
 	members := make([]*Member, 0)
 
-	_, err := o.Raw(sql, teamId, "%"+account+"%", limit).QueryRows(&members)
+	_, err := o.Raw(sql, teamId, "%"+account+"%", "%"+account+"%", limit).QueryRows(&members)
 
 	if err != nil {
 		beego.Error("查询团队用户时出错 ->", err)
@@ -227,7 +227,7 @@ limit ?;`
 	for _, member := range members {
 		item := KeyValueItem{}
 		item.Id = member.MemberId
-		item.Text = member.Account
+		item.Text = member.Account + "(" + member.RealName + ")"
 		items = append(items, item)
 	}
 	result.Result = items
@@ -235,9 +235,9 @@ limit ?;`
 	return &result, err
 }
 
-func (m *TeamMember) FindByBookIdAndMemberId(bookId,memberId int) (*TeamMember, error) {
+func (m *TeamMember) FindByBookIdAndMemberId(bookId, memberId int) (*TeamMember, error) {
 	if bookId <= 0 || memberId <= 0 {
-		return nil,ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	//一个用户可能在多个团队中，且一个项目可能有多个团队参与。因此需要查询用户最大权限。
 	sql := `select *
@@ -247,11 +247,11 @@ and team.member_id = ? order by team.role_id asc limit 1;`
 
 	o := orm.NewOrm()
 
-	err := o.Raw(sql,bookId,memberId).QueryRow(m)
+	err := o.Raw(sql, bookId, memberId).QueryRow(m)
 
 	if err != nil {
-		beego.Error("查询用户项目所在团队失败 ->bookId=",bookId," memberId=", memberId, err)
-		return nil,err
+		beego.Error("查询用户项目所在团队失败 ->bookId=", bookId, " memberId=", memberId, err)
+		return nil, err
 	}
-	return m,nil
+	return m, nil
 }

@@ -1,6 +1,10 @@
 package controllers
 
 import (
+	"crypto/hmac"
+	"crypto/sha1"
+	"encoding/base64"
+	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
@@ -14,6 +18,7 @@ import (
 	"github.com/mindoc-org/mindoc/mail"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
+	"github.com/mindoc-org/mindoc/utils/dingtalk"
 )
 
 // AccountController 用户登录与注册
@@ -33,6 +38,7 @@ func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
 	c.EnableXSRF = true
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
+	c.Data["corpID"] = beego.AppConfig.String("dingtalk_corpid")
 	if c.Ctx.Input.IsPost() {
 		token := c.Ctx.Input.Query("_xsrf")
 		if token == "" {
@@ -130,6 +136,111 @@ func (c *AccountController) Login() {
 	} else {
 		c.Data["url"] = c.referer()
 	}
+}
+
+// 钉钉登录
+func (c *AccountController) DingTalkLogin() {
+	c.Prepare()
+
+	code := c.GetString("code")
+	if code == "" {
+		c.JsonResult(500, "获取身份信息失败", nil)
+	}
+
+	appKey := beego.AppConfig.String("dingtalk_app_key")
+	appSecret := beego.AppConfig.String("dingtalk_app_secret")
+	tmpReader := beego.AppConfig.String("dingtalk_tmp_reader")
+
+	if appKey == "" || appSecret == "" || tmpReader == "" {
+		c.JsonResult(500, "未开启钉钉自动登录功能", nil)
+		c.StopRun()
+	}
+
+	dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
+	err := dingtalkAgent.GetAccesstoken()
+	if err != nil {
+		beego.Warn("获取钉钉临时Token失败 ->", err)
+		c.JsonResult(500, "自动登录失败", nil)
+		c.StopRun()
+	}
+
+	username, err := dingtalkAgent.GetUserNameByCode(code)
+	if err != nil {
+		beego.Warn("钉钉自动登录失败 ->", err)
+		c.JsonResult(500, "自动登录失败", nil)
+		c.StopRun()
+	}
+
+	member, err := models.NewMember().TmpLogin(tmpReader)
+	if err == nil {
+		member.LastLoginTime = time.Now()
+		_ = member.Update("last_login_time")
+
+		c.SetMember(*member)
+		c.LoggedIn(false)
+	}
+	c.JsonResult(0, "ok", username)
+}
+
+// 临时登录
+func (c *AccountController) TmpLogin() {
+	if c.Member != nil {
+		c.Redirect(conf.URLFor("HomeController.Index"), 302)
+	}
+
+	tmpToken := c.GetString("tmpToken")
+	if tmpToken == "" {
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+	}
+
+	tmp, err := base64.URLEncoding.DecodeString(tmpToken)
+	if err != nil {
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+	}
+
+	tmpToken = string(tmp)
+	var remember CookieRemember
+	// 如果 Cookie 中存在登录信息
+	cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login")
+	if !ok {
+		cookie, ok = parseHelper(tmpToken)
+	}
+
+	// 解析用户，并登录
+	if ok {
+		if err := utils.Decode(cookie, &remember); err == nil {
+			if member, err := models.NewMember().Find(remember.MemberId); err == nil {
+				c.SetMember(*member)
+				c.LoggedIn(false)
+				c.StopRun()
+			}
+		}
+	}
+	c.Redirect(conf.URLFor("AccountController.Login"), 302)
+
+}
+
+func parseHelper(value string) (string, bool) {
+
+	parts := strings.SplitN(value, "|", 3)
+
+	if len(parts) != 3 {
+		return "", false
+	}
+
+	vs := parts[0]
+	timestamp := parts[1]
+	sig := parts[2]
+
+	h := hmac.New(sha1.New, []byte(conf.GetAppKey()))
+	fmt.Fprintf(h, "%s%s", vs, timestamp)
+
+	if fmt.Sprintf("%02x", h.Sum(nil)) != sig {
+		return "", false
+	}
+	res, _ := base64.URLEncoding.DecodeString(vs)
+	return string(res), true
+
 }
 
 // 登录成功后的操作，如重定向到原始请求页面

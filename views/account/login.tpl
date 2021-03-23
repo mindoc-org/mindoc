@@ -86,6 +86,47 @@
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/dingtalk-jsapi.js"}}" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function () {
+        if (dd.env.platform !== "notInDingTalk"){
+            dd.ready(function() {
+                dd.runtime.permission.requestAuthCode({
+                    corpId: {{ .corpID }} , // 企业id
+                    onSuccess: function (info) {
+                        var index = layer.load(1, {
+                            shade: [0.1, '#fff'] // 0.1 透明度的白色背景
+                        })
+
+                        var formData = $("form").serializeArray()
+                        formData.push({"name": "code", "value": info.code})
+
+                        $.ajax({
+                            url: "{{urlfor "AccountController.DingTalkLogin"}} ",
+                            data: formData,
+                            dataType: "json",
+                            type: "POST",
+                            complete: function(){
+                                layer.close(index)
+                            },
+                            success: function (res) {
+                                if (res.errcode !== 0) {
+                                    layer.msg(res.message)
+                                } else {
+                                    window.location = "{{ urlfor "HomeController.Index"  }}"
+                                }
+                            },
+                            error: function (res) {
+                                window.location = "{{ urlfor "HomeController.Index"  }}"
+                            }
+                        })
+                    }
+                });
+            });
+        }
+    })
+
+</script>
 <script type="text/javascript">
     $(function () {
         $("#account,#password,#code").on('focus', function () {
