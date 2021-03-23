@@ -8,7 +8,6 @@ require (
 	github.com/astaxie/beego v1.12.3
 	github.com/boombuler/barcode v1.0.0
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b // indirect
-	github.com/gomodule/redigo/redis v0.0.0-20200429221454-e14091dffc1b // indirect
 	github.com/howeyc/fsnotify v0.9.0
 	github.com/kardianos/service v1.1.0
 	github.com/lib/pq v1.7.0 // indirect
