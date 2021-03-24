@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/PuerkitoBio/goquery v1.4.1
 	github.com/andybalholm/cascadia v1.2.0 // indirect
-	github.com/beego/beego/v2 v2.0.1
+	github.com/beego/beego/v2 v2.0.2-0.20210322114547-10ea897525a5 // indirect
 	github.com/boombuler/barcode v1.0.0
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b // indirect
 	github.com/howeyc/fsnotify v0.9.0
