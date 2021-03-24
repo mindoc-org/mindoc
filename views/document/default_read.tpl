@@ -88,6 +88,10 @@
                 <div class="tab-navg">
                     <span data-mode="view" class="navg-item active"><i class="fa fa-align-justify"></i><b class="text">目录</b></span>
                     <span data-mode="search" class="navg-item"><i class="fa fa-search"></i><b class="text">搜索</b></span>
+                    <span id="handlerMenuShow" style="float: right;display: inline-block;padding: 5px;cursor: pointer;">
+                        <i class="fa fa-angle-left" style="font-size: 20px;padding-right: 5px;"></i>
+                        <span class="pull-right" style="padding-top: 4px;">展开</span>
+                    </span>
                 </div>
                 <div class="tab-util">
                     <span class="manual-fullscreen-switch">
@@ -290,6 +294,43 @@ $(function () {
             return $(body).highlight(window.keyword);
         });
     });
+
+    window.menuControl = true;
+    window.menuSetting = "open" ;
+    if (menuSetting == 'open' || menuSetting == 'first') {
+        $('#handlerMenuShow').find('span').text('收起');
+        $('#handlerMenuShow').find('i').attr("class","fa fa-angle-down");
+        if (menuSetting == 'open') {
+            window.jsTree.jstree().open_all()
+        }
+        if (menuSetting == 'first') {
+            window.jsTree.jstree('close_all')
+            var $target = $('.jstree-container-ul').children('li').filter(function(index){
+                if($(this).attr('aria-expanded')==false||$(this).attr('aria-expanded')){
+                    return $(this)
+                }else{
+                    delete $(this)
+                }
+            })
+            $target.children('i').trigger('click')
+        }
+    } else {
+        menuControl = false;
+        window.jsTree.jstree('close_all')
+    }
+    $('#handlerMenuShow').on('click', function(){
+        if(menuControl){
+            $(this).find('span').text('展开')
+            $(this).find('i').attr("class","fa fa-angle-left")
+            window.menuControl = false
+            window.jsTree.jstree('close_all')
+        }else{
+            window.menuControl = true
+            $(this).find('span').text('收起')
+            $(this).find('i').attr("class","fa fa-angle-down")
+            window.jsTree.jstree().open_all()
+        }
+    })
 });
 </script>
 {{.Scripts}}
