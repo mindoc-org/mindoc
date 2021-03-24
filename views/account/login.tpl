@@ -117,7 +117,7 @@
                                 }
                             },
                             error: function (res) {
-                                window.location = "{{ urlfor "HomeController.Index"  }}"
+                                layer.msg("发生异常")
                             }
                         })
                     }

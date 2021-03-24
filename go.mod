@@ -17,7 +17,7 @@ require (
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20200604202706-70a84ac30bf9 // indirect
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
-	google.golang.org/appengine v1.6.6 // indirect
+	golang.org/x/text v0.3.2 // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-00010101000000-000000000000 // indirect
 	gopkg.in/ldap.v2 v2.5.1
 	gopkg.in/russross/blackfriday.v2 v2.0.0

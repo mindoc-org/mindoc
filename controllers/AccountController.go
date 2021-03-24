@@ -177,7 +177,6 @@ func (c *AccountController) DingTalkLogin() {
 		_ = member.Update("last_login_time")
 
 		c.SetMember(*member)
-		c.LoggedIn(false)
 	}
 	c.JsonResult(0, "ok", username)
 }

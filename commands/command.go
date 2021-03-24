@@ -327,7 +327,7 @@ func ResolveCommand(args []string) {
 	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
 	beego.BConfig.WebConfig.StaticDir["/uploads"] = uploads
 	beego.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")
-	beego.BConfig.WebConfig.Session.SessionCookieSameSite = http.SameSiteNoneMode
+	beego.BConfig.WebConfig.Session.SessionCookieSameSite = http.SameSiteDefaultMode
 
 	fonts := conf.WorkingDir("static", "fonts")
 
