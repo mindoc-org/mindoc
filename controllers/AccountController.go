@@ -165,14 +165,14 @@ func (c *AccountController) DingTalkLogin() {
 
 	userid, err := dingtalkAgent.GetUserIDByCode(code)
 	if err != nil {
-		beego.Warn("钉钉自动登录失败 ->", err)
+		beego.Warn("获取钉钉用户ID失败 ->", err)
 		c.JsonResult(500, "自动登录失败", nil)
 		c.StopRun()
 	}
 
 	username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
 	if err != nil {
-		beego.Warn("钉钉自动登录失败 ->", err)
+		beego.Warn("获取钉钉用户信息失败 ->", err)
 		c.JsonResult(500, "自动登录失败", nil)
 		c.StopRun()
 	}
@@ -206,13 +206,13 @@ func (c *AccountController) QRLogin() {
 			c.Redirect(conf.URLFor("AccountController.Login"), 302)
 			c.StopRun()
 		}
-		appKey := "dingoa0wp8qg6gyqtlyno1"
-		appSecret := "YPcijr8Wj47_N2jjEtE3wUsfiUwcTJqfJewgTs9mnHmaHAIsxAe92fmzy-XpdSMs"
+		appKey := beego.AppConfig.String("dingtalk_qr_key")
+		appSecret := beego.AppConfig.String("dingtalk_qr_secret")
 
 		qrDingtalk := dingtalk.NewDingtalkQRLogin(appSecret, appKey)
 		unionID, err := qrDingtalk.GetUnionIDByCode(code)
 		if err != nil {
-			beego.Warn("获取钉钉临时Token失败 ->", err)
+			beego.Warn("获取钉钉临时UnionID失败 ->", err)
 			c.Redirect(conf.URLFor("AccountController.Login"), 302)
 			c.StopRun()
 		}
@@ -231,13 +231,14 @@ func (c *AccountController) QRLogin() {
 
 		userid, err := dingtalkAgent.GetUserIDByUnionID(unionID)
 		if err != nil {
-			beego.Warn("获取钉钉临时Token失败 ->", err)
+			beego.Warn("获取钉钉用户ID失败 ->", err)
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
 			c.StopRun()
 		}
 
 		username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
 		if err != nil {
-			beego.Warn("钉钉自动登录失败 ->", err)
+			beego.Warn("获取钉钉用户信息失败 ->", err)
 			c.Redirect(conf.URLFor("AccountController.Login"), 302)
 			c.StopRun()
 		}
@@ -256,9 +257,6 @@ func (c *AccountController) QRLogin() {
 			c.StopRun()
 		}
 		c.Redirect(conf.URLFor("AccountController.Login"), 302)
-
-		// fmt.Println(unionID)
-		// c.JsonResult(0, appName, nil)
 
 	default:
 		c.Redirect(conf.URLFor("AccountController.Login"), 302)
