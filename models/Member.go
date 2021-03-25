@@ -19,9 +19,9 @@ import (
 
 	"math"
 
-	"github.com/beego/beego/v2/adapter"
 	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
 )
@@ -74,10 +74,10 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 	err := o.Raw("select * from md_members where (account = ? or email = ?) and status = 0 limit 1;", account, account).QueryRow(member)
 
 	if err != nil {
-		if adapter.AppConfig.DefaultBool("ldap_enable", false) == true {
+		if web.AppConfig.DefaultBool("ldap_enable", false) {
 			logs.Info("转入LDAP登陆 ->", account)
 			return member.ldapLogin(account, password)
-		} else if adapter.AppConfig.String("http_login_url") != "" {
+		} else if url, err := web.AppConfig.String("http_login_url"); url != "" {
 			logs.Info("转入 HTTP 接口登陆 ->", account)
 			return member.httpLogin(account, password)
 		} else {
@@ -107,26 +107,32 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 
 //ldapLogin 通过LDAP登陆
 func (m *Member) ldapLogin(account string, password string) (*Member, error) {
-	if adapter.AppConfig.DefaultBool("ldap_enable", false) == false {
+	if web.AppConfig.DefaultBool("ldap_enable", false) {
 		return m, ErrMemberAuthMethodInvalid
 	}
 	var err error
-	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", adapter.AppConfig.String("ldap_host"), adapter.AppConfig.DefaultInt("ldap_port", 3268)))
+	ldaphost, _ := web.AppConfig.String("ldap_host")
+	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", ldaphost, web.AppConfig.DefaultInt("ldap_port", 3268)))
 	if err != nil {
 		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrLDAPConnect
 	}
 	defer lc.Close()
-	err = lc.Bind(adapter.AppConfig.String("ldap_user"), adapter.AppConfig.String("ldap_password"))
+	ldapuser, _ := web.AppConfig.String("ldap_user")
+	ldappass, _ := web.AppConfig.String("ldap_password")
+	err = lc.Bind(ldapuser, ldappass)
 	if err != nil {
 		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrLDAPFirstBind
 	}
+	ldapbase, _ := web.AppConfig.String("ldap_base")
+	ldapfilter, _ := web.AppConfig.String("ldap_filter")
+	ldapattr, _ := web.AppConfig.String("ldap_attribute")
 	searchRequest := ldap.NewSearchRequest(
-		adapter.AppConfig.String("ldap_base"),
+		ldapbase,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
 		//修改objectClass通过配置文件获取值
-		fmt.Sprintf("(&(%s)(%s=%s))", adapter.AppConfig.String("ldap_filter"), adapter.AppConfig.String("ldap_attribute"), account),
+		fmt.Sprintf("(&(%s)(%s=%s))", ldapfilter, ldapattr, account),
 		[]string{"dn", "mail"},
 		nil,
 	)
@@ -149,7 +155,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		m.Email = searchResult.Entries[0].GetAttributeValue("mail")
 		m.AuthMethod = "ldap"
 		m.Avatar = "/static/images/headimgurl.jpg"
-		m.Role = conf.SystemRole(adapter.AppConfig.DefaultInt("ldap_user_role", 2))
+		m.Role = conf.SystemRole(web.AppConfig.DefaultInt("ldap_user_role", 2))
 		m.CreateTime = time.Now()
 
 		err = m.Add()
@@ -163,7 +169,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 }
 
 func (m *Member) httpLogin(account, password string) (*Member, error) {
-	urlStr := adapter.AppConfig.String("http_login_url")
+	urlStr,_  := web.AppConfig.String("http_login_url")
 	if urlStr == "" {
 		return nil, ErrMemberAuthMethodInvalid
 	}
@@ -174,7 +180,7 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		"time":     []string{strconv.FormatInt(time.Now().Unix(), 10)},
 	}
 	h := md5.New()
-	h.Write([]byte(val.Encode() + adapter.AppConfig.DefaultString("http_login_secret", "")))
+	h.Write([]byte(val.Encode() + web.AppConfig.DefaultString("http_login_secret", "")))
 
 	val.Add("sn", hex.EncodeToString(h.Sum(nil)))
 
@@ -226,7 +232,7 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		member.Account = account
 		member.Password = password
 		member.AuthMethod = "http"
-		member.Role = conf.SystemRole(adapter.AppConfig.DefaultInt("ldap_user_role", 2))
+		member.Role = conf.SystemRole(web.AppConfig.DefaultInt("ldap_user_role", 2))
 		member.CreateTime = time.Now()
 		if err := member.Add(); err != nil {
 			logs.Error("自动注册用户错误", err)

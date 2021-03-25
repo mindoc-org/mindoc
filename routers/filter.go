@@ -6,8 +6,8 @@ import (
 	"regexp"
 
 	"github.com/beego/beego/v2/adapter"
-	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/adapter/context"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 )
@@ -47,7 +47,8 @@ func init() {
 	}
 
 	var StartRouter = func(ctx *context.Context) {
-		sessionId := ctx.Input.Cookie(adapter.AppConfig.String("sessionname"))
+		sessname, _ := web.AppConfig.String("sessionname")
+		sessionId := ctx.Input.Cookie(sessname)
 		if sessionId != "" {
 			//sessionId必须是数字字母组成，且最小32个字符，最大1024字符
 			if ok, err := regexp.MatchString(`^[a-zA-Z0-9]{32,512}$`, sessionId); !ok || err != nil {

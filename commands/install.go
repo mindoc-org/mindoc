@@ -24,7 +24,6 @@ func Install() {
 		initialization()
 	} else {
 		panic(err.Error())
-		os.Exit(1)
 	}
 	fmt.Println("Install Successfully!")
 	os.Exit(0)
@@ -99,7 +98,6 @@ func initialization() {
 
 	if err != nil {
 		panic(err.Error())
-		os.Exit(1)
 	}
 
 	member, err := models.NewMember().FindByFieldFirst("account", "admin")
@@ -109,12 +107,11 @@ func initialization() {
 		member.Avatar = conf.URLForWithCdnImage("/static/images/headimgurl.jpg")
 		member.Password = "123456"
 		member.AuthMethod = "local"
-		member.Role = 0
+		member.Role = conf.MemberSuperRole
 		member.Email = "admin@iminho.me"
 
 		if err := member.Add(); err != nil {
 			panic("Member.Add => " + err.Error())
-			os.Exit(0)
 		}
 
 		book := models.NewBook()
@@ -137,7 +134,6 @@ func initialization() {
 
 		if err := book.Insert(); err != nil {
 			panic("初始化项目失败 -> " + err.Error())
-			os.Exit(1)
 		}
 	}
 
@@ -147,7 +143,6 @@ func initialization() {
 		item.MemberId = 1
 		if err := item.Save(); err != nil {
 			panic("初始化项目空间失败 -> " + err.Error())
-			os.Exit(1)
 		}
 	}
 }

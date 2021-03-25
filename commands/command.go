@@ -34,17 +34,17 @@ import (
 // RegisterDataBase 注册数据库
 func RegisterDataBase() {
 	logs.Info("正在初始化数据库配置.")
-	dbadapter := adapter.AppConfig.String("db_adapter")
+	dbadapter,_ := web.AppConfig.String("db_adapter")
 	orm.DefaultTimeLoc = time.Local
 	orm.DefaultRowsLimit = -1
 
 	if strings.EqualFold(dbadapter, "mysql") {
-		host := adapter.AppConfig.String("db_host")
-		database := adapter.AppConfig.String("db_database")
-		username := adapter.AppConfig.String("db_username")
-		password := adapter.AppConfig.String("db_password")
+		host,_ := web.AppConfig.String("db_host")
+		database, _ := web.AppConfig.String("db_database")
+		username,_ := web.AppConfig.String("db_username")
+		password,_ := web.AppConfig.String("db_password")
 
-		timezone := adapter.AppConfig.String("timezone")
+		timezone,_ := web.AppConfig.String("timezone")
 		location, err := time.LoadLocation(timezone)
 		if err == nil {
 			orm.DefaultTimeLoc = location
@@ -52,7 +52,7 @@ func RegisterDataBase() {
 			logs.Error("加载时区配置信息失败,请检查是否存在 ZONEINFO 环境变量->", err)
 		}
 
-		port := adapter.AppConfig.String("db_port")
+		port,_ := web.AppConfig.String("db_port")
 
 		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
 
@@ -63,7 +63,7 @@ func RegisterDataBase() {
 
 	} else if strings.EqualFold(dbadapter, "sqlite3") {
 
-		database := adapter.AppConfig.String("db_database")
+		database,_ := web.AppConfig.String("db_database")
 		if strings.HasPrefix(database, "./") {
 			database = filepath.Join(conf.WorkingDirectory, string(database[1:]))
 		}
@@ -123,11 +123,11 @@ func RegisterLogger(log string) {
 	_ = logs.SetLogger("console")
 	logs.EnableFuncCallDepth(true)
 
-	if adapter.AppConfig.DefaultBool("log_is_async", true) {
+	if web.AppConfig.DefaultBool("log_is_async", true) {
 		logs.Async(1e3)
 	}
 	if log == "" {
-		logPath, err := filepath.Abs(adapter.AppConfig.DefaultString("log_path", conf.WorkingDir("runtime", "logs")))
+		logPath, err := filepath.Abs(web.AppConfig.DefaultString("log_path", conf.WorkingDir("runtime", "logs")))
 		if err == nil {
 			log = logPath
 		} else {
@@ -147,19 +147,19 @@ func RegisterLogger(log string) {
 	config["perm"] = "0755"
 	config["rotate"] = true
 
-	if maxLines := adapter.AppConfig.DefaultInt("log_maxlines", 1000000); maxLines > 0 {
+	if maxLines := web.AppConfig.DefaultInt("log_maxlines", 1000000); maxLines > 0 {
 		config["maxLines"] = maxLines
 	}
-	if maxSize := adapter.AppConfig.DefaultInt("log_maxsize", 1<<28); maxSize > 0 {
+	if maxSize := web.AppConfig.DefaultInt("log_maxsize", 1<<28); maxSize > 0 {
 		config["maxsize"] = maxSize
 	}
-	if !adapter.AppConfig.DefaultBool("log_daily", true) {
+	if !web.AppConfig.DefaultBool("log_daily", true) {
 		config["daily"] = false
 	}
-	if maxDays := adapter.AppConfig.DefaultInt("log_maxdays", 7); maxDays > 0 {
+	if maxDays := web.AppConfig.DefaultInt("log_maxdays", 7); maxDays > 0 {
 		config["maxdays"] = maxDays
 	}
-	if level := adapter.AppConfig.DefaultString("log_level", "Trace"); level != "" {
+	if level := web.AppConfig.DefaultString("log_level", "Trace"); level != "" {
 		switch level {
 		case "Emergency":
 			config["level"] = logs.LevelEmergency
@@ -220,13 +220,13 @@ func RegisterFunction() {
 		os.Exit(-1)
 	}
 	err = adapter.AddFuncMap("cdn", func(p string) string {
-		cdn := adapter.AppConfig.DefaultString("cdn", "")
+		cdn := web.AppConfig.DefaultString("cdn", "")
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
 		//如果没有设置cdn，则使用baseURL拼接
 		if cdn == "" {
-			baseUrl := adapter.AppConfig.DefaultString("baseurl", "")
+			baseUrl := web.AppConfig.DefaultString("baseurl", "")
 
 			if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 				return baseUrl + p[1:]
@@ -311,7 +311,7 @@ func ResolveCommand(args []string) {
 		log.Fatal("An error occurred:", err)
 	}
 	if conf.LogFile == "" {
-		logPath, err := filepath.Abs(adapter.AppConfig.DefaultString("log_path", conf.WorkingDir("runtime", "logs")))
+		logPath, err := filepath.Abs(web.AppConfig.DefaultString("log_path", conf.WorkingDir("runtime", "logs")))
 		if err == nil {
 			conf.LogFile = logPath
 		} else {
@@ -319,7 +319,7 @@ func ResolveCommand(args []string) {
 		}
 	}
 
-	conf.AutoLoadDelay = adapter.AppConfig.DefaultInt("config_auto_delay", 0)
+	conf.AutoLoadDelay = web.AppConfig.DefaultInt("config_auto_delay", 0)
 	uploads := conf.WorkingDir("uploads")
 
 	_ = os.MkdirAll(uploads, 0666)
@@ -348,15 +348,15 @@ func ResolveCommand(args []string) {
 
 //注册缓存管道
 func RegisterCache() {
-	isOpenCache := adapter.AppConfig.DefaultBool("cache", false)
+	isOpenCache := web.AppConfig.DefaultBool("cache", false)
 	if !isOpenCache {
 		cache.Init(&cache.NullCache{})
 		return
 	}
 	logs.Info("正常初始化缓存配置.")
-	cacheProvider := adapter.AppConfig.String("cache_provider")
+	cacheProvider, _ := web.AppConfig.String("cache_provider")
 	if cacheProvider == "file" {
-		cacheFilePath := adapter.AppConfig.DefaultString("cache_file_path", "./runtime/cache/")
+		cacheFilePath := web.AppConfig.DefaultString("cache_file_path", "./runtime/cache/")
 		if strings.HasPrefix(cacheFilePath, "./") {
 			cacheFilePath = filepath.Join(conf.WorkingDirectory, string(cacheFilePath[1:]))
 		}
@@ -365,9 +365,9 @@ func RegisterCache() {
 		fileConfig := make(map[string]string, 0)
 
 		fileConfig["CachePath"] = cacheFilePath
-		fileConfig["DirectoryLevel"] = adapter.AppConfig.DefaultString("cache_file_dir_level", "2")
-		fileConfig["EmbedExpiry"] = adapter.AppConfig.DefaultString("cache_file_expiry", "120")
-		fileConfig["FileSuffix"] = adapter.AppConfig.DefaultString("cache_file_suffix", ".bin")
+		fileConfig["DirectoryLevel"] = web.AppConfig.DefaultString("cache_file_dir_level", "2")
+		fileConfig["EmbedExpiry"] = web.AppConfig.DefaultString("cache_file_expiry", "120")
+		fileConfig["FileSuffix"] = web.AppConfig.DefaultString("cache_file_suffix", ".bin")
 
 		bc, err := json.Marshal(&fileConfig)
 		if err != nil {
@@ -380,13 +380,13 @@ func RegisterCache() {
 		cache.Init(fileCache)
 
 	} else if cacheProvider == "memory" {
-		cacheInterval := adapter.AppConfig.DefaultInt("cache_memory_interval", 60)
+		cacheInterval := web.AppConfig.DefaultInt("cache_memory_interval", 60)
 		memory := beegoCache.NewMemoryCache()
 		beegoCache.DefaultEvery = cacheInterval
 		cache.Init(memory)
 	} else if cacheProvider == "redis" {
 		//设置Redis前缀
-		if key := adapter.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
+		if key := web.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
 			redis.DefaultKey = key
 		}
 		var redisConfig struct {
@@ -395,11 +395,11 @@ func RegisterCache() {
 			DbNum    int    `json:"dbNum"`
 		}
 		redisConfig.DbNum = 0
-		redisConfig.Conn = adapter.AppConfig.DefaultString("cache_redis_host", "")
-		if pwd := adapter.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
+		redisConfig.Conn = web.AppConfig.DefaultString("cache_redis_host", "")
+		if pwd := web.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
 			redisConfig.Password = pwd
 		}
-		if dbNum := adapter.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
+		if dbNum := web.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
 			redisConfig.DbNum = dbNum
 		}
 
@@ -421,7 +421,7 @@ func RegisterCache() {
 		var memcacheConfig struct {
 			Conn string `json:"conn"`
 		}
-		memcacheConfig.Conn = adapter.AppConfig.DefaultString("cache_memcache_host", "")
+		memcacheConfig.Conn = web.AppConfig.DefaultString("cache_memcache_host", "")
 
 		bc, err := json.Marshal(&memcacheConfig)
 		if err != nil {

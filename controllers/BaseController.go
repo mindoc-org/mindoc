@@ -75,7 +75,7 @@ func (c *BaseController) Prepare() {
 		c.EnableAnonymous = strings.EqualFold(c.Option["ENABLE_ANONYMOUS"], "true")
 		c.EnableDocumentHistory = strings.EqualFold(c.Option["ENABLE_DOCUMENT_HISTORY"], "true")
 	}
-	c.Data["HighlightStyle"] = adapter.AppConfig.DefaultString("highlight_style", "github")
+	c.Data["HighlightStyle"] = web.AppConfig.DefaultString("highlight_style", "github")
 
 	if b, err := ioutil.ReadFile(filepath.Join(web.BConfig.WebConfig.ViewsPath, "widgets", "scripts.tpl")); err == nil {
 		c.Data["Scripts"] = template.HTML(string(b))
@@ -167,7 +167,7 @@ func (c *BaseController) ExecuteViewPathTemplate(tplName string, data interface{
 }
 
 func (c *BaseController) BaseUrl() string {
-	baseUrl := adapter.AppConfig.DefaultString("baseurl", "")
+	baseUrl := web.AppConfig.DefaultString("baseurl", "")
 	if baseUrl != "" {
 		if strings.HasSuffix(baseUrl, "/") {
 			baseUrl = strings.TrimSuffix(baseUrl, "/")

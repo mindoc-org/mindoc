@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beego/beego/v2/adapter"
 	"github.com/beego/beego/v2/adapter/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/mindoc-org/mindoc/conf"
@@ -243,7 +243,7 @@ func (c *DocumentController) Edit() {
 		}
 	}
 
-	c.Data["BaiDuMapKey"] = adapter.AppConfig.DefaultString("baidumapkey", "")
+	c.Data["BaiDuMapKey"] = web.AppConfig.DefaultString("baidumapkey", "")
 
 	if conf.GetUploadFileSize() > 0 {
 		c.Data["UploadFileSize"] = conf.GetUploadFileSize()

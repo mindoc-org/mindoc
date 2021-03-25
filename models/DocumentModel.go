@@ -12,9 +12,9 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/beego/beego/v2/adapter"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/mindoc-org/mindoc/cache"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
@@ -330,7 +330,7 @@ func (item *Document) Processor() *Document {
 					selector.First().AppendHtml(release)
 				}
 			}
-			cdnimg := adapter.AppConfig.String("cdnimg")
+			cdnimg,_  := web.AppConfig.String("cdnimg")
 
 			docQuery.Find("img").Each(func(i int, selection *goquery.Selection) {
 
