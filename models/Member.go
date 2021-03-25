@@ -179,10 +179,6 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		return nil, ErrMemberAuthMethodInvalid
 	}
 
-	tmpH := md5.New()
-	tmpH.Write([]byte(password))
-	password = strings.ToUpper(hex.EncodeToString(tmpH.Sum(nil)))
-
 	val := url.Values{
 		"account":  []string{account},
 		"password": []string{password},

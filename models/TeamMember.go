@@ -227,7 +227,7 @@ limit ?;`
 	for _, member := range members {
 		item := KeyValueItem{}
 		item.Id = member.MemberId
-		item.Text = member.Account + "(" + member.RealName + ")"
+		item.Text = member.Account + "[" + member.RealName + "]"
 		items = append(items, item)
 	}
 	result.Result = items

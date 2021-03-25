@@ -32,9 +32,12 @@ func (c *AccountController) referer() string {
 
 func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
-	c.EnableXSRF = true
+	c.EnableXSRF = beego.AppConfig.DefaultBool("enablexsrf", true)
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
 	c.Data["corpID"] = beego.AppConfig.String("dingtalk_corpid")
+	if !c.EnableXSRF {
+		return
+	}
 	if c.Ctx.Input.IsPost() {
 		token := c.Ctx.Input.Query("_xsrf")
 		if token == "" {
@@ -138,7 +141,7 @@ func (c *AccountController) Login() {
 func (c *AccountController) DingTalkLogin() {
 	c.Prepare()
 
-	code := c.GetString("code")
+	code := c.GetString("dingtalk_code")
 	if code == "" {
 		c.JsonResult(500, "获取身份信息失败", nil)
 	}
@@ -160,7 +163,14 @@ func (c *AccountController) DingTalkLogin() {
 		c.StopRun()
 	}
 
-	username, err := dingtalkAgent.GetUserNameByCode(code)
+	userid, err := dingtalkAgent.GetUserIDByCode(code)
+	if err != nil {
+		beego.Warn("钉钉自动登录失败 ->", err)
+		c.JsonResult(500, "自动登录失败", nil)
+		c.StopRun()
+	}
+
+	username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
 	if err != nil {
 		beego.Warn("钉钉自动登录失败 ->", err)
 		c.JsonResult(500, "自动登录失败", nil)
@@ -171,6 +181,10 @@ func (c *AccountController) DingTalkLogin() {
 	if err == nil {
 		member.LastLoginTime = time.Now()
 		_ = member.Update("last_login_time")
+		member.Account = username
+		if avatar != "" {
+			member.Avatar = avatar
+		}
 
 		c.SetMember(*member)
 	}

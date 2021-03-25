@@ -99,7 +99,7 @@
                         })
 
                         var formData = $("form").serializeArray()
-                        formData.push({"name": "code", "value": info.code})
+                        formData.push({"name": "dingtalk_code", "value": info.code})
 
                         $.ajax({
                             url: "{{urlfor "AccountController.DingTalkLogin"}} ",

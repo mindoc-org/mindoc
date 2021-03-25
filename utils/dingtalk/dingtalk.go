@@ -27,8 +27,8 @@ func NewDingTalkAgent(appSecret, appKey string) *DingTalkAgent {
 	}
 }
 
-// GetUserNameByCode 通过临时code获取当前用户信息
-func (d *DingTalkAgent) GetUserNameByCode(code string) (string, error) {
+// GetUserIDByCode 通过临时code获取当前用户ID
+func (d *DingTalkAgent) GetUserIDByCode(code string) (string, error) {
 	urlEndpoint, err := url.Parse("https://oapi.dingtalk.com/user/getuserinfo")
 	if err != nil {
 		return "", err
@@ -62,8 +62,48 @@ func (d *DingTalkAgent) GetUserNameByCode(code string) (string, error) {
 		return "", errors.New(fmt.Sprintf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string)))
 	}
 
-	username := rdata["name"].(string)
-	return username, nil
+	userid := rdata["userid"].(string)
+	return userid, nil
+}
+
+// GetUserNameAndAvatarByUserID 通过userid获取当前用户姓名和头像
+func (d *DingTalkAgent) GetUserNameAndAvatarByUserID(userid string) (string, string, error) {
+	urlEndpoint, err := url.Parse("https://oapi.dingtalk.com/topapi/v2/user/get")
+	if err != nil {
+		return "", "", err
+	}
+
+	query := url.Values{}
+	query.Set("access_token", d.AccessToken)
+
+	urlEndpoint.RawQuery = query.Encode()
+	urlPath := urlEndpoint.String()
+
+	resp, err := http.PostForm(urlPath, url.Values{"userid": {userid}})
+	if err != nil {
+		return "", "", err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", "", err
+	}
+
+	// 解析钉钉返回数据
+	var rdata map[string]interface{}
+	err = json.Unmarshal(body, &rdata)
+	if err != nil {
+		return "", "", err
+	}
+
+	errcode := rdata["errcode"].(float64)
+	if errcode != 0 {
+		return "", "", errors.New(fmt.Sprintf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string)))
+	}
+
+	userinfo := rdata["result"].(map[string]interface{})
+	username := userinfo["name"].(string)
+	avatar := userinfo["avatar"].(string)
+	return username, avatar, nil
 }
 
 // GetAccesstoken 获取钉钉请求Token
