@@ -33,8 +33,11 @@ func (c *AccountController) referer() string {
 func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
 	c.EnableXSRF = beego.AppConfig.DefaultBool("enablexsrf", true)
+
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
 	c.Data["corpID"] = beego.AppConfig.String("dingtalk_corpid")
+	c.Data["ENABLE_QR_DINGTALK"] = (beego.AppConfig.String("dingtalk_corpid") != "")
+
 	if !c.EnableXSRF {
 		return
 	}
