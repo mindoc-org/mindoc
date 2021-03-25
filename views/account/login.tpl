@@ -99,43 +99,41 @@
 <script src="{{cdnjs "/static/js/dingtalk-ddlogin.js"}}" type="text/javascript"></script>
 
 <script type="text/javascript">
-    $(function () {
-        if (dd.env.platform !== "notInDingTalk"){
-            dd.ready(function() {
-                dd.runtime.permission.requestAuthCode({
-                    corpId: {{ .corpID }} , // 企业id
-                    onSuccess: function (info) {
-                        var index = layer.load(1, {
-                            shade: [0.1, '#fff'] // 0.1 透明度的白色背景
-                        })
+    if (dd.env.platform !== "notInDingTalk"){
+        dd.ready(function() {
+            dd.runtime.permission.requestAuthCode({
+                corpId: {{ .corpID }} , // 企业id
+                onSuccess: function (info) {
+                    var index = layer.load(1, {
+                        shade: [0.1, '#fff'] // 0.1 透明度的白色背景
+                    })
 
-                        var formData = $("form").serializeArray()
-                        formData.push({"name": "dingtalk_code", "value": info.code})
+                    var formData = $("form").serializeArray()
+                    formData.push({"name": "dingtalk_code", "value": info.code})
 
-                        $.ajax({
-                            url: "{{urlfor "AccountController.DingTalkLogin"}} ",
-                            data: formData,
-                            dataType: "json",
-                            type: "POST",
-                            complete: function(){
-                                layer.close(index)
-                            },
-                            success: function (res) {
-                                if (res.errcode !== 0) {
-                                    layer.msg(res.message)
-                                } else {
-                                    window.location = "{{ urlfor "HomeController.Index"  }}"
-                                }
-                            },
-                            error: function (res) {
-                                layer.msg("发生异常")
+                    $.ajax({
+                        url: "{{urlfor "AccountController.DingTalkLogin"}} ",
+                        data: formData,
+                        dataType: "json",
+                        type: "POST",
+                        complete: function(){
+                            layer.close(index)
+                        },
+                        success: function (res) {
+                            if (res.errcode !== 0) {
+                                layer.msg(res.message)
+                            } else {
+                                window.location = "{{ urlfor "HomeController.Index"  }}"
                             }
-                        })
-                    }
-                });
+                        },
+                        error: function (res) {
+                            layer.msg("发生异常")
+                        }
+                    })
+                }
             });
-        }
-    })
+        });
+    }
 
 </script>
 
