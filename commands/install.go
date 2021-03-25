@@ -1,13 +1,14 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"flag"
 
-	"github.com/beego/beego/v2/adapter/orm"
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
@@ -101,7 +102,7 @@ func initialization() {
 	}
 
 	member, err := models.NewMember().FindByFieldFirst("account", "admin")
-	if err == orm.ErrNoRows {
+	if errors.Is(err, orm.ErrNoRows) {
 
 		// create admin user
 		logs.Info("creating admin user")
@@ -139,6 +140,8 @@ func initialization() {
 		if err := book.Insert(); err != nil {
 			panic("初始化项目失败 -> " + err.Error())
 		}
+	} else if err != nil {
+		panic(fmt.Errorf("occur errors when initialize: %s", err))
 	}
 
 	if !models.NewItemsets().Exist(1) {
