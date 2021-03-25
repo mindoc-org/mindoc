@@ -81,7 +81,7 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 			logs.Info("转入 HTTP 接口登陆 ->", account)
 			return member.httpLogin(account, password)
 		} else {
-			logs.Error("用户登录 ->", err)
+			logs.Error("user login for `%s`: %s",account, err)
 			return member, ErrMemberNoExist
 		}
 	}

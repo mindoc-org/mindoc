@@ -103,6 +103,8 @@ func initialization() {
 	member, err := models.NewMember().FindByFieldFirst("account", "admin")
 	if err == orm.ErrNoRows {
 
+		// create admin user
+		logs.Info("creating admin user")
 		member.Account = "admin"
 		member.Avatar = conf.URLForWithCdnImage("/static/images/headimgurl.jpg")
 		member.Password = "123456"
@@ -114,6 +116,8 @@ func initialization() {
 			panic("Member.Add => " + err.Error())
 		}
 
+		// create demo book
+		logs.Info("creating demo book")
 		book := models.NewBook()
 
 		book.MemberId = member.MemberId
