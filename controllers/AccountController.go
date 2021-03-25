@@ -9,11 +9,13 @@ import (
 	"html/template"
 
 	"github.com/beego/beego/v2/adapter/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/mail"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
+	"github.com/mindoc-org/mindoc/utils/dingtalk"
 )
 
 // AccountController 用户登录与注册
@@ -31,8 +33,12 @@ func (c *AccountController) referer() string {
 
 func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
-	c.EnableXSRF = true
+	c.EnableXSRF = web.AppConfig.DefaultBool("enablexsrf", true)
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
+	c.Data["corpID"],_ = web.AppConfig.String("dingtalk_corpid")
+	if !c.EnableXSRF {
+		return
+	}
 	if c.Ctx.Input.IsPost() {
 		token := c.Ctx.Input.Query("_xsrf")
 		if token == "" {
@@ -130,6 +136,60 @@ func (c *AccountController) Login() {
 	} else {
 		c.Data["url"] = c.referer()
 	}
+}
+
+// 钉钉登录
+func (c *AccountController) DingTalkLogin() {
+	c.Prepare()
+
+	code := c.GetString("dingtalk_code")
+	if code == "" {
+		c.JsonResult(500, "获取身份信息失败", nil)
+	}
+
+	appKey, _ := web.AppConfig.String("dingtalk_app_key")
+	appSecret, _ := web.AppConfig.String("dingtalk_app_secret")
+	tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
+
+	if appKey == "" || appSecret == "" || tmpReader == "" {
+		c.JsonResult(500, "未开启钉钉自动登录功能", nil)
+		c.StopRun()
+	}
+
+	dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
+	err := dingtalkAgent.GetAccesstoken()
+	if err != nil {
+		logs.Warn("获取钉钉临时Token失败 ->", err)
+		c.JsonResult(500, "自动登录失败", nil)
+		c.StopRun()
+	}
+
+	userid, err := dingtalkAgent.GetUserIDByCode(code)
+	if err != nil {
+		logs.Warn("钉钉自动登录失败 ->", err)
+		c.JsonResult(500, "自动登录失败", nil)
+		c.StopRun()
+	}
+
+	username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
+	if err != nil {
+		logs.Warn("钉钉自动登录失败 ->", err)
+		c.JsonResult(500, "自动登录失败", nil)
+		c.StopRun()
+	}
+
+	member, err := models.NewMember().TmpLogin(tmpReader)
+	if err == nil {
+		member.LastLoginTime = time.Now()
+		_ = member.Update("last_login_time")
+		member.Account = username
+		if avatar != "" {
+			member.Avatar = avatar
+		}
+
+		c.SetMember(*member)
+	}
+	c.JsonResult(0, "ok", username)
 }
 
 // 登录成功后的操作，如重定向到原始请求页面

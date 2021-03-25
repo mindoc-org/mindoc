@@ -34,17 +34,17 @@ import (
 // RegisterDataBase 注册数据库
 func RegisterDataBase() {
 	logs.Info("正在初始化数据库配置.")
-	dbadapter,_ := web.AppConfig.String("db_adapter")
+	dbadapter, _ := web.AppConfig.String("db_adapter")
 	orm.DefaultTimeLoc = time.Local
 	orm.DefaultRowsLimit = -1
 
 	if strings.EqualFold(dbadapter, "mysql") {
-		host,_ := web.AppConfig.String("db_host")
+		host, _ := web.AppConfig.String("db_host")
 		database, _ := web.AppConfig.String("db_database")
-		username,_ := web.AppConfig.String("db_username")
-		password,_ := web.AppConfig.String("db_password")
+		username, _ := web.AppConfig.String("db_username")
+		password, _ := web.AppConfig.String("db_password")
 
-		timezone,_ := web.AppConfig.String("timezone")
+		timezone, _ := web.AppConfig.String("timezone")
 		location, err := time.LoadLocation(timezone)
 		if err == nil {
 			orm.DefaultTimeLoc = location
@@ -52,7 +52,7 @@ func RegisterDataBase() {
 			logs.Error("加载时区配置信息失败,请检查是否存在 ZONEINFO 环境变量->", err)
 		}
 
-		port,_ := web.AppConfig.String("db_port")
+		port, _ := web.AppConfig.String("db_port")
 
 		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
 
@@ -63,7 +63,7 @@ func RegisterDataBase() {
 
 	} else if strings.EqualFold(dbadapter, "sqlite3") {
 
-		database,_ := web.AppConfig.String("db_database")
+		database, _ := web.AppConfig.String("db_database")
 		if strings.HasPrefix(database, "./") {
 			database = filepath.Join(conf.WorkingDirectory, string(database[1:]))
 		}
@@ -327,6 +327,7 @@ func ResolveCommand(args []string) {
 	web.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
 	web.BConfig.WebConfig.StaticDir["/uploads"] = uploads
 	web.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")
+	web.BConfig.WebConfig.Session.SessionCookieSameSite = http.SameSiteDefaultMode
 
 	fonts := conf.WorkingDir("static", "fonts")
 

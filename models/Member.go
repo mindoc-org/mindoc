@@ -105,6 +105,17 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 	return member, ErrorMemberPasswordError
 }
 
+// TmpLogin 用于钉钉临时登录
+func (m *Member) TmpLogin(account string) (*Member, error) {
+	o := orm.NewOrm()
+	member := &Member{}
+	err := o.Raw("select * from md_members where account = ? and status = 0 limit 1;", account).QueryRow(member)
+	if err != nil {
+		return member, ErrorMemberPasswordError
+	}
+	return member, nil
+}
+
 //ldapLogin 通过LDAP登陆
 func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	if web.AppConfig.DefaultBool("ldap_enable", false) {
@@ -187,14 +198,14 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 	resp, err := http.PostForm(urlStr, val)
 	if err != nil {
 		logs.Error("通过接口登录失败 -> ", urlStr, account, err)
-		return nil, err
+		return nil, ErrHTTPServerFail
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logs.Error("读取接口返回值失败 -> ", urlStr, account, err)
-		return nil, err
+		return nil, ErrHTTPServerFail
 	}
 	logs.Info("HTTP 登录接口返回数据 ->", string(body))
 
@@ -202,7 +213,7 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 
 	if err := json.Unmarshal(body, &result); err != nil {
 		logs.Error("解析接口返回值失败 -> ", urlStr, account, string(body))
-		return nil, errors.New("解析接口返回值失败")
+		return nil, ErrHTTPServerFail
 	}
 
 	if code, ok := result["errcode"]; !ok || code.(float64) != 200 {
@@ -210,7 +221,7 @@ func (m *Member) httpLogin(account, password string) (*Member, error) {
 		if msg, ok := result["message"]; ok {
 			return nil, errors.New(msg.(string))
 		}
-		return nil, errors.New("接口返回值格式不正确")
+		return nil, ErrHTTPServerFail
 	}
 	if m.MemberId <= 0 {
 		member := NewMember()
