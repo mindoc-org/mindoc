@@ -70,6 +70,10 @@
                 <div class="form-group">
                     <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="正在登录..." autocomplete="off">立即登录</button>
                 </div>
+                <div class="form-group">
+                    <a href='https://oapi.dingtalk.com/connect/qrconnect?appid=dingoa0wp8qg6gyqtlyno1&response_type=code&scope=snsapi_login&state=1&redirect_uri={{ urlfor "AccountController.QRLogin" ":app" "dingtalk"}}' id="btn-dingtalk-qr" class="btn btn-default" style="width: 100%"  data-loading-text="" autocomplete="off">钉钉扫码登录</a>
+                    <!-- <a href='{{ urlfor "AccountController.QRLogin" ":app" "dingtalk"}}' id="btn-dingtalk-qr" class="btn btn-default" style="width: 100%"  data-loading-text="" autocomplete="off">钉钉扫码登录</a> -->
+                </div>
                 {{if .ENABLED_REGISTER}}
                 {{if ne .ENABLED_REGISTER "false"}}
                 <div class="form-group">

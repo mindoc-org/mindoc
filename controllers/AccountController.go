@@ -191,6 +191,81 @@ func (c *AccountController) DingTalkLogin() {
 	c.JsonResult(0, "ok", username)
 }
 
+// QR二维码登录
+func (c *AccountController) QRLogin() {
+	c.Prepare()
+
+	appName := c.Ctx.Input.Param(":app")
+
+	switch appName {
+	// 钉钉扫码登录
+	case "dingtalk":
+		code := c.GetString("code")
+		state := c.GetString("state")
+		if state != "1" || code == "" {
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+		appKey := "dingoa0wp8qg6gyqtlyno1"
+		appSecret := "YPcijr8Wj47_N2jjEtE3wUsfiUwcTJqfJewgTs9mnHmaHAIsxAe92fmzy-XpdSMs"
+
+		qrDingtalk := dingtalk.NewDingtalkQRLogin(appSecret, appKey)
+		unionID, err := qrDingtalk.GetUnionIDByCode(code)
+		if err != nil {
+			beego.Warn("获取钉钉临时Token失败 ->", err)
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+
+		appKey = beego.AppConfig.String("dingtalk_app_key")
+		appSecret = beego.AppConfig.String("dingtalk_app_secret")
+		tmpReader := beego.AppConfig.String("dingtalk_tmp_reader")
+
+		dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
+		err = dingtalkAgent.GetAccesstoken()
+		if err != nil {
+			beego.Warn("获取钉钉临时Token失败 ->", err)
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+
+		userid, err := dingtalkAgent.GetUserIDByUnionID(unionID)
+		if err != nil {
+			beego.Warn("获取钉钉临时Token失败 ->", err)
+			c.StopRun()
+		}
+
+		username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
+		if err != nil {
+			beego.Warn("钉钉自动登录失败 ->", err)
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+
+		member, err := models.NewMember().TmpLogin(tmpReader)
+		if err == nil {
+			member.LastLoginTime = time.Now()
+			_ = member.Update("last_login_time")
+			member.Account = username
+			if avatar != "" {
+				member.Avatar = avatar
+			}
+
+			c.SetMember(*member)
+			c.LoggedIn(false)
+			c.StopRun()
+		}
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+
+		// fmt.Println(unionID)
+		// c.JsonResult(0, appName, nil)
+
+	default:
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+		c.StopRun()
+	}
+}
+
 // 登录成功后的操作，如重定向到原始请求页面
 func (c *AccountController) LoggedIn(isPost bool) interface{} {
 
