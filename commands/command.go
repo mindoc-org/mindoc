@@ -18,6 +18,7 @@ import (
 	"github.com/astaxie/beego"
 	beegoCache "github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/memcache"
+
 	"github.com/astaxie/beego/cache/redis"
 	_ "github.com/astaxie/beego/cache/redis"
 	"github.com/astaxie/beego/logs"
@@ -326,6 +327,7 @@ func ResolveCommand(args []string) {
 	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
 	beego.BConfig.WebConfig.StaticDir["/uploads"] = uploads
 	beego.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")
+	beego.BConfig.WebConfig.Session.SessionCookieSameSite = http.SameSiteDefaultMode
 
 	fonts := conf.WorkingDir("static", "fonts")
 

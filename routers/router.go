@@ -9,6 +9,7 @@ func init() {
 	beego.Router("/", &controllers.HomeController{}, "*:Index")
 
 	beego.Router("/login", &controllers.AccountController{}, "*:Login")
+	beego.Router("/dingtalk_login", &controllers.AccountController{}, "*:DingTalkLogin")
 	beego.Router("/logout", &controllers.AccountController{}, "*:Logout")
 	beego.Router("/register", &controllers.AccountController{}, "*:Register")
 	beego.Router("/find_password", &controllers.AccountController{}, "*:FindPassword")

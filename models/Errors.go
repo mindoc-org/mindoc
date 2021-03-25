@@ -19,6 +19,8 @@ var (
 	ErrorMemberPasswordError = errors.New("用户密码错误")
 	//ErrorMemberAuthMethodInvalid 不支持此认证方式
 	ErrMemberAuthMethodInvalid = errors.New("不支持此认证方式")
+	//ErrHTTPServerFail
+	ErrHTTPServerFail = errors.New("系统内部异常")
 	//ErrLDAPConnect 无法连接到LDAP服务器
 	ErrLDAPConnect = errors.New("无法连接到LDAP服务器")
 	//ErrLDAPFirstBind 第一次LDAP绑定失败
