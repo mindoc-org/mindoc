@@ -37,6 +37,7 @@ func (c *AccountController) Prepare() {
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
 	c.Data["corpID"] = beego.AppConfig.String("dingtalk_corpid")
 	c.Data["ENABLE_QR_DINGTALK"] = (beego.AppConfig.String("dingtalk_corpid") != "")
+	c.Data["dingtalk_qr_key"] = beego.AppConfig.String("dingtalk_qr_key")
 
 	if !c.EnableXSRF {
 		return
