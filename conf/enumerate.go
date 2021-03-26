@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/beego/beego/v2/adapter"
 	"github.com/beego/beego/v2/server/web"
 )
 
@@ -212,7 +211,7 @@ func IsAllowUploadFileExt(ext string) bool {
 //重写生成URL的方法，加上完整的域名
 func URLFor(endpoint string, values ...interface{}) string {
 	baseUrl := web.AppConfig.DefaultString("baseurl", "")
-	pathUrl := adapter.URLFor(endpoint, values...)
+	pathUrl := web.URLFor(endpoint, values...)
 
 	if baseUrl == "" {
 		baseUrl = BaseUrl
@@ -226,12 +225,12 @@ func URLFor(endpoint string, values ...interface{}) string {
 	if !strings.HasPrefix(pathUrl, "/") && !strings.HasSuffix(baseUrl, "/") {
 		return baseUrl + "/" + pathUrl
 	}
-	return baseUrl + adapter.URLFor(endpoint, values...)
+	return baseUrl + web.URLFor(endpoint, values...)
 }
 
 func URLForNotHost(endpoint string, values ...interface{}) string {
 	baseUrl := web.AppConfig.DefaultString("baseurl", "")
-	pathUrl := adapter.URLFor(endpoint, values...)
+	pathUrl := web.URLFor(endpoint, values...)
 
 	if baseUrl == "" {
 		baseUrl = "/"
@@ -245,7 +244,7 @@ func URLForNotHost(endpoint string, values ...interface{}) string {
 	if !strings.HasPrefix(pathUrl, "/") && !strings.HasSuffix(baseUrl, "/") {
 		return baseUrl + "/" + pathUrl
 	}
-	return baseUrl + adapter.URLFor(endpoint, values...)
+	return baseUrl + web.URLFor(endpoint, values...)
 }
 
 func URLForWithCdnImage(p string) string {

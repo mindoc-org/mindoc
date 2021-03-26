@@ -6,7 +6,6 @@ import (
 
 	"path/filepath"
 
-	"github.com/beego/beego/v2/adapter"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/kardianos/service"
@@ -55,11 +54,6 @@ func (d *Daemon) Run() {
 
 	commands.RegisterError()
 
-	/* TODO: which ErrorController to use? currently there are
-	*  		two ErrorController avalable, one is beego/v2/server/web.ErrorController,
-	*		and another is beego/v2/adapter.ErrorController, which is actually a calling to the first one
-	*		here the first one is used, which is the original implementation.
-	 */
 	web.ErrorController(&controllers.ErrorController{})
 
 	f, err := filepath.Abs(os.Args[0])
@@ -70,7 +64,7 @@ func (d *Daemon) Run() {
 
 	fmt.Printf("MinDoc version => %s\nbuild time => %s\nstart directory => %s\n%s\n", conf.VERSION, conf.BUILD_TIME, f, conf.GO_VERSION)
 
-	adapter.Run()
+	web.Run()
 }
 
 func (d *Daemon) Stop(s service.Service) error {

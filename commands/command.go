@@ -15,7 +15,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/beego/beego/v2/adapter"
 	beegoCache "github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/memcache"
 	"github.com/beego/beego/v2/client/cache/redis"
@@ -163,28 +162,20 @@ func RegisterLogger(log string) {
 		switch level {
 		case "Emergency":
 			config["level"] = logs.LevelEmergency
-			break
 		case "Alert":
 			config["level"] = logs.LevelAlert
-			break
 		case "Critical":
 			config["level"] = logs.LevelCritical
-			break
 		case "Error":
 			config["level"] = logs.LevelError
-			break
 		case "Warning":
 			config["level"] = logs.LevelWarning
-			break
 		case "Notice":
 			config["level"] = logs.LevelNotice
-			break
 		case "Informational":
 			config["level"] = logs.LevelInformational
-			break
 		case "Debug":
 			config["level"] = logs.LevelDebug
-			break
 		}
 	}
 	b, err := json.Marshal(config)
@@ -213,13 +204,13 @@ func RegisterCommand() {
 
 //注册模板函数
 func RegisterFunction() {
-	err := adapter.AddFuncMap("config", models.GetOptionValue)
+	err := web.AddFuncMap("config", models.GetOptionValue)
 
 	if err != nil {
 		logs.Error("注册函数 config 出错 ->", err)
 		os.Exit(-1)
 	}
-	err = adapter.AddFuncMap("cdn", func(p string) string {
+	err = web.AddFuncMap("cdn", func(p string) string {
 		cdn := web.AppConfig.DefaultString("cdn", "")
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
@@ -249,28 +240,28 @@ func RegisterFunction() {
 		os.Exit(-1)
 	}
 
-	err = adapter.AddFuncMap("cdnjs", conf.URLForWithCdnJs)
+	err = web.AddFuncMap("cdnjs", conf.URLForWithCdnJs)
 	if err != nil {
 		logs.Error("注册函数 cdnjs 出错 ->", err)
 		os.Exit(-1)
 	}
-	err = adapter.AddFuncMap("cdncss", conf.URLForWithCdnCss)
+	err = web.AddFuncMap("cdncss", conf.URLForWithCdnCss)
 	if err != nil {
 		logs.Error("注册函数 cdncss 出错 ->", err)
 		os.Exit(-1)
 	}
-	err = adapter.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
+	err = web.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
 	if err != nil {
 		logs.Error("注册函数 cdnimg 出错 ->", err)
 		os.Exit(-1)
 	}
 	//重写url生成，支持配置域名以及域名前缀
-	err = adapter.AddFuncMap("urlfor", conf.URLFor)
+	err = web.AddFuncMap("urlfor", conf.URLFor)
 	if err != nil {
 		logs.Error("注册函数 urlfor 出错 ->", err)
 		os.Exit(-1)
 	}
-	err = adapter.AddFuncMap("date_format", func(t time.Time, format string) string {
+	err = web.AddFuncMap("date_format", func(t time.Time, format string) string {
 		return t.Local().Format(format)
 	})
 	if err != nil {
@@ -307,7 +298,7 @@ func ResolveCommand(args []string) {
 		log.Fatal("读取字体文件时出错 -> ", err)
 	}
 
-	if err := adapter.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
+	if err := web.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
 		log.Fatal("An error occurred:", err)
 	}
 	if conf.LogFile == "" {
@@ -461,7 +452,7 @@ func RegisterAutoLoadConfig() {
 				case ev := <-watcher.Event:
 					//如果是修改了配置文件
 					if ev.IsModify() {
-						if err := adapter.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
+						if err := web.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
 							logs.Error("An error occurred ->", err)
 							continue
 						}
@@ -496,7 +487,7 @@ func RegisterError() {
 		data["ErrorCode"] = 404
 		data["ErrorMessage"] = "页面未找到或已删除"
 
-		if err := adapter.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, data); err == nil {
+		if err := web.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, data); err == nil {
 			_, _ = fmt.Fprint(writer, buf.String())
 		} else {
 			_, _ = fmt.Fprint(writer, data["ErrorMessage"])
@@ -509,7 +500,7 @@ func RegisterError() {
 		data["ErrorCode"] = 401
 		data["ErrorMessage"] = "请与 Web 服务器的管理员联系，以确认您是否具有访问所请求资源的权限。"
 
-		if err := adapter.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, data); err == nil {
+		if err := web.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, data); err == nil {
 			_, _ = fmt.Fprint(writer, buf.String())
 		} else {
 			_, _ = fmt.Fprint(writer, data["ErrorMessage"])

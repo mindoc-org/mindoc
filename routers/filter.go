@@ -5,9 +5,8 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/beego/beego/v2/adapter"
-	"github.com/beego/beego/v2/adapter/context"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/server/web/context"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 )
@@ -31,14 +30,14 @@ func init() {
 			}
 		}
 	}
-	adapter.InsertFilter("/manager", web.BeforeRouter, FilterUser)
-	adapter.InsertFilter("/manager/*", web.BeforeRouter, FilterUser)
-	adapter.InsertFilter("/setting", web.BeforeRouter, FilterUser)
-	adapter.InsertFilter("/setting/*", web.BeforeRouter, FilterUser)
-	adapter.InsertFilter("/book", web.BeforeRouter, FilterUser)
-	adapter.InsertFilter("/book/*", web.BeforeRouter, FilterUser)
-	adapter.InsertFilter("/api/*", web.BeforeRouter, FilterUser)
-	adapter.InsertFilter("/manage/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/manager", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/manager/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/setting", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/setting/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/book", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/book/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/api/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/manage/*", web.BeforeRouter, FilterUser)
 
 	var FinishRouter = func(ctx *context.Context) {
 		ctx.ResponseWriter.Header().Add("MinDoc-Version", conf.VERSION)
@@ -56,6 +55,6 @@ func init() {
 			}
 		}
 	}
-	adapter.InsertFilter("/*", web.BeforeStatic, StartRouter, false)
-	adapter.InsertFilter("/*", web.BeforeRouter, FinishRouter, false)
+	web.InsertFilter("/*", web.BeforeStatic, StartRouter, web.WithReturnOnOutput(false))
+	web.InsertFilter("/*", web.BeforeRouter, FinishRouter, web.WithReturnOnOutput(false))
 }

@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/beego/beego/v2/adapter"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/mindoc-org/mindoc/conf"
@@ -160,7 +159,7 @@ func (c *BaseController) ExecuteViewPathTemplate(tplName string, data interface{
 
 	}
 
-	if err := adapter.ExecuteViewPathTemplate(&buf, tplName, viewPath, data); err != nil {
+	if err := web.ExecuteViewPathTemplate(&buf, tplName, viewPath, data); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
@@ -187,7 +186,7 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 
 	var buf bytes.Buffer
 
-	if err := adapter.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, map[string]interface{}{"ErrorMessage": errMsg, "ErrorCode": errCode, "BaseUrl": conf.BaseUrl}); err != nil {
+	if err := web.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, map[string]interface{}{"ErrorMessage": errMsg, "ErrorCode": errCode, "BaseUrl": conf.BaseUrl}); err != nil {
 		c.Abort("500")
 	}
 	if errCode >= 200 && errCode <= 510 {
