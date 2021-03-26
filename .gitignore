@@ -21,6 +21,7 @@ _testmain.go
 
 *.exe
 mindoc
+database
 *.test
 *.prof
 .idea
