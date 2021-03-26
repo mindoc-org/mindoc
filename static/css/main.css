@@ -1037,6 +1037,24 @@ textarea{
         margin-left: 0;
     }
 }
+.navbar-mobile {
+    display: inline-block;
+    padding: 10px 0;
+    font-size: 14px;
+    line-height: 30px;
+    color: #563d7c;
+}
+.navbar-mobile a {
+    padding-right: 5px;
+}
+
+@media (min-width: 768px) {
+    .navbar-mobile {
+        display: none !important;
+    }
+}
+
+
 
 
 

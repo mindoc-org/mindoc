@@ -43,7 +43,7 @@ MinDoc 的前身是 SmartWiki 文档系统。SmartWiki 是基于 PHP 框架 lara
 ```bash
 git clone https://github.com/mindoc-org/mindoc.git
 
-dep ensure
+go mod tidy
 
 go build -ldflags "-w"
 
