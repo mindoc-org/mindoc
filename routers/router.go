@@ -10,6 +10,7 @@ func init() {
 
 	web.Router("/login", &controllers.AccountController{}, "*:Login")
 	web.Router("/dingtalk_login", &controllers.AccountController{}, "*:DingTalkLogin")
+	web.Router("/qrlogin/:app", &controllers.AccountController{}, "*:QRLogin")
 	web.Router("/logout", &controllers.AccountController{}, "*:Logout")
 	web.Router("/register", &controllers.AccountController{}, "*:Register")
 	web.Router("/find_password", &controllers.AccountController{}, "*:FindPassword")

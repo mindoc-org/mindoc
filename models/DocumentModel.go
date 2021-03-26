@@ -304,17 +304,8 @@ func (item *Document) Processor() *Document {
 				//处理文档结尾信息
 				docCreator, err := NewMember().Find(item.MemberId, "real_name", "account")
 				release := "<div class=\"wiki-bottom\">"
-				if item.ModifyAt > 0 {
-					docModify, err := NewMember().Find(item.ModifyAt, "real_name", "account")
-					if err == nil {
-						if docModify.RealName != "" {
-							release += "最后编辑: " + docModify.RealName + " &nbsp;"
-						} else {
-							release += "最后编辑: " + docModify.Account + " &nbsp;"
-						}
-					}
-				}
-				release += "文档更新时间: " + item.ModifyTime.Local().Format("2006-01-02 15:04") + " &nbsp;&nbsp;作者："
+
+				release += "作者："
 				if err == nil && docCreator != nil {
 					if docCreator.RealName != "" {
 						release += docCreator.RealName
@@ -322,6 +313,19 @@ func (item *Document) Processor() *Document {
 						release += docCreator.Account
 					}
 				}
+				release += " &nbsp;创建时间：" + item.CreateTime.Local().Format("2006-01-02 15:04") + "<br>"
+
+				if item.ModifyAt > 0 {
+					docModify, err := NewMember().Find(item.ModifyAt, "real_name", "account")
+					if err == nil {
+						if docModify.RealName != "" {
+							release += "最后编辑：" + docModify.RealName
+						} else {
+							release += "最后编辑：" + docModify.Account
+						}
+					}
+				}
+				release += " &nbsp;更新时间：" + item.ModifyTime.Local().Format("2006-01-02 15:04") + "<br>"
 				release += "</div>"
 
 				if selector := docQuery.Find("div.markdown-article").First(); selector.Size() > 0 {

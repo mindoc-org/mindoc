@@ -70,6 +70,11 @@
                 <div class="form-group">
                     <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="正在登录..." autocomplete="off">立即登录</button>
                 </div>
+                {{if .ENABLE_QR_DINGTALK}}
+                <div class="form-group">
+                    <a id="btn-dingtalk-qr" class="btn btn-default" style="width: 100%" data-loading-text="" autocomplete="off">钉钉扫码登录</a>
+                </div>
+                {{end}}
                 {{if .ENABLED_REGISTER}}
                 {{if ne .ENABLED_REGISTER "false"}}
                 <div class="form-group">
@@ -78,6 +83,10 @@
                 {{end}}
                 {{end}}
             </form>
+            <div class="form-group dingtalk-container" style="display: none;">
+                <div id="dingtalk-qr-container"></div>
+                <a class="btn btn-default btn-dingtalk" style="width: 100%" data-loading-text="" autocomplete="off">返回账号密码登录</a>
+            </div>
         </div>
     </div>
     <div class="clearfix"></div>
@@ -87,46 +96,74 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/dingtalk-jsapi.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/dingtalk-ddlogin.js"}}" type="text/javascript"></script>
+
 <script type="text/javascript">
-    $(function () {
-        if (dd.env.platform !== "notInDingTalk"){
-            dd.ready(function() {
-                dd.runtime.permission.requestAuthCode({
-                    corpId: {{ .corpID }} , // 企业id
-                    onSuccess: function (info) {
-                        var index = layer.load(1, {
-                            shade: [0.1, '#fff'] // 0.1 透明度的白色背景
-                        })
+    if (dd.env.platform !== "notInDingTalk"){
+        dd.ready(function() {
+            dd.runtime.permission.requestAuthCode({
+                corpId: {{ .corpID }} , // 企业id
+                onSuccess: function (info) {
+                    var index = layer.load(1, {
+                        shade: [0.1, '#fff'] // 0.1 透明度的白色背景
+                    })
 
-                        var formData = $("form").serializeArray()
-                        formData.push({"name": "dingtalk_code", "value": info.code})
+                    var formData = $("form").serializeArray()
+                    formData.push({"name": "dingtalk_code", "value": info.code})
 
-                        $.ajax({
-                            url: "{{urlfor "AccountController.DingTalkLogin"}} ",
-                            data: formData,
-                            dataType: "json",
-                            type: "POST",
-                            complete: function(){
-                                layer.close(index)
-                            },
-                            success: function (res) {
-                                if (res.errcode !== 0) {
-                                    layer.msg(res.message)
-                                } else {
-                                    window.location = "{{ urlfor "HomeController.Index"  }}"
-                                }
-                            },
-                            error: function (res) {
-                                layer.msg("发生异常")
+                    $.ajax({
+                        url: "{{urlfor "AccountController.DingTalkLogin"}} ",
+                        data: formData,
+                        dataType: "json",
+                        type: "POST",
+                        complete: function(){
+                            layer.close(index)
+                        },
+                        success: function (res) {
+                            if (res.errcode !== 0) {
+                                layer.msg(res.message)
+                            } else {
+                                window.location = "{{ urlfor "HomeController.Index"  }}"
                             }
-                        })
-                    }
-                });
+                        },
+                        error: function (res) {
+                            layer.msg("发生异常")
+                        }
+                    })
+                }
             });
-        }
-    })
+        });
+    }
 
 </script>
+
+<script type="text/javascript">
+    var url = 'https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid={{.dingtalk_qr_key}}&response_type=code&scope=snsapi_login&state=1&redirect_uri={{ urlfor "AccountController.QRLogin" ":app" "dingtalk"}}'
+    var obj = DDLogin({
+        id:"dingtalk-qr-container",
+        goto: encodeURIComponent(url), 
+        style: "border:none;background-color:#FFFFFF;",
+        width : "338",
+        height: "300"
+    });
+    var handleMessage = function (event) {
+        var origin = event.origin;
+        if( origin == "https://login.dingtalk.com" ) { //判断是否来自ddLogin扫码事件。
+            layer.load(1, { shade: [0.1, '#fff'] })
+            var loginTmpCode = event.data; 
+            //获取到loginTmpCode后就可以在这里构造跳转链接进行跳转了
+            console.log("loginTmpCode", loginTmpCode);
+            url = url + "&loginTmpCode=" + loginTmpCode
+            window.location = url
+        }
+    };
+    if (typeof window.addEventListener != 'undefined') {
+        window.addEventListener('message', handleMessage, false);
+    } else if (typeof window.attachEvent != 'undefined') {
+        window.attachEvent('onmessage', handleMessage);
+    }
+</script>
+
 <script type="text/javascript">
     $(function () {
         $("#account,#password,#code").on('focus', function () {
@@ -139,6 +176,16 @@
                 $("#btn-login").click();
             }
         });
+
+        $("#btn-dingtalk-qr").on('click', function(){
+            $('form').hide()
+            $(".dingtalk-container").show()
+        })
+
+        $(".btn-dingtalk").on('click', function(){
+            $('form').show()
+            $(".dingtalk-container").hide()
+        })
 
         $("#btn-login").on('click', function () {
             $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');

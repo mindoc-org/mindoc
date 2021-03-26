@@ -34,8 +34,14 @@ func (c *AccountController) referer() string {
 func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
 	c.EnableXSRF = web.AppConfig.DefaultBool("enablexsrf", true)
+
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
-	c.Data["corpID"],_ = web.AppConfig.String("dingtalk_corpid")
+	c.Data["corpID"], _ = web.AppConfig.String("dingtalk_corpid")
+	if dtcorpid, _ := web.AppConfig.String("dingtalk_corpid"); dtcorpid != "" {
+		c.Data["ENABLE_QR_DINGTALK"] = true
+	}
+	c.Data["dingtalk_qr_key"], _ = web.AppConfig.String("dingtalk_qr_key")
+
 	if !c.EnableXSRF {
 		return
 	}
@@ -166,14 +172,14 @@ func (c *AccountController) DingTalkLogin() {
 
 	userid, err := dingtalkAgent.GetUserIDByCode(code)
 	if err != nil {
-		logs.Warn("钉钉自动登录失败 ->", err)
+		logs.Warn("获取钉钉用户ID失败 ->", err)
 		c.JsonResult(500, "自动登录失败", nil)
 		c.StopRun()
 	}
 
 	username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
 	if err != nil {
-		logs.Warn("钉钉自动登录失败 ->", err)
+		logs.Warn("获取钉钉用户信息失败 ->", err)
 		c.JsonResult(500, "自动登录失败", nil)
 		c.StopRun()
 	}
@@ -190,6 +196,79 @@ func (c *AccountController) DingTalkLogin() {
 		c.SetMember(*member)
 	}
 	c.JsonResult(0, "ok", username)
+}
+
+// QR二维码登录
+func (c *AccountController) QRLogin() {
+	c.Prepare()
+
+	appName := c.Ctx.Input.Param(":app")
+
+	switch appName {
+	// 钉钉扫码登录
+	case "dingtalk":
+		code := c.GetString("code")
+		state := c.GetString("state")
+		if state != "1" || code == "" {
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+		appKey, _ := web.AppConfig.String("dingtalk_qr_key")
+		appSecret, _ := web.AppConfig.String("dingtalk_qr_secret")
+
+		qrDingtalk := dingtalk.NewDingtalkQRLogin(appSecret, appKey)
+		unionID, err := qrDingtalk.GetUnionIDByCode(code)
+		if err != nil {
+			logs.Warn("获取钉钉临时UnionID失败 ->", err)
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+
+		appKey, _ = web.AppConfig.String("dingtalk_app_key")
+		appSecret, _ = web.AppConfig.String("dingtalk_app_secret")
+		tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
+
+		dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
+		err = dingtalkAgent.GetAccesstoken()
+		if err != nil {
+			logs.Warn("获取钉钉临时Token失败 ->", err)
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+
+		userid, err := dingtalkAgent.GetUserIDByUnionID(unionID)
+		if err != nil {
+			logs.Warn("获取钉钉用户ID失败 ->", err)
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+
+		username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
+		if err != nil {
+			logs.Warn("获取钉钉用户信息失败 ->", err)
+			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+			c.StopRun()
+		}
+
+		member, err := models.NewMember().TmpLogin(tmpReader)
+		if err == nil {
+			member.LastLoginTime = time.Now()
+			_ = member.Update("last_login_time")
+			member.Account = username
+			if avatar != "" {
+				member.Avatar = avatar
+			}
+
+			c.SetMember(*member)
+			c.LoggedIn(false)
+			c.StopRun()
+		}
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+
+	default:
+		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+		c.StopRun()
+	}
 }
 
 // 登录成功后的操作，如重定向到原始请求页面

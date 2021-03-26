@@ -224,6 +224,12 @@ dingtalk_app_secret="${MINDOC_DINGTALK_APPSECRET}"
 # 钉钉登录默认只读账号
 dingtalk_tmp_reader="${MINDOC_DINGTALK_READER}"
 
+# 钉钉扫码登录Key
+dingtalk_qr_key="${MINDOC_DINGTALK_QRKEY}"
+
+# 钉钉扫码登录Secret
+dingtalk_qr_secret="${MINDOC_DINGTALK_QRSECRET}"
+
 
 
 
