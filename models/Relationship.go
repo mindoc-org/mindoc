@@ -3,8 +3,8 @@ package models
 import (
 	"errors"
 
-	"github.com/beego/beego/v2/adapter/logs"
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
