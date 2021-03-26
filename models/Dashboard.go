@@ -1,6 +1,6 @@
 package models
 
-import "github.com/beego/beego/v2/adapter/orm"
+import "github.com/beego/beego/v2/client/orm"
 
 type Dashboard struct {
 	BookNumber       int64 `json:"book_number"`

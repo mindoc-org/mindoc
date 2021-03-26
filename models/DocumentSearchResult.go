@@ -5,7 +5,7 @@ import (
 
 	"strings"
 
-	"github.com/beego/beego/v2/adapter/orm"
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 )
 

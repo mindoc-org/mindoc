@@ -19,7 +19,7 @@ import (
 
 	"math"
 
-	"github.com/beego/beego/v2/adapter/orm"
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/mindoc-org/mindoc/conf"
@@ -81,7 +81,7 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 			logs.Info("转入 HTTP 接口登陆 ->", account)
 			return member.httpLogin(account, password)
 		} else {
-			logs.Error("user login for `%s`: %s",account, err)
+			logs.Error("user login for `%s`: %s", account, err)
 			return member, ErrMemberNoExist
 		}
 	}
@@ -180,7 +180,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 }
 
 func (m *Member) httpLogin(account, password string) (*Member, error) {
-	urlStr,_  := web.AppConfig.String("http_login_url")
+	urlStr, _ := web.AppConfig.String("http_login_url")
 	if urlStr == "" {
 		return nil, ErrMemberAuthMethodInvalid
 	}
@@ -462,9 +462,9 @@ func (m *Member) Valid(is_hash_password bool) error {
 
 //删除一个用户.
 func (m *Member) Delete(oldId int, newId int) error {
-	o := orm.NewOrm()
+	ormer := orm.NewOrm()
 
-	err := o.Begin()
+	o, err := ormer.Begin()
 
 	if err != nil {
 		return err

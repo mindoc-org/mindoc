@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/beego/beego/v2/adapter/logs"
-	"github.com/beego/beego/v2/adapter/orm"
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils/filetil"
 )

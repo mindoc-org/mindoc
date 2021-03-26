@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/beego/beego/v2/adapter/orm"
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
@@ -112,8 +112,9 @@ func (item *Itemsets) Delete(itemId int) (err error) {
 	if !item.Exist(itemId) {
 		return errors.New("项目空间不存在")
 	}
-	o := orm.NewOrm()
-	if err := o.Begin(); err != nil {
+	ormer := orm.NewOrm()
+	o, err := ormer.Begin()
+	if err != nil {
 		logs.Error("开启事物失败 ->", err)
 		return err
 	}

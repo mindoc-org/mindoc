@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"crypto/md5"
 	"errors"
 	"fmt"
@@ -17,7 +18,7 @@ import (
 	"encoding/json"
 
 	"github.com/beego/beego/v2/adapter/logs"
-	"github.com/beego/beego/v2/adapter/orm"
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
 	"github.com/mindoc-org/mindoc/utils/cryptil"
@@ -196,7 +197,7 @@ func (book *Book) Copy(identify string) error {
 		logs.Error("查询项目时出错 -> ", err)
 		return err
 	}
-	if err := o.Begin(); err != nil {
+	if _, err := o.Begin(); err != nil {
 		logs.Error("开启事物时出错 -> ", err)
 		return err
 	}
@@ -209,49 +210,87 @@ func (book *Book) Copy(identify string) error {
 	book.CommentCount = 0
 	book.HistoryCount = 0
 
-	if _, err := o.Insert(book); err != nil {
-		logs.Error("复制项目时出错 -> ", err)
-		o.Rollback()
+	/* v2 version of beego remove the o.Rollback api for transaction operation.
+	 * typically, in v1, you can write code like this:
+	 *
+	 *		o := orm.NewOrm()
+	 *		if err := o.Operateion(); err != nil {
+	 *			o.Rollback()
+	 *			...
+	 *		}
+	 *
+	 * however, in v2, this is not available. beego will handles the transaction in new way using
+	 * cluster. the new code is like below:
+	 *
+	 * 		o := orm.NewOrm()
+	 * 		if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error{
+	 *			err := o.Operations()
+	 *			if err != nil {
+	 *				return err
+	 * 			}
+	 *			...
+	 * 		}); err != nil {
+	 *			...
+	 * 		}
+	 *
+	 * 	when operation failed, it will automatically calls o.Rollback() for TxOrmer.
+	 *  more details see https://beego.me/docs/mvc/model/transaction.md
+	 */
+	if err := o.DoTx(func(ctx context.Context, txo orm.TxOrmer) error {
+		_, err := txo.Insert(book)
+		return err
+
+	}); err != nil {
+		logs.Error("复制项目时出错： %s", err)
 		return err
 	}
+
 	var rels []*Relationship
 
-	if _, err := o.QueryTable(NewRelationship().TableNameWithPrefix()).Filter("book_id", bookId).All(&rels); err != nil {
+	if err := o.DoTx(func(ctx context.Context, txo orm.TxOrmer) error {
+		_, err := txo.QueryTable(NewRelationship().TableNameWithPrefix()).Filter("book_id", bookId).All(&rels)
+		return err
+	}); err != nil {
 		logs.Error("复制项目关系时出错 -> ", err)
-		o.Rollback()
 		return err
 	}
 
 	for _, rel := range rels {
 		rel.BookId = book.BookId
 		rel.RelationshipId = 0
-		if _, err := o.Insert(rel); err != nil {
+		if err := o.DoTx(func(ctx context.Context, txo orm.TxOrmer) error {
+			_, err := txo.Insert(rel)
+			return err
+		}); err != nil {
 			logs.Error("复制项目关系时出错 -> ", err)
-			o.Rollback()
 			return err
 		}
 	}
 
 	var docs []*Document
 
-	if _, err := o.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).Filter("parent_id", 0).All(&docs); err != nil && err != orm.ErrNoRows {
+	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+		_, err := txOrm.QueryTable(NewDocument().TableNameWithPrefix()).Filter("book_id", bookId).Filter("parent_id", 0).All(&docs)
+		return err
+	}); err != nil && err != orm.ErrNoRows {
 		logs.Error("读取项目文档时出错 -> ", err)
-		o.Rollback()
 		return err
 	}
+
 	if len(docs) > 0 {
-		if err := recursiveInsertDocument(docs, o, book.BookId, 0); err != nil {
+		if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+			return recursiveInsertDocument(docs, txOrm, book.BookId, 0)
+		}); err != nil {
 			logs.Error("复制项目时出错 -> ", err)
-			o.Rollback()
 			return err
 		}
 	}
 
-	return o.Commit()
+	return nil
 }
 
 //递归的复制文档
-func recursiveInsertDocument(docs []*Document, o orm.Ormer, bookId int, parentId int) error {
+func recursiveInsertDocument(docs []*Document, o orm.TxOrmer, bookId int, parentId int) error {
 	for _, doc := range docs {
 
 		docId := doc.DocumentId
@@ -418,42 +457,49 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 	o.Begin()
 
 	//删除附件,这里没有删除实际物理文件
-	_, err = o.Raw("DELETE FROM "+NewAttachment().TableNameWithPrefix()+" WHERE book_id=?", book.BookId).Exec()
-	if err != nil {
-		o.Rollback()
+	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+		_, err = txOrm.Raw("DELETE FROM "+NewAttachment().TableNameWithPrefix()+" WHERE book_id=?", book.BookId).Exec()
+		return err
+	}); err != nil {
 		return err
 	}
 
 	//删除文档
-	_, err = o.Raw("DELETE FROM "+NewDocument().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
-
-	if err != nil {
-		o.Rollback()
+	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+		_, err = txOrm.Raw("DELETE FROM "+NewDocument().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
+		return err
+	}); err != nil {
 		return err
 	}
 	//删除项目
-	_, err = o.Raw("DELETE FROM "+book.TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
-
-	if err != nil {
-		o.Rollback()
+	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+		_, err = txOrm.Raw("DELETE FROM "+book.TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
+		return err
+	}); err != nil {
 		return err
 	}
 
 	//删除关系
-	_, err = o.Raw("DELETE FROM "+NewRelationship().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
-	if err != nil {
-		o.Rollback()
+
+	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+		_, err = txOrm.Raw("DELETE FROM "+NewRelationship().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
+		return err
+	}); err != nil {
 		return err
 	}
-	_, err = o.Raw(fmt.Sprintf("DELETE FROM %s WHERE book_id=?", NewTeamRelationship().TableNameWithPrefix()), book.BookId).Exec()
-	if err != nil {
-		o.Rollback()
+
+	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+		_, err = txOrm.Raw(fmt.Sprintf("DELETE FROM %s WHERE book_id=?", NewTeamRelationship().TableNameWithPrefix()), book.BookId).Exec()
+		return err
+	}); err != nil {
 		return err
 	}
 	//删除模板
-	_, err = o.Raw("DELETE FROM "+NewTemplate().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
-	if err != nil {
-		o.Rollback()
+
+	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+		_, err = txOrm.Raw("DELETE FROM "+NewTemplate().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()
+		return err
+	}); err != nil {
 		return err
 	}
 
@@ -470,7 +516,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		logs.Error("删除项目附件和图片失败 ->", err)
 	}
 
-	return o.Commit()
+	return nil
 
 }
 
