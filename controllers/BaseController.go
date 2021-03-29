@@ -2,20 +2,20 @@ package controllers
 
 import (
 	"bytes"
+	"github.com/beego/i18n"
 
 	"encoding/json"
 	"io"
 	"strings"
 	"time"
 
+	"github.com/astaxie/beego"
+	"github.com/lifei6671/mindoc/conf"
+	"github.com/lifei6671/mindoc/models"
+	"github.com/lifei6671/mindoc/utils"
 	"html/template"
 	"io/ioutil"
 	"path/filepath"
-
-	"github.com/astaxie/beego"
-	"github.com/mindoc-org/mindoc/conf"
-	"github.com/mindoc-org/mindoc/models"
-	"github.com/mindoc-org/mindoc/utils"
 )
 
 type BaseController struct {
@@ -78,10 +78,17 @@ func (c *BaseController) Prepare() {
 	if b, err := ioutil.ReadFile(filepath.Join(beego.BConfig.WebConfig.ViewsPath, "widgets", "scripts.tpl")); err == nil {
 		c.Data["Scripts"] = template.HTML(string(b))
 	}
+	lang := c.Input().Get("lang")
+	if len(lang) == 0 ||
+		!i18n.IsExist(lang) {
+		lang = "zh-cn"
+	}
+	c.Data["Lang"] = lang
 
 }
+
 //判断用户是否登录.
-func (c *BaseController)isUserLoggedIn() bool {
+func (c *BaseController) isUserLoggedIn() bool {
 	return c.Member != nil && c.Member.MemberId > 0
 }
 
@@ -123,7 +130,7 @@ func (c *BaseController) JsonResult(errCode int, errMsg string, data ...interfac
 }
 
 //如果错误不为空，则响应错误信息到浏览器.
-func (c *BaseController) CheckJsonError(code int,err error) {
+func (c *BaseController) CheckJsonError(code int, err error) {
 
 	if err == nil {
 		return
@@ -195,7 +202,7 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 }
 
 
-func (c *BaseController) CheckErrorResult(code int,err error) {
+func (c *BaseController) CheckErrorResult(code int, err error) {
 	if err != nil {
 		c.ShowErrorPage(code, err.Error())
 	}
