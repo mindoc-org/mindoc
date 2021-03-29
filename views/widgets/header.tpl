@@ -11,18 +11,18 @@
             <nav class="collapse navbar-collapse col-sm-10">
                 <ul class="nav navbar-nav">
                     <li {{if eq .ControllerName "HomeController"}}class="active"{{end}}>
-                        <a href="{{urlfor "HomeController.Index" }}" title="首页">首页</a>
+                        <a href="{{urlfor "HomeController.Index" }}" title={{i18n .Lang "common.home"}}>{{i18n .Lang "common.home"}}</a>
                     </li>
                     <li {{if eq .ControllerName "BlogController"}}{{if eq  .ActionName "List" "Index"}}class="active"{{end}}{{end}}>
-                        <a href="{{urlfor "BlogController.List" }}" title="文章">文章</a>
+                        <a href="{{urlfor "BlogController.List" }}" title={{i18n .Lang "common.blog"}}>{{i18n .Lang "common.blog"}}</a>
                     </li>
                     <li {{if eq .ControllerName "ItemsetsController"}}class="active"{{end}}>
-                        <a href="{{urlfor "ItemsetsController.Index" }}" title="项目空间">项目空间</a>
+                        <a href="{{urlfor "ItemsetsController.Index" }}" title={{i18n .Lang "common.project_space"}}>{{i18n .Lang "common.project_space"}}</a>
                     </li>
                 </ul>
                 <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">
                     <form class="form-inline" action="{{urlfor "SearchController.Index"}}" method="get">
-                        <input class="form-control" name="keyword" type="search" style="width: 230px;" placeholder="请输入关键词..." value="{{.Keyword}}">
+                        <input class="form-control" name="keyword" type="search" style="width: 230px;" placeholder="{{i18n .Lang "message.keyword_placeholder"}}" value="{{.Keyword}}">
                         <button class="search-btn">
                             <i class="fa fa-search"></i>
                         </button>
@@ -30,8 +30,8 @@
                 </div>
             </nav>
             <div style="display: inline-block;" class="navbar-mobile">
-                <a href="{{urlfor "HomeController.Index" }}" title="首页">首页</a>
-                <a href="{{urlfor "BlogController.List" }}" title="文章">文章</a>
+                <a href="{{urlfor "HomeController.Index" }}" title={{i18n .Lang "common.home"}}>{{i18n .Lang "common.home"}}</a>
+                <a href="{{urlfor "BlogController.List" }}" title={{i18n .Lang "common.blog"}}>{{i18n .Lang "common.blog"}}</a>
             </div>
 
             <div class="btn-group dropdown-menu-right pull-right slidebar visible-xs-inline-block visible-sm-inline-block">
@@ -39,25 +39,25 @@
                 <ul class="dropdown-menu" role="menu">
                     {{if gt .Member.MemberId 0}}
                             <li>
-                                <a href="{{urlfor "SettingController.Index"}}" title="个人中心"><i class="fa fa-user" aria-hidden="true"></i> 个人中心</a>
+                                <a href="{{urlfor "SettingController.Index"}}" title={{i18n .Lang "common.person_center"}}><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "common.person_center"}}</a>
                             </li>
                             <li>
-                                <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
+                                <a href="{{urlfor "BookController.Index"}}" title={{i18n .Lang "common.my_project"}}><i class="fa fa-book" aria-hidden="true"></i> {{i18n .Lang "common.my_project"}}</a>
                             </li>
                             <li>
-                                <a href="{{urlfor "BlogController.ManageList"}}" title="我的文章"><i class="fa fa-file" aria-hidden="true"></i> 我的文章</a>
+                                <a href="{{urlfor "BlogController.ManageList"}}" title={{i18n .Lang "common.my_blog"}}><i class="fa fa-file" aria-hidden="true"></i> {{i18n .Lang "common.my_blog"}}</a>
                             </li>
                             {{if eq .Member.Role 0 }}
                             <li>
-                                <a href="{{urlfor "ManagerController.Index"}}" title="管理后台"><i class="fa fa-university" aria-hidden="true"></i> 管理后台</a>
+                                <a href="{{urlfor "ManagerController.Index"}}" title={{i18n .Lang "common.manage"}}><i class="fa fa-university" aria-hidden="true"></i> {{i18n .Lang "common.manage"}}</a>
                             </li>
                             {{end}}
                             <li>
-                                <a href="{{urlfor "AccountController.Logout"}}" title="退出登录"><i class="fa fa-sign-out"></i> 退出登录</a>
+                                <a href="{{urlfor "AccountController.Logout"}}" title={{i18n .Lang "common.logout"}}><i class="fa fa-sign-out"></i> {{i18n .Lang "common.logout"}}</a>
                             </li>
 
                     {{else}}
-                    <li><a href="{{urlfor "AccountController.Login"}}" title="用户登录">登录</a></li>
+                    <li><a href="{{urlfor "AccountController.Login"}}" title={{i18n .Lang "common.login"}}>{{i18n .Lang "common.login"}}</a></li>
                     {{end}}
                 </ul>
             </div>
@@ -77,26 +77,26 @@
                     </div>
                     <ul class="dropdown-menu user-info-dropdown" role="menu">
                         <li>
-                            <a href="{{urlfor "SettingController.Index"}}" title="个人中心"><i class="fa fa-user" aria-hidden="true"></i> 个人中心</a>
+                            <a href="{{urlfor "SettingController.Index"}}" title={{i18n .Lang "common.person_center"}}><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "common.person_center"}}</a>
                         </li>
                         <li>
-                            <a href="{{urlfor "BookController.Index"}}" title="我的项目"><i class="fa fa-book" aria-hidden="true"></i> 我的项目</a>
+                            <a href="{{urlfor "BookController.Index"}}" title={{i18n .Lang "common.my_project"}}><i class="fa fa-book" aria-hidden="true"></i> {{i18n .Lang "common.my_project"}}</a>
                         </li>
                         <li>
-                            <a href="{{urlfor "BlogController.ManageList"}}" title="我的文章"><i class="fa fa-file" aria-hidden="true"></i> 我的文章</a>
+                            <a href="{{urlfor "BlogController.ManageList"}}" title={{i18n .Lang "common.my_blog"}}><i class="fa fa-file" aria-hidden="true"></i> {{i18n .Lang "common.my_blog"}}</a>
                         </li>
                         {{if eq .Member.Role 0  1}}
                         <li>
-                            <a href="{{urlfor "ManagerController.Index"}}" title="管理后台"><i class="fa fa-university" aria-hidden="true"></i> 管理后台</a>
+                            <a href="{{urlfor "ManagerController.Index"}}" title={{i18n .Lang "common.manage"}}><i class="fa fa-university" aria-hidden="true"></i> {{i18n .Lang "common.manage"}}</a>
                         </li>
                         {{end}}
                         <li>
-                            <a href="{{urlfor "AccountController.Logout"}}" title="退出登录"><i class="fa fa-sign-out"></i> 退出登录</a>
+                            <a href="{{urlfor "AccountController.Logout"}}" title={{i18n .Lang "common.logout"}}><i class="fa fa-sign-out"></i> {{i18n .Lang "common.logout"}}</a>
                         </li>
                     </ul>
                 </li>
                 {{else}}
-                <li><a href="{{urlfor "AccountController.Login"}}" title="用户登录">登录</a></li>
+                <li><a href="{{urlfor "AccountController.Login"}}" title={{i18n .Lang "common.login"}}>{{i18n .Lang "common.login"}}</a></li>
                 {{end}}
             </ul>
         </nav>
