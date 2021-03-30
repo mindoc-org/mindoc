@@ -78,7 +78,7 @@
                 {{if .ENABLED_REGISTER}}
                 {{if ne .ENABLED_REGISTER "false"}}
                 <div class="form-group">
-                    {{i18n .Lang "message.no_account_yet"}}<a href="{{urlfor "AccountController.Register" }}" title={{i18n .Lang "common.register"}}>{{i18n .Lang "common.register"}}</a>
+                    {{i18n .Lang "message.no_account_yet"}} <a href="{{urlfor "AccountController.Register" }}" title={{i18n .Lang "common.register"}}>{{i18n .Lang "common.register"}}</a>
                 </div>
                 {{end}}
                 {{end}}
