@@ -118,7 +118,7 @@ func (m *Member) TmpLogin(account string) (*Member, error) {
 
 //ldapLogin 通过LDAP登陆
 func (m *Member) ldapLogin(account string, password string) (*Member, error) {
-	if web.AppConfig.DefaultBool("ldap_enable", false) {
+	if !web.AppConfig.DefaultBool("ldap_enable", false) {
 		return m, ErrMemberAuthMethodInvalid
 	}
 	var err error
