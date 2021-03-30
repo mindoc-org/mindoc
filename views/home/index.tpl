@@ -35,7 +35,7 @@
                             </dd>
                             <dd>
                             <span class="author">
-                                <b class="text">作者</b>
+                                <b class="text">{{i18n $.Lang "blog.author"}}</b>
                                 <b class="text">-</b>
                                 <b class="text">{{if eq $item.RealName "" }}{{$item.CreateName}}{{else}}{{$item.RealName}}{{end}}</b>
                             </span>
@@ -43,7 +43,7 @@
                         </dl>
                     </div>
                 {{else}}
-                    <div class="text-center" style="height: 200px;margin: 100px;font-size: 28px;">暂无项目</div>
+                    <div class="text-center" style="height: 200px;margin: 100px;font-size: 28px;">{{i18n $.Lang "message.no_project"}}</div>
                 {{end}}
                 <div class="clearfix"></div>
             </div>
