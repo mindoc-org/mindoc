@@ -7,7 +7,7 @@
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="MinDoc" />
-    <title>用户登录 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "common.login"}} - Powered by MinDoc</title>
     <meta name="keywords" content="MinDoc,文档在线管理系统,WIKI,wiki,wiki在线,文档在线管理,接口文档在线管理,接口文档管理">
     <meta name="description" content="MinDoc文档在线管理系统 {{.site_description}}">
     <!-- Bootstrap -->
@@ -30,13 +30,13 @@
         <div class="login-body">
             <form role="form" method="post">
             {{ .xsrfdata }}
-                <h3 class="text-center">用户登录</h3>
+                <h3 class="text-center">{{i18n .Lang "common.login"}}</h3>
                 <div class="form-group">
                     <div class="input-group">
                         <div class="input-group-addon">
                             <i class="fa fa-user"></i>
                         </div>
-                        <input type="text" class="form-control" placeholder="邮箱 / 用户名" name="account" id="account" autocomplete="off">
+                        <input type="text" class="form-control" placeholder="{{i18n .Lang "common.email"}} / {{i18n .Lang "common.username"}}" name="account" id="account" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
@@ -44,7 +44,7 @@
                         <div class="input-group-addon">
                             <i class="fa fa-lock"></i>
                         </div>
-                        <input type="password" class="form-control" placeholder="密码" name="password" id="password" autocomplete="off">
+                        <input type="password" class="form-control" placeholder="{{i18n .Lang "common.password"}}" name="password" id="password" autocomplete="off">
                     </div>
                 </div>
                 {{if .ENABLED_CAPTCHA }}
@@ -54,38 +54,38 @@
                         <div class="input-group-addon">
                             <i class="fa fa-check-square"></i>
                         </div>
-                        <input type="text" name="code" id="code" class="form-control" style="width: 150px" maxlength="5" placeholder="验证码" autocomplete="off">&nbsp;
+                        <input type="text" name="code" id="code" class="form-control" style="width: 150px" maxlength="5" placeholder="{{i18n .Lang "common.captcha"}}" autocomplete="off">&nbsp;
                     </div>
-                    <img id="captcha-img" style="width: 140px;height: 40px;display: inline-block;float: right" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title="点击换一张">
+                    <img id="captcha-img" style="width: 140px;height: 40px;display: inline-block;float: right" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title={{i18n .Lang "message.click_to_change"}}>
                     <div class="clearfix"></div>
                 </div>
                 {{end}}
                 {{end}}
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" name="is_remember" value="yes"> 保持登录
+                        <input type="checkbox" name="is_remember" value="yes"> {{i18n .Lang "common.keep_login"}}
                     </label>
-                    <a href="{{urlfor "AccountController.FindPassword" }}" style="display: inline-block;float: right">忘记密码？</a>
+                    <a href="{{urlfor "AccountController.FindPassword" }}" style="display: inline-block;float: right">{{i18n .Lang "common.forgot_password"}}</a>
                 </div>
                 <div class="form-group">
-                    <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="正在登录..." autocomplete="off">立即登录</button>
+                    <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="{{i18n .Lang "common.logging_in"}}" autocomplete="off">{{i18n .Lang "common.login"}}</button>
                 </div>
                 {{if .ENABLE_QR_DINGTALK}}
                 <div class="form-group">
-                    <a id="btn-dingtalk-qr" class="btn btn-default" style="width: 100%" data-loading-text="" autocomplete="off">钉钉扫码登录</a>
+                    <a id="btn-dingtalk-qr" class="btn btn-default" style="width: 100%" data-loading-text="" autocomplete="off">{{i18n .Lang "common.dingtalk_login"}}</a>
                 </div>
                 {{end}}
                 {{if .ENABLED_REGISTER}}
                 {{if ne .ENABLED_REGISTER "false"}}
                 <div class="form-group">
-                    还没有账号？<a href="{{urlfor "AccountController.Register" }}" title="立即注册">立即注册</a>
+                    {{i18n .Lang "message.no_account_yet"}}<a href="{{urlfor "AccountController.Register" }}" title={{i18n .Lang "common.register"}}>{{i18n .Lang "common.register"}}</a>
                 </div>
                 {{end}}
                 {{end}}
             </form>
             <div class="form-group dingtalk-container" style="display: none;">
                 <div id="dingtalk-qr-container"></div>
-                <a class="btn btn-default btn-dingtalk" style="width: 100%" data-loading-text="" autocomplete="off">返回账号密码登录</a>
+                <a class="btn btn-default btn-dingtalk" style="width: 100%" data-loading-text="" autocomplete="off">{{i18n .Lang "message.return_account_login"}}</a>
             </div>
         </div>
     </div>
@@ -196,19 +196,19 @@
             var code = $("#code").val();
 
             if (account === "") {
-                $("#account").tooltip({ placement: "auto", title: "账号不能为空", trigger: 'manual' })
+                $("#account").tooltip({ placement: "auto", title: "{{i18n .Lang "message.account_empty"}}", trigger: 'manual' })
                     .tooltip('show')
                     .parents('.form-group').addClass('has-error');
                 $btn.button('reset');
                 return false;
             } else if (password === "") {
-                $("#password").tooltip({ title: '密码不能为空', trigger: 'manual' })
+                $("#password").tooltip({ title: '{{i18n .Lang "message.password_empty"}}', trigger: 'manual' })
                     .tooltip('show')
                     .parents('.form-group').addClass('has-error');
                 $btn.button('reset');
                 return false;
             } else if (code !== undefined && code === "") {
-                $("#code").tooltip({ title: '验证码不能为空', trigger: 'manual' })
+                $("#code").tooltip({ title: '{{i18n .Lang "message.captcha_empty"}}', trigger: 'manual' })
                     .tooltip('show')
                     .parents('.form-group').addClass('has-error');
                 $btn.button('reset');
@@ -236,7 +236,7 @@
                     error: function () {
                         $("#captcha-img").click();
                         $("#code").val('');
-                        layer.msg('系统错误');
+                        layer.msg('{{i18n .Lang "message.system_error"}}');
                         $btn.button('reset');
                     }
                 });

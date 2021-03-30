@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"bytes"
-	"github.com/beego/i18n"
-
 	"encoding/json"
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/i18n"
 	"io"
 	"strings"
 	"time"
@@ -24,6 +24,7 @@ type BaseController struct {
 	Option                map[string]string
 	EnableAnonymous       bool
 	EnableDocumentHistory bool
+	Lang                  string
 }
 
 type CookieRemember struct {
@@ -45,7 +46,6 @@ func (c *BaseController) Prepare() {
 	c.EnableDocumentHistory = false
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
-
 		c.Member = &member
 		c.Data["Member"] = c.Member
 	} else {
@@ -78,13 +78,8 @@ func (c *BaseController) Prepare() {
 	if b, err := ioutil.ReadFile(filepath.Join(beego.BConfig.WebConfig.ViewsPath, "widgets", "scripts.tpl")); err == nil {
 		c.Data["Scripts"] = template.HTML(string(b))
 	}
-	lang := c.Input().Get("lang")
-	if len(lang) == 0 ||
-		!i18n.IsExist(lang) {
-		lang = "zh-cn"
-	}
-	c.Data["Lang"] = lang
 
+	c.SetLang()
 }
 
 //判断用户是否登录.
@@ -117,14 +112,16 @@ func (c *BaseController) JsonResult(errCode int, errMsg string, data ...interfac
 	}
 
 	returnJSON, err := json.Marshal(jsonData)
-
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 	}
 
 	c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Ctx.ResponseWriter.Header().Set("Cache-Control", "no-cache, no-store")
-	io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+	_, err = io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+	if err != nil {
+		logs.Error(err)
+	}
 
 	c.StopRun()
 }
@@ -141,14 +138,16 @@ func (c *BaseController) CheckJsonError(code int, err error) {
 	jsonData["message"] = err.Error()
 
 	returnJSON, err := json.Marshal(jsonData)
-
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 	}
 
 	c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Ctx.ResponseWriter.Header().Set("Cache-Control", "no-cache, no-store")
-	io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+	_, err = io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+	if err != nil {
+		logs.Error(err)
+	}
 
 	c.StopRun()
 }
@@ -201,9 +200,26 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 	}
 }
 
-
 func (c *BaseController) CheckErrorResult(code int, err error) {
 	if err != nil {
 		c.ShowErrorPage(code, err.Error())
 	}
+}
+
+func (c *BaseController) SetLang() {
+	hasCookie := false
+	lang := c.Input().Get("lang")
+	if len(lang) == 0 {
+		lang = c.Ctx.GetCookie("lang")
+		hasCookie = true
+	}
+	if len(lang) == 0 ||
+		!i18n.IsExist(lang) {
+		lang = beego.AppConfig.String("default_lang")
+	}
+	if !hasCookie {
+		c.Ctx.SetCookie("lang", lang, 1<<31-1, "/")
+	}
+	c.Data["Lang"] = lang
+	c.Lang = lang
 }

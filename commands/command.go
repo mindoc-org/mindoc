@@ -163,40 +163,40 @@ func RegisterLogger(log string) {
 	if level := beego.AppConfig.DefaultString("log_level", "Trace"); level != "" {
 		switch level {
 		case "Emergency":
-			config["level"] = beego.LevelEmergency
+			config["level"] = logs.LevelEmergency
 			break
 		case "Alert":
-			config["level"] = beego.LevelAlert
+			config["level"] = logs.LevelAlert
 			break
 		case "Critical":
-			config["level"] = beego.LevelCritical
+			config["level"] = logs.LevelCritical
 			break
 		case "Error":
-			config["level"] = beego.LevelError
+			config["level"] = logs.LevelError
 			break
 		case "Warning":
-			config["level"] = beego.LevelWarning
+			config["level"] = logs.LevelWarning
 			break
 		case "Notice":
-			config["level"] = beego.LevelNotice
+			config["level"] = logs.LevelNotice
 			break
 		case "Informational":
-			config["level"] = beego.LevelInformational
+			config["level"] = logs.LevelInformational
 			break
 		case "Debug":
-			config["level"] = beego.LevelDebug
+			config["level"] = logs.LevelDebug
 			break
 		}
 	}
 	b, err := json.Marshal(config)
 	if err != nil {
 		logs.Error("初始化文件日志时出错 ->", err)
-		_ = beego.SetLogger("file", `{"filename":"`+logPath+`"}`)
+		_ = logs.SetLogger("file", `{"filename":"`+logPath+`"}`)
 	} else {
-		_ = beego.SetLogger(logs.AdapterFile, string(b))
+		_ = logs.SetLogger(logs.AdapterFile, string(b))
 	}
 
-	beego.SetLogFuncCall(true)
+	logs.SetLogFuncCall(true)
 }
 
 // RunCommand 注册orm命令行工具
@@ -454,7 +454,7 @@ func RegisterCache() {
 
 	} else {
 		cache.Init(&cache.NullCache{})
-		beego.Warn("不支持的缓存管道,缓存将禁用 ->", cacheProvider)
+		logs.Warn("不支持的缓存管道,缓存将禁用 ->", cacheProvider)
 		return
 	}
 	logs.Info("缓存初始化完成.")
