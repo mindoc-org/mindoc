@@ -2,8 +2,8 @@ package models
 
 import (
 	"errors"
+	"github.com/astaxie/beego/logs"
 
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/mindoc-org/mindoc/conf"
 )
@@ -55,7 +55,7 @@ func (m *TeamMember) First(id int, cols ...string) (*TeamMember, error) {
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter("team_member_id", id).One(m, cols...)
 
 	if err != nil && err != orm.ErrNoRows {
-		beego.Error("查询团队成员错误 ->", err)
+		logs.Error("查询团队成员错误 ->", err)
 	}
 
 	return m.Include(), err
@@ -71,7 +71,7 @@ func (m *TeamMember) ChangeRoleId(teamId int, memberId int, roleId conf.BookRole
 	err = o.QueryTable(m.TableNameWithPrefix()).Filter("team_id", teamId).Filter("member_id", memberId).OrderBy("-team_member_id").One(m)
 
 	if err != nil {
-		beego.Error("查询团队用户时失败 ->", err)
+		logs.Error("查询团队用户时失败 ->", err)
 		return m, err
 	}
 	m.RoleId = roleId
@@ -93,7 +93,7 @@ func (m *TeamMember) FindFirst(teamId, memberId int) (*TeamMember, error) {
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter("team_id", teamId).Filter("member_id", memberId).One(m)
 
 	if err != nil {
-		beego.Error("查询团队用户失败 ->", err)
+		logs.Error("查询团队用户失败 ->", err)
 		return nil, err
 	}
 	return m.Include(), nil
@@ -127,7 +127,7 @@ func (m *TeamMember) Save(cols ...string) (err error) {
 		_, err = o.Update(m, cols...)
 	}
 	if err != nil {
-		beego.Error("在保存团队时出错 ->", err)
+		logs.Error("在保存团队时出错 ->", err)
 	}
 	return
 }
@@ -141,7 +141,7 @@ func (m *TeamMember) Delete(id int) (err error) {
 	_, err = orm.NewOrm().QueryTable(m.TableNameWithPrefix()).Filter("team_member_id", id).Delete()
 
 	if err != nil {
-		beego.Error("删除团队用户时出错 ->", err)
+		logs.Error("删除团队用户时出错 ->", err)
 	}
 	return
 }
@@ -160,7 +160,7 @@ func (m *TeamMember) FindToPager(teamId, pageIndex, pageSize int) (list []*TeamM
 
 	if err != nil {
 		if err != orm.ErrNoRows {
-			beego.Error("查询团队成员失败 ->", err)
+			logs.Error("查询团队成员失败 ->", err)
 		}
 		return
 	}
@@ -217,7 +217,7 @@ limit ?;`
 	_, err := o.Raw(sql, teamId, "%"+account+"%", "%"+account+"%", limit).QueryRows(&members)
 
 	if err != nil {
-		beego.Error("查询团队用户时出错 ->", err)
+		logs.Error("查询团队用户时出错 ->", err)
 		return nil, err
 	}
 
@@ -250,7 +250,7 @@ and team.member_id = ? order by team.role_id asc limit 1;`
 	err := o.Raw(sql, bookId, memberId).QueryRow(m)
 
 	if err != nil {
-		beego.Error("查询用户项目所在团队失败 ->bookId=", bookId, " memberId=", memberId, err)
+		logs.Error("查询用户项目所在团队失败 ->bookId=", bookId, " memberId=", memberId, err)
 		return nil, err
 	}
 	return m, nil

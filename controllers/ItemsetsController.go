@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
@@ -11,6 +11,7 @@ import (
 type ItemsetsController struct {
 	BaseController
 }
+
 func (c *ItemsetsController) Prepare() {
 	c.BaseController.Prepare()
 
@@ -65,7 +66,7 @@ func (c *ItemsetsController) List() {
 		if err == orm.ErrNoRows {
 			c.Abort("404")
 		} else {
-			beego.Error(err)
+			logs.Error(err)
 			c.Abort("500")
 		}
 	}

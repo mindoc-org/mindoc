@@ -1,14 +1,13 @@
 package cache
 
 import (
-	"github.com/astaxie/beego/cache"
-	"time"
-	"encoding/gob"
 	"bytes"
+	"encoding/gob"
 	"errors"
-	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/cache"
+	"github.com/astaxie/beego/logs"
+	"time"
 )
-
 
 var bm cache.Cache
 
@@ -27,7 +26,7 @@ func Get(key string, e interface{}) error {
 		err := decoder.Decode(e)
 
 		if err != nil {
-			beego.Error("反序列化对象失败 ->", err)
+			logs.Error("反序列化对象失败 ->", err)
 		}
 		return err
 	} else if s, ok := val.(string); ok && s != "" {
@@ -39,13 +38,12 @@ func Get(key string, e interface{}) error {
 		err := decoder.Decode(e)
 
 		if err != nil {
-			beego.Error("反序列化对象失败 ->", err)
+			logs.Error("反序列化对象失败 ->", err)
 		}
 		return err
 	}
 	return errors.New("value is not []byte or string")
 }
-
 
 func Put(key string, val interface{}, timeout time.Duration) error {
 
@@ -55,7 +53,7 @@ func Put(key string, val interface{}, timeout time.Duration) error {
 
 	err := encoder.Encode(val)
 	if err != nil {
-		beego.Error("序列化对象失败 ->", err)
+		logs.Error("序列化对象失败 ->", err)
 		return err
 	}
 

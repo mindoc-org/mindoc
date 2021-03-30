@@ -34,7 +34,7 @@ import (
 
 // RegisterDataBase 注册数据库
 func RegisterDataBase() {
-	beego.Info("正在初始化数据库配置.")
+	logs.Info("正在初始化数据库配置.")
 	adapter := beego.AppConfig.String("db_adapter")
 	orm.DefaultTimeLoc = time.Local
 	orm.DefaultRowsLimit = -1
@@ -50,7 +50,7 @@ func RegisterDataBase() {
 		if err == nil {
 			orm.DefaultTimeLoc = location
 		} else {
-			beego.Error("加载时区配置信息失败,请检查是否存在 ZONEINFO 环境变量->", err)
+			logs.Error("加载时区配置信息失败,请检查是否存在 ZONEINFO 环境变量->", err)
 		}
 
 		port := beego.AppConfig.String("db_port")
@@ -58,7 +58,7 @@ func RegisterDataBase() {
 		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
 
 		if err := orm.RegisterDataBase("default", "mysql", dataSource); err != nil {
-			beego.Error("注册默认数据库失败->", err)
+			logs.Error("注册默认数据库失败->", err)
 			os.Exit(1)
 		}
 
@@ -81,13 +81,13 @@ func RegisterDataBase() {
 		err := orm.RegisterDataBase("default", "sqlite3", database)
 
 		if err != nil {
-			beego.Error("注册默认数据库失败->", err)
+			logs.Error("注册默认数据库失败->", err)
 		}
 	} else {
-		beego.Error("不支持的数据库类型.")
+		logs.Error("不支持的数据库类型.")
 		os.Exit(1)
 	}
-	beego.Info("数据库初始化完成.")
+	logs.Info("数据库初始化完成.")
 }
 
 // RegisterModel 注册Model
@@ -190,7 +190,7 @@ func RegisterLogger(log string) {
 	}
 	b, err := json.Marshal(config)
 	if err != nil {
-		beego.Error("初始化文件日志时出错 ->", err)
+		logs.Error("初始化文件日志时出错 ->", err)
 		_ = beego.SetLogger("file", `{"filename":"`+logPath+`"}`)
 	} else {
 		_ = beego.SetLogger(logs.AdapterFile, string(b))
@@ -217,7 +217,7 @@ func RegisterFunction() {
 	err := beego.AddFuncMap("config", models.GetOptionValue)
 
 	if err != nil {
-		beego.Error("注册函数 config 出错 ->", err)
+		logs.Error("注册函数 config 出错 ->", err)
 		os.Exit(-1)
 	}
 	err = beego.AddFuncMap("cdn", func(p string) string {
@@ -246,48 +246,48 @@ func RegisterFunction() {
 		return cdn + p
 	})
 	if err != nil {
-		beego.Error("注册函数 cdn 出错 ->", err)
+		logs.Error("注册函数 cdn 出错 ->", err)
 		os.Exit(-1)
 	}
 
 	err = beego.AddFuncMap("cdnjs", conf.URLForWithCdnJs)
 	if err != nil {
-		beego.Error("注册函数 cdnjs 出错 ->", err)
+		logs.Error("注册函数 cdnjs 出错 ->", err)
 		os.Exit(-1)
 	}
 	err = beego.AddFuncMap("cdncss", conf.URLForWithCdnCss)
 	if err != nil {
-		beego.Error("注册函数 cdncss 出错 ->", err)
+		logs.Error("注册函数 cdncss 出错 ->", err)
 		os.Exit(-1)
 	}
 	err = beego.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
 	if err != nil {
-		beego.Error("注册函数 cdnimg 出错 ->", err)
+		logs.Error("注册函数 cdnimg 出错 ->", err)
 		os.Exit(-1)
 	}
 	//重写url生成，支持配置域名以及域名前缀
 	err = beego.AddFuncMap("urlfor", conf.URLFor)
 	if err != nil {
-		beego.Error("注册函数 urlfor 出错 ->", err)
+		logs.Error("注册函数 urlfor 出错 ->", err)
 		os.Exit(-1)
 	}
 	err = beego.AddFuncMap("date_format", func(t time.Time, format string) string {
 		return t.Local().Format(format)
 	})
 	if err != nil {
-		beego.Error("注册函数 date_format 出错 ->", err)
+		logs.Error("注册函数 date_format 出错 ->", err)
 		os.Exit(-1)
 	}
-	
+
 	err = beego.AddFuncMap("i18n", i18n.Tr)
 	if err != nil {
-		beego.Error("注册函数 i18n 出错 ->", err)
+		logs.Error("注册函数 i18n 出错 ->", err)
 		os.Exit(-1)
 	}
 	langs := strings.Split("en-us|zh-cn", "|")
 	for _, lang := range langs {
-		if err := i18n.SetMessage(lang, "conf/lang/" + lang + ".ini"); err != nil {
-			beego.Error("Fail to set message file: " + err.Error())
+		if err := i18n.SetMessage(lang, "conf/lang/"+lang+".ini"); err != nil {
+			logs.Error("Fail to set message file: " + err.Error())
 			return
 		}
 	}
@@ -368,7 +368,7 @@ func RegisterCache() {
 		cache.Init(&cache.NullCache{})
 		return
 	}
-	beego.Info("正常初始化缓存配置.")
+	logs.Info("正常初始化缓存配置.")
 	cacheProvider := beego.AppConfig.String("cache_provider")
 	if cacheProvider == "file" {
 		cacheFilePath := beego.AppConfig.DefaultString("cache_file_path", "./runtime/cache/")
@@ -386,7 +386,7 @@ func RegisterCache() {
 
 		bc, err := json.Marshal(&fileConfig)
 		if err != nil {
-			beego.Error("初始化file缓存失败:", err)
+			logs.Error("初始化file缓存失败:", err)
 			os.Exit(1)
 		}
 
@@ -420,13 +420,13 @@ func RegisterCache() {
 
 		bc, err := json.Marshal(&redisConfig)
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:", err)
+			logs.Error("初始化Redis缓存失败:", err)
 			os.Exit(1)
 		}
 		redisCache, err := beegoCache.NewCache("redis", string(bc))
 
 		if err != nil {
-			beego.Error("初始化Redis缓存失败:", err)
+			logs.Error("初始化Redis缓存失败:", err)
 			os.Exit(1)
 		}
 
@@ -440,13 +440,13 @@ func RegisterCache() {
 
 		bc, err := json.Marshal(&memcacheConfig)
 		if err != nil {
-			beego.Error("初始化 Memcache 缓存失败 ->", err)
+			logs.Error("初始化 Memcache 缓存失败 ->", err)
 			os.Exit(1)
 		}
 		memcache, err := beegoCache.NewCache("memcache", string(bc))
 
 		if err != nil {
-			beego.Error("初始化 Memcache 缓存失败 ->", err)
+			logs.Error("初始化 Memcache 缓存失败 ->", err)
 			os.Exit(1)
 		}
 
@@ -457,7 +457,7 @@ func RegisterCache() {
 		beego.Warn("不支持的缓存管道,缓存将禁用 ->", cacheProvider)
 		return
 	}
-	beego.Info("缓存初始化完成.")
+	logs.Info("缓存初始化完成.")
 }
 
 //自动加载配置文件.修改了监听端口号和数据库配置无法自动生效.
@@ -467,7 +467,7 @@ func RegisterAutoLoadConfig() {
 		watcher, err := fsnotify.NewWatcher()
 
 		if err != nil {
-			beego.Error("创建配置文件监控器失败 ->", err)
+			logs.Error("创建配置文件监控器失败 ->", err)
 		}
 		go func() {
 			for {
@@ -476,18 +476,18 @@ func RegisterAutoLoadConfig() {
 					//如果是修改了配置文件
 					if ev.IsModify() {
 						if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
-							beego.Error("An error occurred ->", err)
+							logs.Error("An error occurred ->", err)
 							continue
 						}
 						RegisterCache()
 						RegisterLogger("")
-						beego.Info("配置文件已加载 ->", conf.ConfigurationFile)
+						logs.Info("配置文件已加载 ->", conf.ConfigurationFile)
 					} else if ev.IsRename() {
 						_ = watcher.WatchFlags(conf.ConfigurationFile, fsnotify.FSN_MODIFY|fsnotify.FSN_RENAME)
 					}
-					beego.Info(ev.String())
+					logs.Info(ev.String())
 				case err := <-watcher.Error:
-					beego.Error("配置文件监控器错误 ->", err)
+					logs.Error("配置文件监控器错误 ->", err)
 
 				}
 			}
@@ -496,7 +496,7 @@ func RegisterAutoLoadConfig() {
 		err = watcher.WatchFlags(conf.ConfigurationFile, fsnotify.FSN_MODIFY|fsnotify.FSN_RENAME)
 
 		if err != nil {
-			beego.Error("监控配置文件失败 ->", err)
+			logs.Error("监控配置文件失败 ->", err)
 		}
 	}
 }

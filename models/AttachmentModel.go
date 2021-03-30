@@ -2,13 +2,13 @@
 package models
 
 import (
+	"github.com/astaxie/beego/logs"
 	"time"
 
 	"os"
 
 	"strings"
 
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils/filetil"
@@ -65,7 +65,7 @@ func (m *Attachment) Delete() error {
 
 	if err == nil {
 		if err1 := os.Remove(m.FilePath); err1 != nil {
-			beego.Error(err1)
+			logs.Error(err1)
 		}
 	}
 
@@ -110,7 +110,7 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 
 	if err != nil {
 		if err == orm.ErrNoRows {
-			beego.Info("没有查到附件 ->", err)
+			logs.Info("没有查到附件 ->", err)
 			err = nil
 		}
 		return

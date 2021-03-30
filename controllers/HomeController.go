@@ -1,10 +1,10 @@
 package controllers
 
 import (
+	"github.com/astaxie/beego/logs"
 	"math"
 	"net/url"
 
-	"github.com/astaxie/beego"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils/pagination"
@@ -37,7 +37,7 @@ func (c *HomeController) Index() {
 	books, totalCount, err := models.NewBook().FindForHomeToPager(pageIndex, pageSize, memberId)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.Abort("500")
 	}
 	if totalCount > 0 {

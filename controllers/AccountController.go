@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/i18n"
 	"net/url"
 	"regexp"
 	"strings"
@@ -133,8 +135,8 @@ func (c *AccountController) Login() {
 
 			c.JsonResult(0, "ok", c.referer())
 		} else {
-			beego.Error("用户登录 ->", err)
-			c.JsonResult(500, "账号或密码错误", nil)
+			logs.Error("用户登录 ->", err)
+			c.JsonResult(500, i18n.Tr(c.Lang, "message.wrong_account_password"), nil)
 		}
 	} else {
 		c.Data["url"] = c.referer()
@@ -385,7 +387,7 @@ func (c *AccountController) FindPassword() {
 		count, err := models.NewMemberToken().FindSendCount(email, time.Now().Add(-1*time.Hour), time.Now())
 
 		if err != nil {
-			beego.Error(err)
+			logs.Error(err)
 			c.JsonResult(6008, "发送邮件失败")
 		}
 		if count > mailConf.MailNumber {
@@ -410,7 +412,7 @@ func (c *AccountController) FindPassword() {
 
 		body, err := c.ExecuteViewPathTemplate("account/mail_template.tpl", data)
 		if err != nil {
-			beego.Error(err)
+			logs.Error(err)
 			c.JsonResult(6003, "邮件发送失败")
 		}
 
@@ -424,7 +426,7 @@ func (c *AccountController) FindPassword() {
 				Secure:   mailConf.Secure,
 				Identity: "",
 			}
-			beego.Info(mailConfig)
+			logs.Info(mailConfig)
 
 			c := mail.NewSMTPClient(mailConfig)
 			m := mail.NewMail()
@@ -436,9 +438,9 @@ func (c *AccountController) FindPassword() {
 			m.AddTo(email)
 
 			if e := c.Send(m); e != nil {
-				beego.Error("发送邮件失败：" + e.Error())
+				logs.Error("发送邮件失败：" + e.Error())
 			} else {
-				beego.Info("邮件发送成功：" + email)
+				logs.Info("邮件发送成功：" + email)
 			}
 			//auth := smtp.PlainAuth(
 			//	"",
@@ -458,7 +460,7 @@ func (c *AccountController) FindPassword() {
 			//	[]byte(subject+mime+"\n"+body),
 			//)
 			//if err != nil {
-			//	beego.Error("邮件发送失败 => ", email, err)
+			//	logs.Error("邮件发送失败 => ", email, err)
 			//}
 		}(mailConf, email, body)
 
@@ -472,7 +474,7 @@ func (c *AccountController) FindPassword() {
 		memberToken, err := models.NewMemberToken().FindByFieldFirst("token", token)
 
 		if err != nil {
-			beego.Error(err)
+			logs.Error(err)
 			c.Data["ErrorMessage"] = "邮件已失效"
 			c.TplName = "errors/error.tpl"
 			return
@@ -524,7 +526,7 @@ func (c *AccountController) ValidEmail() {
 	memberToken, err := models.NewMemberToken().FindByFieldFirst("token", token)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6007, "邮件已失效")
 	}
 	subTime := memberToken.SendTime.Sub(time.Now())
@@ -535,13 +537,13 @@ func (c *AccountController) ValidEmail() {
 	}
 	member, err := models.NewMember().Find(memberToken.MemberId)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6005, "用户不存在")
 	}
 	hash, err := utils.PasswordHash(password1)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6006, "保存密码失败")
 	}
 
@@ -553,7 +555,7 @@ func (c *AccountController) ValidEmail() {
 	memberToken.InsertOrUpdate()
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6006, "保存密码失败")
 	}
 	c.JsonResult(0, "ok", conf.URLFor("AccountController.Login"))
@@ -577,7 +579,7 @@ func (c *AccountController) Captcha() {
 	captchaImage := gocaptcha.NewCaptchaImage(140, 40, gocaptcha.RandLightColor())
 
 	//if err != nil {
-	//	beego.Error(err)
+	//	logs.Error(err)
 	//	c.Abort("500")
 	//}
 

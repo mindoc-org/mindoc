@@ -3,11 +3,11 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"io/ioutil"
 	"net/http"
 	"os"
 
-	"github.com/astaxie/beego"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -17,14 +17,14 @@ func CheckUpdate() {
 	resp, err := http.Get("https://api.github.com/repos/lifei6671/mindoc/tags")
 
 	if err != nil {
-		beego.Error("CheckUpdate => ", err)
+		logs.Error("CheckUpdate => ", err)
 		os.Exit(1)
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		beego.Error("CheckUpdate => ", err)
+		logs.Error("CheckUpdate => ", err)
 		os.Exit(1)
 	}
 
@@ -35,7 +35,7 @@ func CheckUpdate() {
 	err = json.Unmarshal(body, &result)
 	fmt.Println("MinDoc current version => ", conf.VERSION)
 	if err != nil {
-		beego.Error("CheckUpdate => ", err)
+		logs.Error("CheckUpdate => ", err)
 		os.Exit(0)
 	}
 
