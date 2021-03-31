@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>我的项目 - Powered by MinDoc</title>
+    <title>{{i18n $.Lang "common.my_project"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">
@@ -28,30 +28,30 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li {{if eq .ControllerName "BookController"}}class="active"{{end}}><a href="{{urlfor "BookController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> 我的项目</a> </li>
-                    <li {{if eq .ControllerName "BlogController"}}class="active"{{end}}><a href="{{urlfor "BlogController.ManageList"}}" class="item"><i class="fa fa-file" aria-hidden="true"></i> 我的文章</a> </li>
+                    <li {{if eq .ControllerName "BookController"}}class="active"{{end}}><a href="{{urlfor "BookController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> {{i18n $.Lang "common.my_project"}}</a> </li>
+                    <li {{if eq .ControllerName "BlogController"}}class="active"{{end}}><a href="{{urlfor "BlogController.ManageList"}}" class="item"><i class="fa fa-file" aria-hidden="true"></i> {{i18n $.Lang "common.my_blog"}}</a> </li>
                 </ul>
             </div>
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">项目列表</strong>
+                        <strong class="box-title">{{i18n $.Lang "blog.project_list"}}</strong>
                         &nbsp;
-                        <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">添加项目</button>
-                        <button type="button" data-toggle="modal" data-target="#importBookDialogModal" class="btn btn-primary btn-sm pull-right" style="margin-right: 5px;">导入项目</button>
+                        <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">{{i18n $.Lang "blog.add_project"}}</button>
+                        <button type="button" data-toggle="modal" data-target="#importBookDialogModal" class="btn btn-primary btn-sm pull-right" style="margin-right: 5px;">{{i18n $.Lang "blog.import_project"}}</button>
                     </div>
                 </div>
                 <div class="box-body" id="bookList">
                     <div class="book-list">
                         <template v-if="lists.length <= 0">
-                        <div class="text-center">暂无数据</div>
+                        <div class="text-center">{{i18n $.Lang "message.no_data"}}</div>
                         </template>
                         <template v-else>
 
                         <div class="list-item" v-for="item in lists">
                             <div class="book-title">
                                 <div class="pull-left">
-                                    <a :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" title="项目概要" data-toggle="tooltip">
+                                    <a :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" title="{{i18n $.Lang "blog.project_summary"}}" data-toggle="tooltip">
                                        <template v-if="item.privately_owned == 0">
                                            <i class="fa fa-unlock" aria-hidden="true"></i>
                                        </template>
@@ -63,28 +63,28 @@
                                 </div>
                                 <div class="pull-right">
                                     <div class="btn-group">
-                                        <a  :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" class="btn btn-default">设置</a>
+                                        <a  :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" class="btn btn-default">{{i18n $.Lang "common.setting"}}</a>
 
                                         <a href="javascript:;" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             <span class="caret"></span>
                                             <span class="sr-only">Toggle Dropdown</span>
                                         </a>
                                         <ul class="dropdown-menu">
-                                            <li><a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" target="_blank">阅读</a></li>
+                                            <li><a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" target="_blank">{{i18n $.Lang "blog.read"}}</a></li>
                                             <template v-if="item.role_id != 3">
-                                            <li><a :href="'{{.BaseUrl}}/api/' + item.identify + '/edit'" target="_blank">编辑</a></li>
+                                            <li><a :href="'{{.BaseUrl}}/api/' + item.identify + '/edit'" target="_blank">{{i18n $.Lang "blog.edit"}}</a></li>
                                             </template>
                                             <template v-if="item.role_id == 0">
-                                            <li><a :href="'javascript:deleteBook(\''+item.identify+'\');'">删除</a></li>
-                                            <li><a :href="'javascript:copyBook(\''+item.identify+'\');'">复制</a></li>
+                                            <li><a :href="'javascript:deleteBook(\''+item.identify+'\');'">{{i18n $.Lang "blog.delete"}}</a></li>
+                                            <li><a :href="'javascript:copyBook(\''+item.identify+'\');'">{{i18n $.Lang "blog.copy"}}</a></li>
                                             </template>
                                         </ul>
 
                                     </div>
 
-                                    {{/*<a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="查看文档" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> 查看文档</a>*/}}
+                                    {{/*<a :href="'{{urlfor "DocumentController.Index" ":key" ""}}' + item.identify" title="{{i18n $.Lang "blog.view"}}" data-toggle="tooltip" target="_blank"><i class="fa fa-eye"></i> {{i18n $.Lang "blog.view"}}</a>*/}}
                                     {{/*<template v-if="item.role_id != 3">*/}}
-                                        {{/*<a :href="'/api/' + item.identify + '/edit'" title="编辑文档" data-toggle="tooltip" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑文档</a>*/}}
+                                        {{/*<a :href="'/api/' + item.identify + '/edit'" title="{{i18n $.Lang "blog.edit_doc"}}" data-toggle="tooltip" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> {{i18n $.Lang "blog.edit_doc"}}</a>*/}}
                                     {{/*</template>*/}}
                                 </div>
                                 <div class="clearfix"></div>
@@ -94,21 +94,21 @@
                                         &nbsp;
                                     </template>
                                     <template v-else="">
-                                        <a :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" title="项目概要" style="font-size: 12px;">
+                                        <a :href="'{{.BaseUrl}}/book/' + item.identify + '/dashboard'" title="{{i18n $.Lang "blog.project_summary"}}" style="font-size: 12px;">
                                         ${item.description}
                                         </a>
                                     </template>
                             </div>
                             <div class="info">
-                                <span title="创建时间" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-clock-o"></i>
+                                <span title="{{i18n $.Lang "blog.create_time"}}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-clock-o"></i>
                                     ${(new Date(item.create_time)).format("yyyy-MM-dd hh:mm:ss")}
 
                                 </span>
-                                <span title="创建者" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user"></i> ${item.create_name}</span>
-                                <span title="文档数量" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pie-chart"></i> ${item.doc_count}</span>
-                                <span title="项目角色" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i> ${item.role_name}</span>
+                                <span title="{{i18n $.Lang "blog.creator"}}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user"></i> ${item.create_name}</span>
+                                <span title="{{i18n $.Lang "blog.doc_amount"}}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pie-chart"></i> ${item.doc_count}</span>
+                                <span title="{{i18n $.Lang "blog.project_role"}}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-secret"></i> ${item.role_name}</span>
                                 <template v-if="item.last_modify_text !== ''">
-                                    <span title="最后编辑" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pencil"></i> 最后编辑: ${item.last_modify_text}</span>
+                                    <span title="{{i18n $.Lang "blog.last_edit"}}" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-pencil"></i> {{i18n $.Lang "blog.last_edit"}}: ${item.last_modify_text}</span>
                                 </template>
 
                             </div>
@@ -133,49 +133,49 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">添加项目</h4>
+                <h4 class="modal-title" id="myModalLabel">{{i18n $.Lang "blog.add_project"}}</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <div class="pull-left" style="width: 620px">
                         <div class="form-group required">
-                            <label class="text-label col-sm-2">项目空间</label>
+                            <label class="text-label col-sm-2">{{i18n $.Lang "common.project_space"}}</label>
                             <div class="col-sm-10">
                                 <select class="js-data-example-ajax-add form-control" multiple="multiple" name="itemId" id="itemId">
                                 {{if .Item}}<option value="{{.Item.ItemId}}" selected>{{.Item.ItemName}}</option> {{end}}
                                 </select>
-                                <p class="text">每个项目必须归属一个项目空间，超级管理员可在后台管理和维护</p>
+                                <p class="text">{{i18n $.Lang "message.project_must_belong_space"}}</p>
                             </div>
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-group required">
-                            <label class="text-label col-sm-2">项目标题</label>
+                            <label class="text-label col-sm-2">{{i18n $.Lang "blog.project_title"}}</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" placeholder="标题(不超过100字)" name="book_name" id="bookName">
-                                <p class="text">项目名称不能超过100字符</p>
+                                <input type="text" class="form-control" placeholder="{{i18n $.Lang "message.project_title_placeholder"}}" name="book_name" id="bookName">
+                                <p class="text">{{i18n $.Lang "message.project_title_tips"}}</p>
                             </div>
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-group required">
-                           <label class="text-label col-sm-2">项目标识</label>
+                           <label class="text-label col-sm-2">{{i18n $.Lang "blog.project_id"}}</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" placeholder="项目唯一标识(不超过50字)" name="identify" id="identify">
-                                <p class="text">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
+                                <input type="text" class="form-control" placeholder="{{i18n $.Lang "message.project_id_placeholder"}}" name="identify" id="identify">
+                                <p class="text">{{i18n $.Lang "message.project_id_tips"}}</p>
                             </div>
                             <div class="clearfix"></div>
                         </div>
                         <div class="form-group">
-                            <textarea name="description" id="description" class="form-control" placeholder="描述信息不超过500个字符" style="height: 90px;"></textarea>
+                            <textarea name="description" id="description" class="form-control" placeholder="{{i18n $.Lang "message.project_desc_placeholder"}}" style="height: 90px;"></textarea>
                         </div>
                         <div class="form-group">
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                                 <label>
-                                    <input type="radio" name="privately_owned" value="0" checked> 公开<span class="text">(任何人都可以访问)</span>
+                                    <input type="radio" name="privately_owned" value="0" checked> {{i18n $.Lang "blog.public"}}<span class="text">{{i18n $.Lang "message.project_public_desc"}}</span>
                                 </label>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-8">
                                 <label>
-                                    <input type="radio" name="privately_owned" value="1"> 私有<span class="text">(只要参与者或使用令牌才能访问)</span>
+                                    <input type="radio" name="privately_owned" value="1"> {{i18n $.Lang "blog.private"}}<span class="text">{{i18n $.Lang "message.project_private_desc"}}</span>
                                 </label>
                             </div>
                             <div class="clearfix"></div>
@@ -183,7 +183,7 @@
                     </div>
                     <div class="pull-right text-center" style="width: 235px;">
                         <canvas id="bookCover" height="230px" width="170px"><img src="{{cdnimg "/static/images/book.jpg"}}"> </canvas>
-                        <p class="text">项目图片可在项目设置中修改</p>
+                        <p class="text">{{i18n $.Lang "message.project_cover_desc"}}</p>
                     </div>
                 </div>
 
@@ -192,8 +192,8 @@
             </div>
             <div class="modal-footer">
                 <span id="form-error-message"></span>
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-success" id="btnSaveDocument" data-loading-text="保存中...">保存</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n $.Lang "common.cancel"}}</button>
+                <button type="button" class="btn btn-success" id="btnSaveDocument" data-loading-text="{{i18n $.Lang "common.processing"}}">{{i18n $.Lang "common.save"}}</button>
             </div>
         </div>
         </form>
@@ -207,41 +207,41 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">导入项目</h4>
+                    <h4 class="modal-title">{{i18n $.Lang "blog.import_project"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
                         <div class="form-group required">
-                            <label class="text-label">项目空间</label>
+                            <label class="text-label">{{i18n $.Lang "common.project_space"}}</label>
                             <select class="js-data-example-ajax-import form-control" multiple="multiple" name="itemId">
                                 {{if .Item}}<option value="{{.Item.ItemId}}" selected>{{.Item.ItemName}}</option> {{end}}
                             </select>
-                            <p class="text">每个项目必须归属一个项目空间，超级管理员可在后台管理和维护</p>
+                            <p class="text">{{i18n $.Lang "message.project_must_belong_space"}}</p>
                         </div>
                         <div class="form-group required">
-                            <label class="text-label">项目标题</label>
-                            <input type="text" class="form-control" placeholder="项目标题(不超过100字)" name="book_name" maxlength="100" value="">
-                            <p class="text">项目名称不能超过100字符</p>
+                            <label class="text-label">{{i18n $.Lang "blog.project_title"}}</label>
+                            <input type="text" class="form-control" placeholder="{{i18n $.Lang "blog.project_title_placeholder"}}" name="book_name" maxlength="100" value="">
+                            <p class="text">{{i18n $.Lang "blog.project_title_tips"}}</p>
                         </div>
                         <div class="form-group required">
-                            <label class="text-label">项目标识</label>
-                            <input type="text" class="form-control"  placeholder="项目唯一标识(不超过50字)" name="identify" value="">
+                            <label class="text-label">{{i18n $.Lang "blog.project_id"}}</label>
+                            <input type="text" class="form-control"  placeholder="{{i18n $.Lang "blog.project_id_placeholder"}}" name="identify" value="">
                             <div class="clearfix"></div>
-                            <p class="text">文档标识只能包含小写字母、数字，以及“-”、“.”和“_”符号.</p>
+                            <p class="text">{{i18n $.Lang "blog.project_id_tips"}}</p>
                         </div>
                         <div class="form-group">
-                            <label class="text-label">项目描述</label>
-                            <textarea name="description" id="description" class="form-control" placeholder="描述信息不超过500个字符" style="height: 90px;"></textarea>
+                            <label class="text-label">{{i18n $.Lang "blog.project_desc"}}</label>
+                            <textarea name="description" id="description" class="form-control" placeholder="{{i18n $.Lang "message.project_desc_placeholder"}}" style="height: 90px;"></textarea>
                         </div>
                         <div class="form-group">
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                                 <label>
-                                    <input type="radio" name="privately_owned" value="0" checked> 公开<span class="text">(任何人都可以访问)</span>
+                                    <input type="radio" name="privately_owned" value="0" checked> {{i18n $.Lang "blog.public"}}<span class="text">{{i18n $.Lang "message.project_public_desc"}}</span>
                                 </label>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-8">
                                 <label>
-                                    <input type="radio" name="privately_owned" value="1"> 私有<span class="text">(只要参与者或使用令牌才能访问)</span>
+                                    <input type="radio" name="privately_owned" value="1"> {{i18n $.Lang "blog.private"}}<span class="text">{{i18n $.Lang "message.project_private_desc"}}</span>
                                 </label>
                             </div>
                             <div class="clearfix"></div>
@@ -257,8 +257,8 @@
                 </div>
                 <div class="modal-footer">
                     <span id="import-book-form-error-message" style="background-color: #ffffff;border: none;margin: 0;padding: 0;"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-success" id="btnImportBook" data-loading-text="创建中...">创建</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n $.Lang "common.cancel"}}</button>
+                    <button type="button" class="btn btn-success" id="btnImportBook" data-loading-text="{{i18n $.Lang "common.processing"}}">{{i18n $.Lang "common.create"}}</button>
                 </div>
             </div>
         </form>
@@ -273,17 +273,17 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">删除项目</h4>
+                    <h4 class="modal-title">{{i18n $.Lang "blog.delete_project"}}</h4>
                 </div>
                 <div class="modal-body">
-                    <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
+                    <span style="font-size: 14px;font-weight: 400;">{{i18n $.Lang "message.confirm_delete_project"}}</span>
                     <p></p>
-                    <p class="text error-message">删除项目后将无法找回。</p>
+                    <p class="text error-message">{{i18n $.Lang "message.warning_delete_project"}}</p>
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message2" class="error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n $.Lang "common.cancel"}}</button>
+                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="{{i18n $.Lang "common.processing"}}">{{i18n $.Lang "common.confirm_delete"}}</button>
                 </div>
             </div>
         </form>
@@ -415,7 +415,7 @@
             },
             error : function () {
                 layer.close(index);
-                layer.msg('服务器异常');
+                layer.msg('{{i18n $.Lang "message.system_error"}}');
             }
         });
     }
@@ -426,7 +426,7 @@
          * */
         $("#addBookDialogModal").on("show.bs.modal",function () {
             window.bookDialogModal = $(this).find("#addBookDialogForm").html();
-            drawBookCover("bookCover","默认封面");
+            drawBookCover("bookCover","{{i18n $.Lang "blog.default_cover"}}");
             $('.js-data-example-ajax-add').select2({
                 language: "zh-CN",
                 minimumInputLength : 1,
@@ -466,7 +466,7 @@
                 'validateInitialCount': true,
                 "language" : "zh",
                 'allowedFileExtensions': ['zip'],
-                'msgPlaceholder' : '请选择Zip文件',
+                'msgPlaceholder' : '{{i18n $.Lang "message.file_type_placeholder"}}',
                 'elErrorContainer' : "#import-book-form-error-message",
                 'uploadExtraData' : function () {
                     var book = {};
@@ -513,27 +513,27 @@
 
             var itemId = $("#itemId").val();
             if (itemId <= 0) {
-                return showError("请选择项目空间")
+                return showError("{{i18n $.Lang "message.project_space_empty"}}")
             }
             var bookName = $.trim($("#bookName").val());
             if (bookName === "") {
-                return showError("项目标题不能为空")
+                return showError("{{i18n $.Lang "message.project_title_empty"}}")
             }
             if (bookName.length > 100) {
-                return showError("项目标题必须小于100字符");
+                return showError("{{i18n $.Lang "message.project_title_tips"}}");
             }
 
             var identify = $.trim($("#identify").val());
             if (identify === "") {
-                return showError("项目标识不能为空");
+                return showError("{{i18n $.Lang "message.project_id_empty"}}");
             }
             if (identify.length > 50) {
-                return showError("项目标识必须小于50字符");
+                return showError("{{i18n $.Lang "message.project_id_length"}}");
             }
             var description = $.trim($("#description").val());
 
             if (description.length > 500) {
-                return showError("描述信息不超过500个字符");
+                return showError("{{i18n $.Lang "message.project_desc_placeholder"}}");
             }
 
             $this.button("loading");
@@ -567,7 +567,7 @@
                 $this.button("reset");
             }).error(function () {
                 $this.button("reset");
-                return showError("服务器异常");
+                return showError("{{i18n $.Lang "message.system_error"}}");
             });
             return false;
         }).on("blur","#bookName",function () {
@@ -581,30 +581,30 @@
 
             var itemId = $then.find("input[name='itemId']").val();
             if (itemId <= 0) {
-                return showError("请选择项目空间")
+                return showError("{{i18n $.Lang "message.project_space_empty"}}")
             }
 
             var bookName = $.trim($then.find("input[name='book_name']").val());
 
             if (bookName === "") {
-                return showError("项目标题不能为空","#import-book-form-error-message");
+                return showError("{{i18n $.Lang "message.project_title_empty"}}","#import-book-form-error-message");
             }
             if (bookName.length > 100) {
-                return showError("项目标题必须小于100字符","#import-book-form-error-message");
+                return showError("{{i18n $.Lang "message.project_title_tips"}}","#import-book-form-error-message");
             }
 
             var identify = $.trim($then.find("input[name='identify']").val());
             if (identify === "") {
-                return showError("项目标识不能为空","#import-book-form-error-message");
+                return showError("{{i18n $.Lang "message.project_id_empty"}}","#import-book-form-error-message");
             }
             var description = $.trim($then.find('textarea[name="description"]').val());
             if (description.length > 500) {
-                return showError("描述信息不超过500个字符","#import-book-form-error-message");
+                return showError("{{i18n $.Lang "message.project_decs_placeholder"}}","#import-book-form-error-message");
             }
             var filesCount = $('#import-book-upload').fileinput('getFilesCount');
 
             if (filesCount <= 0) {
-                return showError("请选择需要上传的文件","#import-book-form-error-message");
+                return showError("{{i18n $.Lang "message.import_file_empty"}}","#import-book-form-error-message");
             }
             //$("#importBookDialogForm").submit();
             $("#btnImportBook").button("loading");
@@ -636,7 +636,7 @@
                 $("#btnDeleteBook").button("reset");
             },
             error : function () {
-                showError("服务器异常","#form-error-message2");
+                showError("{{i18n $.Lang "message.system_error"}}","#form-error-message2");
                 $("#btnDeleteBook").button("reset");
             }
         });

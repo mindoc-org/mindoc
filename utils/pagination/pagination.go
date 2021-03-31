@@ -2,12 +2,14 @@ package pagination
 
 import (
 	"fmt"
+	"github.com/astaxie/beego"
+	"github.com/beego/i18n"
+	"html/template"
 	"math"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-	"html/template"
 )
 
 //Pagination 分页器
@@ -19,7 +21,7 @@ type Pagination struct {
 }
 
 //NewPagination 新建分页器
-func NewPagination(req *http.Request, total int, pernum int,baseUrl string) *Pagination {
+func NewPagination(req *http.Request, total int, pernum int, baseUrl string) *Pagination {
 	return &Pagination{
 		Request: req,
 		Total:   total,
@@ -49,6 +51,8 @@ func (p *Pagination) Pages() string {
 	//计算总页数
 	var totalPageNum = int(math.Ceil(float64(p.Total) / float64(p.Pernum)))
 
+	lang := p.getLang()
+
 	//首页链接
 	var firstLink string
 	//上一页链接
@@ -62,20 +66,20 @@ func (p *Pagination) Pages() string {
 
 	//首页和上一页链接
 	if pagenum > 1 {
-		firstLink = fmt.Sprintf(`<li><a href="%s">首页</a></li>`, p.pageURL("1"))
-		prevLink = fmt.Sprintf(`<li><a href="%s">上一页</a></li>`, p.pageURL(strconv.Itoa(pagenum-1)))
+		firstLink = fmt.Sprintf(`<li><a href="%s">%s</a></li>`, p.pageURL("1"), i18n.Tr(lang, "page.first"))
+		prevLink = fmt.Sprintf(`<li><a href="%s">%s</a></li>`, p.pageURL(strconv.Itoa(pagenum-1)), i18n.Tr(lang, "page.prev"))
 	} else {
-		firstLink = `<li class="disabled"><a href="#">首页</a></li>`
-		prevLink = `<li class="disabled"><a href="#">上一页</a></li>`
+		firstLink = fmt.Sprintf(`<li class="disabled"><a href="#">%s</a></li>`, i18n.Tr(lang, "page.first"))
+		prevLink = fmt.Sprintf(`<li class="disabled"><a href="#">%s</a></li>`, i18n.Tr(lang, "page.prev"))
 	}
 
 	//末页和下一页
 	if pagenum < totalPageNum {
-		lastLink = fmt.Sprintf(`<li><a href="%s">末页</a></li>`, p.pageURL(strconv.Itoa(totalPageNum)))
-		nextLink = fmt.Sprintf(`<li><a href="%s">下一页</a></li>`, p.pageURL(strconv.Itoa(pagenum+1)))
+		lastLink = fmt.Sprintf(`<li><a href="%s">%s</a></li>`, p.pageURL(strconv.Itoa(totalPageNum)), i18n.Tr(lang, "page.last"))
+		nextLink = fmt.Sprintf(`<li><a href="%s">%s</a></li>`, p.pageURL(strconv.Itoa(pagenum+1)), i18n.Tr(lang, "page.next"))
 	} else {
-		lastLink = `<li class="disabled"><a href="#">末页</a></li>`
-		nextLink = `<li class="disabled"><a href="#">下一页</a></li>`
+		lastLink = fmt.Sprintf(`<li class="disabled"><a href="#">%s</a></li>`, i18n.Tr(lang, "page.last"))
+		nextLink = fmt.Sprintf(`<li class="disabled"><a href="#">%s</a></li>`, i18n.Tr(lang, "page.next"))
 	}
 
 	//生成中间页码链接
@@ -112,3 +116,18 @@ func (p *Pagination) pageURL(page string) string {
 	return u.String()
 }
 
+func (p *Pagination) getLang() string {
+	lang := beego.AppConfig.String("default_lang")
+	ulang := p.Request.FormValue("lang")
+	if len(ulang) == 0 {
+		clang, err := p.Request.Cookie("lang")
+		if err != nil {
+			return lang
+		}
+		ulang = clang.Value
+	}
+	if !i18n.IsExist(ulang) {
+		return lang
+	}
+	return ulang
+}
