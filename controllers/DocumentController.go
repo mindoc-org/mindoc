@@ -143,17 +143,22 @@ func (c *DocumentController) Read() {
 		doc.AttachList = attach
 	}
 
+	view_count := models.NewDocumentViewCount().IncrViewCount(doc.DocumentId)
+	c.Data["ViewCount"] = view_count
+
 	if c.IsAjax() {
 		var data struct {
 			DocTitle string `json:"doc_title"`
 			Body     string `json:"body"`
 			Title    string `json:"title"`
 			Version  int64  `json:"version"`
+			ViewCount int   `json:"view_count"`
 		}
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
 		data.Version = doc.Version
+		data.ViewCount = view_count
 
 		c.JsonResult(0, "ok", data)
 	}
