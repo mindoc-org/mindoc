@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>概要 - Powered by MinDoc</title>
+    <title>{{i18n $.Lang "blog.summary"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -26,11 +26,11 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li class="active"><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
+                    <li class="active"><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> {{i18n $.Lang "blog.summary"}}</a> </li>
                     {{if eq .Model.RoleId 0 1}}
-                        <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 成员</a> </li>
-                        <li><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> 团队</a> </li>
-                        <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                        <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> {{i18n $.Lang "blog.member"}}</a> </li>
+                        <li><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> {{i18n $.Lang "blog.team"}}</a> </li>
+                        <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> {{i18n $.Lang "common.setting"}}</a> </li>
                     {{end}}
                 </ul>
 
@@ -40,19 +40,19 @@
                     <div class="box-head">
                         <strong class="box-title">
                             {{if eq .Model.PrivatelyOwned 0}}
-                            <i class="fa fa-unlock" aria-hidden="true" title="公开项目" data-toggle="tooltip"></i>
+                            <i class="fa fa-unlock" aria-hidden="true" title="{{i18n $.Lang "blog.public_project"}}" data-toggle="tooltip"></i>
                             {{else}}
-                            <i class="fa fa-lock" aria-hidden="true" title="私有项目" data-toggle="tooltip"></i>
+                            <i class="fa fa-lock" aria-hidden="true" title="{{i18n $.Lang "blog.private_project"}}" data-toggle="tooltip"></i>
                             {{end}}
                             {{.Model.BookName}}
                         </strong>
                         {{if ne .Model.RoleId 3}}
-                        <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default btn-sm pull-right" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</a>
+                        <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-default btn-sm pull-right" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i> {{i18n $.Lang "blog.edit"}}</a>
                         {{end}}
-                        <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-eye"></i> 阅读</a>
+                        <a href="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" target="_blank"><i class="fa fa-eye"></i> {{i18n $.Lang "blog.read"}}</a>
 
                         {{if eq .Model.RoleId 0 1 2}}
-                        <button class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" id="btnRelease"><i class="fa fa-upload" aria-hidden="true"></i> 发布</button>
+                        <button class="btn btn-default btn-sm pull-right" style="margin-right: 5px;" id="btnRelease"><i class="fa fa-upload" aria-hidden="true"></i> {{i18n $.Lang "blog.publish"}}</button>
                         {{end}}
                     </div>
                 </div>
@@ -65,32 +65,32 @@
                         </div>
 
                             <div class="list">
-                                <span class="title">创建者：</span>
+                                <span class="title">{{i18n $.Lang "blog.creator"}}：</span>
                                 <span class="body">{{.Model.CreateName}}</span>
                             </div>
                             <div class="list">
-                                <span class="title">文档数量：</span>
-                                <span class="body">{{.Model.DocCount}} 篇</span>
+                                <span class="title">{{i18n $.Lang "blog.doc_amount"}}：</span>
+                                <span class="body">{{.Model.DocCount}} {{i18n $.Lang "blog.doc_unit"}}</span>
                             </div>
                             <div class="list">
-                                <span class="title">创建时间：</span>
+                                <span class="title">{{i18n $.Lang "blog.create_time"}}：</span>
                                 <span class="body"> {{date_format .Model.CreateTime "2006-01-02 15:04:05"}} </span>
                             </div>
                             <div class="list">
-                                <span class="title">修改时间：</span>
+                                <span class="title">{{i18n $.Lang "blog.update_time"}}：</span>
                                 <span class="body"> {{date_format .Model.CreateTime "2006-01-02 15:04:05"}} </span>
                             </div>
                         <div class="list">
-                            <span class="title">担任角色：</span>
+                            <span class="title">{{i18n $.Lang "blog.project_role"}}：</span>
                             <span class="body">{{.Model.RoleName}}</span>
                         </div>
                        <!-- {{/* <div class="list">
-                            <span class="title">评论数量：</span>
-                            <span class="body">{{.Model.CommentCount}} 条</span>
+                            <span class="title">{{i18n $.Lang "blog.comment_amount"}}：</span>
+                            <span class="body">{{.Model.CommentCount}} {{i18n $.Lang "blog.comment_unit"}}</span>
                         </div>*/}}
                         -->
                     <div class="list">
-                        <span class="title">文档标签：</span>
+                        <span class="title">{{i18n $.Lang "blog.project_desc"}}：</span>
                         <span class="body">{{.Model.Label}}</span>
                     </div>
                         <div class="summary">{{.Description}} </div>
@@ -116,7 +116,7 @@
                 dataType : "json",
                 success : function (res) {
                     if(res.errcode === 0){
-                        layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
+                        layer.msg("{{i18n $.Lang "message.publish_to_queue"}}");
                     }else{
                         layer.msg(res.message);
                     }

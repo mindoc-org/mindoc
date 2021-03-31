@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>团队 - {{.Model.BookName}} - Powered by MinDoc</title>
+    <title>{{i18n $.Lang "blog.team"}} - {{.Model.BookName}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -27,11 +27,11 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a></li>
+                    <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> {{i18n $.Lang "blog.summary"}}</a></li>
                 {{if eq .Model.RoleId 0 1}}
-                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 成员</a></li>
-                    <li class="active"><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> 团队</a></li>
-                    <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a></li>
+                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> {{i18n $.Lang "blog.member"}}</a></li>
+                    <li class="active"><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> {{i18n $.Lang "blog.team"}}</a></li>
+                    <li><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> {{i18n $.Lang "common.setting"}}</a></li>
                 {{end}}
                 </ul>
 
@@ -39,10 +39,10 @@
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 团队管理</strong>
+                        <strong class="box-title"> {{i18n $.Lang "blog.team_manage"}}</strong>
                     {{if eq .Model.RoleId 0}}
                         <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addTeamDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i>
-                            添加团队
+                            {{i18n $.Lang "blog.add_team"}}
                         </button>
                     {{end}}
                     </div>
@@ -50,16 +50,16 @@
                 <div class="box-body">
                     <div class="users-list" id="teamList">
                         <template v-if="lists.length <= 0">
-                            <div class="text-center">暂无数据</div>
+                            <div class="text-center">{{i18n $.Lang "common.no_data"}}</div>
                         </template>
                         <template v-else>
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th>团队名称</th>
-                                    <th width="100">成员数量</th>
-                                    <th width="180">加入时间</th>
-                                    <th align="center" width="220px">操作</th>
+                                    <th>{{i18n $.Lang "blog.team_name"}}</th>
+                                    <th width="100">{{i18n $.Lang "blog.member_amount"}}</th>
+                                    <th width="180">{{i18n $.Lang "blog.join_time"}}</th>
+                                    <th align="center" width="220px">{{i18n $.Lang "common.operate"}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -68,7 +68,7 @@
                                     <td>${item.member_count}</td>
                                     <td>${(new Date(item.create_time)).format("yyyy-MM-dd hh:mm:ss")}</td>
                                     <td>
-                                        <button type="button" class="btn btn-danger btn-sm" @click="deleteTeam(item.team_id,$event)" data-loading-text="删除中">删除</button>
+                                        <button type="button" class="btn btn-danger btn-sm" @click="deleteTeam(item.team_id,$event)" data-loading-text="{{i18n $.Lang "common.processing"}}">{{i18n $.Lang "blog.delete"}}</button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -93,12 +93,12 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">添加团队</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n $.Lang "blog.add_team"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="account">团队名称<span class="error-message">*</span></label>
-                        <div class="col-sm-10">
+                        <label class="col-sm-3 control-label" for="account">{{i18n $.Lang "blog.team_name"}}<span class="error-message">*</span></label>
+                        <div class="col-sm-9">
                             <select type="text" name="teamId" id="teamId" class="js-data-example-ajax form-control" multiple="multiple"></select>
                         </div>
                     </div>
@@ -106,8 +106,8 @@
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddTeam">保存
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n $.Lang "common.cancel"}}</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="{{i18n $.Lang "common.processing"}}" id="btnAddTeam">{{i18n $.Lang "common.save"}}
                     </button>
                 </div>
             </div>
@@ -129,7 +129,7 @@
         $("#addTeamDialogModal").on("show.bs.modal", function () {
             window.addTeamDialogModalHtml = $(this).find("form").html();
             $('.js-data-example-ajax').select2({
-                language: "zh-CN",
+                language: "{{i18n $.Lang "common.js_lang"}}",
                 minimumInputLength: 1,
                 minimumResultsForSearch: Infinity,
                 maximumSelectionLength: 1,
@@ -161,7 +161,7 @@
             beforeSubmit: function () {
                 var teamId = $.trim($("#addTeamDialogForm select[name='teamId']").val());
                 if (teamId == "") {
-                    return showError("团队名称不能为空");
+                    return showError("{{i18n $.Lang "message.team_name_empty"}}");
                 }
                 $("#btnAddTeam").button("loading");
                 return true;
@@ -175,7 +175,7 @@
                 }
             },
             error: function () {
-                showError("服务器异常");
+                showError("{{i18n $.Lang "message.system_error"}}");
             },
             complete: function () {
                 $("#btnAddTeam").button("reset");
@@ -206,7 +206,7 @@
                                     }
                                 }
                             } else {
-                                alert("操作失败：" + res.message);
+                                alert("{{i18n $.Lang "message.operate_failed"}}：" + res.message);
                             }
                         }
                     });

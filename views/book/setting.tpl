@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>设置 - {{.Model.BookName}} - Powered by MinDoc</title>
+    <title>{{i18n $.Lang "common.setting"}} - {{.Model.BookName}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -25,25 +25,25 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> 概要</a> </li>
-                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 成员</a> </li>
-                    <li><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> 团队</a> </li>
-                    <li class="active"><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> 设置</a> </li>
+                    <li><a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" class="item"><i class="fa fa-dashboard" aria-hidden="true"></i> {{i18n $.Lang "blog.summary"}}</a> </li>
+                    <li><a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> {{i18n $.Lang "blog.member"}}</a> </li>
+                    <li><a href="{{urlfor "BookController.Team" ":key" .Model.Identify}}" class="item"><i class="fa fa-group" aria-hidden="true"></i> {{i18n $.Lang "blog.team"}}</a> </li>
+                    <li class="active"><a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="item"><i class="fa fa-gear" aria-hidden="true"></i> {{i18n $.Lang "common.setting"}}</a> </li>
                 </ul>
 
             </div>
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 项目设置</strong>
+                        <strong class="box-title"> {{i18n $.Lang "blog.project_setting"}}</strong>
                         {{if eq .Model.RoleId 0}}
-                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#transferBookModal">转让项目</button>
+                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#transferBookModal">{{i18n $.Lang "blog.handover_project"}}</button>
                         {{if eq .Model.PrivatelyOwned 1}}
-                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#changePrivatelyOwnedModal" style="margin-right: 5px;">转为公有</button>
+                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#changePrivatelyOwnedModal" style="margin-right: 5px;">{{i18n $.Lang "blog.make_public"}}</button>
                         {{else}}
-                        <button type="button"  class="btn btn-danger btn-sm pull-right" data-toggle="modal" data-target="#changePrivatelyOwnedModal" style="margin-right: 5px;">转为私有</button>
+                        <button type="button"  class="btn btn-danger btn-sm pull-right" data-toggle="modal" data-target="#changePrivatelyOwnedModal" style="margin-right: 5px;">{{i18n $.Lang "blog.make_private"}}</button>
                         {{end}}
-                        <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;" data-toggle="modal" data-target="#deleteBookModal">删除项目</button>
+                        <button type="button"  class="btn btn-danger btn-sm pull-right" style="margin-right: 5px;" data-toggle="modal" data-target="#deleteBookModal">{{i18n $.Lang "blog.delete_project"}}</button>
                         {{end}}
 
                     </div>
@@ -53,56 +53,56 @@
                         <form method="post" id="bookEditForm" action="{{urlfor "BookController.SaveBook"}}">
                             <input type="hidden" name="identify" value="{{.Model.Identify}}">
                             <div class="form-group">
-                                <label>标题</label>
-                                <input type="text" class="form-control" name="book_name" id="bookName" placeholder="项目名称" value="{{.Model.BookName}}">
+                                <label>{{i18n $.Lang "blog.project_title"}}</label>
+                                <input type="text" class="form-control" name="book_name" id="bookName" placeholder="{{i18n $.Lang "blog.project_title"}}" value="{{.Model.BookName}}">
                             </div>
                             <div class="form-group">
-                                <label>标识</label>
-                                <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="项目唯一标识" disabled>
+                                <label>{{i18n $.Lang "blog.project_id"}}</label>
+                                <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="{{i18n $.Lang "blog.project_id"}}" disabled>
                                 <p class="text">项目标识用来标记项目的唯一性，不可修改。</p>
                             </div>
                             <div class="form-group">
-                                <label>项目空间</label>
+                                <label>{{i18n $.Lang "common.project_space"}}</label>
                                 <select class="js-data-example-ajax form-control" multiple="multiple" name="itemId">
                                     <option value="{{.Model.ItemId}}" selected="selected">{{.Model.ItemName}}</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>历史记录数量</label>
-                                <input type="text" class="form-control" name="history_count" value="{{.Model.HistoryCount}}" placeholder="历史记录数量">
+                                <label>{{i18n $.Lang "blog.history_record_amount"}}</label>
+                                <input type="text" class="form-control" name="history_count" value="{{.Model.HistoryCount}}" placeholder="{{i18n $.Lang "blog.history_record_amount"}}">
                                 <p class="text">当开启文档历史时,该值会限制每个文档保存的历史数量</p>
                             </div>
                             <div class="form-group">
-                                <label>公司标识</label>
-                                <input type="text" class="form-control" name="publisher" value="{{.Model.Publisher}}" placeholder="公司名称">
+                                <label>{{i18n $.Lang "blog.corp_id"}}</label>
+                                <input type="text" class="form-control" name="publisher" value="{{.Model.Publisher}}" placeholder="{{i18n $.Lang "blog.corp_id"}}">
                                 <p class="text">导出文档PDF文档时显示的页脚</p>
                             </div>
                             <div class="form-group">
-                                <label>描述</label>
-                                <textarea rows="3" class="form-control" name="description" style="height: 90px" placeholder="项目描述">{{.Model.Description}}</textarea>
+                                <label>{{i18n $.Lang "blog.project_desc"}}</label>
+                                <textarea rows="3" class="form-control" name="description" style="height: 90px" placeholder="{{i18n $.Lang "blog.project_desc"}}">{{.Model.Description}}</textarea>
                                 <p class="text">描述信息不超过500个字符,支持Markdown语法</p>
                             </div>
                             <div class="form-group">
-                                <label>编辑器</label>
+                                <label>{{i18n $.Lang "blog.text_editor"}}</label>
                                 <div class="radio">
                                     <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.Editor "markdown"}} checked{{end}} name="editor" value="markdown"> Markdown编辑器
+                                        <input type="radio"{{if eq .Model.Editor "markdown"}} checked{{end}} name="editor" value="markdown"> Markdown {{i18n $.Lang "blog.text_editor"}}
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio"{{if eq .Model.Editor "html"}} checked{{end}} name="editor" value="html"> Html编辑器
+                                        <input type="radio"{{if eq .Model.Editor "html"}} checked{{end}} name="editor" value="html"> Html {{i18n $.Lang "blog.text_editor"}}
                                     </label>
                                 </div>
                             </div>
                 {{if eq .Model.PrivatelyOwned 1}}
                 <div class="form-group">
-                    <label>访问密码</label>
-                    <input type="text" name="bPassword" id="bPassword" class="form-control" placeholder="访问密码" value="{{.Model.BookPassword}}">
+                    <label>{{i18n $.Lang "blog.access_pass"}}</label>
+                    <input type="text" name="bPassword" id="bPassword" class="form-control" placeholder="{{i18n $.Lang "blog.access_pass"}}" value="{{.Model.BookPassword}}">
                     <p class="text">没有访问权限访问项目时需要提供的密码</p>
                 </div>
                 {{end}}
 
                 <div class="form-group">
-                    <label for="autoRelease">自动发布</label>
+                    <label for="autoRelease">{{i18n $.Lang "blog.auto_publish"}}</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="autoRelease" name="auto_release"{{if .Model.AutoRelease }} checked{{end}} data-size="small">
@@ -111,43 +111,43 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="autoRelease">开启导出</label>
+                    <label for="autoRelease">{{i18n $.Lang "blog.enable_export"}}</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
-                            <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small" placeholder="开启导出">
+                            <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.enable_export"}}">
                         </div>
                         <p class="text">开启导出前请先配置导出程序，并在配置文件中同时开启导出功能</p>
 
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="autoRelease">开启分享</label>
+                    <label for="autoRelease">{{i18n $.Lang "blog.enable_share"}}</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
-                            <input type="checkbox" id="enableShare" name="enable_share"{{if .Model.IsEnableShare }} checked{{end}} data-size="small" placeholder="开启分享">
+                            <input type="checkbox" id="enableShare" name="enable_share"{{if .Model.IsEnableShare }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.enable_share"}}">
                         </div>
                         <p class="text">分享只对公开项目生效，私有项目不支持分享</p>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="autoRelease">设置第一篇文档为默认首页</label>
+                    <label for="autoRelease">{{i18n $.Lang "blog.set_first_as_home"}}</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
-                            <input type="checkbox" id="isUseFirstDocument" name="is_use_first_document"{{if .Model.IsUseFirstDocument }} checked{{end}} data-size="small" placeholder="设置第一篇文档为默认首页">
+                            <input type="checkbox" id="isUseFirstDocument" name="is_use_first_document"{{if .Model.IsUseFirstDocument }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.set_first_as_home"}}">
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="autoRelease">自动保存</label>
+                    <label for="autoRelease">{{i18n $.Lang "blog.auto_save"}}</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
-                            <input type="checkbox" id="autoSave" name="auto_save"{{if .Model.AutoSave }} checked{{end}} data-size="small" placeholder="自动保存">
+                            <input type="checkbox" id="autoSave" name="auto_save"{{if .Model.AutoSave }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.auto_save"}}">
                         </div>
                         <p class="text">开启后每隔30秒会自动保存</p>
                     </div>
                 </div>
                 <div class="form-group">
-                    <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
+                    <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="{{i18n $.Lang "common.processing"}}">{{i18n $.Lang "common.save"}}</button>
                     <span id="form-error-message" class="error-message"></span>
                 </div>
                 </form>
@@ -155,10 +155,10 @@
             <div class="form-right">
                 <label>
                     <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
-                        <img src="{{cdnimg .Model.Cover}}" onerror="this.src='{{cdnimg "/static/images/book.png"}}'" alt="封面" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
+                        <img src="{{cdnimg .Model.Cover}}" onerror="this.src='{{cdnimg "/static/images/book.png"}}'" alt="{{i18n $.Lang "blog.cover"}}" style="max-width: 120px;border: 1px solid #999" id="headimgurl">
                     </a>
                 </label>
-                <p class="text">点击图片可修改项目封面</p>
+                <p class="text">{{i18n $.Lang "blog.click_change_cover"}}</p>
             </div>
             <div class="clearfix"></div>
 
@@ -179,9 +179,9 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">
                         {{if eq .Model.PrivatelyOwned 0}}
-                        转为私有
+                        {{i18n $.Lang "blog.make_public"}}
                         {{else}}
-                        转为共有
+                        转为共{{i18n $.Lang "blog.make_private"}}有
                         {{end}}
                     </h4>
                 </div>
@@ -198,20 +198,20 @@
                 </div>
                 <div class="modal-footer">
                     <span class="error-message" id="form-error-message1"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-primary" data-loading-text="变更中..." id="btnChangePrivatelyOwned">确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n $.Lang "common.cancel"}}</button>
+                    <button type="submit" class="btn btn-primary" data-loading-text="{{i18n $.Lang "common.processing"}}" id="btnChangePrivatelyOwned">{{i18n $.Lang "common.confirm"}}</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
 <!-- Start Modal -->
-<div class="modal fade" id="upload-logo-panel" tabindex="-1" role="dialog" aria-labelledby="修改封面" aria-hidden="true">
+<div class="modal fade" id="upload-logo-panel" tabindex="-1" role="dialog" aria-labelledby="{{i18n $.Lang "blog.change_cover"}}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">修改封面</h4>
+                <h4 class="modal-title">{{i18n $.Lang "blog.change_cover"}}</h4>
             </div>
             <div class="modal-body">
                 <div class="wraper">
@@ -220,7 +220,7 @@
                     </div>
                 </div>
                 <div class="watch-crop-list">
-                    <div class="preview-title">预览</div>
+                    <div class="preview-title">{{i18n $.Lang "blog.preview"}}</div>
                     <ul>
                         <li>
                             <div class="img-preview preview-lg"></div>
@@ -234,8 +234,8 @@
             </div>
             <div class="modal-footer">
                 <span id="error-message"></span>
-                <div id="filePicker" class="btn">选择</div>
-                <button type="button" id="saveImage" class="btn btn-success" style="height: 40px;width: 77px;" data-loading-text="上传中...">上传</button>
+                <div id="filePicker" class="btn">{{i18n $.Lang "blog.choose"}}</div>
+                <button type="button" id="saveImage" class="btn btn-success" style="height: 40px;width: 77px;" data-loading-text="{{i18n $.Lang "blog.processing"}}">{{i18n $.Lang "blog.upload"}}</button>
             </div>
         </div>
     </div>
@@ -250,7 +250,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">删除项目</h4>
+                    <h4 class="modal-title">{{i18n $.Lang "blog.delete_project"}}</h4>
                 </div>
                 <div class="modal-body">
                     <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
@@ -259,8 +259,8 @@
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message2" class="error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n $.Lang "common.cancel"}}</button>
+                    <button type="submit" id="btnDeleteBook" class="btn btn-primary" data-loading-text="{{i18n $.Lang "common.processing"}}">{{i18n $.Lang "common.confirm_delete"}}</button>
                 </div>
             </div>
         </form>

@@ -428,7 +428,7 @@
             window.bookDialogModal = $(this).find("#addBookDialogForm").html();
             drawBookCover("bookCover","{{i18n $.Lang "blog.default_cover"}}");
             $('.js-data-example-ajax-add').select2({
-                language: "zh-CN",
+                language: "{{i18n $.Lang "common.js_lang"}}",
                 minimumInputLength : 1,
                 minimumResultsForSearch: Infinity,
                 maximumSelectionLength:1,
@@ -480,7 +480,7 @@
                 }
             });
             $('.js-data-example-ajax-import').select2({
-                language: "zh-CN",
+                language: "{{i18n $.Lang "common.js_lang"}}",
                 minimumInputLength : 1,
                 minimumResultsForSearch: Infinity,
                 maximumSelectionLength:1,
