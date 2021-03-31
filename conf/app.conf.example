@@ -230,6 +230,7 @@ dingtalk_qr_key="${MINDOC_DINGTALK_QRKEY}"
 # 钉钉扫码登录Secret
 dingtalk_qr_secret="${MINDOC_DINGTALK_QRSECRET}"
 
-
+# i18n config
+default_lang="zh-cn"
 
 
