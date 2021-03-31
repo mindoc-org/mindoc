@@ -220,12 +220,12 @@
                         </div>
                         <div class="form-group required">
                             <label class="text-label">{{i18n $.Lang "blog.project_title"}}</label>
-                            <input type="text" class="form-control" placeholder="{{i18n $.Lang "blog.project_title_placeholder"}}" name="book_name" maxlength="100" value="">
+                            <input type="text" class="form-control" placeholder="{{i18n $.Lang "message.project_title_placeholder"}}" name="book_name" maxlength="100" value="">
                             <p class="text">{{i18n $.Lang "blog.project_title_tips"}}</p>
                         </div>
                         <div class="form-group required">
                             <label class="text-label">{{i18n $.Lang "blog.project_id"}}</label>
-                            <input type="text" class="form-control"  placeholder="{{i18n $.Lang "blog.project_id_placeholder"}}" name="identify" value="">
+                            <input type="text" class="form-control"  placeholder="{{i18n $.Lang "message.project_id_placeholder"}}" name="identify" value="">
                             <div class="clearfix"></div>
                             <p class="text">{{i18n $.Lang "blog.project_id_tips"}}</p>
                         </div>
@@ -464,7 +464,7 @@
                 'showUpload' : false,
                 'required': true,
                 'validateInitialCount': true,
-                "language" : "zh",
+                "language" : "{{i18n $.Lang "common.upload_lang"}}",
                 'allowedFileExtensions': ['zip'],
                 'msgPlaceholder' : '{{i18n $.Lang "message.file_type_placeholder"}}',
                 'elErrorContainer' : "#import-book-form-error-message",
