@@ -143,8 +143,8 @@ func (c *DocumentController) Read() {
 		doc.AttachList = attach
 	}
 
-	view_count := models.NewDocumentViewCount().IncrViewCount(doc.DocumentId)
-	c.Data["ViewCount"] = view_count
+	doc.IncrViewCount(doc.DocumentId)
+	c.Data["ViewCount"] = doc.ViewCount + 1
 
 	if c.IsAjax() {
 		var data struct {
@@ -158,7 +158,7 @@ func (c *DocumentController) Read() {
 		data.Body = doc.Release
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
 		data.Version = doc.Version
-		data.ViewCount = view_count
+		data.ViewCount = doc.ViewCount + 1
 
 		c.JsonResult(0, "ok", data)
 	}
