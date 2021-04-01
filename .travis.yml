@@ -1,32 +1,52 @@
-language: go
+os: linux
+dist: focal
 
+language: go
 go:
   - "1.12"
 
-sudo: true
+arch:
+- amd64
+
+env:
+- GO111MODULE: on
+- CGO_ENABLED: 1
+
+addons:
+  apt:
+    update: true
+
 install:
-  - dep ensure
+  - go mod tidy -v
 
 before_install:
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+  - apt-get -y zip
+  - whereis gcc
+  - go env
 
 script:
-  - dep ensure && GO_ENABLED=1 go build -v -x -tags "pam" && go install
+  - go build -o mindoc_linux_amd64 -ldflags "-w"
+  - cp conf/app.conf.example conf/app.conf
+  - ./mindoc_linux_amd64 version
+  - rm conf/app.conf
 
 before_deploy:
-  - dep ensure -v && CGO_ENABLED=1 GOARCH=amd64 GOOS=linux go build -o mindoc_linux_amd64 -ldflags="-w -X github.com/mindoc-org/mindoc/conf.VERSION=$TRAVIS_TAG -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`github.com/mindoc-org/mindoc/go version`'"
-  - rm -rf simsun.ttc start.sh commands controllers models modules data routers tasks vendor docs search utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile Gopkg.toml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock *.md
+  - go mod tidy -v && GOARCH=amd64 GOOS=linux go build -o mindoc_linux_amd64 -ldflags="-w -X 'github.com/mindoc-org/mindoc/conf.VERSION=$TRAVIS_TAG' -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`go version`'"
+  # remove files
+  - rm appveyor.yml docker-compose.yml Dockerfile .travis.yml .gitattributes .gitignore go.mod go.sum main.go README.md simsun.ttc start.sh
+  # remove dirs
+  - rm -rf cache commands controllers converter .git .github graphics mail models routers utils
+  - ls -alh
   - cp conf/app.conf.example conf/app.conf
-  - zip -r mindoc_linux_amd64.zip conf static uploads views lib mindoc_linux_amd64
+  - zip -r mindoc_linux_amd64.zip conf static uploads views lib mindoc_linux_amd64 favicon.ico LICENSE.md
 
 deploy:
   provider: releases
-  api_key: $CI_USER_TOKEN
-  skip_cleanup: true
+  token: $CI_USER_TOKEN
+  cleanup: true
+  overwrite: true
   file:
     - mindoc_linux_amd64.zip
   on:
-    overwrite: true
     tags: true
-    all_branches: true
-    go: "1.12"
+    branch: master
