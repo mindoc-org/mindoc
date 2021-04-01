@@ -12,15 +12,10 @@ env:
 - GO111MODULE: on
 - CGO_ENABLED: 1
 
-addons:
-  apt:
-    update: true
-
 install:
   - go mod tidy -v
 
 before_install:
-  - apt-get install zip -y
   - whereis gcc
   - go env
 
