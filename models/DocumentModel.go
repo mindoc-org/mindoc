@@ -41,6 +41,7 @@ type Document struct {
 	Version    int64     `orm:"column(version);type(bigint);" json:"version"`
 	//是否展开子目录：0 否/1 是 /2 空间节点，单击时展开下一级
 	IsOpen     int           `orm:"column(is_open);type(int);default(0)" json:"is_open"`
+	ViewCount  int           `orm:"column(view_count);type(int)" json:"view_count"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
 }
 
@@ -383,4 +384,12 @@ func (item *Document) Processor() *Document {
 		}
 	}
 	return item
+}
+
+// 增加阅读次数
+func (item *Document) IncrViewCount(id int) {
+	o := orm.NewOrm()
+	o.QueryTable(item.TableNameWithPrefix()).Filter("document_id", id).Update(orm.Params{
+		"view_count": orm.ColValue(orm.ColAdd, 1),
+	})
 }

@@ -146,6 +146,7 @@
             </div>
             <div class="m-copyright">
                 <p>
+                    <div id="view_count">阅读次数：{{.ViewCount}}</div>
                     本文档使用 <a href="https://www.iminho.me" target="_blank">MinDoc</a> 发布
                 </p>
             </div>
