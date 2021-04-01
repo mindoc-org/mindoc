@@ -34,7 +34,7 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 
 对于没有Golang使用经验的用户，可以从 [https://github.com/mindoc-org/mindoc/releases](https://github.com/mindoc-org/mindoc/releases) 这里下载编译完的程序。
 
-如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.12(需支持`CGO`和`go mod`)。
+如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.13(需支持`CGO`和`go mod`)。
 
 ```bash
 # 克隆源码
