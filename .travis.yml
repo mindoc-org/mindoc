@@ -20,7 +20,7 @@ install:
   - go mod tidy -v
 
 before_install:
-  - apt-get -y zip
+  - apt-get install zip -y
   - whereis gcc
   - go env
 
