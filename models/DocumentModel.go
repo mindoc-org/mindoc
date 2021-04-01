@@ -41,7 +41,7 @@ type Document struct {
 	Version    int64     `orm:"column(version);type(bigint);" json:"version"`
 	//是否展开子目录：0 否/1 是 /2 空间节点，单击时展开下一级
 	IsOpen     int           `orm:"column(is_open);type(int);default(0)" json:"is_open"`
-	ViewCount  int       `orm:"column(view_count);type(int)" json:"view_count"`
+	ViewCount  int           `orm:"column(view_count);type(int)" json:"view_count"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
 }
 
