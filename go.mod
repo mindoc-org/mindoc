@@ -4,8 +4,10 @@ go 1.12
 
 require (
 	github.com/PuerkitoBio/goquery v1.4.1
+	github.com/Unknwon/goconfig v0.0.0-20200908083735-df7de6a44db8 // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/astaxie/beego v1.12.3
+	github.com/beego/i18n v0.0.0-20161101132742-e9308947f407 // indirect
 	github.com/boombuler/barcode v1.0.0
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b // indirect
 	github.com/howeyc/fsnotify v0.9.0
