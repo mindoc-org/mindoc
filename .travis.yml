@@ -9,8 +9,7 @@ arch:
 - amd64
 
 env:
-- GO111MODULE: on
-- CGO_ENABLED: 1
+- GO111MODULE=on CGO_ENABLED=1
 
 install:
   - go mod tidy -v
