@@ -274,21 +274,21 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">项目转让</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n $.Lang "blog.handover_project"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">接收账号</label>
+                        <label class="col-sm-2 control-label">{{i18n $.Lang "blog.recipient_account"}}</label>
                         <div class="col-sm-10">
-                            <input type="text" name="account" class="form-control" placeholder="接收者账号" id="receiveAccount" maxlength="50">
+                            <input type="text" name="account" class="form-control" placeholder="{{i18n $.Lang "blog.recipient_account"}}" id="receiveAccount" maxlength="50">
                         </div>
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message3" class="error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" id="btnTransferBook" class="btn btn-primary">确定转让</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n $.Lang "common.cancel"}}</button>
+                    <button type="submit" id="btnTransferBook" class="btn btn-primary">{{i18n $.Lang "common.comfirm"}}</button>
                 </div>
             </div>
         </form>
@@ -424,7 +424,7 @@
             }
         });
         $('.js-data-example-ajax').select2({
-            language: "zh-CN",
+            language: "{{i18n $.Lang "common.js_lang"}}",
             minimumInputLength : 1,
             minimumResultsForSearch: Infinity,
             maximumSelectionLength:1,
