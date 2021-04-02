@@ -59,7 +59,7 @@
                             <div class="form-group">
                                 <label>{{i18n $.Lang "blog.project_id"}}</label>
                                 <input type="text" class="form-control" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" placeholder="{{i18n $.Lang "blog.project_id"}}" disabled>
-                                <p class="text">项目标识用来标记项目的唯一性，不可修改。</p>
+                                <p class="text">{{i18n $.Lang "message.project_id_desc"}}</p>
                             </div>
                             <div class="form-group">
                                 <label>{{i18n $.Lang "common.project_space"}}</label>
@@ -70,17 +70,17 @@
                             <div class="form-group">
                                 <label>{{i18n $.Lang "blog.history_record_amount"}}</label>
                                 <input type="text" class="form-control" name="history_count" value="{{.Model.HistoryCount}}" placeholder="{{i18n $.Lang "blog.history_record_amount"}}">
-                                <p class="text">当开启文档历史时,该值会限制每个文档保存的历史数量</p>
+                                <p class="text">{{i18n $.Lang "message.history_record_amount_desc"}}</p>
                             </div>
                             <div class="form-group">
                                 <label>{{i18n $.Lang "blog.corp_id"}}</label>
                                 <input type="text" class="form-control" name="publisher" value="{{.Model.Publisher}}" placeholder="{{i18n $.Lang "blog.corp_id"}}">
-                                <p class="text">导出文档PDF文档时显示的页脚</p>
+                                <p class="text">{{i18n $.Lang "message.corp_id_desc"}}</p>
                             </div>
                             <div class="form-group">
                                 <label>{{i18n $.Lang "blog.project_desc"}}</label>
                                 <textarea rows="3" class="form-control" name="description" style="height: 90px" placeholder="{{i18n $.Lang "blog.project_desc"}}">{{.Model.Description}}</textarea>
-                                <p class="text">描述信息不超过500个字符,支持Markdown语法</p>
+                                <p class="text">{{i18n $.Lang "message.project_desc_desc"}}</p>
                             </div>
                             <div class="form-group">
                                 <label>{{i18n $.Lang "blog.text_editor"}}</label>
@@ -97,7 +97,7 @@
                 <div class="form-group">
                     <label>{{i18n $.Lang "blog.access_pass"}}</label>
                     <input type="text" name="bPassword" id="bPassword" class="form-control" placeholder="{{i18n $.Lang "blog.access_pass"}}" value="{{.Model.BookPassword}}">
-                    <p class="text">没有访问权限访问项目时需要提供的密码</p>
+                    <p class="text">{{i18n $.Lang "message.access_pass_desc"}}</p>
                 </div>
                 {{end}}
 
@@ -107,7 +107,7 @@
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="autoRelease" name="auto_release"{{if .Model.AutoRelease }} checked{{end}} data-size="small">
                         </div>
-                        <p class="text">开启后，每次保存会自动发布到最新版本</p>
+                        <p class="text">{{i18n $.Lang "message.auto_publish_desc"}}</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -116,7 +116,7 @@
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="isDownload" name="is_download"{{if .Model.IsDownload }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.enable_export"}}">
                         </div>
-                        <p class="text">开启导出前请先配置导出程序，并在配置文件中同时开启导出功能</p>
+                        <p class="text">{{i18n $.Lang "message.enable_export_desc"}}</p>
 
                     </div>
                 </div>
@@ -126,7 +126,7 @@
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="enableShare" name="enable_share"{{if .Model.IsEnableShare }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.enable_share"}}">
                         </div>
-                        <p class="text">分享只对公开项目生效，私有项目不支持分享</p>
+                        <p class="text">{{i18n $.Lang "message.enable_share_desc"}}</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -143,7 +143,7 @@
                         <div class="switch switch-small" data-on="primary" data-off="info">
                             <input type="checkbox" id="autoSave" name="auto_save"{{if .Model.AutoSave }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.auto_save"}}">
                         </div>
-                        <p class="text">开启后每隔30秒会自动保存</p>
+                        <p class="text">{{i18n $.Lang "message.auto_save_desc"}}</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -179,21 +179,21 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">
                         {{if eq .Model.PrivatelyOwned 0}}
-                        {{i18n $.Lang "blog.make_public"}}
+                        {{i18n $.Lang "blog.make_private"}}
                         {{else}}
-                        转为共{{i18n $.Lang "blog.make_private"}}有
+                        {{i18n $.Lang "blog.make_public"}}
                         {{end}}
                     </h4>
                 </div>
                 <div class="modal-body">
                     {{if eq .Model.PrivatelyOwned 0}}
-                    <span style="font-size: 14px;font-weight: 400;">确定将项目转为私有吗？</span>
+                    <span style="font-size: 14px;font-weight: 400;">{{i18n $.Lang "message.confirm_into_private"}}</span>
                     <p></p>
-                    <p class="text error-message">转为私有后需要通过阅读令牌才能访问该项目。</p>
+                    <p class="text error-message">{{i18n $.Lang "message.into_private_notice"}}</p>
                     {{else}}
-                    <span style="font-size: 14px;font-weight: 400;"> 确定将项目转为公有吗？</span>
+                    <span style="font-size: 14px;font-weight: 400;">{{i18n $.Lang "message.confirm_into_public"}}</span>
                     <p></p>
-                    <p class="text error-message">转为公有后所有人都可以访问该项目。</p>
+                    <p class="text error-message">{{i18n $.Lang "message.into_public_notice"}}</p>
                     {{end}}
                 </div>
                 <div class="modal-footer">
@@ -253,9 +253,9 @@
                     <h4 class="modal-title">{{i18n $.Lang "blog.delete_project"}}</h4>
                 </div>
                 <div class="modal-body">
-                    <span style="font-size: 14px;font-weight: 400;">确定删除项目吗？</span>
+                    <span style="font-size: 14px;font-weight: 400;">{{i18n $.Lang "confirm_delete_project"}}</span>
                     <p></p>
-                    <p class="text error-message">删除项目后将无法找回。</p>
+                    <p class="text error-message">{{i18n $.Lang "message.warning_delete_project"}}</p>
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message2" class="error-message"></span>
@@ -335,7 +335,7 @@
                 $("#btnChangePrivatelyOwned").button("reset");
             },
             error :function () {
-                showError("服务器异常","#form-error-message1");
+                showError("{{i18n $.Lang "message.system_error"}}","#form-error-message1");
                 $("#btnChangePrivatelyOwned").button("reset");
             }
         });
@@ -358,7 +358,7 @@
                 },
                 error : function () {
                     btn.button("reset");
-                    alert("服务器错误");
+                    alert("{{i18n $.Lang "message.system_error"}}");
                 }
             }) ;
         });
@@ -369,20 +369,20 @@
             beforeSubmit : function () {
                 var bookName = $.trim($("#bookName").val());
                 if (bookName === "") {
-                    return showError("项目名称不能为空");
+                    return showError("{{i18n $.Lang "message.project_name_empty"}}");
                 }
                 $("#btnSaveBookInfo").button("loading");
             },
             success : function (res) {
                 if(res.errcode === 0){
-                    showSuccess("保存成功")
+                    showSuccess("{{i18n $.Lang "message.success"}}")
                 }else{
-                    showError("保存失败")
+                    showError("{{i18n $.Lang "message.failed"}}")
                 }
                 $("#btnSaveBookInfo").button("reset");
             },
             error : function () {
-                showError("服务错误");
+                showError("{{i18n $.Lang "message.system_error"}}");
                 $("#btnSaveBookInfo").button("reset");
             }
         });
@@ -399,7 +399,7 @@
                 $("#btnDeleteBook").button("reset");
             },
             error : function () {
-                showError("服务器异常","#form-error-message2");
+                showError("{{i18n $.Lang "message.system_error"}}","#form-error-message2");
                 $("#btnDeleteBook").button("reset");
             }
         });
@@ -407,7 +407,7 @@
             beforeSubmit : function () {
                 var account = $.trim($("#receiveAccount").val());
                 if (account === ""){
-                    return showError("接受者账号不能为空","#form-error-message3")
+                    return showError("{{i18n $.Lang "message.receive_account_empty"}}","#form-error-message3")
                 }
                 $("#btnTransferBook").button("loading");
             },
@@ -466,7 +466,7 @@
                 uploader.makeThumb( file, function( error, src ) {
                     $img = '<img src="' + src +'" style="max-width: 360px;max-height: 360px;">';
                     if ( error ) {
-                        $img.replaceWith('<span>不能预览</span>');
+                        $img.replaceWith('<span>{{i18n $.Lang "message.cannot_preview"}}</span>');
                         return;
                     }
 
@@ -480,7 +480,7 @@
                 }, 1, 1 );
             }).on("uploadError",function (file,reason) {
                 console.log(reason);
-                $("#error-message").text("上传失败:" + reason);
+                $("#error-message").text("{{i18n $.Lang "message.upload_failed"}}:" + reason);
 
             }).on("uploadSuccess",function (file, res) {
 
@@ -495,7 +495,7 @@
                 if(file.size > 1024*1024*2){
                     uploader.removeFile(file);
                     uploader.reset();
-                    alert("文件必须小于2MB");
+                    alert("{{i18n $.Lang "message.upload_file_size_limit"}}");
                     return false;
                 }
             }).on("uploadComplete",function () {
@@ -511,7 +511,7 @@
 
                     uploader.upload();
                 }else{
-                    alert("请选择图片");
+                    alert("{{i18n $.Lang "message.choose_pic_file"}}");
                 }
             });
         }catch(e){
