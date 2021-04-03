@@ -52,6 +52,7 @@ func (m *Comment) TableNameWithPrefix() string {
 func NewComment() *Comment {
 	return &Comment{}
 }
+
 func (m *Comment) Find(id int) (*Comment, error) {
 	if id <= 0 {
 		return m, ErrInvalidParameter
@@ -60,6 +61,15 @@ func (m *Comment) Find(id int) (*Comment, error) {
 	err := o.Read(m)
 
 	return m, err
+}
+
+// 根据文档id查询文档评论
+func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize int) (comments []Comment, count int64) {
+	o := orm.NewOrm()
+	offset := (page - 1) * pagesize
+	o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).OrderBy("comment_date").Offset(offset).Limit(pagesize).All(&comments)
+	count, _ = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).Count()
+	return
 }
 
 func (m *Comment) Update(cols ...string) error {

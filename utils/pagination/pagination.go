@@ -112,3 +112,28 @@ func (p *Pagination) pageURL(page string) string {
 	return u.String()
 }
 
+type Page struct {
+	PageNo		int         `json:"PageNo"`
+	PageSize	int         `json:"PageSize"`
+	TotalPage	int         `json:"TotalPage"`
+	TotalCount	int         `json:"TotalCount"`
+	FirstPage	bool        `json:"FirstPage"`
+	LastPage	bool        `json:"LastPage"`
+	List		interface{} `json:"List"`
+}
+
+func PageUtil(count int, pageNo int, pageSize int, list interface{}) Page {
+	tp := count / pageSize
+	if count%pageSize > 0 {
+		tp = count/pageSize + 1
+	}
+	return Page {
+		PageNo: pageNo,
+		PageSize: pageSize,
+		TotalPage: tp,
+		TotalCount: count,
+		FirstPage: pageNo == 1,
+		LastPage: pageNo == tp,
+		List: list,
+	}
+}

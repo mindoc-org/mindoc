@@ -233,6 +233,17 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 			m.ItemName = item.ItemName
 		}
 	}
+	if m.CommentStatus == "closed" {
+		m.IsDisplayComment = false
+	} else if m.CommentStatus == "open" {
+		m.IsDisplayComment = true
+	} else if m.CommentStatus == "registered_only" {
+		// todo
+	} else if m.CommentStatus == "group_only" {
+		// todo
+	} else {
+		m.IsDisplayComment = false;
+	}
 	return m
 }
 

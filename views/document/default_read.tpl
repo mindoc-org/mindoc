@@ -168,61 +168,51 @@
                     </div>
                 </div>
                 <div class="article-content">
+                    <!-- 文章内容 -->
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
                     </div>
-                    <!--
-                    {{/*
+
                     {{if .Model.IsDisplayComment}}
                     <div id="articleComment" class="m-comment">
-                        <div class="comment-result">
-                            <strong class="title">相关评论(<b class="comment-total">{{.Model.CommentCount}}</b>)</strong>
-                            <div class="comment-post">
-                                <form class="form" action="/comment/create" method="post">
-                                    <label class="enter w-textarea textarea-full">
-                                        <textarea class="textarea-input form-control" name="content" placeholder="文明上网，理性发言" style="height: 72px;"></textarea>
-                                        <input type="hidden" name="doc_id" value="118003">
-                                    </label>
-                                    <div class="util cf">
-                                        <div class="pull-left"><span style="font-size: 12px;color: #999"> 支持Markdown语法 </span></div>
-                                        <div class="pull-right">
-                                            <span class="form-tip w-fragment fragment-tip">Ctrl + Enter快速发布</span>
-                                            <label class="form-submit w-btn btn-success btn-m">
-                                                <button class="btn btn-success btn-sm" type="submit">发布</button>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </form>
+                        <!-- 评论列表 -->
+                        <div class="comment-list" id="commentList">
+                            {{range $i, $c := .Page.List}}
+                            <div class="comment-item" data-id="{{$c.CommentId}}">
+                                <p class="info"><a class="name">{{$c.Author}}</a><span class="date">{{date $c.CommentDate "Y-m-d H:i:s"}}</span></p>
+                                <div class="content">{{$c.Content}}</div>
+                                <p class="util">
+                                    <span class="operate">
+                                        <span class="number">{{$i}}#</span>
+                                    </span>
+                                </p>
                             </div>
-                            <div class="clearfix"></div>
-                            <div class="comment-list">
-                                <div class="comment-empty"><b class="text">暂无相关评论</b></div>
-                                <div class="comment-item" data-id="5841">
-                                    <p class="info"><a href="/@phptest" class="name">静夜思</a><span class="date">9月1日评论</span></p>
-                                    <div class="content">一直不明白，控制器分层和模型分层调用起来到底有什么区别</div>
-                                    <p class="util">
-                                        <span class="vote">
-                                            <a class="agree e-agree" href="javascript:;" data-id="5841" title="赞成">
-                                                <i class="fa fa-thumbs-o-up"></i></a><b class="count">4</b>
-                                            <a class="oppose e-oppose" href="javascript:;" data-id="5841" title="反对"><i class="fa fa-thumbs-o-down"></i></a>
-                                        </span>
-                                        <a class="reply e-reply" data-account="phptest">回复</a>
-                                        <span class="operate toggle">
-                                            <a class="delete e-delete" data-id="5841" data-href="/comment/delete"><i class="icon icon-cross"></i></a>
-                                            <span class="number">23#</span>
-                                        </span>
-                                    </p>
+                            {{end}}
+                        </div>
+
+                        <!-- 翻页 -->
+                        <ul id="page"></ul>
+
+                        <!-- 发表评论 -->
+                        <div class="comment-post">
+                            <form class="form" id="commentForm" action="{{urlfor "CommentController.Create"}}" method="post">
+                                <label class="enter w-textarea textarea-full">
+                                    <textarea class="textarea-input form-control" name="content" placeholder="文明上网，理性发言" style="height: 72px;"></textarea>
+                                    <input type="hidden" name="doc_id" id="doc_id" value="{{.DocumentId}}">
+                                </label>
+                                <div class="pull-right">
+                                        <button class="btn btn-success btn-sm" type="submit">发布</button>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                     {{end}}
-*/}}-->
+
+                    <!-- 返回顶部 -->
                     <div class="jump-top">
                         <a href="javascript:;" class="view-backtop"><i class="fa fa-arrow-up" aria-hidden="true"></i></a>
                     </div>
                 </div>
-
             </div>
         </div>
         <div class="manual-progress"><b class="progress-bar"></b></div>
@@ -247,7 +237,7 @@
                 <div class="form-group">
                     <label for="password" class="col-sm-2 control-label">项目地址</label>
                     <div class="col-sm-10">
-                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="项目地址">
+                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" title="项目地址">
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -276,7 +266,7 @@
                 <div class="form-group">
                     <label for="password" class="col-sm-2 control-label">项目地址</label>
                     <div class="col-sm-10">
-                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="项目地址">
+                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" title="项目地址">
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -290,6 +280,7 @@
 
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
+<script src="{{cdnjs "/static/js/bootstrap-paginator.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
@@ -299,6 +290,18 @@
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">
+if ({{.Page.TotalPage}} > 1) {
+    $("#page").bootstrapPaginator({
+        currentPage: '{{.Page.PageNo}}',
+        totalPages: '{{.Page.TotalPage}}',
+        bootstrapMajorVersion: 3,
+        size: "middle",
+        onPageClicked: function(e, originalEvent, type, page){
+            onPageClicked(page, {{.DocumentId}});
+        }
+    });
+}
+
 $(function () {
     $("#searchList").on("click","a",function () {
         var id = $(this).attr("data-id");
@@ -346,6 +349,22 @@ $(function () {
             window.jsTree.jstree().open_all()
         }
     })
+
+    // 提交评论
+    $("#commentForm").ajaxForm({
+        beforeSubmit : function () {
+        },
+        success : function (res) {
+            if(res.errcode === 0){
+                console.log("success")
+            }else{
+                console.log("error")
+            }
+        },
+        error : function () {
+            console.log("server error")
+        }
+    });
 });
 </script>
 {{.Scripts}}
