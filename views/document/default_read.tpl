@@ -167,6 +167,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="article-content">
                     <!-- 文章内容 -->
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
@@ -182,8 +183,11 @@
                                 <p class="info"><a class="name">{{$c.Author}}</a><span class="date">{{date $c.CommentDate "Y-m-d H:i:s"}}</span></p>
                                 <div class="content">{{$c.Content}}</div>
                                 <p class="util">
-                                    <span class="operate">
-                                        <span class="number">{{$i}}#</span>
+                                    <span class="operate {{if eq $c.ShowDel 1}}toggle{{end}}">
+                                        <span class="number">{{$c.Index}}#</span>
+                                        {{if eq $c.ShowDel 1}}
+                                        <i class="delete e-delete glyphicon glyphicon-remove" style="color:red" onclick="onDelComment({{$c.CommentId}})"></i>
+                                        {{end}}
                                     </span>
                                 </p>
                             </div>
@@ -197,11 +201,12 @@
                         <div class="comment-post">
                             <form class="form" id="commentForm" action="{{urlfor "CommentController.Create"}}" method="post">
                                 <label class="enter w-textarea textarea-full">
-                                    <textarea class="textarea-input form-control" name="content" placeholder="文明上网，理性发言" style="height: 72px;"></textarea>
+                                    <textarea class="textarea-input form-control" name="content" id="commentContent" placeholder="文明上网，理性发言" style="height: 72px;"></textarea>
                                     <input type="hidden" name="doc_id" id="doc_id" value="{{.DocumentId}}">
                                 </label>
                                 <div class="pull-right">
-                                        <button class="btn btn-success btn-sm" type="submit">发布</button>
+                                    <span id="form-error-message" class="error-message"></span>
+                                    <button class="btn btn-success btn-sm" type="submit" id="btnSubmitComment" data-loading-text="提交中...">提交评论</button>
                                 </div>
                             </form>
                         </div>
@@ -297,7 +302,7 @@ if ({{.Page.TotalPage}} > 1) {
         bootstrapMajorVersion: 3,
         size: "middle",
         onPageClicked: function(e, originalEvent, type, page){
-            onPageClicked(page, {{.DocumentId}});
+            pageClicked(page, {{.DocumentId}});
         }
     });
 }
@@ -349,22 +354,6 @@ $(function () {
             window.jsTree.jstree().open_all()
         }
     })
-
-    // 提交评论
-    $("#commentForm").ajaxForm({
-        beforeSubmit : function () {
-        },
-        success : function (res) {
-            if(res.errcode === 0){
-                console.log("success")
-            }else{
-                console.log("error")
-            }
-        },
-        error : function () {
-            console.log("server error")
-        }
-    });
 });
 </script>
 {{.Scripts}}

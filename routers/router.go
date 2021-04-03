@@ -134,6 +134,7 @@ func init() {
 	beego.Router("/attach_files/:key/:attach_id", &controllers.DocumentController{}, "get:DownloadAttachment")
 
 	beego.Router("/comment/create", &controllers.CommentController{}, "post:Create")
+	beego.Router("/comment/delete", &controllers.CommentController{}, "post:Delete")
 	beego.Router("/comment/lists", &controllers.CommentController{}, "get:Lists")
 	beego.Router("/comment/index", &controllers.CommentController{}, "*:Index")
 

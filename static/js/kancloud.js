@@ -42,12 +42,28 @@ var events = function () {
 
 }();
 
-function format(d) {
-    return d < 10 ? "0" + d : "" + d;
+function format($d) {
+    return $d < 10 ? "0" + $d : "" + $d;
 }
 
-function timeFormat(time) {
-    var span = Date.parse(time)
+function showError($msg, $id) {
+    if (!$id) {
+        $id = "#form-error-message"
+    }
+    $($id).addClass("text-danger").removeClass("text-success").text($msg);
+    return false;
+}
+
+function showSuccess($msg, $id) {
+    if (!$id) {
+        $id = "#form-error-message"
+    }
+    $($id).addClass("text-success").removeClass("text-danger").text($msg);
+    return true;
+}
+
+function timeFormat($time) {
+    var span = Date.parse($time)
     var date = new Date(span)
     var year = date.getFullYear();
     var month = format(date.getMonth() + 1);
@@ -58,19 +74,14 @@ function timeFormat(time) {
     return year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
 }
 
-function onPageClicked(page, docid) {
+// 点击翻页
+function pageClicked($page, $docid) {
     $.ajax({
-        url : "/comment/lists?page=" + page + "&docid=" + docid,
+        url : "/comment/lists?page=" + $page + "&docid=" + $docid,
         type : "GET",
-        beforeSend : function (xhr) {
-            NProgress.start();
-        },
-        success : function (res) {
-            console.log(res.data);
-            loadComment(res.data.page, res.data.doc_id);
-        },
-        complete : function () {
-            NProgress.done();
+        success : function ($res) {
+            console.log($res.data);
+            loadComment($res.data.page, $res.data.doc_id);
         },
         error : function () {
             layer.msg("加载失败");
@@ -79,31 +90,33 @@ function onPageClicked(page, docid) {
 }
 
 // 加载评论
-function loadComment(page, docid) {
+function loadComment($page, $docid) {
     $("#commentList").empty();
     var html = ""
-    var c = page.List;
+    var c = $page.List;
     for (var i = 0; c && i < c.length; i++) {
         html += "<div class=\"comment-item\" data-id=\"" + c[i].comment_id + "\">";
             html += "<p class=\"info\"><a class=\"name\">" + c[i].author + "</a><span class=\"date\">" + timeFormat(c[i].comment_date) + "</span></p>";
             html += "<div class=\"content\">" + c[i].content + "</div>";
             html += "<p class=\"util\">";
-                html += "<span class=\"operate\">";
-                    html += "<span class=\"number\">" + i + "#</span>";
+                if (c[i].show_del == 1) html += "<span class=\"operate toggle\">";
+                else html += "<span class=\"operate\">";
+                    html += "<span class=\"number\">" + c[i].index + "#</span>";
+                    if (c[i].show_del == 1) html += "<i class=\"delete e-delete glyphicon glyphicon-remove\" style=\"color:red\" onclick=\"onDelComment(" + c[i].comment_id + ")\"></i>";
                 html += "</span>";
             html += "</p>";
         html += "</div>";
     }
     $("#commentList").append(html);
 
-    if (page.TotalPage > 1) {
+    if ($page.TotalPage > 1) {
         $("#page").bootstrapPaginator({
-            currentPage: page.PageNo,
-            totalPages: page.TotalPage,
+            currentPage: $page.PageNo,
+            totalPages: $page.TotalPage,
             bootstrapMajorVersion: 3,
             size: "middle",
-            onPageClicked: function(e,originalEvent,type,page){
-                onPageClicked(page, docid);
+            onPageClicked: function(e, originalEvent, type, page){
+                pageClicked(page, $docid);
             }
         });
     } else {
@@ -111,15 +124,36 @@ function loadComment(page, docid) {
     }
 }
 
+// 删除评论
+function onDelComment($id) {
+    console.log($id);
+    $.ajax({
+        url : "/comment/delete",
+        data : {"id": $id},
+        type : "POST",
+        success : function ($res) {
+            if ($res.errcode == 0) {
+                layer.msg("删除成功");
+                $("div[data-id=" + $id + "]").remove();
+            } else {
+                layer.msg($res.message);
+            }
+        },
+        error : function () {
+            layer.msg("删除失败");
+        }
+    });
+}
+
 // 重新渲染页面
-function renderPage(data) {
-    $("#page-content").html(data.body);
-    $("title").text(data.title);
-    $("#article-title").text(data.doc_title);
-    $("#article-info").text(data.doc_info);
-    $("#view_count").text("阅读次数：" + data.view_count);
-    $("#doc_id").val(data.doc_id);
-    loadComment(data.page, data.doc_id);
+function renderPage($data) {
+    $("#page-content").html($data.body);
+    $("title").text($data.title);
+    $("#article-title").text($data.doc_title);
+    $("#article-info").text($data.doc_info);
+    $("#view_count").text("阅读次数：" + $data.view_count);
+    $("#doc_id").val($data.doc_id);
+    loadComment($data.page, $data.doc_id);
 }
 
 /***
@@ -132,7 +166,7 @@ function loadDocument($url, $id, $callback) {
     $.ajax({
         url : $url,
         type : "GET",
-        beforeSend : function (xhr) {
+        beforeSend : function () {
             var data = events.data($id);
             if(data) {
                 if (typeof $callback === "function") {
@@ -150,19 +184,19 @@ function loadDocument($url, $id, $callback) {
 
             NProgress.start();
         },
-        success : function (res) {
-            if (res.errcode === 0) {
-                renderPage(res.data);
+        success : function ($res) {
+            if ($res.errcode === 0) {
+                renderPage($res.data);
 
-                $body = res.data.body;
+                $body = $res.data.body;
                 if (typeof $callback === "function" ) {
                     $body = $callback(body);
                 }
 
-                events.data($id, res.data);
+                events.data($id, $res.data);
 
                 events.trigger('article.open', { $url : $url, $id : $id });
-            } else if (res.errcode === 6000) {
+            } else if ($res.errcode === 6000) {
                 window.location.href = "/";
             } else {
                 layer.msg("加载失败");
@@ -349,4 +383,25 @@ $(function () {
             console.log($param);
         }
     };
+
+    // 提交评论
+    $("#commentForm").ajaxForm({
+        beforeSubmit : function () {
+            $("#btnSubmitComment").button("loading");
+        },
+        success : function (res) {
+            if(res.errcode === 0){
+                showSuccess("保存成功")
+            }else{
+                showError("保存失败")
+            }
+            $("#btnSubmitComment").button("reset");
+            $("#commentContent").val("");
+            pageClicked(-1, res.data.doc_id); // -1 表示请求最后一页
+        },
+        error : function () {
+            showError("服务错误");
+            $("#btnSaveBookInfo").button("reset");
+        }
+    });
 });

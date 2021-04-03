@@ -33,6 +33,8 @@ type Comment struct {
 	ParentId     int `orm:"column(parent_id);type(int);default(0)" json:"parent_id"`
 	AgreeCount   int `orm:"column(agree_count);type(int);default(0)" json:"agree_count"`
 	AgainstCount int `orm:"column(against_count);type(int);default(0)" json:"against_count"`
+	Index        int `orm:"-" json:"index"`
+	ShowDel      int `orm:"-" json:"show_del"`
 }
 
 // TableName 获取对应数据库表名.
@@ -64,11 +66,26 @@ func (m *Comment) Find(id int) (*Comment, error) {
 }
 
 // 根据文档id查询文档评论
-func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize int) (comments []Comment, count int64) {
+func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize, userid int) (comments []Comment, count int64, ret_page int) {
 	o := orm.NewOrm()
-	offset := (page - 1) * pagesize
-	o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).OrderBy("comment_date").Offset(offset).Limit(pagesize).All(&comments)
 	count, _ = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).Count()
+	if -1 == page {     // 请求最后一页
+		var total int = int(count)
+		if total % pagesize == 0 {
+			page = total / pagesize
+		} else {
+			page = total / pagesize + 1
+		}
+	}
+	offset := (page - 1) * pagesize
+	ret_page = page
+	o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).OrderBy("comment_date").Offset(offset).Limit(pagesize).All(&comments)
+	for i := 0; i < len(comments); i++ {
+		comments[i].Index = (i + 1) + (page - 1) * pagesize
+		if userid == comments[i].MemberId {
+			comments[i].ShowDel = 1
+		}
+	}
 	return
 }
 
@@ -143,5 +160,12 @@ func (m *Comment) Insert() error {
 	m.BookId = book.BookId
 	_, err = o.Insert(m)
 
+	return err
+}
+
+// 删除一条评论
+func (m *Comment) Delete() error {
+	o := orm.NewOrm()
+	_, err := o.Delete(m)
 	return err
 }

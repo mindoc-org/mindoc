@@ -70,10 +70,9 @@ func (c *DocumentController) Index() {
 			c.Data["DocumentId"] = doc.DocumentId
 
 			// 获取评论、分页
-			comments, count := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize)
+			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member.MemberId)
 			page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
 			c.Data["Page"] = page
-			beego.Info("docid=", doc.DocumentId, "Page", page)
 		}
 	} else {
 		c.Data["Title"] = "概要"
@@ -156,10 +155,9 @@ func (c *DocumentController) Read() {
 	c.Data["ViewCount"] = doc.ViewCount + 1
 
 	// 获取评论、分页
-	comments, count := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize)
+	comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member.MemberId)
 	page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
 	c.Data["Page"] = page
-	beego.Info("docid=", doc.DocumentId, "Page", page)
 
 	if c.IsAjax() {
 		var data struct {

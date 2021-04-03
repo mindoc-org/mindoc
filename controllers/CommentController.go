@@ -16,16 +16,14 @@ type CommentController struct {
 }
 
 func (c *CommentController) Lists() {
-
 	docid, _ := c.GetInt("docid", 0)
 	pageIndex, _ := c.GetInt("page", 1)
 
 	beego.Info("CommentController.Lists", docid, pageIndex)
 
 	// 获取评论、分页
-	comments, count := models.NewComment().QueryCommentByDocumentId(docid, pageIndex, conf.PageSize)
+	comments, count, pageIndex := models.NewComment().QueryCommentByDocumentId(docid, pageIndex, conf.PageSize, c.Member.MemberId)
 	page := pagination.PageUtil(int(count), pageIndex, conf.PageSize, comments)
-	beego.Info("docid=", docid, "Page", page)
 
 	var data struct {
 		DocId     int               `json:"doc_id"`
@@ -57,11 +55,30 @@ func (c *CommentController) Create() {
 	beego.Info(m)
 	m.Insert()
 
-	c.JsonResult(0, "ok")
+	var data struct {
+		DocId    int    `json:"doc_id"`
+	}
+	data.DocId = id
+
+	c.JsonResult(0, "ok", data)
 }
 
 func (c *CommentController) Index() {
-
 	c.Prepare()
 	c.TplName = "comment/index.tpl"
+}
+
+func (c *CommentController) Delete() {
+	if c.Ctx.Input.IsPost() {
+		id, _ := c.GetInt("id", 0)
+		beego.Info("delete id=", id)
+		m := models.NewComment()
+		m.CommentId = id
+		err := m.Delete()
+		if err != nil {
+			c.JsonResult(1, "删除错误")
+		} else {
+			c.JsonResult(0, "ok")
+		}
+	}
 }
