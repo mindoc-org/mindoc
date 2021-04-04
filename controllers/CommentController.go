@@ -4,8 +4,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
-
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils/pagination"
@@ -19,10 +17,8 @@ func (c *CommentController) Lists() {
 	docid, _ := c.GetInt("docid", 0)
 	pageIndex, _ := c.GetInt("page", 1)
 
-	beego.Info("CommentController.Lists", docid, pageIndex)
-
 	// 获取评论、分页
-	comments, count, pageIndex := models.NewComment().QueryCommentByDocumentId(docid, pageIndex, conf.PageSize, c.Member.MemberId)
+	comments, count, pageIndex := models.NewComment().QueryCommentByDocumentId(docid, pageIndex, conf.PageSize, c.Member)
 	page := pagination.PageUtil(int(count), pageIndex, conf.PageSize, comments)
 
 	var data struct {
@@ -40,6 +36,11 @@ func (c *CommentController) Create() {
 	content := c.GetString("content")
 	id, _ := c.GetInt("doc_id")
 
+	_, err := models.NewDocument().Find(id)
+	if err != nil {
+		c.JsonResult(1, "文章不存在")
+	}
+
 	m := models.NewComment()
 	m.DocumentId = id
 	if len(c.Member.RealName) != 0 {
@@ -52,7 +53,6 @@ func (c *CommentController) Create() {
 	m.IPAddress = strings.Split(m.IPAddress, ":")[0]
 	m.CommentDate = time.Now()
 	m.Content = content
-	beego.Info(m)
 	m.Insert()
 
 	var data struct {
@@ -71,14 +71,27 @@ func (c *CommentController) Index() {
 func (c *CommentController) Delete() {
 	if c.Ctx.Input.IsPost() {
 		id, _ := c.GetInt("id", 0)
-		beego.Info("delete id=", id)
-		m := models.NewComment()
-		m.CommentId = id
-		err := m.Delete()
+		m, err := models.NewComment().Find(id)
 		if err != nil {
-			c.JsonResult(1, "删除错误")
+			c.JsonResult(1, "评论不存在")
+		}
+
+		doc, err := models.NewDocument().Find(m.DocumentId)
+		if err != nil {
+			c.JsonResult(1, "文章不存在")
+		}
+
+		// 判断是否有权限删除
+		bookRole, _ := models.NewRelationship().FindForRoleId(doc.BookId, c.Member.MemberId)
+		if m.CanDelete(c.Member.MemberId, bookRole) {
+			err := m.Delete()
+			if err != nil {
+				c.JsonResult(1, "删除错误")
+			} else {
+				c.JsonResult(0, "ok")
+			}
 		} else {
-			c.JsonResult(0, "ok")
+			c.JsonResult(1, "没有权限删除")
 		}
 	}
 }

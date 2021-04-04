@@ -205,7 +205,6 @@
                                     <input type="hidden" name="doc_id" id="doc_id" value="{{.DocumentId}}">
                                 </label>
                                 <div class="pull-right">
-                                    <span id="form-error-message" class="error-message"></span>
                                     <button class="btn btn-success btn-sm" type="submit" id="btnSubmitComment" data-loading-text="提交中...">提交评论</button>
                                 </div>
                             </form>

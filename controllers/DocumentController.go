@@ -70,7 +70,7 @@ func (c *DocumentController) Index() {
 			c.Data["DocumentId"] = doc.DocumentId
 
 			// 获取评论、分页
-			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member.MemberId)
+			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
 			page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
 			c.Data["Page"] = page
 		}
@@ -155,7 +155,7 @@ func (c *DocumentController) Read() {
 	c.Data["ViewCount"] = doc.ViewCount + 1
 
 	// 获取评论、分页
-	comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member.MemberId)
+	comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
 	page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
 	c.Data["Page"] = page
 

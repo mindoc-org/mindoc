@@ -46,22 +46,6 @@ function format($d) {
     return $d < 10 ? "0" + $d : "" + $d;
 }
 
-function showError($msg, $id) {
-    if (!$id) {
-        $id = "#form-error-message"
-    }
-    $($id).addClass("text-danger").removeClass("text-success").text($msg);
-    return false;
-}
-
-function showSuccess($msg, $id) {
-    if (!$id) {
-        $id = "#form-error-message"
-    }
-    $($id).addClass("text-success").removeClass("text-danger").text($msg);
-    return true;
-}
-
 function timeFormat($time) {
     var span = Date.parse($time)
     var date = new Date(span)
@@ -391,17 +375,17 @@ $(function () {
         },
         success : function (res) {
             if(res.errcode === 0){
-                showSuccess("保存成功")
+                layer.msg("保存成功");
             }else{
-                showError("保存失败")
+                layer.msg("保存失败");
             }
             $("#btnSubmitComment").button("reset");
             $("#commentContent").val("");
             pageClicked(-1, res.data.doc_id); // -1 表示请求最后一页
         },
         error : function () {
-            showError("服务错误");
-            $("#btnSaveBookInfo").button("reset");
+            layer.msg("服务错误");
+            $("#btnSubmitComment").button("reset");
         }
     });
 });

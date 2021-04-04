@@ -55,18 +55,18 @@ func NewComment() *Comment {
 	return &Comment{}
 }
 
-func (m *Comment) Find(id int) (*Comment, error) {
-	if id <= 0 {
-		return m, ErrInvalidParameter
-	}
-	o := orm.NewOrm()
-	err := o.Read(m)
-
-	return m, err
+// 是否有权限删除
+func (m *Comment) CanDelete(user_memberid int, user_bookrole conf.BookRole) bool {
+	return user_memberid == m.MemberId || user_bookrole == conf.BookFounder || user_bookrole == conf.BookAdmin
 }
 
 // 根据文档id查询文档评论
-func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize, userid int) (comments []Comment, count int64, ret_page int) {
+func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize int, member *Member) (comments []Comment, count int64, ret_page int) {
+	doc, err := NewDocument().Find(doc_id)
+	if err != nil {
+		return
+	}
+
 	o := orm.NewOrm()
 	count, _ = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).Count()
 	if -1 == page {     // 请求最后一页
@@ -80,9 +80,11 @@ func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize, userid int) (
 	offset := (page - 1) * pagesize
 	ret_page = page
 	o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).OrderBy("comment_date").Offset(offset).Limit(pagesize).All(&comments)
+
+	bookRole, _ := NewRelationship().FindForRoleId(doc.BookId, member.MemberId)
 	for i := 0; i < len(comments); i++ {
 		comments[i].Index = (i + 1) + (page - 1) * pagesize
-		if userid == comments[i].MemberId {
+		if comments[i].CanDelete(member.MemberId, bookRole) {
 			comments[i].ShowDel = 1
 		}
 	}
@@ -168,4 +170,12 @@ func (m *Comment) Delete() error {
 	o := orm.NewOrm()
 	_, err := o.Delete(m)
 	return err
+}
+
+func (m *Comment) Find(id int, cols ...string) (*Comment, error) {
+	o := orm.NewOrm()
+	if err := o.QueryTable(m.TableNameWithPrefix()).Filter("comment_id", id).One(m, cols...); err != nil {
+		return m, err
+	}
+	return m, nil
 }
