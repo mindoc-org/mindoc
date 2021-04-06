@@ -7,11 +7,8 @@ clone_folder: c:\gopath\src\github.com\mindoc-org\mindoc
 init:
 - cmd: >-
     if [%tbs_arch%]==[x86] SET PATH=C:\MinGW\bin;%PATH%
-
     if [%tbs_arch%]==[x64] SET PATH=C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64;C:\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin;%PATH%
-
     SET PATH=%GOPATH%\bin;%GOBIN%;%PATH%
-
     FOR /f "delims=" %%i IN ('go version') DO (SET GO_VERSION=%%i)
 environment:
   GOPATH: c:\gopath
@@ -26,28 +23,20 @@ environment:
 install:
 - cmd: >-
     echo %PATH%
-
     echo %GO_VERSION%
-
     go env
-
     where gcc
-
     where g++
 build_script:
 - cmd: >-
     cd c:\gopath\src\github.com\mindoc-org\mindoc
-
     go mod tidy
-
     go build -ldflags "-w"
-
     go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/mindoc-org/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
-
     7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
 test_script:
 - cmd: >-
     cd c:\gopath\src\github.com\mindoc-org\mindoc
-
+    xcopy conf\app.conf.example conf\app.conf /F /Y
     mindoc_windows_%GOARCH%.exe version
 deploy: off
