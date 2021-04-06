@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"regexp"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/context"
+	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/server/web/context"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 )
@@ -30,14 +30,14 @@ func init() {
 			}
 		}
 	}
-	beego.InsertFilter("/manager", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/manager/*", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/setting", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/setting/*", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/book", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/book/*", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/api/*", beego.BeforeRouter, FilterUser)
-	beego.InsertFilter("/manage/*", beego.BeforeRouter, FilterUser)
+	web.InsertFilter("/manager", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/manager/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/setting", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/setting/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/book", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/book/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/api/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/manage/*", web.BeforeRouter, FilterUser)
 
 	var FinishRouter = func(ctx *context.Context) {
 		ctx.ResponseWriter.Header().Add("MinDoc-Version", conf.VERSION)
@@ -46,7 +46,8 @@ func init() {
 	}
 
 	var StartRouter = func(ctx *context.Context) {
-		sessionId := ctx.Input.Cookie(beego.AppConfig.String("sessionname"))
+		sessname, _ := web.AppConfig.String("sessionname")
+		sessionId := ctx.Input.Cookie(sessname)
 		if sessionId != "" {
 			//sessionId必须是数字字母组成，且最小32个字符，最大1024字符
 			if ok, err := regexp.MatchString(`^[a-zA-Z0-9]{32,512}$`, sessionId); !ok || err != nil {
@@ -54,6 +55,6 @@ func init() {
 			}
 		}
 	}
-	beego.InsertFilter("/*", beego.BeforeStatic, StartRouter, false)
-	beego.InsertFilter("/*", beego.BeforeRouter, FinishRouter, false)
+	web.InsertFilter("/*", web.BeforeStatic, StartRouter, web.WithReturnOnOutput(false))
+	web.InsertFilter("/*", web.BeforeRouter, FinishRouter, web.WithReturnOnOutput(false))
 }

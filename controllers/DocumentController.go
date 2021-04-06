@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -14,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
 	"github.com/mindoc-org/mindoc/conf"
@@ -26,7 +27,7 @@ import (
 	"github.com/mindoc-org/mindoc/utils/filetil"
 	"github.com/mindoc-org/mindoc/utils/gopool"
 	"github.com/mindoc-org/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 // DocumentController struct
@@ -77,7 +78,7 @@ func (c *DocumentController) Index() {
 		if err == orm.ErrNoRows {
 			c.ShowErrorPage(404, "当前项目没有文档")
 		} else {
-			beego.Error("生成项目文档树时出错 -> ", err)
+			logs.Error("生成项目文档树时出错 -> ", err)
 			c.ShowErrorPage(500, "生成项目文档树时出错")
 		}
 	}
@@ -115,7 +116,7 @@ func (c *DocumentController) Read() {
 	if docId, err := strconv.Atoi(id); err == nil {
 		doc, err = doc.FromCacheById(docId)
 		if err != nil || doc == nil {
-			beego.Error("从缓存中读取文档时失败 ->", err)
+			logs.Error("从缓存中读取文档时失败 ->", err)
 			c.ShowErrorPage(404, "文档不存在或已删除")
 			return
 		}
@@ -125,7 +126,7 @@ func (c *DocumentController) Read() {
 			if err == orm.ErrNoRows {
 				c.ShowErrorPage(404, "文档不存在或已删除")
 			} else {
-				beego.Error("从缓存查询文档时出错 ->", err)
+				logs.Error("从缓存查询文档时出错 ->", err)
 				c.ShowErrorPage(500, "未知异常")
 			}
 			return
@@ -166,7 +167,7 @@ func (c *DocumentController) Read() {
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, doc.DocumentId)
 
 	if err != nil && err != orm.ErrNoRows {
-		beego.Error("生成项目文档树时出错 ->", err)
+		logs.Error("生成项目文档树时出错 ->", err)
 
 		c.ShowErrorPage(500, "生成项目文档树时出错")
 	}
@@ -206,7 +207,7 @@ func (c *DocumentController) Edit() {
 			if err == orm.ErrNoRows || err == models.ErrPermissionDenied {
 				c.ShowErrorPage(403, "项目不存在或没有权限")
 			} else {
-				beego.Error("查询项目时出错 -> ", err)
+				logs.Error("查询项目时出错 -> ", err)
 				c.ShowErrorPage(500, "查询项目时出错")
 			}
 			return
@@ -236,7 +237,7 @@ func (c *DocumentController) Edit() {
 	trees, err := models.NewDocument().FindDocumentTree(bookResult.BookId)
 
 	if err != nil {
-		beego.Error("FindDocumentTree => ", err)
+		logs.Error("FindDocumentTree => ", err)
 	} else {
 		if len(trees) > 0 {
 			if jtree, err := json.Marshal(trees); err == nil {
@@ -247,7 +248,7 @@ func (c *DocumentController) Edit() {
 		}
 	}
 
-	c.Data["BaiDuMapKey"] = beego.AppConfig.DefaultString("baidumapkey", "")
+	c.Data["BaiDuMapKey"] = web.AppConfig.DefaultString("baidumapkey", "")
 
 	if conf.GetUploadFileSize() > 0 {
 		c.Data["UploadFileSize"] = conf.GetUploadFileSize()
@@ -279,7 +280,7 @@ func (c *DocumentController) Create() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error(err)
+			logs.Error(err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -288,7 +289,7 @@ func (c *DocumentController) Create() {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("FindByIdentify => ", err)
+			logs.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -332,7 +333,7 @@ func (c *DocumentController) Create() {
 	}
 
 	if err := document.InsertOrUpdate(); err != nil {
-		beego.Error("添加或更新文档时出错 -> ", err)
+		logs.Error("添加或更新文档时出错 -> ", err)
 		c.JsonResult(6005, "保存失败")
 	} else {
 		c.JsonResult(0, "ok", document)
@@ -400,7 +401,7 @@ func (c *DocumentController) Upload() {
 		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
 		if err != nil {
-			beego.Error("DocumentController.Edit => ", err)
+			logs.Error("DocumentController.Edit => ", err)
 			if err == orm.ErrNoRows {
 				c.JsonResult(6006, "权限不足")
 			}
@@ -444,7 +445,7 @@ func (c *DocumentController) Upload() {
 	err = c.SaveToFile(name, filePath)
 
 	if err != nil {
-		beego.Error("保存文件失败 -> ", err)
+		logs.Error("保存文件失败 -> ", err)
 		c.JsonResult(6005, "保存文件失败")
 	}
 
@@ -477,7 +478,7 @@ func (c *DocumentController) Upload() {
 
 	if err != nil {
 		os.Remove(filePath)
-		beego.Error("文件保存失败 ->", err)
+		logs.Error("文件保存失败 ->", err)
 		c.JsonResult(6006, "文件保存失败")
 	}
 
@@ -485,7 +486,7 @@ func (c *DocumentController) Upload() {
 		attachment.HttpPath = conf.URLForNotHost("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
 
 		if err := attachment.Update(); err != nil {
-			beego.Error("保存文件失败 ->", err)
+			logs.Error("保存文件失败 ->", err)
 			c.JsonResult(6005, "保存文件失败")
 		}
 	}
@@ -530,7 +531,7 @@ func (c *DocumentController) DownloadAttachment() {
 			if err == orm.ErrNoRows {
 				c.ShowErrorPage(404, "项目不存在或已删除")
 			} else {
-				beego.Error("查找项目时出错 ->", err)
+				logs.Error("查找项目时出错 ->", err)
 				c.ShowErrorPage(500, "系统错误")
 			}
 		}
@@ -552,7 +553,7 @@ func (c *DocumentController) DownloadAttachment() {
 	attachment, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
-		beego.Error("查找附件时出错 -> ", err)
+		logs.Error("查找附件时出错 -> ", err)
 		if err == orm.ErrNoRows {
 			c.ShowErrorPage(404, "附件不存在或已删除")
 		} else {
@@ -580,21 +581,21 @@ func (c *DocumentController) RemoveAttachment() {
 	attach, err := models.NewAttachment().Find(attachId)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6002, "附件不存在")
 	}
 
 	document, err := models.NewDocument().Find(attach.DocumentId)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6003, "文档不存在")
 	}
 
 	if c.Member.Role != conf.MemberSuperRole {
 		rel, err := models.NewRelationship().FindByBookIdAndMemberId(document.BookId, c.Member.MemberId)
 		if err != nil {
-			beego.Error(err)
+			logs.Error(err)
 			c.JsonResult(6004, "权限不足")
 		}
 
@@ -605,7 +606,7 @@ func (c *DocumentController) RemoveAttachment() {
 
 	err = attach.Delete()
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6005, "删除失败")
 	}
 
@@ -627,7 +628,7 @@ func (c *DocumentController) Delete() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error("FindByIdentify => ", err)
+			logs.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -636,7 +637,7 @@ func (c *DocumentController) Delete() {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("FindByIdentify => ", err)
+			logs.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -650,7 +651,7 @@ func (c *DocumentController) Delete() {
 	doc, err := models.NewDocument().Find(docId)
 
 	if err != nil {
-		beego.Error("Delete => ", err)
+		logs.Error("Delete => ", err)
 		c.JsonResult(6003, "删除失败")
 	}
 	// 如果文档所属项目错误
@@ -697,7 +698,7 @@ func (c *DocumentController) Content() {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("项目不存在或权限不足 -> ", err)
+			logs.Error("项目不存在或权限不足 -> ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -727,7 +728,7 @@ func (c *DocumentController) Content() {
 		}
 
 		if doc.Version != version && !strings.EqualFold(isCover, "yes") {
-			beego.Info("%d|", version, doc.Version)
+			logs.Info("%d|", version, doc.Version)
 			c.JsonResult(6005, "文档已被修改确定要覆盖吗？")
 		}
 
@@ -754,7 +755,7 @@ func (c *DocumentController) Content() {
 		doc.ModifyAt = c.Member.MemberId
 
 		if err := doc.InsertOrUpdate(); err != nil {
-			beego.Error("InsertOrUpdate => ", err)
+			logs.Error("InsertOrUpdate => ", err)
 			c.JsonResult(6006, "保存失败")
 		}
 
@@ -764,7 +765,7 @@ func (c *DocumentController) Content() {
 			if c.EnableDocumentHistory && cryptil.Md5Crypt(history.Markdown) != cryptil.Md5Crypt(doc.Markdown) {
 				_, err = history.InsertOrUpdate()
 				if err != nil {
-					beego.Error("DocumentHistory InsertOrUpdate => ", err)
+					logs.Error("DocumentHistory InsertOrUpdate => ", err)
 				}
 			}
 		}(history)
@@ -824,7 +825,7 @@ func (c *DocumentController) Export() {
 			if err == orm.ErrNoRows {
 				c.ShowErrorPage(404, "项目不存在")
 			} else {
-				beego.Error("查找项目时出错 ->", err)
+				logs.Error("查找项目时出错 ->", err)
 				c.ShowErrorPage(500, "查找项目时出错")
 			}
 		}
@@ -844,7 +845,7 @@ func (c *DocumentController) Export() {
 		if bookResult.Editor != "markdown" {
 			c.ShowErrorPage(500, "当前项目不支持Markdown编辑器")
 		}
-		p, err := bookResult.ExportMarkdown(c.CruSession.SessionID())
+		p, err := bookResult.ExportMarkdown(c.CruSession.SessionID(context.TODO()))
 
 		if err != nil {
 			c.ShowErrorPage(500, "导出文档失败")
@@ -879,7 +880,7 @@ func (c *DocumentController) Export() {
 		c.Abort("200")
 
 	} else if output == "pdf" || output == "epub" || output == "docx" || output == "mobi" {
-		if err := models.BackgroundConvert(c.CruSession.SessionID(), bookResult); err != nil && err != gopool.ErrHandlerIsExist {
+		if err := models.BackgroundConvert(c.CruSession.SessionID(context.TODO()), bookResult); err != nil && err != gopool.ErrHandlerIsExist {
 			c.ShowErrorPage(500, "导出失败，请查看系统日志")
 		}
 
@@ -905,13 +906,13 @@ func (c *DocumentController) QrCode() {
 	uri := conf.URLFor("DocumentController.Index", ":key", identify)
 	code, err := qr.Encode(uri, qr.L, qr.Unicode)
 	if err != nil {
-		beego.Error("生成二维码失败 ->", err)
+		logs.Error("生成二维码失败 ->", err)
 		c.ShowErrorPage(500, "生成二维码失败")
 	}
 
 	code, err = barcode.Scale(code, 150, 150)
 	if err != nil {
-		beego.Error("生成二维码失败 ->", err)
+		logs.Error("生成二维码失败 ->", err)
 		c.ShowErrorPage(500, "生成二维码失败")
 	}
 
@@ -921,7 +922,7 @@ func (c *DocumentController) QrCode() {
 
 	err = png.Encode(c.Ctx.ResponseWriter, code)
 	if err != nil {
-		beego.Error("生成二维码失败 ->", err)
+		logs.Error("生成二维码失败 ->", err)
 		c.ShowErrorPage(500, "生成二维码失败")
 	}
 }
@@ -947,7 +948,7 @@ func (c *DocumentController) Search() {
 
 	docs, err := models.NewDocumentSearchResult().SearchDocument(keyword, bookResult.BookId)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6002, "搜索结果错误")
 	}
 
@@ -981,7 +982,7 @@ func (c *DocumentController) History() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error("查找项目失败 ->", err)
+			logs.Error("查找项目失败 ->", err)
 			c.Data["ErrorMessage"] = "项目不存在或权限不足"
 			return
 		}
@@ -991,7 +992,7 @@ func (c *DocumentController) History() {
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("查找项目失败 ->", err)
+			logs.Error("查找项目失败 ->", err)
 			c.Data["ErrorMessage"] = "项目不存在或权限不足"
 			return
 		}
@@ -1007,7 +1008,7 @@ func (c *DocumentController) History() {
 
 	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
-		beego.Error("Delete => ", err)
+		logs.Error("Delete => ", err)
 		c.Data["ErrorMessage"] = "获取历史失败"
 		return
 	}
@@ -1020,7 +1021,7 @@ func (c *DocumentController) History() {
 
 	histories, totalCount, err := models.NewDocumentHistory().FindToPager(docId, pageIndex, conf.PageSize)
 	if err != nil {
-		beego.Error("分页查找文档历史失败 ->", err)
+		logs.Error("分页查找文档历史失败 ->", err)
 		c.Data["ErrorMessage"] = "获取历史失败"
 		return
 	}
@@ -1054,7 +1055,7 @@ func (c *DocumentController) DeleteHistory() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error("查找项目失败 ->", err)
+			logs.Error("查找项目失败 ->", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -1062,7 +1063,7 @@ func (c *DocumentController) DeleteHistory() {
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("查找项目失败 ->", err)
+			logs.Error("查找项目失败 ->", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -1075,7 +1076,7 @@ func (c *DocumentController) DeleteHistory() {
 
 	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
-		beego.Error("Delete => ", err)
+		logs.Error("Delete => ", err)
 		c.JsonResult(6001, "获取历史失败")
 	}
 
@@ -1086,7 +1087,7 @@ func (c *DocumentController) DeleteHistory() {
 
 	err = models.NewDocumentHistory().Delete(historyId, docId)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6002, "删除失败")
 	}
 
@@ -1112,7 +1113,7 @@ func (c *DocumentController) RestoreHistory() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error("FindByIdentify => ", err)
+			logs.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -1120,7 +1121,7 @@ func (c *DocumentController) RestoreHistory() {
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("FindByIdentify => ", err)
+			logs.Error("FindByIdentify => ", err)
 			c.JsonResult(6002, "项目不存在或权限不足")
 		}
 
@@ -1133,7 +1134,7 @@ func (c *DocumentController) RestoreHistory() {
 
 	doc, err := models.NewDocument().Find(docId)
 	if err != nil {
-		beego.Error("Delete => ", err)
+		logs.Error("Delete => ", err)
 		c.JsonResult(6001, "获取历史失败")
 	}
 
@@ -1144,7 +1145,7 @@ func (c *DocumentController) RestoreHistory() {
 
 	err = models.NewDocumentHistory().Restore(historyId, docId, c.Member.MemberId)
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.JsonResult(6002, "删除失败")
 	}
 
@@ -1166,7 +1167,7 @@ func (c *DocumentController) Compare() {
 	if c.Member.IsAdministrator() {
 		book, err := models.NewBook().FindByFieldFirst("identify", identify)
 		if err != nil {
-			beego.Error("DocumentController.Compare => ", err)
+			logs.Error("DocumentController.Compare => ", err)
 			c.ShowErrorPage(403, "权限不足")
 			return
 		}
@@ -1177,7 +1178,7 @@ func (c *DocumentController) Compare() {
 	} else {
 		bookResult, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
 		if err != nil || bookResult.RoleId == conf.BookObserver {
-			beego.Error("FindByIdentify => ", err)
+			logs.Error("FindByIdentify => ", err)
 			c.ShowErrorPage(403, "权限不足")
 			return
 		}
@@ -1193,7 +1194,7 @@ func (c *DocumentController) Compare() {
 
 	history, err := models.NewDocumentHistory().Find(historyId)
 	if err != nil {
-		beego.Error("DocumentController.Compare => ", err)
+		logs.Error("DocumentController.Compare => ", err)
 		c.ShowErrorPage(60003, err.Error())
 	}
 
@@ -1220,7 +1221,7 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 	book, err := models.NewBook().FindByFieldFirst("identify", identify)
 
 	if err != nil {
-		beego.Error(err)
+		logs.Error(err)
 		c.ShowErrorPage(500, "项目不存在")
 	}
 	bookResult := models.NewBookResult().ToBookResult(*book)
@@ -1245,7 +1246,7 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 				if token != "" && strings.EqualFold(token, book.PrivateToken) {
 					c.SetSession(identify, token)
 				} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
-					beego.Info("尝试访问文档但权限不足 ->", identify, token)
+					logs.Info("尝试访问文档但权限不足 ->", identify, token)
 					c.ShowErrorPage(403, "权限不足")
 				}
 			} else if password := c.GetString("bPassword", ""); !isOk && book.BookPassword != "" && password != "" {
@@ -1265,12 +1266,12 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 					if password, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(password, book.BookPassword) {
 						body, err := c.ExecuteViewPathTemplate("document/document_password.tpl", map[string]string{"Identify": book.Identify})
 						if err != nil {
-							beego.Error("显示密码页面失败 ->", err)
+							logs.Error("显示密码页面失败 ->", err)
 						}
 						c.CustomAbort(200, body)
 					}
 				} else {
-					beego.Info("尝试访问文档但权限不足 ->", identify, token)
+					logs.Info("尝试访问文档但权限不足 ->", identify, token)
 					c.ShowErrorPage(403, "权限不足")
 				}
 			}
@@ -1281,8 +1282,8 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 }
 
 func promptUserToLogIn(c *DocumentController) {
-	beego.Info("Access " + c.Ctx.Request.URL.RequestURI() + " not permitted.")
-	beego.Info("  Access will be redirected to login page(SessionId: " + c.CruSession.SessionID() + ").")
+	logs.Info("Access " + c.Ctx.Request.URL.RequestURI() + " not permitted.")
+	logs.Info("  Access will be redirected to login page(SessionId: " + c.CruSession.SessionID(context.TODO()) + ").")
 
 	if c.IsAjax() {
 		c.JsonResult(6000, "请重新登录。")
