@@ -11,7 +11,7 @@
         </div>
         {{if .site_beian}}
         <div class="row text-center">
-            <a href="http://www.beian.miit.gov.cn" target="_blank">{{.site_beian}}</a>
+            <a href="https://beian.miit.gov.cn/" target="_blank">{{.site_beian}}</a>
         </div>
         {{end}}
     </div>
