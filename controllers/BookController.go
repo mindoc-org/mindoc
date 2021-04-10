@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/utils/sqltil"
 
 	"net/http"
@@ -153,14 +154,14 @@ func (c *BookController) SaveBook() {
 	itemId, _ := c.GetInt("itemId")
 
 	if strings.Count(description, "") > 500 {
-		c.JsonResult(6004, "项目描述不能大于500字")
+		c.JsonResult(6004, i18n.Tr(c.Lang, "message.project_desc_tips"))
 	}
 	if commentStatus != "open" && commentStatus != "closed" && commentStatus != "group_only" && commentStatus != "registered_only" {
 		commentStatus = "closed"
 	}
 
 	if !models.NewItemsets().Exist(itemId) {
-		c.JsonResult(6006, "项目空间不存在")
+		c.JsonResult(6006, i18n.Tr(c.Lang, "message.project_space_not_exist"))
 	}
 	if editor != "markdown" && editor != "html" {
 		editor = "markdown"
@@ -449,25 +450,25 @@ func (c *BookController) Create() {
 		itemId, _ := c.GetInt("itemId")
 
 		if bookName == "" {
-			c.JsonResult(6001, "项目名称不能为空")
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.project_name_empty"))
 		}
 		if identify == "" {
-			c.JsonResult(6002, "项目标识不能为空")
+			c.JsonResult(6002, i18n.Tr(c.Lang, "message.project_id_empty"))
 		}
 		if ok, err := regexp.MatchString(`^[a-z]+[a-zA-Z0-9_\-]*$`, identify); !ok || err != nil {
-			c.JsonResult(6003, "项目标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
+			c.JsonResult(6003, i18n.Tr(c.Lang, "message.project_id_tips"))
 		}
 		if strings.Count(identify, "") > 50 {
-			c.JsonResult(6004, "文档标识不能超过50字")
+			c.JsonResult(6004, i18n.Tr(c.Lang, "message.project_id_length"))
 		}
 		if strings.Count(description, "") > 500 {
-			c.JsonResult(6004, "项目描述不能大于500字")
+			c.JsonResult(6004, i18n.Tr(c.Lang, "message.project_desc_tips"))
 		}
 		if privatelyOwned != 0 && privatelyOwned != 1 {
 			privatelyOwned = 1
 		}
 		if !models.NewItemsets().Exist(itemId) {
-			c.JsonResult(6005, "项目空间不存在")
+			c.JsonResult(6005, i18n.Tr(c.Lang, "message.project_space_not_exist"))
 		}
 		if commentStatus != "open" && commentStatus != "closed" && commentStatus != "group_only" && commentStatus != "registered_only" {
 			commentStatus = "closed"
@@ -504,7 +505,7 @@ func (c *BookController) Create() {
 		}
 
 		if books, _ := book.FindByField("identify", identify, "book_id"); len(books) > 0 {
-			c.JsonResult(6006, "项目标识已存在")
+			c.JsonResult(6006, i18n.Tr(c.Lang, "message.project_id_existed"))
 		}
 
 		book.BookName = bookName
@@ -528,7 +529,7 @@ func (c *BookController) Create() {
 
 		if err := book.Insert(); err != nil {
 			logs.Error("Insert => ", err)
-			c.JsonResult(6005, "保存项目失败")
+			c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
 		}
 		bookResult, err := models.NewBookResult().FindByIdentify(book.Identify, c.Member.MemberId)
 
@@ -585,22 +586,22 @@ func (c *BookController) Import() {
 	itemId, _ := c.GetInt("itemId")
 
 	if bookName == "" {
-		c.JsonResult(6001, "项目名称不能为空")
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.project_name_empty"))
 	}
 	if len([]rune(bookName)) > 500 {
 		c.JsonResult(6002, "项目名称不能大于500字")
 	}
 	if identify == "" {
-		c.JsonResult(6002, "项目标识不能为空")
+		c.JsonResult(6002, i18n.Tr(c.Lang, "message.project_id_empty"))
 	}
 	if ok, err := regexp.MatchString(`^[a-z]+[a-zA-Z0-9_\-]*$`, identify); !ok || err != nil {
-		c.JsonResult(6003, "项目标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头")
+		c.JsonResult(6003, i18n.Tr(c.Lang, "message.project_id_tips"))
 	}
 	if !models.NewItemsets().Exist(itemId) {
-		c.JsonResult(6007, "项目空间不存在")
+		c.JsonResult(6007, i18n.Tr(c.Lang, "message.project_space_not_exist"))
 	}
 	if strings.Count(identify, "") > 50 {
-		c.JsonResult(6004, "文档标识不能超过50字")
+		c.JsonResult(6004, i18n.Tr(c.Lang, "message.project_id_length"))
 	}
 
 	ext := filepath.Ext(moreFile.Filename)
@@ -610,7 +611,7 @@ func (c *BookController) Import() {
 	}
 
 	if books, _ := models.NewBook().FindByField("identify", identify, "book_id"); len(books) > 0 {
-		c.JsonResult(6006, "项目标识已存在")
+		c.JsonResult(6006, i18n.Tr(c.Lang, "message.project_id_existed"))
 	}
 
 	tempPath := filepath.Join(os.TempDir(), c.CruSession.SessionID())

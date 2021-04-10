@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>编辑文档 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "doc.edit_doc"}} - Powered by MinDoc</title>
     <script type="text/javascript">
         window.editor = null;
         window.imageUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
@@ -191,52 +191,52 @@
 <div class="m-manual manual-editor">
     <div class="manual-head btn-toolbar" id="editormd-tools"  style="min-width: 1260px;" data-role="editor-toolbar" data-target="#editor">
         <div class="editor-group">
-            <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+            <a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="{{i18n .Lang "doc.backward"}}"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
         <div class="editor-group">
-            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save first" aria-hidden="true" name="save"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="发布" id="btnRelease"><i class="fa fa-cloud-upload last" name="release" aria-hidden="true"></i></a>
+            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="{{i18n .Lang "doc.save"}}" class="disabled save"><i class="fa fa-save first" aria-hidden="true" name="save"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.publish"}}" id="btnRelease"><i class="fa fa-cloud-upload last" name="release" aria-hidden="true"></i></a>
         </div>
         <div class="editor-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)" class="ql-undo"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="重做 (Ctrl-Y)" class="ql-redo"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.undo"}} (Ctrl-Z)" class="ql-undo"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.redo"}} (Ctrl-Y)" class="ql-redo"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
         </div>
         <div class="editor-group">
-            <select data-toggle="tooltip" data-title="字号" title="字号" class="ql-size editor-item-select editor-item-single-select"></select>
+            <select data-toggle="tooltip" data-title="{{i18n .Lang "doc.font_size"}}" title="{{i18n .Lang "doc.font_size"}}" class="ql-size editor-item-select editor-item-single-select"></select>
         </div>
         <div class="editor-group">
-            <button data-toggle="tooltip" data-title="粗体" class="ql-bold editor-item editor-item-first"></button>
-            <button data-toggle="tooltip" data-title="斜体" class="ql-italic editor-item"></button>
-            <button data-toggle="tooltip" data-title="删除线" class="ql-strike editor-item"></button>
-            <button data-toggle="tooltip" data-title="下划线" class="ql-underline editor-item editor-item-last"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.bold"}}" class="ql-bold editor-item editor-item-first"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.italic"}}" class="ql-italic editor-item"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.strikethrough"}}" class="ql-strike editor-item"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.underscore"}}" class="ql-underline editor-item editor-item-last"></button>
         </div>
         <div class="editor-group">
-            <button data-toggle="tooltip" data-title="标题一" class="ql-header editor-item editor-item-first" value="1"></button>
-            <button data-toggle="tooltip" data-title="标题二" class="ql-header editor-item" value="2"></button>
-            <button data-toggle="tooltip" data-title="标题三" class="ql-header editor-item" value="3"></button>
-            <button data-toggle="tooltip" data-title="标题四" class="ql-header editor-item" value="4"></button>
-            <button data-toggle="tooltip" data-title="标题五" class="ql-header editor-item" value="5"></button>
-            <button data-toggle="tooltip" data-title="标题六" class="ql-header editor-item editor-item-last" value="6"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.h1"}}" class="ql-header editor-item editor-item-first" value="1"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.h2"}}" class="ql-header editor-item" value="2"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.h3"}}" class="ql-header editor-item" value="3"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.h4"}}" class="ql-header editor-item" value="4"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.h5"}}" class="ql-header editor-item" value="5"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.h6"}}" class="ql-header editor-item editor-item-last" value="6"></button>
         </div>
         <div class="editor-group">
-            <button data-toggle="tooltip" data-title="无序列表" class="ql-list editor-item editor-item-first" value="ordered"></button>
-            <button data-toggle="tooltip" data-title="有序列表" class="ql-list editor-item" value="bullet"></button>
-            <button data-toggle="tooltip" data-title="右缩进" class="ql-indent editor-item" value="-1"></button>
-            <button data-toggle="tooltip" data-title="左缩进" class="ql-indent editor-item" value="+1"></button>
-            <button data-toggle="tooltip" data-title="下标" class="ql-script editor-item" value="sub"></button>
-            <button data-toggle="tooltip" data-title="上标" class="ql-script editor-item editor-item-last" value="super"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.unorder_list"}}" class="ql-list editor-item editor-item-first" value="ordered"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.order_list"}}" class="ql-list editor-item" value="bullet"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.right_intent"}}" class="ql-indent editor-item" value="-1"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.left_intent"}}" class="ql-indent editor-item" value="+1"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.subscript"}}" class="ql-script editor-item" value="sub"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.superscript"}}" class="ql-script editor-item editor-item-last" value="super"></button>
         </div>
         <div class="editor-group ql-formats">
-            <button data-toggle="tooltip" data-title="链接" class="ql-link editor-item editor-item-first"></button>
-            <button data-toggle="tooltip" data-title="清空格式" class="ql-clean editor-item"></button>
-            <button data-toggle="tooltip" data-title="添加图片" class="ql-image editor-item"></button>
-            <button data-toggle="tooltip" data-title="添加视频" class="ql-video editor-item"></button>
-            <button data-toggle="tooltip" data-title="代码块" class="ql-code-block editor-item"></button>
-            <button data-toggle="tooltip" data-title="引用" class="ql-blockquote editor-item"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></button>
-            <button data-toggle="tooltip" data-title="公式" class="ql-formula editor-item"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></button>
-            <select data-toggle="tooltip" data-title="字体颜色" class="ql-color ql-picker ql-color-picker editor-item-select" ></select>
-            <select data-toggle="tooltip" data-title="背景颜色" class="ql-background editor-item-select"></select>
-            <a href="javascript:;" data-toggle="tooltip" data-title="附件" id="btnUploadFile"><i class="fa fa-paperclip last" aria-hidden="true" name="attachment"></i></a>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.link"}}" class="ql-link editor-item editor-item-first"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.clear_format"}}" class="ql-clean editor-item"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.add_pic"}}" class="ql-image editor-item"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.add_video"}}" class="ql-video editor-item"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.code"}}" class="ql-code-block editor-item"></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.quote"}}" class="ql-blockquote editor-item"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></button>
+            <button data-toggle="tooltip" data-title="{{i18n .Lang "doc.formula"}}" class="ql-formula editor-item"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></button>
+            <select data-toggle="tooltip" data-title="{{i18n .Lang "doc.font_color"}}" class="ql-color ql-picker ql-color-picker editor-item-select" ></select>
+            <select data-toggle="tooltip" data-title="{{i18n .Lang "doc.bg_color"}}" class="ql-background editor-item-select"></select>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.attachment"}}" id="btnUploadFile"><i class="fa fa-paperclip last" aria-hidden="true" name="attachment"></i></a>
 
         </div>
 
@@ -245,8 +245,8 @@
     <div class="manual-body">
         <div class="manual-category" id="manualCategory" style=" border-right: 1px solid #DDDDDD;width: 281px;position: absolute;">
             <div class="manual-nav">
-                <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> 文档</div>
-                <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="创建文档" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
+                <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> {{i18n .Lang "doc.document"}}</div>
+                <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="{{i18n .Lang "doc.create_document"}}" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
                 <div class="clearfix"></div>
             </div>
             <div class="manual-tree" id="sidebar"> </div>
@@ -255,7 +255,7 @@
             <div class="manual-editormd" style="bottom: 0;">
                 <div id="docEditor" class="manual-editormd-active ql-editor ql-blank  editor-content"></div>
                 <div class="manual-editor-status" style="border-top: 1px solid #DDDDDD;">
-                    <div id="attachInfo" class="item">0 个附件</div>
+                    <div id="attachInfo" class="item">0 {{i18n .Lang "doc.attachments"}}</div>
                 </div>
             </div>
         </div>
@@ -271,28 +271,28 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">添加文档</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "doc.create_document"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">文档名称 <span class="error-message">*</span></label>
+                        <label class="col-sm-2 control-label">{{i18n .Lang "doc.doc_name"}} <span class="error-message">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text" name="doc_name" id="documentName" placeholder="文档名称" class="form-control"  maxlength="50">
+                            <input type="text" name="doc_name" id="documentName" placeholder="{{i18n .Lang "doc.doc_name_desc"}}" class="form-control"  maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">文档标识</label>
+                        <label class="col-sm-2 control-label">{{i18n .Lang "doc.doc_id"}}</label>
                         <div class="col-sm-10">
-                            <input type="text" name="doc_identify" id="documentIdentify" placeholder="文档唯一标识" class="form-control" maxlength="50">
-                            <p style="color: #999;font-size: 12px;">文档标识只能包含小写字母、数字，以及“-”和“_”符号,并且只能小写字母开头</p>
+                            <input type="text" name="doc_identify" id="documentIdentify" placeholder="{{i18n .Lang "doc.doc_id"}}" class="form-control" maxlength="50">
+                            <p style="color: #999;font-size: 12px;">{{i18n .Lang "doc.doc_id_desc"}}</p>
                         </div>
 
                     </div>
                 </div>
                 <div class="modal-footer">
                     <span id="add-error-message" class="error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-primary" id="btnSaveDocument" data-loading-text="保存中...">立即保存</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="submit" class="btn btn-primary" id="btnSaveDocument" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "doc.save"}}</button>
                 </div>
             </div>
         </form>
@@ -305,7 +305,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">上传附件</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "doc.upload_attachment"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="attach-drop-panel">
@@ -344,8 +344,8 @@
                 </div>
                 <div class="modal-footer">
                     <span id="add-error-message" class="error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile" data-dismiss="modal">确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile" data-dismiss="modal">{{i18n .Lang "common.confirm"}}</button>
                 </div>
             </div>
         </form>
@@ -357,13 +357,13 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">文档历史记录</h4>
+                <h4 class="modal-title">{{i18n .Lang "doc.doc_history"}}</h4>
             </div>
             <div class="modal-body text-center" id="historyList">
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "doc.close"}}</button>
             </div>
         </div>
     </div>
@@ -429,7 +429,7 @@
                             attachment_id : file.id,
                             file_size : file.size,
                             file_name : file.name,
-                            message : "正在上传"
+                            message : "{{i18n .Lang "doc.uploading"}}"
                         };
                         window.vueApp.lists.push(item);
 
@@ -438,7 +438,8 @@
                             var item = window.vueApp.lists[i];
                             if(item.attachment_id == file.id){
                                 item.state = "error";
-                                item.message = "上传失败:" + reason;
+                                item.message = "{{i18n .Lang "message.upload_failed"}}:" + reason;
+                                break;
                             }
                         }
 
@@ -463,7 +464,7 @@
                         $percent.css( 'width', percentage * 100 + '%' );
                     }).on("error", function (type) {
                         if(type === "F_EXCEED_SIZE"){
-                            layer.msg("文件超过了限定大小");
+                            layer.msg("{{i18n .Lang "message.upload_file_size_limit"}}");
                         }
                         console.log(type);
                     });
