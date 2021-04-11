@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/astaxie/beego"
+	"github.com/beego/beego/v2/server/web"
 )
 
 // 登录用户的Session名
@@ -81,32 +81,32 @@ var (
 
 // app_key
 func GetAppKey() string {
-	return beego.AppConfig.DefaultString("app_key", "mindoc")
+	return web.AppConfig.DefaultString("app_key", "mindoc")
 }
 
 func GetDatabasePrefix() string {
-	return beego.AppConfig.DefaultString("db_prefix", "md_")
+	return web.AppConfig.DefaultString("db_prefix", "md_")
 }
 
 //获取默认头像
 func GetDefaultAvatar() string {
-	return URLForWithCdnImage(beego.AppConfig.DefaultString("avatar", "/static/images/headimgurl.jpg"))
+	return URLForWithCdnImage(web.AppConfig.DefaultString("avatar", "/static/images/headimgurl.jpg"))
 }
 
 //获取阅读令牌长度.
 func GetTokenSize() int {
-	return beego.AppConfig.DefaultInt("token_size", 12)
+	return web.AppConfig.DefaultInt("token_size", 12)
 }
 
 //获取默认文档封面.
 func GetDefaultCover() string {
 
-	return URLForWithCdnImage(beego.AppConfig.DefaultString("cover", "/static/images/book.jpg"))
+	return URLForWithCdnImage(web.AppConfig.DefaultString("cover", "/static/images/book.jpg"))
 }
 
 //获取允许的商城文件的类型.
 func GetUploadFileExt() []string {
-	ext := beego.AppConfig.DefaultString("upload_file_ext", "png|jpg|jpeg|gif|txt|doc|docx|pdf")
+	ext := web.AppConfig.DefaultString("upload_file_ext", "png|jpg|jpeg|gif|txt|doc|docx|pdf")
 
 	temp := strings.Split(ext, "|")
 
@@ -124,7 +124,7 @@ func GetUploadFileExt() []string {
 
 // 获取上传文件允许的最大值
 func GetUploadFileSize() int64 {
-	size := beego.AppConfig.DefaultString("upload_file_size", "0")
+	size := web.AppConfig.DefaultString("upload_file_size", "0")
 
 	if strings.HasSuffix(size, "MB") {
 		if s, e := strconv.ParseInt(size[0:len(size)-2], 10, 64); e == nil {
@@ -149,12 +149,12 @@ func GetUploadFileSize() int64 {
 
 //是否启用导出
 func GetEnableExport() bool {
-	return beego.AppConfig.DefaultBool("enable_export", true)
+	return web.AppConfig.DefaultBool("enable_export", true)
 }
 
 //同一项目导出线程的并发数
 func GetExportProcessNum() int {
-	exportProcessNum := beego.AppConfig.DefaultInt("export_process_num", 1)
+	exportProcessNum := web.AppConfig.DefaultInt("export_process_num", 1)
 
 	if exportProcessNum <= 0 || exportProcessNum > 4 {
 		exportProcessNum = 1
@@ -164,7 +164,7 @@ func GetExportProcessNum() int {
 
 //导出项目队列的并发数量
 func GetExportLimitNum() int {
-	exportLimitNum := beego.AppConfig.DefaultInt("export_limit_num", 1)
+	exportLimitNum := web.AppConfig.DefaultInt("export_limit_num", 1)
 
 	if exportLimitNum < 0 {
 		exportLimitNum = 1
@@ -174,7 +174,7 @@ func GetExportLimitNum() int {
 
 //等待导出队列的长度
 func GetExportQueueLimitNum() int {
-	exportQueueLimitNum := beego.AppConfig.DefaultInt("export_queue_limit_num", 10)
+	exportQueueLimitNum := web.AppConfig.DefaultInt("export_queue_limit_num", 10)
 
 	if exportQueueLimitNum <= 0 {
 		exportQueueLimitNum = 100
@@ -184,7 +184,7 @@ func GetExportQueueLimitNum() int {
 
 //默认导出项目的缓存目录
 func GetExportOutputPath() string {
-	exportOutputPath := filepath.Join(beego.AppConfig.DefaultString("export_output_path", filepath.Join(WorkingDirectory, "cache")), "books")
+	exportOutputPath := filepath.Join(web.AppConfig.DefaultString("export_output_path", filepath.Join(WorkingDirectory, "cache")), "books")
 
 	return exportOutputPath
 }
@@ -210,8 +210,8 @@ func IsAllowUploadFileExt(ext string) bool {
 
 //重写生成URL的方法，加上完整的域名
 func URLFor(endpoint string, values ...interface{}) string {
-	baseUrl := beego.AppConfig.DefaultString("baseurl", "")
-	pathUrl := beego.URLFor(endpoint, values...)
+	baseUrl := web.AppConfig.DefaultString("baseurl", "")
+	pathUrl := web.URLFor(endpoint, values...)
 
 	if baseUrl == "" {
 		baseUrl = BaseUrl
@@ -225,12 +225,12 @@ func URLFor(endpoint string, values ...interface{}) string {
 	if !strings.HasPrefix(pathUrl, "/") && !strings.HasSuffix(baseUrl, "/") {
 		return baseUrl + "/" + pathUrl
 	}
-	return baseUrl + beego.URLFor(endpoint, values...)
+	return baseUrl + web.URLFor(endpoint, values...)
 }
 
 func URLForNotHost(endpoint string, values ...interface{}) string {
-	baseUrl := beego.AppConfig.DefaultString("baseurl", "")
-	pathUrl := beego.URLFor(endpoint, values...)
+	baseUrl := web.AppConfig.DefaultString("baseurl", "")
+	pathUrl := web.URLFor(endpoint, values...)
 
 	if baseUrl == "" {
 		baseUrl = "/"
@@ -244,17 +244,17 @@ func URLForNotHost(endpoint string, values ...interface{}) string {
 	if !strings.HasPrefix(pathUrl, "/") && !strings.HasSuffix(baseUrl, "/") {
 		return baseUrl + "/" + pathUrl
 	}
-	return baseUrl + beego.URLFor(endpoint, values...)
+	return baseUrl + web.URLFor(endpoint, values...)
 }
 
 func URLForWithCdnImage(p string) string {
 	if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 		return p
 	}
-	cdn := beego.AppConfig.DefaultString("cdnimg", "")
+	cdn := web.AppConfig.DefaultString("cdnimg", "")
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
-		baseUrl := beego.AppConfig.DefaultString("baseurl", "/")
+		baseUrl := web.AppConfig.DefaultString("baseurl", "/")
 
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 			return baseUrl + p[1:]
@@ -274,7 +274,7 @@ func URLForWithCdnImage(p string) string {
 }
 
 func URLForWithCdnCss(p string, v ...string) string {
-	cdn := beego.AppConfig.DefaultString("cdncss", "")
+	cdn := web.AppConfig.DefaultString("cdncss", "")
 	if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 		return p
 	}
@@ -285,7 +285,7 @@ func URLForWithCdnCss(p string, v ...string) string {
 	}
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
-		baseUrl := beego.AppConfig.DefaultString("baseurl", "/")
+		baseUrl := web.AppConfig.DefaultString("baseurl", "/")
 
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 			return baseUrl + p[1:]
@@ -305,7 +305,7 @@ func URLForWithCdnCss(p string, v ...string) string {
 }
 
 func URLForWithCdnJs(p string, v ...string) string {
-	cdn := beego.AppConfig.DefaultString("cdnjs", "")
+	cdn := web.AppConfig.DefaultString("cdnjs", "")
 	if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 		return p
 	}
@@ -318,7 +318,7 @@ func URLForWithCdnJs(p string, v ...string) string {
 
 	//如果没有设置cdn，则使用baseURL拼接
 	if cdn == "" {
-		baseUrl := beego.AppConfig.DefaultString("baseurl", "/")
+		baseUrl := web.AppConfig.DefaultString("baseurl", "/")
 
 		if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 			return baseUrl + p[1:]
