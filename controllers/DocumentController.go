@@ -112,7 +112,6 @@ func (c *DocumentController) Read() {
 	c.TplName = fmt.Sprintf("document/%s_read.tpl", bookResult.Theme)
 
 	doc := models.NewDocument()
-
 	if docId, err := strconv.Atoi(id); err == nil {
 		doc, err = doc.FromCacheById(docId)
 		if err != nil || doc == nil {
@@ -136,7 +135,7 @@ func (c *DocumentController) Read() {
 	if doc.BookId != bookResult.BookId {
 		c.ShowErrorPage(404, i18n.Tr(c.Lang, "message.doc_not_exist"))
 	}
-
+	doc.Lang = c.Lang
 	doc.Processor()
 
 	attach, err := models.NewAttachment().FindListByDocumentId(doc.DocumentId)
@@ -712,7 +711,6 @@ func (c *DocumentController) Content() {
 		isCover := c.GetString("cover")
 
 		doc, err := models.NewDocument().Find(docId)
-
 		if err != nil || doc == nil {
 			c.JsonResult(6003, i18n.Tr(c.Lang, "message.read_file_error"))
 			return
@@ -768,6 +766,7 @@ func (c *DocumentController) Content() {
 		//如果启用了自动发布
 		if autoRelease {
 			go func() {
+				doc.Lang = c.Lang
 				err := doc.ReleaseContent()
 				if err == nil {
 					logs.Informational(i18n.Tr(c.Lang, "message.doc_auto_published")+"-> document_id=%d;document_name=%s", doc.DocumentId, doc.DocumentName)

@@ -17,6 +17,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/converter"
 	"github.com/mindoc-org/mindoc/utils/cryptil"
@@ -70,6 +71,7 @@ type BookResult struct {
 	IsDisplayComment bool   `json:"is_display_comment"`
 	IsDownload       bool   `json:"is_download"`
 	AutoSave         bool   `json:"auto_save"`
+	Lang             string
 }
 
 func NewBookResult() *BookResult {
@@ -83,6 +85,11 @@ func (m *BookResult) String() string {
 		return ""
 	}
 	return string(ret)
+}
+
+func (m *BookResult) SetLang(lang string) *BookResult {
+	m.Lang = lang
+	return m
 }
 
 // 根据项目标识查询项目以及指定用户权限的信息.
@@ -131,13 +138,13 @@ func (m *BookResult) FindByIdentify(identify string, memberId int) (*BookResult,
 	}
 
 	if m.RoleId == conf.BookFounder {
-		m.RoleName = "创始人"
+		m.RoleName = i18n.Tr(m.Lang, "common.creator")
 	} else if m.RoleId == conf.BookAdmin {
-		m.RoleName = "管理员"
+		m.RoleName = i18n.Tr(m.Lang, "common.administrator")
 	} else if m.RoleId == conf.BookEditor {
-		m.RoleName = "编辑者"
+		m.RoleName = i18n.Tr(m.Lang, "common.editor")
 	} else if m.RoleId == conf.BookObserver {
-		m.RoleName = "观察者"
+		m.RoleName = i18n.Tr(m.Lang, "common.observer")
 	}
 
 	doc := NewDocument()

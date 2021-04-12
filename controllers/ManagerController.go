@@ -192,6 +192,7 @@ func (c *ManagerController) ChangeMemberRole() {
 	if err := member.Update(); err != nil {
 		c.JsonResult(6003, "用户权限设置失败")
 	}
+	member.Lang = c.Lang
 	member.ResolveRoleName()
 	c.JsonResult(0, "ok", member)
 }
