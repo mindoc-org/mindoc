@@ -220,6 +220,7 @@
 <script src="{{cdnjs "/static/js/blog.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+        lang = {{i18n $.Lang "common.js_lang"}};
         window.vueApp.lists = {{.AttachList}};
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");

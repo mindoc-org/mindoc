@@ -386,6 +386,7 @@
 <script src="{{cdnjs "/static/js/quill.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+        lang = {{i18n $.Lang "common.js_lang"}};
         hljs.configure({   // optionally configure hljs
             languages: ['javascript', 'ruby', 'python']
         });

@@ -200,6 +200,7 @@
 <script src="{{cdnjs "/static/js/html-editor.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+        lang = {{i18n $.Lang "common.js_lang"}};
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });

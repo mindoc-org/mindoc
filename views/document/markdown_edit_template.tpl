@@ -442,6 +442,7 @@
 <script src="{{cdnjs "/static/js/markdown.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+        lang = {{i18n $.Lang "common.js_lang"}};
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });
