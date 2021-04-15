@@ -3,11 +3,11 @@
         <thead>
         <tr>
             <td>#</td>
-            <td class="col-sm-3">模板名称</td>
-            <td class="col-sm-2">模板类型</td>
-            <td class="col-sm-2">创建人</td>
-            <td class="col-sm-3">创建时间</td>
-            <td class="col-sm-2">操作</td>
+            <td class="col-sm-3">{{i18n $.Lang "doc.tpl_name"}}</td>
+            <td class="col-sm-2">{{i18n $.Lang "doc.tpl_type"}}</td>
+            <td class="col-sm-2">{{i18n $.Lang "doc.creator"}}</td>
+            <td class="col-sm-3">{{i18n $.Lang "doc.create_time"}}</td>
+            <td class="col-sm-2">{{i18n $.Lang "doc.operation"}}</td>
         </tr>
         </thead>
         <tbody>
@@ -20,21 +20,21 @@
         <tr>
             <td>{{$item.TemplateId}}</td>
             <td>{{$item.TemplateName}}</td>
-            <td>{{if $item.IsGlobal}}全局{{else}}项目{{end}}</td>
+            <td>{{if $item.IsGlobal}}{{i18n .Lang "doc.global_tpl"}}{{else}}{{i18n .Lang "doc.project_tpl"}}{{end}}</td>
             <td>{{$item.CreateName}}</td>
             <td>{{date_format $item.CreateTime "2006-01-02 15:04:05"}}</td>
             <td>
                 <button class="btn btn-primary btn-sm btn-insert" data-id="{{$item.TemplateId}}">
-                    插入
+                    {{i18n .Lang "doc.insert"}}
                 </button>
                 <button class="btn btn-danger btn-sm btn-delete" data-id="{{$item.TemplateId}}" data-loading-text="删除中...">
-                    删除
+                    {{i18n .Lang "doc.delete"}}
                 </button>
             </td>
         </tr>
         {{else}}
         <tr>
-            <td colspan="6" class="text-center">暂无数据</td>
+            <td colspan="6" class="text-center">{{i18n .Lang "message.no_data"}}</td>
         </tr>
         {{end}}
         {{end}}

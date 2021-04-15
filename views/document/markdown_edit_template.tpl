@@ -26,6 +26,7 @@
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
         window.highlightStyle = "{{.HighlightStyle}}";
         window.template = { "getUrl":"{{urlfor "TemplateController.Get"}}", "listUrl" : "{{urlfor "TemplateController.List"}}", "deleteUrl" : "{{urlfor "TemplateController.Delete"}}", "saveUrl" :"{{urlfor "TemplateController.Add"}}"}
+        window.lang = {{i18n $.Lang "common.js_lang"}};
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -90,7 +91,7 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.ref_link"}}"><i class="fa fa-anchor item" name="reference-link" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.add_pic"}}"><i class="fa fa-picture-o item" name="image" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.code"}}"><i class="fa fa-code item" name="code" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.code_blck"}}" unselectable="on"><i class="fa fa-file-code-o item" name="code-block" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.code_block"}}" unselectable="on"><i class="fa fa-file-code-o item" name="code-block" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.table"}}"><i class="fa fa-table item" name="table" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.quote"}}"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.gfm_task"}}"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></a>
@@ -122,7 +123,7 @@
         <div class="manual-category" id="manualCategory" style="position:absolute;">
             <div class="manual-nav">
                 <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> {{i18n .Lang "doc.document"}}</div>
-                <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="{{i18n .Lang "doc.create_document"}}" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
+                <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="{{i18n .Lang "doc.create_doc"}}" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
                 <div class="clearfix"></div>
             </div>
             <div class="manual-tree" id="sidebar"> </div>
@@ -148,14 +149,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "doc.create_document"}}</h4>
+                <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "doc.create_doc"}}</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">{{i18n .Lang "doc.doc_name"}} <span class="error-message">*</span></label>
                     <div class="col-sm-10">
                         <input type="text" name="doc_name" id="documentName" placeholder="{{i18n .Lang "doc.doc_name"}}" class="form-control"  maxlength="50">
-                        <p style="color: #999;font-size: 12px;">{{i18n .Lang "doc.doc_name_desc"}}</p>
+                        <p style="color: #999;font-size: 12px;">{{i18n .Lang "doc.doc_name_tips"}}</p>
 
                     </div>
                 </div>
@@ -163,7 +164,7 @@
                     <label class="col-sm-2 control-label">{{i18n .Lang "doc.doc_id"}} <span class="error-message">&nbsp;</span></label>
                     <div class="col-sm-10">
                         <input type="text" name="doc_identify" id="documentIdentify" placeholder="{{i18n .Lang "doc.doc_id"}}" class="form-control" maxlength="50">
-                        <p style="color: #999;font-size: 12px;">{{i18n .Lang "doc.doc_id_desc"}}</p>
+                        <p style="color: #999;font-size: 12px;">{{i18n .Lang "doc.doc_id_tips"}}</p>
                     </div>
 
                 </div>
@@ -304,7 +305,6 @@
 
                         <h3><a data-type="customs" href="javascript:;">{{i18n .Lang "doc.custom_tpl"}}</a></h3>
                         <ul>
-                            <li>{{i18n .Lang "doc.custom_tpl"}}</li>
                             <li>{{i18n .Lang "doc.any_type_doc"}}</li>
                             <li>{{i18n .Lang "doc.as_global_tpl"}}</li>
                         </ul>
@@ -332,11 +332,11 @@
                         <thead>
                         <tr>
                             <td>#</td>
-                            <td class="col-sm-3">{{i18n .Lang "doc.tpl_name"}}</td>
-                            <td class="col-sm-2">{{i18n .Lang "doc.tpl_type"}}</td>
-                            <td class="col-sm-2">{{i18n .Lang "doc.creator"}}</td>
-                            <td class="col-sm-3">{{i18n .Lang "doc.create_time"}}</td>
-                            <td class="col-sm-2">{{i18n .Lang "doc.operation"}}</td>
+                            <td class="col-sm-3">{{i18n $.Lang "doc.tpl_name"}}</td>
+                            <td class="col-sm-2">{{i18n $.Lang "doc.tpl_type"}}</td>
+                            <td class="col-sm-2">{{i18n $.Lang "doc.creator"}}</td>
+                            <td class="col-sm-3">{{i18n $.Lang "doc.create_time"}}</td>
+                            <td class="col-sm-2">{{i18n $.Lang "doc.operation"}}</td>
                         </tr>
                         </thead>
                         <tbody>
@@ -442,7 +442,14 @@
 <script src="{{cdnjs "/static/js/markdown.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        lang = {{i18n $.Lang "common.js_lang"}};
+        editLangPath = {{cdnjs "/static/editor.md/languages/"}} + lang
+        if(lang != 'zh-CN') {
+            editormd.loadScript(editLangPath, function(){
+                window.editor.lang = editormd.defaults.lang;
+                window.editor.recreate()
+            });
+        }
+        
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
         });
