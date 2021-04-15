@@ -418,15 +418,26 @@
         </div>
     </div>
 </div>
-
 <template id="template-normal">
+{{if eq .Lang "en-us"}}
+{{template "document/template_normal-en.tpl"}}
+{{else}}
 {{template "document/template_normal.tpl"}}
+{{end}}
 </template>
 <template id="template-api">
+{{if eq .Lang "en-us"}}
+{{template "document/template_api-en.tpl"}}
+{{else}}
 {{template "document/template_api.tpl"}}
+{{end}}
 </template>
 <template id="template-code">
+{{if eq .Lang "en-us"}}
+{{template "document/template_code-en.tpl"}}
+{{else}}
 {{template "document/template_code.tpl"}}
+{{end}}
 </template>
 <script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
