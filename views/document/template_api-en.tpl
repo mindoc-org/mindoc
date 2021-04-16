@@ -8,7 +8,7 @@
 |:----    |:---|:----- |-----   |
 |2.1.0 |Ben  |2021-04-15 |  xxxx-xx-xx |
 
-#### 请求URL:
+#### Request URL:
 
 - http://xx.com/api/login
 
