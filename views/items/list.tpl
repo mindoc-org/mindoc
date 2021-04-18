@@ -36,7 +36,7 @@
                         </dd>
                         <dd>
                             <span class="author">
-                                <b class="text">{{i18n .Lang "project.author"}}</b>
+                                <b class="text">{{i18n $.Lang "project.author"}}</b>
                                 <b class="text">-</b>
                                 <b class="text">{{if eq $item.RealName "" }}{{$item.CreateName}}{{else}}{{$item.RealName}}{{end}}</b>
                             </span>
