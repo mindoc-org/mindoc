@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>编辑文章 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "blog.edit_title"}} - Powered by MinDoc</title>
     <script type="text/javascript">
         window.baseUrl = "{{.BaseUrl}}";
         window.katex = { js: "{{cdnjs "/static/katex/katex"}}",css: "{{cdncss "/static/katex/katex"}}"};
@@ -18,12 +18,13 @@
         window.blogVersion = {{.Model.Version}};
         window.removeAttachURL = "{{urlfor "BlogController.RemoveAttachment" ":id" .Model.BlogId}}";
         window.highlightStyle = "{{.HighlightStyle}}";
+        window.lang = {{i18n $.Lang "common.js_lang"}};
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/css/editormd.css"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/editor.md/css/editormd.css" "version"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
@@ -35,50 +36,50 @@
 <div class="m-manual manual-editor">
     <div class="manual-head" id="editormd-tools" style="min-width: 1200px; position:absolute;">
         <div class="editormd-group">
-            <a href="{{urlfor "BlogController.ManageList"}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+            <a href="{{urlfor "BlogController.ManageList"}}" data-toggle="tooltip" data-title="{{i18n .Lang "doc.backward"}}"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
+            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="{{i18n .Lang "doc.save"}}" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="撤销 (Ctrl-Z)"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="重做 (Ctrl-Y)"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.undo"}} (Ctrl-Z)"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.redo"}} (Ctrl-Y)"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="粗体"><i class="fa fa-bold first" name="bold" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="斜体"><i class="fa fa-italic item" name="italic" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="删除线"><i class="fa fa-strikethrough last" name="del" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.bold"}}"><i class="fa fa-bold first" name="bold" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.italic"}}"><i class="fa fa-italic item" name="italic" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.strikethrough"}}"><i class="fa fa-strikethrough last" name="del" unselectable="on"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题一"><i class="fa editormd-bold first" name="h1" unselectable="on">H1</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题二"><i class="fa editormd-bold item" name="h2" unselectable="on">H2</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题三"><i class="fa editormd-bold item" name="h3" unselectable="on">H3</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题四"><i class="fa editormd-bold item" name="h4" unselectable="on">H4</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题五"><i class="fa editormd-bold item" name="h5" unselectable="on">H5</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="标题六"><i class="fa editormd-bold last" name="h6" unselectable="on">H6</i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h1"}}"><i class="fa editormd-bold first" name="h1" unselectable="on">H1</i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h2"}}"><i class="fa editormd-bold item" name="h2" unselectable="on">H2</i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h3"}}"><i class="fa editormd-bold item" name="h3" unselectable="on">H3</i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h4"}}"><i class="fa editormd-bold item" name="h4" unselectable="on">H4</i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h5"}}"><i class="fa editormd-bold item" name="h5" unselectable="on">H5</i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h6"}}"><i class="fa editormd-bold last" name="h6" unselectable="on">H6</i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="无序列表"><i class="fa fa-list-ul first" name="list-ul" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="有序列表"><i class="fa fa-list-ol item" name="list-ol" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="横线"><i class="fa fa-minus last" name="hr" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.unorder_list"}}"><i class="fa fa-list-ul first" name="list-ul" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.order_list"}}"><i class="fa fa-list-ol item" name="list-ol" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.hline"}}"><i class="fa fa-minus last" name="hr" unselectable="on"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="链接"><i class="fa fa-link first" name="link" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="引用链接"><i class="fa fa-anchor item" name="reference-link" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="添加图片"><i class="fa fa-picture-o item" name="image" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="行内代码"><i class="fa fa-code item" name="code" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="代码块" unselectable="on"><i class="fa fa-file-code-o item" name="code-block" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="添加表格"><i class="fa fa-table item" name="table" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="引用"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="GFM 任务列表"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="附件"><i class="fa fa-paperclip item" aria-hidden="true" name="attachment"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="模板"><i class="fa fa-tachometer last" name="template"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.link"}}"><i class="fa fa-link first" name="link" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.ref_link"}}"><i class="fa fa-anchor item" name="reference-link" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.add_pic"}}"><i class="fa fa-picture-o item" name="image" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.code"}}"><i class="fa fa-code item" name="code" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.code_block"}}" unselectable="on"><i class="fa fa-file-code-o item" name="code-block" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.table"}}"><i class="fa fa-table item" name="table" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.quote"}}"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.gfm_task"}}"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.attachment"}}"><i class="fa fa-paperclip item" aria-hidden="true" name="attachment"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.template"}}"><i class="fa fa-tachometer last" name="template"></i></a>
 
         </div>
 
         <div class="editormd-group pull-right">
-            <a href="javascript:;" data-toggle="tooltip" data-title="关闭实时预览"><i class="fa fa-eye-slash first" name="watch" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="使用帮助"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.close_preview"}}"><i class="fa fa-eye-slash first" name="watch" unselectable="on"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.help"}}"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
         </div>
 
         <div class="editormd-group">
@@ -94,7 +95,7 @@
                 <div id="docEditor" class="manual-editormd-active"><textarea style="display: none">{{str2html .Model.BlogContent}}</textarea> </div>
             </div>
             <div class="manual-editor-status">
-                <div id="attachInfo" class="item">0 个附件</div>
+                <div id="attachInfo" class="item">0 {{i18n .Lang "doc.attachments"}}</div>
             </div>
         </div>
 
@@ -109,7 +110,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">上传附件</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "doc.upload_attachment"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="attach-drop-panel">
@@ -146,8 +147,8 @@
                 </div>
                 <div class="modal-footer">
                     <span id="add-error-message" class="error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile" data-dismiss="modal">确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile" data-dismiss="modal">{{i18n .Lang "common.confirm"}}</button>
                 </div>
             </div>
         </form>
@@ -156,44 +157,44 @@
 <!-- Modal -->
 
 
-<div class="modal fade" id="documentTemplateModal" tabindex="-1" role="dialog" aria-labelledby="请选择模板类型" aria-hidden="true">
+<div class="modal fade" id="documentTemplateModal" tabindex="-1" role="dialog" aria-labelledby="{{i18n .Lang "doc.choose_template_type"}}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" id="modal-title">请选择模板类型</h4>
+                <h4 class="modal-title" id="modal-title">{{i18n .Lang "doc.choose_template_type"}}</h4>
             </div>
             <div class="modal-body template-list">
                 <div class="container">
                     <div class="section">
                         <a data-type="normal" href="javascript:;"><i class="fa fa-file-o"></i></a>
-                        <h3><a data-type="normal" href="javascript:;">普通文档</a></h3>
+                        <h3><a data-type="normal" href="javascript:;">{{i18n .Lang "doc.normal_tpl"}}</a></h3>
                         <ul>
-                            <li>默认类型</li>
-                            <li>简单的文本文档</li>
+                            <li>{{i18n .Lang "doc.tpl_default_type"}}</li>
+                            <li>{{i18n .Lang "doc.tpl_plain_text"}}</li>
                         </ul>
                     </div>
                     <div class="section">
                         <a data-type="api" href="javascript:;"><i class="fa fa-file-code-o"></i></a>
-                        <h3><a data-type="api" href="javascript:;">API文档</a></h3>
+                        <h3><a data-type="api" href="javascript:;">{{i18n .Lang "doc.api_tpl"}}</a></h3>
                         <ul>
-                            <li>用于API文档速写</li>
-                            <li>支持代码高亮</li>
+                            <li>{{i18n .Lang "doc.for_api_doc"}}</li>
+                            <li>{{i18n .Lang "doc.code_highlight"}}</li>
                         </ul>
                     </div>
                     <div class="section">
                         <a data-type="code" href="javascript:;"><i class="fa fa-book"></i></a>
 
-                        <h3><a data-type="code" href="javascript:;">数据字典</a></h3>
+                        <h3><a data-type="code" href="javascript:;">{{i18n .Lang "doc.data_dict"}}</a></h3>
                         <ul>
-                            <li>用于数据字典显示</li>
-                            <li>表格支持</li>
+                            <li>{{i18n .Lang "doc.for_data_dict"}}</li>
+                            <li>{{i18n .Lang "doc.form_support"}}</li>
                         </ul>
                     </div>
                 </div>
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
             </div>
         </div>
     </div>
@@ -220,7 +221,13 @@
 <script src="{{cdnjs "/static/js/blog.js" "version"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        lang = {{i18n $.Lang "common.js_lang"}};
+        editLangPath = {{cdnjs "/static/editor.md/languages/"}} + lang
+        if(lang != 'zh-CN') {
+            editormd.loadScript(editLangPath, function(){
+                window.editor.lang = editormd.defaults.lang;
+                window.editor.recreate()
+            });
+        }
         window.vueApp.lists = {{.AttachList}};
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
@@ -246,7 +253,7 @@
                             attachment_id : file.id,
                             file_size : file.size,
                             file_name : file.name,
-                            message : "正在上传"
+                            message : "{{i18n .Lang "doc.uploading"}}"
                         };
                         window.vueApp.lists.push(item);
 
@@ -255,7 +262,8 @@
                             var item = window.vueApp.lists[i];
                             if(item.attachment_id == file.id){
                                 item.state = "error";
-                                item.message = "上传失败：" + reason;
+                                item.message = "{{i18n .Lang "message.upload_failed"}}:" + reason;
+                                break;
                             }
                         }
 
@@ -265,7 +273,7 @@
                             var item = window.vueApp.lists[index];
                             if(item.attachment_id === file.id){
                                 if(res.errcode === 0) {
-                                    window.vueApp.lists.splice(index, 1, res.attach?res.attach:res.data);
+                                    window.vueApp.lists.splice(index, 1, res.attach ? res.attach : res.data);
                                 }else{
                                     item.message = res.message;
                                     item.state = "error";
@@ -279,7 +287,7 @@
                         $percent.css( 'width', percentage * 100 + '%' );
                     }).on("error", function (type) {
                         if(type === "F_EXCEED_SIZE"){
-                            layer.msg("文件超过了限定大小");
+                            layer.msg("{{i18n .Lang "message.upload_file_size_limit"}}");
                         }
                         console.log(type);
                     });
