@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>项目空间管理 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "mgr.project_space_mgr"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">
@@ -18,13 +18,13 @@
 {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
-        {{template "manager/widgets.tpl" "itemsets"}}
+        {{template "manager/widgets.tpl" .}}
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">项目空间管理</strong>
+                        <strong class="box-title">{{i18n .Lang "mgr.project_space_mgr"}}</strong>
                     {{if eq .Member.Role 0}}
-                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addItemsetsDialogModal"><i class="fa fa-plus" aria-hidden="true"></i> 创建项目空间</button>
+                        <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addItemsetsDialogModal"><i class="fa fa-plus" aria-hidden="true"></i> {{i18n .Lang "mgr.create_proj_space"}}</button>
                     {{end}}
                     </div>
                 </div>
@@ -34,10 +34,10 @@
                             <thead>
                             <tr>
                                 <th width="10%">#</th>
-                                <th width="30%">项目空间名称</th>
-                                <th width="20%">项目空间标识</th>
-                                <th width="20%">项目数量</th>
-                                <th>操作</th>
+                                <th width="30%">{{i18n .Lang "mgr.proj_space_name"}}</th>
+                                <th width="20%">{{i18n .Lang "mgr.proj_space_id"}}</th>
+                                <th width="20%">{{i18n .Lang "mgr.proj_amount"}}</th>
+                                <th>{{i18n .Lang "common.operate"}}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -48,15 +48,15 @@
                                 <td>{{$item.ItemKey}}</td>
                                 <td>{{$item.BookNumber}}</td>
                                 <td>
-                                    <button type="button" class="btn btn-sm btn-default" data-id="{{$item.ItemId}}" data-method="edit" data-name="{{$item.ItemName}}" data-key="{{$item.ItemKey}}">编辑</button>
+                                    <button type="button" class="btn btn-sm btn-default" data-id="{{$item.ItemId}}" data-method="edit" data-name="{{$item.ItemName}}" data-key="{{$item.ItemKey}}">{{i18n $.Lang "common.edit"}}</button>
                                     {{if ne $item.ItemId 1}}
-                                    <button type="button" data-method="delete" class="btn btn-danger btn-sm" data-id="{{$item.ItemId}}" data-loading-text="删除中...">删除</button>
+                                    <button type="button" data-method="delete" class="btn btn-danger btn-sm" data-id="{{$item.ItemId}}" data-loading-text="{{i18n $.Lang "message.processing"}}">{{i18n $.Lang "common.delete"}}</button>
                                     {{end}}
-                                    <a href="{{urlfor "ItemsetsController.List" ":key" $item.ItemKey}}" class="btn btn-success btn-sm" target="_blank">详情</a>
+                                    <a href="{{urlfor "ItemsetsController.List" ":key" $item.ItemKey}}" class="btn btn-success btn-sm" target="_blank">{{i18n $.Lang "common.detail"}}</a>
                                 </td>
                             </tr>
                             {{else}}
-                            <tr><td class="text-center" colspan="6">暂无数据</td></tr>
+                            <tr><td class="text-center" colspan="6">{{i18n .Lang "message.no_data"}}</td></tr>
                             {{end}}
                             </tbody>
                         </table>
@@ -77,28 +77,28 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">创建项目空间</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "mgr.create_proj_space"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="account">项目空间名称<span class="error-message">*</span></label>
-                        <div class="col-sm-9">
-                            <input type="text" name="itemName" class="form-control" placeholder="项目空间名称" id="itemName" maxlength="50">
+                        <label class="col-sm-4 control-label" for="account">{{i18n .Lang "mgr.proj_space_name"}}<span class="error-message">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="itemName" class="form-control" placeholder="{{i18n .Lang "mgr.proj_space_name"}}" id="itemName" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="itemKey">项目空间标识<span class="error-message">*</span></label>
-                        <div class="col-sm-9">
-                            <input type="text" name="itemKey" id="itemKey" class="form-control" placeholder="项目空间标识" maxlength="50">
-                            <p class="text">项目空间标识只能由字母和数字组成且在2-100字符之间</p>
+                        <label class="col-sm-4 control-label" for="itemKey">{{i18n .Lang "mgr.proj_space_id"}}<span class="error-message">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="itemKey" id="itemKey" class="form-control" placeholder="{{i18n .Lang "mgr.proj_space_id"}}" maxlength="50">
+                            <p class="text">{{i18n .Lang "message.proj_space_id_tips"}}</p>
                         </div>
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="modal-footer">
                     <span id="create-form-error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddItemsets">保存
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}" id="btnAddItemsets">{{i18n .Lang "common.save"}}
                     </button>
                 </div>
             </div>
@@ -112,27 +112,27 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">编辑项目空间</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "mgr.edit_proj_space"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="itemName">项目空间名称<span class="error-message">*</span></label>
-                        <div class="col-sm-9">
-                            <input type="text" name="itemName" id="itemName" class="form-control" placeholder="项目空间名称" maxlength="50">
+                        <label class="col-sm-4 control-label" for="itemName">{{i18n .Lang "mgr.proj_space_name"}}<span class="error-message">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="itemName" id="itemName" class="form-control" placeholder="{{i18n .Lang "mgr.proj_space_name"}}" maxlength="50">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label" for="itemKey">项目空间标识<span class="error-message">*</span></label>
-                        <div class="col-sm-9">
-                            <input type="text" name="itemKey" id="itemKey" class="form-control" placeholder="项目空间标识" maxlength="50">
+                        <label class="col-sm-4 control-label" for="itemKey">{{i18n .Lang "mgr.proj_space_id"}}<span class="error-message">*</span></label>
+                        <div class="col-sm-8">
+                            <input type="text" name="itemKey" id="itemKey" class="form-control" placeholder="{{i18n .Lang "mgr.proj_space_id"}}" maxlength="50">
                         </div>
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="modal-footer">
                     <span id="edit-form-error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnEditItemsets">保存
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}" id="btnEditItemsets">{{i18n .Lang "common.save"}}
                     </button>
                 </div>
             </div>
@@ -166,10 +166,10 @@
                 var $itemKey =  addItemsetsDialogForm.find("input[name='itemKey']").val();
 
                 if ($itemName == "") {
-                    showError("项目空间名称不能为空","#create-form-error-message");
+                    showError("{{i18n .Lang "message.proj_space_name_empty"}}","#create-form-error-message");
                 }
                 if ($itemKey == "") {
-                    showError("项目空间标识不能为空","#create-form-error-message");
+                    showError("{{i18n .Lang "message.proj_space_id_empty"}}","#create-form-error-message");
                 }
                 $("#btnAddItemsets").button("loading");
                 showError("","#create-form-error-message");
@@ -183,7 +183,7 @@
                 }
             },
             error: function () {
-                showError("服务器异常","#create-form-error-message");
+                showError({{i18n .Lang "message.system_error"}},"#create-form-error-message");
             },
             complete: function () {
                 $("#btnAddItemsets").button("reset");
@@ -196,10 +196,10 @@
                var $itemKey =  editItemsetsDialogForm.find("input[name='itemKey']").val();
 
                if ($itemName == "") {
-                   showError("项目空间名称不能为空","#edit-form-error-message");
+                   showError("{{i18n .Lang "message.proj_space_name_empty"}}","#edit-form-error-message");
                }
                if ($itemKey == "") {
-                   showError("项目空间标识不能为空","#edit-form-error-message");
+                   showError("{{i18n .Lang "message.proj_space_id_empty"}}","#edit-form-error-message");
                }
                $("#btnEditItemsets").button("loading");
                showError("","#edit-form-error-message");
@@ -213,7 +213,7 @@
                 }
             },
             error: function () {
-                showError("服务器异常","#edit-form-error-message");
+                showError({{i18n .Lang "message.system_error"}},"#edit-form-error-message");
             },
             complete: function () {
                 $("#btnEditItemsets").button("reset");
@@ -237,7 +237,7 @@
                     }
                 },
                 error : function () {
-                    layer.msg("服务器异常");
+                    layer.msg({{i18n .Lang "message.system_error"}});
                 },
                 complete : function () {
                     $this.button("reset");
