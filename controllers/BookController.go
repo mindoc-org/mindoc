@@ -528,7 +528,7 @@ func (c *BookController) Create() {
 		book.Editor = "markdown"
 		book.Theme = "default"
 
-		if err := book.Insert(); err != nil {
+		if err := book.Insert(c.Lang); err != nil {
 			logs.Error("Insert => ", err)
 			c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
 		}

@@ -116,7 +116,7 @@ func NewBook() *Book {
 }
 
 //添加一个项目
-func (book *Book) Insert() error {
+func (book *Book) Insert(lang string) error {
 	o := orm.NewOrm()
 	//	o.Begin()
 	book.BookName = utils.StripTags(book.BookName)
@@ -142,7 +142,7 @@ func (book *Book) Insert() error {
 		}
 		document := NewDocument()
 		document.BookId = book.BookId
-		document.DocumentName = "空白文档"
+		document.DocumentName = i18n.Tr(lang, "init.blank_doc") //"空白文档"
 		document.MemberId = book.MemberId
 		err = document.InsertOrUpdate()
 		if err != nil {
