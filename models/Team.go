@@ -2,10 +2,10 @@ package models
 
 import (
 	"errors"
-	"github.com/astaxie/beego/logs"
 	"time"
 
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -59,9 +59,9 @@ func (t *Team) Delete(id int) (err error) {
 	if id <= 0 {
 		return ErrInvalidParameter
 	}
-	o := orm.NewOrm()
+	ormer := orm.NewOrm()
 
-	err = o.Begin()
+	o, err := ormer.Begin()
 
 	if err != nil {
 		logs.Error("开启事物时出错 ->", err)

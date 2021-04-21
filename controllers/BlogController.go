@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -12,11 +13,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego/logs"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/i18n"
-
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
@@ -57,11 +57,11 @@ func (c *BlogController) Index() {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.blog_pwd_incorrect"))
 		} else if blog.BlogStatus == "password" && password == blog.Password {
 			//如果密码输入正确，则存入session中
-			_ = c.CruSession.Set(blogReadSession, blogId)
+			_ = c.CruSession.Set(context.TODO(), blogReadSession, blogId)
 			c.JsonResult(0, "OK")
 		}
 		c.JsonResult(0, "OK")
-	} else if blog.BlogStatus == "password" && (c.CruSession.Get(blogReadSession) == nil || (c.Member != nil && blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) {
+	} else if blog.BlogStatus == "password" && (c.CruSession.Get(context.TODO(), blogReadSession) == nil || (c.Member != nil && blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) {
 		//如果不存在已输入密码的标记
 		c.TplName = "blog/index_password.tpl"
 	}
@@ -469,7 +469,7 @@ func (c *BlogController) Upload() {
 		c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_type_error"))
 	}
 	//如果文件类型设置为 * 标识不限制文件类型
-	if beego.AppConfig.DefaultString("upload_file_ext", "") != "*" {
+	if web.AppConfig.DefaultString("upload_file_ext", "") != "*" {
 		if !conf.IsAllowUploadFileExt(ext) {
 			c.JsonResult(6004, i18n.Tr(c.Lang, "message.upload_file_type_error"))
 		}
@@ -631,7 +631,7 @@ func (c *BlogController) Download() {
 	}
 	blogReadSession := fmt.Sprintf("blog:read:%d", blogId)
 	//如果没有启动匿名访问，或者设置了访问密码
-	if (c.Member == nil && !c.EnableAnonymous) || (blog.BlogStatus == "password" && password != blog.Password && c.CruSession.Get(blogReadSession) == nil) {
+	if (c.Member == nil && !c.EnableAnonymous) || (blog.BlogStatus == "password" && password != blog.Password && c.CruSession.Get(context.TODO(), blogReadSession) == nil) {
 		c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.no_permission"))
 	}
 

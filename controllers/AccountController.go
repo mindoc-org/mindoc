@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego/logs"
 	"github.com/beego/i18n"
 	"net/url"
 	"regexp"
@@ -10,7 +9,8 @@ import (
 
 	"html/template"
 
-	"github.com/astaxie/beego"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/mail"
@@ -34,12 +34,14 @@ func (c *AccountController) referer() string {
 
 func (c *AccountController) Prepare() {
 	c.BaseController.Prepare()
-	c.EnableXSRF = beego.AppConfig.DefaultBool("enablexsrf", true)
+	c.EnableXSRF = web.AppConfig.DefaultBool("enablexsrf", true)
 
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
-	c.Data["corpID"] = beego.AppConfig.String("dingtalk_corpid")
-	c.Data["ENABLE_QR_DINGTALK"] = (beego.AppConfig.String("dingtalk_corpid") != "")
-	c.Data["dingtalk_qr_key"] = beego.AppConfig.String("dingtalk_qr_key")
+	c.Data["corpID"], _ = web.AppConfig.String("dingtalk_corpid")
+	if dtcorpid, _ := web.AppConfig.String("dingtalk_corpid"); dtcorpid != "" {
+		c.Data["ENABLE_QR_DINGTALK"] = true
+	}
+	c.Data["dingtalk_qr_key"], _ = web.AppConfig.String("dingtalk_qr_key")
 
 	if !c.EnableXSRF {
 		return
@@ -152,9 +154,9 @@ func (c *AccountController) DingTalkLogin() {
 		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_obtain_user_info"), nil)
 	}
 
-	appKey := beego.AppConfig.String("dingtalk_app_key")
-	appSecret := beego.AppConfig.String("dingtalk_app_secret")
-	tmpReader := beego.AppConfig.String("dingtalk_tmp_reader")
+	appKey, _ := web.AppConfig.String("dingtalk_app_key")
+	appSecret, _ := web.AppConfig.String("dingtalk_app_secret")
+	tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
 
 	if appKey == "" || appSecret == "" || tmpReader == "" {
 		c.JsonResult(500, i18n.Tr(c.Lang, "message.dingtalk_auto_login_not_enable"), nil)
@@ -212,8 +214,8 @@ func (c *AccountController) QRLogin() {
 			c.Redirect(conf.URLFor("AccountController.Login"), 302)
 			c.StopRun()
 		}
-		appKey := beego.AppConfig.String("dingtalk_qr_key")
-		appSecret := beego.AppConfig.String("dingtalk_qr_secret")
+		appKey, _ := web.AppConfig.String("dingtalk_qr_key")
+		appSecret, _ := web.AppConfig.String("dingtalk_qr_secret")
 
 		qrDingtalk := dingtalk.NewDingtalkQRLogin(appSecret, appKey)
 		unionID, err := qrDingtalk.GetUnionIDByCode(code)
@@ -223,9 +225,9 @@ func (c *AccountController) QRLogin() {
 			c.StopRun()
 		}
 
-		appKey = beego.AppConfig.String("dingtalk_app_key")
-		appSecret = beego.AppConfig.String("dingtalk_app_secret")
-		tmpReader := beego.AppConfig.String("dingtalk_tmp_reader")
+		appKey, _ = web.AppConfig.String("dingtalk_app_key")
+		appSecret, _ = web.AppConfig.String("dingtalk_app_secret")
+		tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
 
 		dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
 		err = dingtalkAgent.GetAccesstoken()
@@ -478,7 +480,7 @@ func (c *AccountController) FindPassword() {
 			c.TplName = "errors/error.tpl"
 			return
 		}
-		subTime := memberToken.SendTime.Sub(time.Now())
+		subTime := time.Until(memberToken.SendTime)
 
 		if !strings.EqualFold(memberToken.Email, email) || subTime.Minutes() > float64(mailConf.MailExpired) || !memberToken.ValidTime.IsZero() {
 			c.Data["ErrorMessage"] = i18n.Tr(c.Lang, "message.captcha_expired")
@@ -527,7 +529,7 @@ func (c *AccountController) ValidEmail() {
 		logs.Error(err)
 		c.JsonResult(6007, i18n.Tr(c.Lang, "message.mail_expired"))
 	}
-	subTime := memberToken.SendTime.Sub(time.Now())
+	subTime := time.Until(memberToken.SendTime)
 
 	if !strings.EqualFold(memberToken.Email, email) || subTime.Minutes() > float64(mailConf.MailExpired) || !memberToken.ValidTime.IsZero() {
 

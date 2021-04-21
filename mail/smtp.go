@@ -8,7 +8,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/astaxie/beego/logs"
 	"io/ioutil"
 	"log"
 	"net/mail"
@@ -18,6 +17,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/beego/beego/v2/core/logs"
 )
 
 var (

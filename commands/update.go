@@ -3,11 +3,11 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/astaxie/beego/logs"
 	"io/ioutil"
 	"net/http"
 	"os"
 
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
 

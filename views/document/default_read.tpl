@@ -146,7 +146,8 @@
             </div>
             <div class="m-copyright">
                 <p>
-                    {{i18n .Lang "doc.doc_publish_by"}} <a href="https://www.iminho.me" target="_blank">MinDoc</a> {{i18n .Lang "doc.doc_publish"}}
+                    <div id="view_count">{{i18n .Lang "doc.view_count"}}：{{.ViewCount}}</div>
+                    {{i18n $.Lang "doc.doc_publish_by"}} <a href="https://www.iminho.me" target="_blank">MinDoc</a> {{i18n $.Lang "doc.doc_publish"}}
                 </p>
             </div>
         </div>

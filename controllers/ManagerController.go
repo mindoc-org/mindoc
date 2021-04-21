@@ -13,16 +13,16 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
 	"github.com/mindoc-org/mindoc/utils/filetil"
 	"github.com/mindoc-org/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 type ManagerController struct {
@@ -748,7 +748,7 @@ func (c *ManagerController) Config() {
 
 		tf.WriteString(content)
 
-		err = beego.LoadAppConfig("ini", tf.Name())
+		err = web.LoadAppConfig("ini", tf.Name())
 
 		if err != nil {
 			logs.Error("加载配置文件失败 ->", err)

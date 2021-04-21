@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,14 +18,14 @@ import (
 
 	"net/http"
 
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/graphics"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
 	"github.com/mindoc-org/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 type BookController struct {
@@ -614,7 +615,7 @@ func (c *BookController) Import() {
 		c.JsonResult(6006, i18n.Tr(c.Lang, "message.project_id_existed"))
 	}
 
-	tempPath := filepath.Join(os.TempDir(), c.CruSession.SessionID())
+	tempPath := filepath.Join(os.TempDir(), c.CruSession.SessionID(context.TODO()))
 
 	os.MkdirAll(tempPath, 0766)
 

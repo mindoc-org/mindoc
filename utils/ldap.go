@@ -3,7 +3,8 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"github.com/astaxie/beego/logs"
+
+	"github.com/beego/beego/v2/core/logs"
 	"gopkg.in/ldap.v2"
 )
 

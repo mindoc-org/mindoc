@@ -3,8 +3,8 @@ package controllers
 import (
 	"errors"
 
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"

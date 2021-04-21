@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/mindoc-org/mindoc/cache"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
@@ -110,7 +111,7 @@ func (b *Blog) FindFromCache(blogId int) (blog *Blog, err error) {
 	if err == nil {
 		b = &temp
 		b.Link()
-		beego.Debug("从缓存读取文章成功 ->", key)
+		logs.Debug("从缓存读取文章成功 ->", key)
 		return b, nil
 	} else {
 		logs.Error("读取缓存失败 ->", err)
@@ -273,7 +274,7 @@ func (b *Blog) Processor() *Blog {
 			}
 		})
 		//设置图片为CDN地址
-		if cdnimg := beego.AppConfig.String("cdnimg"); cdnimg != "" {
+		if cdnimg, _ := web.AppConfig.String("cdnimg"); cdnimg != "" {
 			content.Find("img").Each(func(i int, contentSelection *goquery.Selection) {
 				if src, ok := contentSelection.Attr("src"); ok && strings.HasPrefix(src, "/uploads/") {
 					contentSelection.SetAttr("src", utils.JoinURI(cdnimg, src))

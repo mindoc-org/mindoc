@@ -65,6 +65,7 @@ function loadDocument($url, $id, $callback) {
                 $("title").text(data.title);
                 $("#article-title").text(data.doc_title);
                 $("#article-info").text(data.doc_info);
+                $("#view_count").text("阅读次数：" + data.view_count);
 
                 events.trigger('article.open', {$url: $url, $id: $id});
 
@@ -80,6 +81,7 @@ function loadDocument($url, $id, $callback) {
                 var doc_title = res.data.doc_title;
                 var title = res.data.title;
                 var doc_info = res.data.doc_info;
+                var view_count = res.data.view_count;
 
                 $body = body;
                 if (typeof $callback === "function" ) {
@@ -90,6 +92,7 @@ function loadDocument($url, $id, $callback) {
                 $("title").text(title);
                 $("#article-title").text(doc_title);
                 $("#article-info").text(doc_info);
+                $("#view_count").text("阅读次数：" + view_count);
 
                 events.data($id, res.data);
 

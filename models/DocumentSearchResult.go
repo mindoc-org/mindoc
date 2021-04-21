@@ -1,11 +1,12 @@
 package models
 
 import (
-	"github.com/astaxie/beego/logs"
 	"time"
 
-	"github.com/astaxie/beego/orm"
 	"strings"
+
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 )
 
 type DocumentSearchResult struct {

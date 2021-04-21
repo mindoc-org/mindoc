@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -14,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/i18n"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
@@ -27,7 +28,7 @@ import (
 	"github.com/mindoc-org/mindoc/utils/filetil"
 	"github.com/mindoc-org/mindoc/utils/gopool"
 	"github.com/mindoc-org/mindoc/utils/pagination"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 // DocumentController struct
@@ -143,17 +144,22 @@ func (c *DocumentController) Read() {
 		doc.AttachList = attach
 	}
 
+	doc.IncrViewCount(doc.DocumentId)
+	c.Data["ViewCount"] = doc.ViewCount + 1
+
 	if c.IsAjax() {
 		var data struct {
-			DocTitle string `json:"doc_title"`
-			Body     string `json:"body"`
-			Title    string `json:"title"`
-			Version  int64  `json:"version"`
+			DocTitle  string `json:"doc_title"`
+			Body      string `json:"body"`
+			Title     string `json:"title"`
+			Version   int64  `json:"version"`
+			ViewCount int    `json:"view_count"`
 		}
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
 		data.Version = doc.Version
+		data.ViewCount = doc.ViewCount + 1
 
 		c.JsonResult(0, "ok", data)
 	}
@@ -242,7 +248,7 @@ func (c *DocumentController) Edit() {
 		}
 	}
 
-	c.Data["BaiDuMapKey"] = beego.AppConfig.DefaultString("baidumapkey", "")
+	c.Data["BaiDuMapKey"] = web.AppConfig.DefaultString("baidumapkey", "")
 
 	if conf.GetUploadFileSize() > 0 {
 		c.Data["UploadFileSize"] = conf.GetUploadFileSize()
@@ -839,7 +845,7 @@ func (c *DocumentController) Export() {
 		if bookResult.Editor != "markdown" {
 			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.cur_project_not_support_md"))
 		}
-		p, err := bookResult.ExportMarkdown(c.CruSession.SessionID())
+		p, err := bookResult.ExportMarkdown(c.CruSession.SessionID(context.TODO()))
 
 		if err != nil {
 			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.failed"))
@@ -874,7 +880,7 @@ func (c *DocumentController) Export() {
 		c.Abort("200")
 
 	} else if output == "pdf" || output == "epub" || output == "docx" || output == "mobi" {
-		if err := models.BackgroundConvert(c.CruSession.SessionID(), bookResult); err != nil && err != gopool.ErrHandlerIsExist {
+		if err := models.BackgroundConvert(c.CruSession.SessionID(context.TODO()), bookResult); err != nil && err != gopool.ErrHandlerIsExist {
 			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.export_failed"))
 		}
 
@@ -1277,7 +1283,7 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 
 func promptUserToLogIn(c *DocumentController) {
 	logs.Info("Access " + c.Ctx.Request.URL.RequestURI() + " not permitted.")
-	logs.Info("  Access will be redirected to login page(SessionId: " + c.CruSession.SessionID() + ").")
+	logs.Info("  Access will be redirected to login page(SessionId: " + c.CruSession.SessionID(context.TODO()) + ").")
 
 	if c.IsAjax() {
 		c.JsonResult(6000, i18n.Tr(c.Lang, "message.need_relogin"))

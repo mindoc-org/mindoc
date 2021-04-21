@@ -14,9 +14,9 @@ import (
 	"regexp"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/converter"
@@ -25,7 +25,7 @@ import (
 	"github.com/mindoc-org/mindoc/utils/gopool"
 	"github.com/mindoc-org/mindoc/utils/requests"
 	"github.com/mindoc-org/mindoc/utils/ziptil"
-	"gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday/v2"
 )
 
 var (
@@ -269,7 +269,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	convertBookResult := ConvertBookResult{}
 
 	outputPath := filepath.Join(conf.GetExportOutputPath(), strconv.Itoa(m.BookId))
-	viewPath := beego.BConfig.WebConfig.ViewsPath
+	viewPath := web.BConfig.WebConfig.ViewsPath
 
 	pdfpath := filepath.Join(outputPath, "book.pdf")
 	epubpath := filepath.Join(outputPath, "book.epub")
@@ -380,7 +380,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		}
 		var buf bytes.Buffer
 
-		if err := beego.ExecuteViewPathTemplate(&buf, "document/export.tpl", viewPath, map[string]interface{}{"Model": m, "Lists": item, "BaseUrl": conf.BaseUrl}); err != nil {
+		if err := web.ExecuteViewPathTemplate(&buf, "document/export.tpl", viewPath, map[string]interface{}{"Model": m, "Lists": item, "BaseUrl": conf.BaseUrl}); err != nil {
 			return convertBookResult, err
 		}
 		html := buf.String()

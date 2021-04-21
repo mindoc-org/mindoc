@@ -15,14 +15,13 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/astaxie/beego"
-	beegoCache "github.com/astaxie/beego/cache"
-	_ "github.com/astaxie/beego/cache/memcache"
-
-	"github.com/astaxie/beego/cache/redis"
-	_ "github.com/astaxie/beego/cache/redis"
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	beegoCache "github.com/beego/beego/v2/client/cache"
+	_ "github.com/beego/beego/v2/client/cache/memcache"
+	"github.com/beego/beego/v2/client/cache/redis"
+	_ "github.com/beego/beego/v2/client/cache/redis"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/i18n"
 	"github.com/howeyc/fsnotify"
 	"github.com/lifei6671/gocaptcha"
@@ -35,17 +34,17 @@ import (
 // RegisterDataBase 注册数据库
 func RegisterDataBase() {
 	logs.Info("正在初始化数据库配置.")
-	adapter := beego.AppConfig.String("db_adapter")
+	dbadapter, _ := web.AppConfig.String("db_adapter")
 	orm.DefaultTimeLoc = time.Local
 	orm.DefaultRowsLimit = -1
 
-	if strings.EqualFold(adapter, "mysql") {
-		host := beego.AppConfig.String("db_host")
-		database := beego.AppConfig.String("db_database")
-		username := beego.AppConfig.String("db_username")
-		password := beego.AppConfig.String("db_password")
+	if strings.EqualFold(dbadapter, "mysql") {
+		host, _ := web.AppConfig.String("db_host")
+		database, _ := web.AppConfig.String("db_database")
+		username, _ := web.AppConfig.String("db_username")
+		password, _ := web.AppConfig.String("db_password")
 
-		timezone := beego.AppConfig.String("timezone")
+		timezone, _ := web.AppConfig.String("timezone")
 		location, err := time.LoadLocation(timezone)
 		if err == nil {
 			orm.DefaultTimeLoc = location
@@ -53,7 +52,7 @@ func RegisterDataBase() {
 			logs.Error("加载时区配置信息失败,请检查是否存在 ZONEINFO 环境变量->", err)
 		}
 
-		port := beego.AppConfig.String("db_port")
+		port, _ := web.AppConfig.String("db_port")
 
 		dataSource := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=true&loc=%s", username, password, host, port, database, url.QueryEscape(timezone))
 
@@ -62,9 +61,9 @@ func RegisterDataBase() {
 			os.Exit(1)
 		}
 
-	} else if strings.EqualFold(adapter, "sqlite3") {
+	} else if strings.EqualFold(dbadapter, "sqlite3") {
 
-		database := beego.AppConfig.String("db_database")
+		database, _ := web.AppConfig.String("db_database")
 		if strings.HasPrefix(database, "./") {
 			database = filepath.Join(conf.WorkingDirectory, string(database[1:]))
 		}
@@ -124,11 +123,11 @@ func RegisterLogger(log string) {
 	_ = logs.SetLogger("console")
 	logs.EnableFuncCallDepth(true)
 
-	if beego.AppConfig.DefaultBool("log_is_async", true) {
+	if web.AppConfig.DefaultBool("log_is_async", true) {
 		logs.Async(1e3)
 	}
 	if log == "" {
-		logPath, err := filepath.Abs(beego.AppConfig.DefaultString("log_path", conf.WorkingDir("runtime", "logs")))
+		logPath, err := filepath.Abs(web.AppConfig.DefaultString("log_path", conf.WorkingDir("runtime", "logs")))
 		if err == nil {
 			log = logPath
 		} else {
@@ -148,44 +147,36 @@ func RegisterLogger(log string) {
 	config["perm"] = "0755"
 	config["rotate"] = true
 
-	if maxLines := beego.AppConfig.DefaultInt("log_maxlines", 1000000); maxLines > 0 {
+	if maxLines := web.AppConfig.DefaultInt("log_maxlines", 1000000); maxLines > 0 {
 		config["maxLines"] = maxLines
 	}
-	if maxSize := beego.AppConfig.DefaultInt("log_maxsize", 1<<28); maxSize > 0 {
+	if maxSize := web.AppConfig.DefaultInt("log_maxsize", 1<<28); maxSize > 0 {
 		config["maxsize"] = maxSize
 	}
-	if !beego.AppConfig.DefaultBool("log_daily", true) {
+	if !web.AppConfig.DefaultBool("log_daily", true) {
 		config["daily"] = false
 	}
-	if maxDays := beego.AppConfig.DefaultInt("log_maxdays", 7); maxDays > 0 {
+	if maxDays := web.AppConfig.DefaultInt("log_maxdays", 7); maxDays > 0 {
 		config["maxdays"] = maxDays
 	}
-	if level := beego.AppConfig.DefaultString("log_level", "Trace"); level != "" {
+	if level := web.AppConfig.DefaultString("log_level", "Trace"); level != "" {
 		switch level {
 		case "Emergency":
 			config["level"] = logs.LevelEmergency
-			break
 		case "Alert":
 			config["level"] = logs.LevelAlert
-			break
 		case "Critical":
 			config["level"] = logs.LevelCritical
-			break
 		case "Error":
 			config["level"] = logs.LevelError
-			break
 		case "Warning":
 			config["level"] = logs.LevelWarning
-			break
 		case "Notice":
 			config["level"] = logs.LevelNotice
-			break
 		case "Informational":
 			config["level"] = logs.LevelInformational
-			break
 		case "Debug":
 			config["level"] = logs.LevelDebug
-			break
 		}
 	}
 	b, err := json.Marshal(config)
@@ -214,20 +205,20 @@ func RegisterCommand() {
 
 //注册模板函数
 func RegisterFunction() {
-	err := beego.AddFuncMap("config", models.GetOptionValue)
+	err := web.AddFuncMap("config", models.GetOptionValue)
 
 	if err != nil {
 		logs.Error("注册函数 config 出错 ->", err)
 		os.Exit(-1)
 	}
-	err = beego.AddFuncMap("cdn", func(p string) string {
-		cdn := beego.AppConfig.DefaultString("cdn", "")
+	err = web.AddFuncMap("cdn", func(p string) string {
+		cdn := web.AppConfig.DefaultString("cdn", "")
 		if strings.HasPrefix(p, "http://") || strings.HasPrefix(p, "https://") {
 			return p
 		}
 		//如果没有设置cdn，则使用baseURL拼接
 		if cdn == "" {
-			baseUrl := beego.AppConfig.DefaultString("baseurl", "")
+			baseUrl := web.AppConfig.DefaultString("baseurl", "")
 
 			if strings.HasPrefix(p, "/") && strings.HasSuffix(baseUrl, "/") {
 				return baseUrl + p[1:]
@@ -250,28 +241,28 @@ func RegisterFunction() {
 		os.Exit(-1)
 	}
 
-	err = beego.AddFuncMap("cdnjs", conf.URLForWithCdnJs)
+	err = web.AddFuncMap("cdnjs", conf.URLForWithCdnJs)
 	if err != nil {
 		logs.Error("注册函数 cdnjs 出错 ->", err)
 		os.Exit(-1)
 	}
-	err = beego.AddFuncMap("cdncss", conf.URLForWithCdnCss)
+	err = web.AddFuncMap("cdncss", conf.URLForWithCdnCss)
 	if err != nil {
 		logs.Error("注册函数 cdncss 出错 ->", err)
 		os.Exit(-1)
 	}
-	err = beego.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
+	err = web.AddFuncMap("cdnimg", conf.URLForWithCdnImage)
 	if err != nil {
 		logs.Error("注册函数 cdnimg 出错 ->", err)
 		os.Exit(-1)
 	}
 	//重写url生成，支持配置域名以及域名前缀
-	err = beego.AddFuncMap("urlfor", conf.URLFor)
+	err = web.AddFuncMap("urlfor", conf.URLFor)
 	if err != nil {
 		logs.Error("注册函数 urlfor 出错 ->", err)
 		os.Exit(-1)
 	}
-	err = beego.AddFuncMap("date_format", func(t time.Time, format string) string {
+	err = web.AddFuncMap("date_format", func(t time.Time, format string) string {
 		return t.Local().Format(format)
 	})
 	if err != nil {
@@ -279,7 +270,7 @@ func RegisterFunction() {
 		os.Exit(-1)
 	}
 
-	err = beego.AddFuncMap("i18n", i18n.Tr)
+	err = web.AddFuncMap("i18n", i18n.Tr)
 	if err != nil {
 		logs.Error("注册函数 i18n 出错 ->", err)
 		os.Exit(-1)
@@ -321,11 +312,11 @@ func ResolveCommand(args []string) {
 		log.Fatal("读取字体文件时出错 -> ", err)
 	}
 
-	if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
+	if err := web.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
 		log.Fatal("An error occurred:", err)
 	}
 	if conf.LogFile == "" {
-		logPath, err := filepath.Abs(beego.AppConfig.DefaultString("log_path", conf.WorkingDir("runtime", "logs")))
+		logPath, err := filepath.Abs(web.AppConfig.DefaultString("log_path", conf.WorkingDir("runtime", "logs")))
 		if err == nil {
 			conf.LogFile = logPath
 		} else {
@@ -333,15 +324,15 @@ func ResolveCommand(args []string) {
 		}
 	}
 
-	conf.AutoLoadDelay = beego.AppConfig.DefaultInt("config_auto_delay", 0)
+	conf.AutoLoadDelay = web.AppConfig.DefaultInt("config_auto_delay", 0)
 	uploads := conf.WorkingDir("uploads")
 
 	_ = os.MkdirAll(uploads, 0666)
 
-	beego.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
-	beego.BConfig.WebConfig.StaticDir["/uploads"] = uploads
-	beego.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")
-	beego.BConfig.WebConfig.Session.SessionCookieSameSite = http.SameSiteDefaultMode
+	web.BConfig.WebConfig.StaticDir["/static"] = filepath.Join(conf.WorkingDirectory, "static")
+	web.BConfig.WebConfig.StaticDir["/uploads"] = uploads
+	web.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")
+	web.BConfig.WebConfig.Session.SessionCookieSameSite = http.SameSiteDefaultMode
 
 	fonts := conf.WorkingDir("static", "fonts")
 
@@ -363,15 +354,15 @@ func ResolveCommand(args []string) {
 
 //注册缓存管道
 func RegisterCache() {
-	isOpenCache := beego.AppConfig.DefaultBool("cache", false)
+	isOpenCache := web.AppConfig.DefaultBool("cache", false)
 	if !isOpenCache {
 		cache.Init(&cache.NullCache{})
 		return
 	}
 	logs.Info("正常初始化缓存配置.")
-	cacheProvider := beego.AppConfig.String("cache_provider")
+	cacheProvider, _ := web.AppConfig.String("cache_provider")
 	if cacheProvider == "file" {
-		cacheFilePath := beego.AppConfig.DefaultString("cache_file_path", "./runtime/cache/")
+		cacheFilePath := web.AppConfig.DefaultString("cache_file_path", "./runtime/cache/")
 		if strings.HasPrefix(cacheFilePath, "./") {
 			cacheFilePath = filepath.Join(conf.WorkingDirectory, string(cacheFilePath[1:]))
 		}
@@ -380,9 +371,9 @@ func RegisterCache() {
 		fileConfig := make(map[string]string, 0)
 
 		fileConfig["CachePath"] = cacheFilePath
-		fileConfig["DirectoryLevel"] = beego.AppConfig.DefaultString("cache_file_dir_level", "2")
-		fileConfig["EmbedExpiry"] = beego.AppConfig.DefaultString("cache_file_expiry", "120")
-		fileConfig["FileSuffix"] = beego.AppConfig.DefaultString("cache_file_suffix", ".bin")
+		fileConfig["DirectoryLevel"] = web.AppConfig.DefaultString("cache_file_dir_level", "2")
+		fileConfig["EmbedExpiry"] = web.AppConfig.DefaultString("cache_file_expiry", "120")
+		fileConfig["FileSuffix"] = web.AppConfig.DefaultString("cache_file_suffix", ".bin")
 
 		bc, err := json.Marshal(&fileConfig)
 		if err != nil {
@@ -395,13 +386,13 @@ func RegisterCache() {
 		cache.Init(fileCache)
 
 	} else if cacheProvider == "memory" {
-		cacheInterval := beego.AppConfig.DefaultInt("cache_memory_interval", 60)
+		cacheInterval := web.AppConfig.DefaultInt("cache_memory_interval", 60)
 		memory := beegoCache.NewMemoryCache()
 		beegoCache.DefaultEvery = cacheInterval
 		cache.Init(memory)
 	} else if cacheProvider == "redis" {
 		//设置Redis前缀
-		if key := beego.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
+		if key := web.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
 			redis.DefaultKey = key
 		}
 		var redisConfig struct {
@@ -410,11 +401,11 @@ func RegisterCache() {
 			DbNum    int    `json:"dbNum"`
 		}
 		redisConfig.DbNum = 0
-		redisConfig.Conn = beego.AppConfig.DefaultString("cache_redis_host", "")
-		if pwd := beego.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
+		redisConfig.Conn = web.AppConfig.DefaultString("cache_redis_host", "")
+		if pwd := web.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
 			redisConfig.Password = pwd
 		}
-		if dbNum := beego.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
+		if dbNum := web.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
 			redisConfig.DbNum = dbNum
 		}
 
@@ -436,7 +427,7 @@ func RegisterCache() {
 		var memcacheConfig struct {
 			Conn string `json:"conn"`
 		}
-		memcacheConfig.Conn = beego.AppConfig.DefaultString("cache_memcache_host", "")
+		memcacheConfig.Conn = web.AppConfig.DefaultString("cache_memcache_host", "")
 
 		bc, err := json.Marshal(&memcacheConfig)
 		if err != nil {
@@ -475,7 +466,7 @@ func RegisterAutoLoadConfig() {
 				case ev := <-watcher.Event:
 					//如果是修改了配置文件
 					if ev.IsModify() {
-						if err := beego.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
+						if err := web.LoadAppConfig("ini", conf.ConfigurationFile); err != nil {
 							logs.Error("An error occurred ->", err)
 							continue
 						}
@@ -503,27 +494,27 @@ func RegisterAutoLoadConfig() {
 
 //注册错误处理方法.
 func RegisterError() {
-	beego.ErrorHandler("404", func(writer http.ResponseWriter, request *http.Request) {
+	web.ErrorHandler("404", func(writer http.ResponseWriter, request *http.Request) {
 		var buf bytes.Buffer
 
 		data := make(map[string]interface{})
 		data["ErrorCode"] = 404
 		data["ErrorMessage"] = "页面未找到或已删除"
 
-		if err := beego.ExecuteViewPathTemplate(&buf, "errors/error.tpl", beego.BConfig.WebConfig.ViewsPath, data); err == nil {
+		if err := web.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, data); err == nil {
 			_, _ = fmt.Fprint(writer, buf.String())
 		} else {
 			_, _ = fmt.Fprint(writer, data["ErrorMessage"])
 		}
 	})
-	beego.ErrorHandler("401", func(writer http.ResponseWriter, request *http.Request) {
+	web.ErrorHandler("401", func(writer http.ResponseWriter, request *http.Request) {
 		var buf bytes.Buffer
 
 		data := make(map[string]interface{})
 		data["ErrorCode"] = 401
 		data["ErrorMessage"] = "请与 Web 服务器的管理员联系，以确认您是否具有访问所请求资源的权限。"
 
-		if err := beego.ExecuteViewPathTemplate(&buf, "errors/error.tpl", beego.BConfig.WebConfig.ViewsPath, data); err == nil {
+		if err := web.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, data); err == nil {
 			_, _ = fmt.Fprint(writer, buf.String())
 		} else {
 			_, _ = fmt.Fprint(writer, data["ErrorMessage"])

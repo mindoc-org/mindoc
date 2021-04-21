@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils/pagination"

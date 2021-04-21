@@ -15,8 +15,9 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/mindoc-org/mindoc/cache"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
@@ -44,6 +45,7 @@ type Document struct {
 	Version    int64     `orm:"column(version);type(bigint);" json:"version"`
 	//是否展开子目录：0 否/1 是 /2 空间节点，单击时展开下一级
 	IsOpen     int           `orm:"column(is_open);type(int);default(0)" json:"is_open"`
+	ViewCount  int           `orm:"column(view_count);type(int)" json:"view_count"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
 	//i18n
 	Lang string `orm:"-"`
@@ -338,7 +340,7 @@ func (item *Document) Processor() *Document {
 					selector.First().AppendHtml(release)
 				}
 			}
-			cdnimg := beego.AppConfig.String("cdnimg")
+			cdnimg,_  := web.AppConfig.String("cdnimg")
 
 			docQuery.Find("img").Each(func(i int, selection *goquery.Selection) {
 
@@ -388,4 +390,12 @@ func (item *Document) Processor() *Document {
 		}
 	}
 	return item
+}
+
+// 增加阅读次数
+func (item *Document) IncrViewCount(id int) {
+	o := orm.NewOrm()
+	o.QueryTable(item.TableNameWithPrefix()).Filter("document_id", id).Update(orm.Params{
+		"view_count": orm.ColValue(orm.ColAdd, 1),
+	})
 }

@@ -1,14 +1,15 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
-	"github.com/astaxie/beego/logs"
 	"os"
 	"time"
 
 	"flag"
 
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
@@ -24,7 +25,6 @@ func Install() {
 		initialization()
 	} else {
 		panic(err.Error())
-		os.Exit(1)
 	}
 	fmt.Println("Install Successfully!")
 	os.Exit(0)
@@ -99,24 +99,26 @@ func initialization() {
 
 	if err != nil {
 		panic(err.Error())
-		os.Exit(1)
 	}
 
 	member, err := models.NewMember().FindByFieldFirst("account", "admin")
-	if err == orm.ErrNoRows {
+	if errors.Is(err, orm.ErrNoRows) {
 
+		// create admin user
+		logs.Info("creating admin user")
 		member.Account = "admin"
 		member.Avatar = conf.URLForWithCdnImage("/static/images/headimgurl.jpg")
 		member.Password = "123456"
 		member.AuthMethod = "local"
-		member.Role = 0
+		member.Role = conf.MemberSuperRole
 		member.Email = "admin@iminho.me"
 
 		if err := member.Add(); err != nil {
 			panic("Member.Add => " + err.Error())
-			os.Exit(0)
 		}
 
+		// create demo book
+		logs.Info("creating demo book")
 		book := models.NewBook()
 
 		book.MemberId = member.MemberId
@@ -137,8 +139,9 @@ func initialization() {
 
 		if err := book.Insert(); err != nil {
 			panic("初始化项目失败 -> " + err.Error())
-			os.Exit(1)
 		}
+	} else if err != nil {
+		panic(fmt.Errorf("occur errors when initialize: %s", err))
 	}
 
 	if !models.NewItemsets().Exist(1) {
@@ -147,7 +150,6 @@ func initialization() {
 		item.MemberId = 1
 		if err := item.Save(); err != nil {
 			panic("初始化项目空间失败 -> " + err.Error())
-			os.Exit(1)
 		}
 	}
 }
