@@ -7,15 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/astaxie/beego/logs"
-	"github.com/beego/i18n"
-
 	"html/template"
 	"io/ioutil"
 	"path/filepath"
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
@@ -211,14 +209,14 @@ func (c *BaseController) CheckErrorResult(code int, err error) {
 
 func (c *BaseController) SetLang() {
 	hasCookie := false
-	lang := c.Input().Get("lang")
+	lang := c.GetString("lang")
 	if len(lang) == 0 {
 		lang = c.Ctx.GetCookie("lang")
 		hasCookie = true
 	}
 	if len(lang) == 0 ||
 		!i18n.IsExist(lang) {
-		lang = beego.AppConfig.String("default_lang")
+		lang, _ = web.AppConfig.String("default_lang")
 	}
 	if !hasCookie {
 		c.Ctx.SetCookie("lang", lang, 1<<31-1, "/")

@@ -2,7 +2,6 @@ package daemon
 
 import (
 	"fmt"
-	"github.com/astaxie/beego/logs"
 	"os"
 
 	"path/filepath"

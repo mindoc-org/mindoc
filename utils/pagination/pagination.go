@@ -2,14 +2,15 @@ package pagination
 
 import (
 	"fmt"
-	"github.com/astaxie/beego"
-	"github.com/beego/i18n"
 	"html/template"
 	"math"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/i18n"
 )
 
 //Pagination 分页器
@@ -117,7 +118,7 @@ func (p *Pagination) pageURL(page string) string {
 }
 
 func (p *Pagination) getLang() string {
-	lang := beego.AppConfig.String("default_lang")
+	lang, _ := web.AppConfig.String("default_lang")
 	ulang := p.Request.FormValue("lang")
 	if len(ulang) == 0 {
 		clang, err := p.Request.Cookie("lang")
