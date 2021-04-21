@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>请输入项目密码 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "doc.input_pwd"}} - Powered by MinDoc</title>
     <script src="{{cdnjs "static/jquery/1.12.4/jquery.min.js"}}"></script>
     <script src="{{cdnjs "static/js/jquery.form.js"}}"></script>
     <style type="text/css">
@@ -97,13 +97,13 @@
 <div class="auth_form">
 <div class="shell">
         <form action="{{urlfor "DocumentController.Index" ":key" .Identify}}" method="post" id="auth_form">
-            <div class="tit">请输入阅读密码</div>
+            <div class="tit">{{i18n .Lang "doc.input_pwd"}}</div>
             <div style="margin-top: 10px;">
-                <input type="password" name="bPassword" placeholder="浏览密码" class="inp"/>
+                <input type="password" name="bPassword" placeholder="{{i18n .Lang "doc.read_pwd"}}" class="inp"/>
             </div>
             <div class="btn">
                 <span id="error" style="color: #919191; font-size: 13px;"></span>
-                <input type="submit" value="提交" class="button"/>
+                <input type="submit" value="{{i18n .Lang "doc.commit"}}" class="button"/>
             </div>
             <div class="clear"></div>
         </form>
@@ -114,7 +114,7 @@ $("#auth_form").ajaxForm({
     beforeSerialize: function () {
         var pwd = $("#auth_form input[name='bPassword']").val();
         if (pwd === "") {
-            $("#error").html("请输入密码");
+            $("#error").html("{{i18n .Lang "doc.input_pwd"}}");
             return false;
         }
     },

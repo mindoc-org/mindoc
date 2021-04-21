@@ -3,19 +3,21 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/astaxie/beego/logs"
-	"github.com/beego/i18n"
 	"io"
 	"strings"
 	"time"
+
+	"github.com/astaxie/beego/logs"
+	"github.com/beego/i18n"
+
+	"html/template"
+	"io/ioutil"
+	"path/filepath"
 
 	"github.com/astaxie/beego"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
-	"html/template"
-	"io/ioutil"
-	"path/filepath"
 )
 
 type BaseController struct {

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>用户中心 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "uc.user_center"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -26,33 +26,35 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li><a href="{{urlfor "SettingController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> 基本信息</a> </li>
-                    <li class="active"><a href="{{urlfor "SettingController.Password"}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> 修改密码</a> </li>
+                    <li><a href="{{urlfor "SettingController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> {{i18n .Lang "uc.base_info"}}</a> </li>
+                    <li class="active"><a href="{{urlfor "SettingController.Password"}}" class="item"><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "uc.change_pwd"}}</a> </li>
                 </ul>
             </div>
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">修改密码</strong>
+                        <strong class="box-title">{{i18n .Lang "uc.change_pwd"}}</strong>
                     </div>
                 </div>
                 <div class="box-body" style="width: 300px;">
                     <form role="form" method="post" id="securityForm">
                         <div class="form-group">
-                            <label for="password1">原始密码</label>
-                            <input type="password" name="password1" id="password1" class="form-control disabled" placeholder="原始密码">
+                            <label for="password1">{{i18n .Lang "uc.origin_pwd"}}</label>
+                            <input type="password" name="password1" id="password1" class="form-control disabled" placeholder="{{i18n .Lang "uc.origin_pwd"}}">
                         </div>
                         <div class="form-group">
-                            <label for="password2">新密码</label>
-                            <input type="password" class="form-control" name="password2" id="password2" max="50" placeholder="新密码">
+                            <label for="password2">{{i18n .Lang "uc.new_pwd"}}</label>
+                            <input type="password" class="form-control" name="password2" id="password2" max="50" placeholder="{{i18n .Lang "uc.new_pwd"}}">
                         </div>
                         <div class="form-group">
-                            <label for="password3">确认密码</label>
-                            <input type="password" class="form-control" id="password3" name="password3" placeholder="确认密码">
+                            <label for="password3">{{i18n .Lang "uc.confirm_pwd"}}</label>
+                            <input type="password" class="form-control" id="password3" name="password3" placeholder="{{i18n .Lang "uc.confirm_pwd"}}">
                         </div>
                         <div class="form-group">
-                            <button type="submit" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
                             <span id="form-error-message" class="error-message"></span>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "message.save"}}</button>
                         </div>
                     </form>
                 </div>
@@ -74,25 +76,25 @@
                 var newPasswd = $("#password2").val();
                 var confirmPassword = $("#password3").val();
                 if(!oldPasswd ){
-                    showError("原始密码不能为空");
+                    showError({{i18n .Lang "message.origin_pwd_empty"}});
                     return false;
                 }
                 if(!newPasswd){
-                    showError("新密码不能为空");
+                    showError({{i18n .Lang "message.new_pwd_empty"}});
                     return false;
                 }
                 if(!confirmPassword){
-                    showError("确认密码不能为空");
+                    showError({{i18n .Lang "message.confirm_pwd_empty"}});
                     return false;
                 }
                 if(confirmPassword !== newPasswd){
-                    showError("确认密码不正确");
+                    showError({{i18n .Lang "message.wrong_confirm_pwd"}});
                     return false;
                 }
             },
             success : function (res) {
                 if(res.errcode === 0){
-                    showSuccess('保存成功');
+                    showSuccess({{i18n .Lang "message.success"}});
                     $("#password1").val('');
                     $("#password2").val('');
                     $("#password3").val('');

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>文章设置 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "blog.blog_setting"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -32,7 +32,7 @@
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 文章设置</strong>
+                        <strong class="box-title"> {{i18n .Lang "blog.blog_setting"}}</strong>
                     </div>
                 </div>
                 <div class="box-body">
@@ -42,58 +42,58 @@
                         <input type="hidden" name="document_id" value="{{.Model.DocumentId}}">
                         <input type="hidden" name="order_index" value="{{.Model.OrderIndex}}">
                         <div class="form-group">
-                            <label>文章标题</label>
-                            <input type="text" class="form-control" name="title" id="title" placeholder="文章标题" value="{{.Model.BlogTitle}}">
+                            <label>{{i18n .Lang "blog.title"}}</label>
+                            <input type="text" class="form-control" name="title" id="title" placeholder="{{i18n .Lang "blog.title"}}" value="{{.Model.BlogTitle}}">
                         </div>
 
 
                         <div class="form-group">
-                            <label>文章类型</label>
+                            <label>{{i18n .Lang "blog.type"}}</label>
                             <div class="radio">
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .Model.BlogType 0}}checked{{end}} name="blog_type" value="0">普通文章<span class="text"></span>
+                                    <input type="radio" {{if eq .Model.BlogType 0}}checked{{end}} name="blog_type" value="0">{{i18n .Lang "blog.normal_blog"}}<span class="text"></span>
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .Model.BlogType 1}}checked{{end}} name="blog_type" value="1">链接文章<span class="text"></span>
+                                    <input type="radio" {{if eq .Model.BlogType 1}}checked{{end}} name="blog_type" value="1">{{i18n .Lang "blog.link_blog"}}<span class="text"></span>
                                 </label>
                             </div>
                         </div>
                         <div class="form-group" id="blogLinkDocument"{{if ne .Model.BlogType 1}} style="display: none;" {{end}}>
-                            <label>关联文档</label>
+                            <label>{{i18n .Lang "blog.ref_doc"}}</label>
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" placeholder="请输入项目标识" name="bookIdentify" value="{{.Model.BookIdentify}}">
+                                    <input type="text" class="form-control" placeholder="{{i18n .Lang "message.input_proj_id_pls"}}" name="bookIdentify" value="{{.Model.BookIdentify}}">
                                 </div>
                                 <div class="col-sm-6">
-                                    <input type="text" class="form-control" placeholder="请输入文档标识" name="documentIdentify" value="{{.Model.DocumentIdentify}}">
+                                    <input type="text" class="form-control" placeholder="{{i18n .Lang "message.input_doc_id_pls"}}" name="documentIdentify" value="{{.Model.DocumentIdentify}}">
                                 </div>
                             </div>
 
                         </div>
                         <div class="form-group">
-                            <label>文章状态</label>
+                            <label>{{i18n .Lang "blog.blog_status"}}</label>
                             <div class="radio">
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .Model.BlogStatus "public"}}checked{{end}} name="status" value="public">公开<span class="text"></span>
+                                    <input type="radio" {{if eq .Model.BlogStatus "public"}}checked{{end}} name="status" value="public">{{i18n .Lang "blog.public"}}<span class="text"></span>
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .Model.BlogStatus "password"}}checked{{end}} name="status" value="password">加密<span class="text"></span>
+                                    <input type="radio" {{if eq .Model.BlogStatus "password"}}checked{{end}} name="status" value="password">{{i18n .Lang "blog.encryption"}}<span class="text"></span>
                                 </label>
                             </div>
                         </div>
                         <div class="form-group"{{if eq .Model.BlogStatus "public"}} style="display: none;"{{end}} id="blogPassword">
-                            <label>文章密码</label>
-                            <input type="password" class="form-control" name="password" id="password" placeholder="文章密码" value="{{.Model.Password}}" maxlength="20">
+                            <label>{{i18n .Lang "blog.blog_pwd"}}</label>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="{{i18n .Lang "blog.blog_pwd"}}" value="{{.Model.Password}}" maxlength="20">
                         </div>
                         <div class="form-group">
-                            <label>文章摘要</label>
-                            <textarea rows="3" class="form-control" name="excerpt" style="height: 90px" placeholder="项目描述">{{.Model.BlogExcerpt}}</textarea>
-                            <p class="text">文章摘要不超过500个字符</p>
+                            <label>{{i18n .Lang "blog.blog_digest"}}</label>
+                            <textarea rows="3" class="form-control" name="excerpt" style="height: 90px" placeholder="{{i18n .Lang "blog.blog_digest"}}">{{.Model.BlogExcerpt}}</textarea>
+                            <p class="text">{{i18n .Lang "message.blog_digest_tips"}}</p>
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" id="btnSaveBlogInfo" class="btn btn-success" data-loading-text="保存中...">保存</button>
-                            <a href="{{.Referer}}" title="返回" class="btn btn-info">返回</a>
+                            <button type="submit" id="btnSaveBlogInfo" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
+                            <a href="{{.Referer}}" title="{{i18n .Lang "doc.backward"}}" class="btn btn-info">{{i18n .Lang "doc.backward"}}</a>
                             <span id="form-error-message" class="error-message"></span>
                         </div>
                     </form>
@@ -119,19 +119,19 @@
                 var title = $.trim($("#title").val());
 
                 if (title === ""){
-                    return showError("文章标题不能为空");
+                    return showError("{{i18n .Lang "message.blog_title_empty"}}");
                 }
                 $("#btnSaveBlogInfo").button("loading");
             },success : function ($res) {
                 if($res.errcode === 0) {
-                    showSuccess("保存成功");
+                    showSuccess("{{i18n .Lang "message.success"}}");
                     $("#blogId").val($res.data.blog_id);
                 }else{
                     showError($res.message);
                 }
                 $("#btnSaveBlogInfo").button("reset");
             }, error : function () {
-                showError("服务器异常.");
+                showError("{{i18n .Lang "message.system_error"}}");
                 $("#btnSaveBlogInfo").button("reset");
             }
         }).find("input[name='status']").change(function () {

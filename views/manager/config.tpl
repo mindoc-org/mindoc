@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>配置文件 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "mgr.config_file"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -18,11 +18,11 @@
 {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
-        {{template "manager/widgets.tpl" "config"}}
+        {{template "manager/widgets.tpl" .}}
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 配置管理</strong>
+                        <strong class="box-title"> {{i18n .Lang "mgr.config_mgr"}}</strong>
                     </div>
                 </div>
                 <div class="box-body">
@@ -32,7 +32,7 @@
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" id="btnSaveConfigFile" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
+                            <button type="submit" id="btnSaveConfigFile" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
                             <span id="form-error-message" class="error-message"></span>
                         </div>
                     </form>

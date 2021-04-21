@@ -2,7 +2,9 @@ package models
 
 import (
 	"errors"
+
 	"github.com/astaxie/beego/logs"
+	"github.com/beego/i18n"
 
 	"github.com/astaxie/beego/orm"
 	"github.com/mindoc-org/mindoc/conf"
@@ -18,6 +20,7 @@ type TeamMember struct {
 	Account  string        `orm:"-" json:"account"`
 	RealName string        `orm:"-" json:"real_name"`
 	Avatar   string        `orm:"-" json:"avatar"`
+	Lang     string        `orm:"-"`
 }
 
 // TableName 获取对应数据库表名.
@@ -44,6 +47,11 @@ func (m *TeamMember) QueryTable() orm.QuerySeter {
 
 func NewTeamMember() *TeamMember {
 	return &TeamMember{}
+}
+
+func (m *TeamMember) SetLang(lang string) *TeamMember {
+	m.Lang = lang
+	return m
 }
 
 func (m *TeamMember) First(id int, cols ...string) (*TeamMember, error) {
@@ -173,6 +181,7 @@ func (m *TeamMember) FindToPager(teamId, pageIndex, pageSize int) (list []*TeamM
 
 	//将来优化
 	for _, item := range list {
+		item.Lang = m.Lang
 		item.Include()
 	}
 	return
@@ -187,13 +196,13 @@ func (m *TeamMember) Include() *TeamMember {
 		m.Avatar = member.Avatar
 	}
 	if m.RoleId == 0 {
-		m.RoleName = "创始人"
+		m.RoleName = i18n.Tr(m.Lang, "common.creator") //"创始人"
 	} else if m.RoleId == 1 {
-		m.RoleName = "管理员"
+		m.RoleName = i18n.Tr(m.Lang, "common.administrator") //"管理员"
 	} else if m.RoleId == 2 {
-		m.RoleName = "编辑者"
+		m.RoleName = i18n.Tr(m.Lang, "common.editor") //"编辑者"
 	} else if m.RoleId == 3 {
-		m.RoleName = "观察者"
+		m.RoleName = i18n.Tr(m.Lang, "common.observer") //"观察者"
 	}
 	return m
 }

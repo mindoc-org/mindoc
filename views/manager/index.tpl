@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>用户中心 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "mgr.dashboard_mgr"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -24,40 +24,40 @@
     {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
-        {{template "manager/widgets.tpl" "index"}}
+        {{template "manager/widgets.tpl" .}}
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">仪表盘</strong>
+                        <strong class="box-title">{{i18n .Lang "mgr.dashboard_mgr"}}</strong>
                     </div>
                 </div>
                 <div class="box-body manager">
                     <a href="{{urlfor "ManagerController.Books"}}" class="dashboard-item">
                         <span class="fa fa-book" aria-hidden="true"></span>
-                        <span class="fa-class">项目数量</span>
+                        <span class="fa-class">{{i18n .Lang "mgr.proj_amount"}}</span>
                         <span class="fa-class">{{.Model.BookNumber}}</span>
                     </a>
                     <div class="dashboard-item">
                         <span class="fa fa-file-text-o" aria-hidden="true"></span>
-                        <span class="fa-class">文章数量</span>
+                        <span class="fa-class">{{i18n .Lang "mgr.blog_amount"}}</span>
                         <span class="fa-class">{{.Model.DocumentNumber}}</span>
                     </div>
                     <a href="{{urlfor "ManagerController.Users"}}" class="dashboard-item">
                             <span class="fa fa-users" aria-hidden="true"></span>
-                            <span class="fa-class">会员数量</span>
+                            <span class="fa-class">{{i18n .Lang "mgr.member_amount"}}</span>
                             <span class="fa-class">{{.Model.MemberNumber}}</span>
                     </a>
                     <!--
                     {{/*
                     <div class="dashboard-item">
                         <span class="fa fa-comments-o" aria-hidden="true"></span>
-                        <span class="fa-class">评论数量</span>
+                        <span class="fa-class">{{i18n .Lang "mgr.comment_amount"}}</span>
                         <span class="fa-class">{{.Model.CommentNumber}}</span>
                     </div>
                 */}}-->
                     <a href="{{urlfor "ManagerController.AttachList" }}" class="dashboard-item">
                         <span class="fa fa-cloud-download" aria-hidden="true"></span>
-                        <span class="fa-class">附件数量</span>
+                        <span class="fa-class">{{i18n .Lang "mgr.attachment_amount"}}</span>
                         <span class="fa-class">{{.Model.AttachmentNumber}}</span>
                     </a>
                 </div>

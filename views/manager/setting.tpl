@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>配置管理 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "mgr.config_mgr"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -23,75 +23,75 @@
     {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
-        {{template "manager/widgets.tpl" "setting"}}
+        {{template "manager/widgets.tpl" .}}
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 配置管理</strong>
+                        <strong class="box-title"> {{i18n .Lang "mgr.config_mgr"}}</strong>
                     </div>
                 </div>
                 <div class="box-body">
                     <form method="post" id="gloablEditForm" action="{{urlfor "ManagerController.Setting"}}">
                         <div class="form-group">
-                            <label>网站标题</label>
-                            <input type="text" class="form-control" name="SITE_NAME" id="siteName" placeholder="网站标题" value="{{.SITE_NAME}}">
+                            <label>{{i18n .Lang "mgr.site_name"}}</label>
+                            <input type="text" class="form-control" name="SITE_NAME" id="siteName" placeholder="{{i18n .Lang "mgr.site_name"}}" value="{{.SITE_NAME}}">
                         </div>
                         <div class="form-group">
-                            <label>域名备案</label>
-                            <input type="text" class="form-control" name="site_beian" id="siteName" placeholder="域名备案" value="{{.site_beian}}" maxlength="50">
+                            <label>{{i18n .Lang "mgr.domain_icp"}}</label>
+                            <input type="text" class="form-control" name="site_beian" id="siteName" placeholder="{{i18n .Lang "mgr.domain_icp"}}" value="{{.site_beian}}" maxlength="50">
                         </div>
                         <div class="form-group">
-                            <label>网站描述</label>
-                            <textarea rows="3" class="form-control" name="site_description" style="height: 90px" placeholder="网站描述">{{.site_description}}</textarea>
-                            <p class="text">描述信息不超过500个字符</p>
+                            <label>{{i18n .Lang "mgr.site_desc"}}</label>
+                            <textarea rows="3" class="form-control" name="site_description" style="height: 90px" placeholder="{{i18n .Lang "mgr.site_desc"}}">{{.site_description}}</textarea>
+                            <p class="text">{{i18n .Lang "mgr.site_desc_tips"}}</p>
                         </div>
                             <div class="form-group">
-                                <label>启用匿名访问</label>
+                                <label>{{i18n .Lang "mgr.enable_anonymous_access"}}</label>
                                 <div class="radio">
                                     <label class="radio-inline">
-                                        <input type="radio" {{if eq .ENABLE_ANONYMOUS "true"}}checked{{end}} name="ENABLE_ANONYMOUS" value="true">开启<span class="text"></span>
+                                        <input type="radio" {{if eq .ENABLE_ANONYMOUS "true"}}checked{{end}} name="ENABLE_ANONYMOUS" value="true">{{i18n .Lang "mgr.enable"}}<span class="text"></span>
                                     </label>
                                     <label class="radio-inline">
-                                        <input type="radio" {{if eq .ENABLE_ANONYMOUS "false"}}checked{{end}} name="ENABLE_ANONYMOUS" value="false">关闭<span class="text"></span>
+                                        <input type="radio" {{if eq .ENABLE_ANONYMOUS "false"}}checked{{end}} name="ENABLE_ANONYMOUS" value="false">{{i18n .Lang "mgr.disable"}}<span class="text"></span>
                                     </label>
                                 </div>
                             </div>
                         <div class="form-group">
-                            <label>启用注册</label>
+                            <label>{{i18n .Lang "mgr.enable_register"}}</label>
                             <div class="radio">
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .ENABLED_REGISTER "true"}}checked{{end}} name="ENABLED_REGISTER" value="true">开启<span class="text"></span>
+                                    <input type="radio" {{if eq .ENABLED_REGISTER "true"}}checked{{end}} name="ENABLED_REGISTER" value="true">{{i18n .Lang "mgr.enable"}}<span class="text"></span>
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .ENABLED_REGISTER "false"}}checked{{end}} name="ENABLED_REGISTER" value="false">关闭<span class="text"></span>
+                                    <input type="radio" {{if eq .ENABLED_REGISTER "false"}}checked{{end}} name="ENABLED_REGISTER" value="false">{{i18n .Lang "mgr.disable"}}<span class="text"></span>
                                 </label>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>启用验证码</label>
+                            <label>{{i18n .Lang "mgr.enable_captcha"}}</label>
                             <div class="radio">
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .ENABLED_CAPTCHA "true"}}checked{{end}} name="ENABLED_CAPTCHA" value="true">开启<span class="text"></span>
+                                    <input type="radio" {{if eq .ENABLED_CAPTCHA "true"}}checked{{end}} name="ENABLED_CAPTCHA" value="true">{{i18n .Lang "mgr.enable"}}<span class="text"></span>
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .ENABLED_CAPTCHA "false"}}checked{{end}} name="ENABLED_CAPTCHA" value="false">关闭<span class="text"></span>
+                                    <input type="radio" {{if eq .ENABLED_CAPTCHA "false"}}checked{{end}} name="ENABLED_CAPTCHA" value="false">{{i18n .Lang "mgr.disable"}}<span class="text"></span>
                                 </label>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>启用文档历史</label>
+                            <label>{{i18n .Lang "mgr.enable_doc_his"}}</label>
                             <div class="radio">
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .ENABLE_DOCUMENT_HISTORY "true"}}checked{{end}} name="ENABLE_DOCUMENT_HISTORY" value="true">开启<span class="text"></span>
+                                    <input type="radio" {{if eq .ENABLE_DOCUMENT_HISTORY "true"}}checked{{end}} name="ENABLE_DOCUMENT_HISTORY" value="true">{{i18n .Lang "mgr.enable"}}<span class="text"></span>
                                 </label>
                                 <label class="radio-inline">
-                                    <input type="radio" {{if eq .ENABLE_DOCUMENT_HISTORY "false"}}checked{{end}} name="ENABLE_DOCUMENT_HISTORY" value="false">关闭<span class="text"></span>
+                                    <input type="radio" {{if eq .ENABLE_DOCUMENT_HISTORY "false"}}checked{{end}} name="ENABLE_DOCUMENT_HISTORY" value="false">{{i18n .Lang "mgr.disable"}}<span class="text"></span>
                                 </label>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
+                            <button type="submit" id="btnSaveBookInfo" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
                             <span id="form-error-message" class="error-message"></span>
                         </div>
                         </form>
@@ -117,12 +117,12 @@
                 var title = $.trim($("#siteName").val());
 
                 if (title === ""){
-                    return showError("网站标题不能为空");
+                    return showError({{i18n .Lang "message.site_name_empty"}});
                 }
                 $("#btnSaveBookInfo").button("loading");
             },success : function (res) {
                 if(res.errcode === 0) {
-                    showSuccess("保存成功")
+                    showSuccess({{i18n .Lang "message.success"}})
                 }else{
                     showError(res.message);
                 }

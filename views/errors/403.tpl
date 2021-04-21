@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>权限不足 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "message.no_permission"}} - Powered by MinDoc</title>
     <link href="{{cdncss "/static/fonts/lato-100.css"}}" rel="stylesheet" type="text/css">
     <style type="text/css">
         html, body {
@@ -45,7 +45,7 @@
 <body>
 <div class="container">
     <div class="content">
-        <div class="title">HTTP 403 : 权限不足</div>
+        <div class="title">HTTP 403 : {{i18n .Lang "message.no_permission"}}</div>
     </div>
 </div>
 </body>

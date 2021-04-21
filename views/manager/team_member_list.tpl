@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>团队用户管理 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "mgr.team_member_mgr"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -21,28 +21,28 @@
 {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
-        {{template "manager/widgets.tpl" "team"}}
+        {{template "manager/widgets.tpl" .}}
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">{{.Model.TeamName}} - 成员管理</strong>
-                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addTeamMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> 添加成员</button>
+                        <strong class="box-title">{{.Model.TeamName}} - {{i18n .Lang "mgr.member_mgr"}}</strong>
+                        <button type="button"  class="btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#addTeamMemberDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i> {{i18n .Lang "mgr.add_member"}}</button>
                     </div>
                 </div>
                 <div class="box-body">
                     <div class="users-list" id="teamMemberList">
                         <template v-if="lists.length <= 0">
-                            <div class="text-center">暂无数据</div>
+                            <div class="text-center">{{i18n .Lang "message.no_data"}}</div>
                         </template>
                         <template v-else>
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th width="80">头像</th>
-                                    <th width="100">账号</th>
-                                    <th width="100">姓名</th>
-                                    <th width="150">角色</th>
-                                    <th width="80px">操作</th>
+                                    <th width="80">{{i18n .Lang "uc.avatar"}}</th>
+                                    <th width="100">{{i18n .Lang "uc.username"}}</th>
+                                    <th width="100">{{i18n .Lang "uc.realname"}}</th>
+                                    <th width="150">{{i18n .Lang "uc.role"}}</th>
+                                    <th width="80px">{{i18n .Lang "common.operate"}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -53,17 +53,17 @@
                                     <td>
                                         <div class="btn-group">
                                             <button type="button" class="btn btn-default btn-sm"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                角色：${item.role_name}
+                                                {{i18n .Lang "uc.role"}}：${item.role_name}
                                                 <span class="caret"></span></button>
                                             <ul class="dropdown-menu">
-                                                <li><a href="javascript:;" @click="setTeamMemberRole(item.member_id,1)">管理员 <p class="text">拥有阅读、写作和管理权限</p></a> </li>
-                                                <li><a href="javascript:;" @click="setTeamMemberRole(item.member_id,2)">编辑者 <p class="text">拥有阅读和写作权限</p></a> </li>
-                                                <li><a href="javascript:;" @click="setTeamMemberRole(item.member_id,3)">观察者 <p class="text">拥有阅读权限</p></a> </li>
+                                                <li><a href="javascript:;" @click="setTeamMemberRole(item.member_id,1)">{{i18n .Lang "common.administrator"}} <p class="text">{{i18n .Lang "common.admin_right"}}</p></a> </li>
+                                                <li><a href="javascript:;" @click="setTeamMemberRole(item.member_id,2)">{{i18n .Lang "common.editor"}} <p class="text">{{i18n .Lang "common.editor_right"}}</p></a> </li>
+                                                <li><a href="javascript:;" @click="setTeamMemberRole(item.member_id,3)">{{i18n .Lang "common.observer"}} <p class="text">{{i18n .Lang "common.observer_right"}}</p></a> </li>
                                             </ul>
                                         </div>
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-danger btn-sm" @click="deleteMember(item.member_id,$event)" data-loading-text="删除中">删除</button>
+                                        <button type="button" class="btn btn-danger btn-sm" @click="deleteMember(item.member_id,$event)" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.delete"}}</button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -87,22 +87,22 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">添加成员</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "mgr.add_member"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">账号</label>
+                        <label class="col-sm-2 control-label">{{i18n .Lang "uc.username"}}</label>
                         <div class="col-sm-10">
                             <select class="js-data-example-ajax form-control" multiple="multiple" name="memberId" id="memberId"></select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">角色</label>
+                        <label class="col-sm-2 control-label">{{i18n .Lang "uc.role"}}</label>
                         <div class="col-sm-10">
                             <select name="roleId" class="form-control">
-                                <option value="1">管理员</option>
-                                <option value="2">编辑者</option>
-                                <option value="3">观察者</option>
+                                <option value="1">{{i18n .Lang "common.administrator"}}</option>
+                                <option value="2">{{i18n .Lang "common.editor"}}</option>
+                                <option value="3">{{i18n .Lang "common.observer"}}</option>
                             </select>
                         </div>
                     </div>
@@ -111,8 +111,8 @@
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddMember">保存</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}" id="btnAddMember">{{i18n .Lang "common.save"}}</button>
                 </div>
             </div>
         </form>
@@ -137,7 +137,7 @@
             beforeSubmit : function () {
                 var memberId = $.trim($("#memberId").val());
                 if(memberId === ""){
-                    return showError("账号不能为空");
+                    return showError({{i18n .Lang "message.account_empty"}});
                 }
                 $("#btnAddMember").button("loading");
             },
@@ -155,7 +155,7 @@
             $(this).find("form").html(modalCache);
         }).on("show.bs.modal",function () {
             $('.js-data-example-ajax').select2({
-                language: "zh-CN",
+                language: {{i18n .Lang "common.js_lang"}},
                 minimumInputLength : 1,
                 minimumResultsForSearch: Infinity,
                 maximumSelectionLength:1,

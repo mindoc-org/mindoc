@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>我的文章 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "common.my_blog"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">
@@ -27,16 +27,16 @@
         <div class="row">
             <div class="page-left">
                 <ul class="menu">
-                    <li {{if eq .ControllerName "BookController"}}class="active"{{end}}><a href="{{urlfor "BookController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> 我的项目</a> </li>
-                    <li {{if eq .ControllerName "BlogController"}}class="active"{{end}}><a href="{{urlfor "BlogController.ManageList"}}" class="item"><i class="fa fa-file" aria-hidden="true"></i> 我的文章</a> </li>
+                    <li {{if eq .ControllerName "BookController"}}class="active"{{end}}><a href="{{urlfor "BookController.Index"}}" class="item"><i class="fa fa-sitemap" aria-hidden="true"></i> {{i18n .Lang "common.my_project"}}</a> </li>
+                    <li {{if eq .ControllerName "BlogController"}}class="active"{{end}}><a href="{{urlfor "BlogController.ManageList"}}" class="item"><i class="fa fa-file" aria-hidden="true"></i> {{i18n .Lang "common.my_blog"}}</a> </li>
                 </ul>
             </div>
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title">文章列表</strong>
+                        <strong class="box-title">{{i18n .Lang "blog.blog_list"}}</strong>
                         &nbsp;
-                        <a href="{{urlfor "BlogController.ManageSetting"}}" class="btn btn-success btn-sm pull-right">添加文章</a>
+                        <a href="{{urlfor "BlogController.ManageSetting"}}" class="btn btn-success btn-sm pull-right">{{i18n .Lang "blog.add_blog"}}</a>
                     </div>
                 </div>
                 <div class="box-body" id="blogList">
@@ -46,7 +46,7 @@
                                 <div class="content">
                                     <a class="header" href="{{urlfor "BlogController.Index" ":id" $item.BlogId}}" target="_blank">
                                         {{if eq $item.BlogStatus "password"}}
-                                        <div class="ui teal label horizontal" data-tooltip="加密">密</div>
+                                        <div class="ui teal label horizontal" data-tooltip="{{i18n $.Lang "blog.encryption"}}">{{i18n $.Lang "blog.encrypt"}}</div>
                                         {{end}}
                                         {{$item.BlogTitle}}
                                     </a>
@@ -57,16 +57,16 @@
                                         <div>
                                             <div class="ui horizontal small list">
                                                 <div class="item"><i class="fa fa-clock-o"></i> {{date $item.Modified "Y-m-d H:i:s"}}</div>
-                                                <div class="item"><a href="{{urlfor "BlogController.ManageEdit" ":id" $item.BlogId}}" title="文章编辑" target="_blank"><i class="fa fa-edit"></i> 编辑</a></div>
-                                                <div class="item"><a class="delete-btn" title="删除文章" data-id="{{$item.BlogId}}"><i class="fa fa-trash"></i> 删除</a></div>
-                                                <div class="item"><a href="{{urlfor "BlogController.ManageSetting" ":id" $item.BlogId}}" title="文章设置" class="setting-btn"><i class="fa fa-gear"></i> 设置</a></div>
+                                                <div class="item"><a href="{{urlfor "BlogController.ManageEdit" ":id" $item.BlogId}}" title="{{i18n $.Lang "blog.edit_blog"}}" target="_blank"><i class="fa fa-edit"></i> {{i18n $.Lang "blog.edit"}}</a></div>
+                                                <div class="item"><a class="delete-btn" title="{{i18n $.Lang "blog.delete_blog"}}" data-id="{{$item.BlogId}}"><i class="fa fa-trash"></i> {{i18n $.Lang "blog.delete"}}</a></div>
+                                                <div class="item"><a href="{{urlfor "BlogController.ManageSetting" ":id" $item.BlogId}}" title="{{i18n $.Lang "blog.setting_blog"}}" class="setting-btn"><i class="fa fa-gear"></i> {{i18n $.Lang "common.setting"}}</a></div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         {{else}}
-                        <div class="text-center">暂无文章</div>
+                        <div class="text-center">{{i18n .Lang "blog.no_blog"}}</div>
                         {{end}}
                     </div>
                     <nav class="pagination-container">
@@ -88,17 +88,17 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">删除文章</h4>
+                    <h4 class="modal-title">{{i18n .Lang "blog.delete_blog"}}</h4>
                 </div>
                 <div class="modal-body">
-                    <span style="font-size: 14px;font-weight: 400;">确定删除文章吗？</span>
+                    <span style="font-size: 14px;font-weight: 400;">{{i18n .Lang "message.confirm_delete_blog"}}</span>
                     <p></p>
-                    <p class="text error-message">删除文章后将无法找回。</p>
+                    <p class="text error-message">{{i18n .Lang "message.delete_blog_tips"}}</p>
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message2" class="error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" id="btnDeleteBlog" class="btn btn-primary" data-loading-text="删除中...">确定删除</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="submit" id="btnDeleteBlog" class="btn btn-primary" data-loading-text="{{i18n .Lang "message.process"}}">{{i18n .Lang "common.confirm_delete"}}</button>
                 </div>
             </div>
         </form>
@@ -140,7 +140,7 @@
             },
             error : function () {
                 layer.close(index);
-                layer.msg('服务器异常');
+                layer.msg({{i18n .Lang "message.system_error"}});
             }
         });
     }
@@ -166,7 +166,7 @@
                 $("#btnDeleteBlog").button("reset");
             },
             error : function () {
-                showError("服务器异常","#form-error-message2");
+                showError({{i18n .Lang "message.system_error"}},"#form-error-message2");
                 $("#btnDeleteBlog").button("reset");
             }
         });

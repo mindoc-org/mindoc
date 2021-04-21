@@ -50,7 +50,7 @@
                 <div class="box-body">
                     <div class="users-list" id="teamList">
                         <template v-if="lists.length <= 0">
-                            <div class="text-center">{{i18n $.Lang "common.no_data"}}</div>
+                            <div class="text-center">{{i18n $.Lang "message.no_data"}}</div>
                         </template>
                         <template v-else>
                             <table class="table">

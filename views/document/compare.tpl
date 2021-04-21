@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>文档比较 - Powered by MinDoc</title>
+    <title>i18n.Tr(c.Lang, "doc.comparision") - Powered by MinDoc</title>
     <link rel="shortcut icon" href="{{cdnimg "/favicon.ico"}}" />
     <link href="{{cdncss "/static/fonts/notosans.css"}}" rel='stylesheet' type='text/css' />
     <link type='text/css' rel='stylesheet' href="{{cdncss "/static/mergely/editor/lib/wicked-ui.css"}}" />
@@ -29,19 +29,19 @@
 <body style="visibility:hidden">
 <!-- toolbar -->
 <ul id="toolbar">
-    <li id="tb-file-save" data-icon="icon-save" title="保存">保存合并</li>
+    <li id="tb-file-save" data-icon="icon-save" title="i18n.Tr(c.Lang, "common.save")">i18n.Tr(c.Lang, "doc.save_merge")</li>
     <li class="separator"></li>
-    <li id="tb-view-change-prev" data-icon="icon-arrow-up" title="上一处差异">上一处差异</li>
-    <li id="tb-view-change-next" data-icon="icon-arrow-down" title="下一处差异">下一处差异</li>
+    <li id="tb-view-change-prev" data-icon="icon-arrow-up" title="i18n.Tr(c.Lang, "doc.prev_diff")">i18n.Tr(c.Lang, "doc.prev_diff")</li>
+    <li id="tb-view-change-next" data-icon="icon-arrow-down" title="i18n.Tr(c.Lang, "doc.next_diff")">i18n.Tr(c.Lang, "doc.next_diff")</li>
     <li class="separator"></li>
-    <li id="tb-edit-right-merge-left" data-icon="icon-arrow-left-v" title="合并到左侧">合并到左侧</li>
-    <li id="tb-edit-left-merge-right" data-icon="icon-arrow-right-v" title="合并到右侧">合并到右侧</li>
-    <li id="tb-view-swap" data-icon="icon-swap" title="左右切换">左右切换</li>
+    <li id="tb-edit-right-merge-left" data-icon="icon-arrow-left-v" title="i18n.Tr(c.Lang, "doc.merge_to_left")">i18n.Tr(c.Lang, "doc.merge_to_left")</li>
+    <li id="tb-edit-left-merge-right" data-icon="icon-arrow-right-v" title="i18n.Tr(c.Lang, "doc.merge_to_right")">i18n.Tr(c.Lang, "doc.merge_to_right")</li>
+    <li id="tb-view-swap" data-icon="icon-swap" title="i18n.Tr(c.Lang, "doc.exchange_left_right")">i18n.Tr(c.Lang, "doc.exchange_left_right")</li>
 </ul>
 
 <!-- find -->
 <div class="find">
-    <input type="text" placeholder="请输入关键字"/>
+    <input type="text" placeholder="i18n.Tr(c.Lang, "message.keyword_placeholder")"/>
     <button class="find-prev"><span class="icon icon-arrow-up"></span></button>
     <button class="find-next"><span class="icon icon-arrow-down"></span></button>
     <button class="find-close"><span class="icon icon-x-mark"></span></button>
