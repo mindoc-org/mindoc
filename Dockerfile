@@ -1,93 +1,52 @@
-FROM golang:1.11.4-alpine3.8 AS build
+FROM amd64/golang:1.13 AS build
 
-#新增 GLIBC
-ENV GLIBC_VERSION "2.28-r0"
+# 编译-环境变量
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
+ENV CGO_ENABLED=1
+ENV GOARCH=amd64
+ENV GOOS=linux
 
-# Download and install glibc
-RUN apk add --update && \
-    apk add --no-cache --upgrade \
-    ca-certificates \
-    gcc \
-    g++ \
-    make \
-    curl \
-    git
-
-RUN curl -Lo /etc/apk/keys/sgerrand.rsa.pub "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" && \
-    curl -Lo /var/glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
-    curl -Lo /var/glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" && \
-    apk add /var/glibc-bin.apk /var/glibc.apk && \
-    /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
-    echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
-
-#掛載 calibre 最新3.x
-
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/calibre/lib
-ENV PATH $PATH:/opt/calibre/bin
-
-RUN curl -Lo /var/linux-installer.py https://download.calibre-ebook.com/linux-installer.py
-
-#RUN mkdir -p /go/src/github.com/lifei6671/ && cd /go/src/github.com/lifei6671/ && git clone https://github.com/mindoc-org/mindoc.git && cd mindoc
-
+# 工作目录
 ADD . /go/src/github.com/mindoc-org/mindoc
-
 WORKDIR /go/src/github.com/mindoc-org/mindoc
 
-RUN	 go get -u github.com/golang/dep/cmd/dep && dep ensure  && \
-    CGO_ENABLE=1 go build -v -a -o mindoc_linux_amd64 -ldflags="-w -s -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" && \
-    rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock simsun.ttc
+# 编译
+RUN go env
+RUN go mod tidy -v
+RUN go build -o mindoc_linux_amd64 -ldflags "-w -s -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
+RUN cp conf/app.conf.example conf/app.conf
+# 清理不需要的文件
+RUN rm appveyor.yml docker-compose.yml Dockerfile .travis.yml .gitattributes .gitignore go.mod go.sum main.go README.md simsun.ttc start.sh
+RUN rm -rf cache commands controllers converter .git .github graphics mail models routers utils
 
-ADD start.sh /go/src/github.com/mindoc-org/mindoc
+# 测试编译的mindoc是否ok
+RUN ./mindoc_linux_amd64 version
+
+# 必要的文件复制
 ADD simsun.ttc /usr/share/fonts/win/
-
-FROM alpine:latest
-
-LABEL maintainer="longfei6671@163.com"
-
-RUN apk add --update && \
-    apk add --no-cache --upgrade \
-    tzdata \
-    mesa-gl \
-    python \
-    qt5-qtbase-x11 \
-    xdg-utils \
-    libxrender \
-    libxcomposite \
-    xz \
-    imagemagick \
-    imagemagick-dev \
-    msttcorefonts-installer \
-    fontconfig && \
-    update-ms-fonts && \
-    fc-cache -f
-
-COPY --from=build /var/glibc.apk .
-COPY --from=build /var/glibc-bin.apk .
-COPY --from=build /etc/apk/keys/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
-COPY --from=build /var/linux-installer.py .
-COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /go/src/github.com/mindoc-org/mindoc /mindoc
-
-RUN  apk add glibc-bin.apk glibc.apk && \
-    /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
-    echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
-    rm -rf glibc.apk glibc-bin.apk /var/cache/apk/* && \
-    chmod a+r /usr/share/fonts/win/simsun.ttc
+ADD start.sh /go/src/github.com/mindoc-org/mindoc
 
 
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/calibre/lib
-ENV PATH $PATH:/opt/calibre/bin
+# Ubuntu 20.04
+FROM ubuntu:focal
 
-RUN cat linux-installer.py | python -c "import sys; main=lambda x,y:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main(install_dir='/opt', isolated=True)" && \
-    rm -rf /tmp/* linux-installer.py
-
-WORKDIR /mindoc
-
-
-# 时区设置
+# 时区设置(如果不设置, calibre依赖的tzdata在安装过程中会要求选择时区)
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
+COPY --from=build /go/src/github.com/mindoc-org/mindoc /mindoc
+WORKDIR /mindoc
+RUN chmod a+r /usr/share/fonts/win/simsun.ttc
+
+RUN apt-get update
+# 安装文泉驿字体
+RUN apt install -y fonts-wqy-microhei fonts-wqy-zenhei
+# 安装-calibre
+ENV QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox"
+RUN apt-get install -y calibre
+RUN ebook-convert --version
 
 ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
 RUN chmod +x start.sh
