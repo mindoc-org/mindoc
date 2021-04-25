@@ -3,8 +3,8 @@ package models
 import (
 	"errors"
 
-	"github.com/astaxie/beego/logs"
-	"github.com/astaxie/beego/orm"
+	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -36,7 +36,7 @@ func (m *Relationship) TableUnique() [][]string {
 	}
 }
 
-func (m *Relationship) QueryTable() orm.QuerySeter  {
+func (m *Relationship) QueryTable() orm.QuerySeter {
 	return orm.NewOrm().QueryTable(m.TableNameWithPrefix())
 }
 func NewRelationship() *Relationship {
@@ -122,11 +122,11 @@ func (m *Relationship) Insert() error {
 	return err
 }
 
-func (m *Relationship) Update() error {
-	o := orm.NewOrm()
-
-	_, err := o.Update(m)
-
+func (m *Relationship) Update(txOrm orm.TxOrmer) error {
+	_, err := txOrm.Update(m)
+	if err != nil {
+		txOrm.Rollback()
+	}
 	return err
 }
 
@@ -152,11 +152,11 @@ func (m *Relationship) DeleteByBookIdAndMemberId(book_id, member_id int) error {
 }
 
 func (m *Relationship) Transfer(book_id, founder_id, receive_id int) error {
-	o := orm.NewOrm()
+	ormer := orm.NewOrm()
 
 	founder := NewRelationship()
 
-	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).Filter("member_id", founder_id).One(founder)
+	err := ormer.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).Filter("member_id", founder_id).One(founder)
 
 	if err != nil {
 		return err
@@ -166,12 +166,12 @@ func (m *Relationship) Transfer(book_id, founder_id, receive_id int) error {
 	}
 	receive := NewRelationship()
 
-	err = o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).Filter("member_id", receive_id).One(receive)
+	err = ormer.QueryTable(m.TableNameWithPrefix()).Filter("book_id", book_id).Filter("member_id", receive_id).One(receive)
 
 	if err != orm.ErrNoRows && err != nil {
 		return err
 	}
-	o.Begin()
+	o, _ := ormer.Begin()
 
 	founder.RoleId = conf.BookAdmin
 
@@ -179,8 +179,7 @@ func (m *Relationship) Transfer(book_id, founder_id, receive_id int) error {
 	receive.RoleId = conf.BookFounder
 	receive.BookId = book_id
 
-	if err := founder.Update(); err != nil {
-		o.Rollback()
+	if err := founder.Update(o); err != nil {
 		return err
 	}
 	if receive.RelationshipId > 0 {
