@@ -145,21 +145,22 @@ func (c *DocumentController) Read() {
 	}
 
 	doc.IncrViewCount(doc.DocumentId)
-	c.Data["ViewCount"] = doc.ViewCount + 1
+	doc.ViewCount = doc.ViewCount + 1
+	doc.PutToCache()
 
 	if c.IsAjax() {
 		var data struct {
-			DocTitle string `json:"doc_title"`
-			Body     string `json:"body"`
-			Title    string `json:"title"`
-			Version  int64  `json:"version"`
-			ViewCount int   `json:"view_count"`
+			DocTitle  string `json:"doc_title"`
+			Body      string `json:"body"`
+			Title     string `json:"title"`
+			Version   int64  `json:"version"`
+			ViewCount int    `json:"view_count"`
 		}
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
 		data.Version = doc.Version
-		data.ViewCount = doc.ViewCount + 1
+		data.ViewCount = doc.ViewCount
 
 		c.JsonResult(0, "ok", data)
 	}
@@ -178,6 +179,7 @@ func (c *DocumentController) Read() {
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = doc.DocumentName
 	c.Data["Content"] = template.HTML(doc.Release)
+	c.Data["ViewCount"] = doc.ViewCount
 }
 
 // 编辑文档
