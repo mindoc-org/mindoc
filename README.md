@@ -11,7 +11,9 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 
 可以用来储存日常接口文档，数据库字典，手册说明等文档。内置项目管理，用户管理，权限管理等功能，能够满足大部分中小团队的文档管理需求。
 
-演示站点： [https://www.iminho.me/wiki/](https://www.iminho.me/wiki/)
+##### 演示站点:
+- [https://www.iminho.me/wiki/](https://www.iminho.me/wiki/)
+- https://doc.gsw945.com/
 
 ---
 
@@ -23,6 +25,11 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 
 遇到问题请提 [Issues](https://github.com/mindoc-org/mindoc/issues )，欢迎使用者和贡献者加入QQ群 `1051164153`
 <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=bHFR7P3Qp1nsSPbsTw4KN_ZpFLUAblIU&jump_from=webapi"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="MinDoc使用&amp;开发交流群" title="MinDoc使用&amp;开发交流群"></a>
+
+对开发感兴趣请关注 [Development](https://github.com/mindoc-org/mindoc/projects/1):
+- [Todo List](https://github.com/mindoc-org/mindoc/projects/1#column-13554511)
+- [Work in progress](https://github.com/mindoc-org/mindoc/projects/1#column-13554512)
+- [Review in progress](https://github.com/mindoc-org/mindoc/projects/1#column-13554513)
 
 ---
 
@@ -47,7 +54,6 @@ go build -ldflags "-w"
 ./mindoc install
 # 执行
 ./mindoc
-
 ```
 
 MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 `conf/app.conf` 中。
@@ -176,7 +182,7 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 - MySQL 5.6
 - [editor.md](https://github.com/pandao/editor.md) Markdown 编辑器
 - [Bootstrap](https://github.com/twbs/bootstrap) 3.2
-- jQuery(https://github.com/jquery/jquery) 库
+- [jQuery](https://github.com/jquery/jquery) 库
 - [WebUploader](https://github.com/fex-team/webuploader) 文件上传框架
 - [NProgress](https://github.com/rstacruz/nprogress) 库
 - [jsTree](https://github.com/vakata/jstree) 树状结构库
