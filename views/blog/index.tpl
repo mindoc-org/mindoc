@@ -82,13 +82,13 @@
             <div class="blog-meta">
                 <div class="item user_img"><img src="{{cdnimg .Model.MemberAvatar}}" align="{{.Model.CreateName}}"> </div>
                 <div class="item">&nbsp;{{.Model.CreateName}}</div>
-                <div class="item">发布于</div>
+                <div class="item">{{i18n .Lang "blog.posted_on"}}</div>
                 <div class="item">{{date .Model.Created "Y-m-d H:i:s"}}</div>
                 <div class="item">{{.Model.ModifyRealName}}</div>
-                <div class="item">修改于</div>
+                <div class="item">{{i18n .Lang "blog.modified_on"}}</div>
                 <div class="item">{{date .Model.Modified "Y-m-d H:i:s"}}</div>
                 {{if eq .Member.MemberId .Model.MemberId}}
-                    <div class="item"><a href='{{urlfor "BlogController.ManageEdit" ":id" .Model.BlogId}}' title="文章编辑"><i class="fa fa-edit"></i> 编辑</a></div>
+                    <div class="item"><a href='{{urlfor "BlogController.ManageEdit" ":id" .Model.BlogId}}' title="{{i18n .Lang "blog.edit_blog"}}"><i class="fa fa-edit"></i> {{i18n .Lang "common.edit"}}</a></div>
                 {{end}}
             </div>
         </div>
@@ -96,7 +96,7 @@
             <div class="article-body  markdown-body editormd-preview-container content">
                 {{.Content}}
                 {{if .Model.AttachList}}
-                <div class="attach-list"><strong>附件</strong><ul>
+                <div class="attach-list"><strong>{{i18n .Lang "blog.attachment"}}</strong><ul>
                 {{range $index,$item := .Model.AttachList}}
                 <li><a href="{{$item.HttpPath}}" title="{{$item.FileName}}">{{$item.FileName}}</a> </li>
                 {{end}}
@@ -106,20 +106,20 @@
         </div>
         <div class="row blog-footer">
             <p>
-                <span>上一篇</span>
+                <span>{{i18n .Lang "blog.prev"}}</span>
             {{if .Previous}}
                 <a href="{{urlfor "BlogController.Index" ":id" .Previous.BlogId}}" title="{{.Previous.BlogTitle}}">{{.Previous.BlogTitle}}
                 </a>
             {{else}}
-               无
+               {{i18n .Lang "blog.no"}}
             {{end}}
             </p>
             <p>
-                <span>下一篇</span>
+                <span>{{i18n .Lang "blog.next"}}</span>
             {{if .Next}}
                 <a href="{{urlfor "BlogController.Index" ":id" .Next.BlogId}}" title="{{.Next.BlogTitle}}">{{.Next.BlogTitle}}</a>
             {{else}}
-                无
+                {{i18n .Lang "blog.no"}}
             {{end}}
             </p>
         </div>

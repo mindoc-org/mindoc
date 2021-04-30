@@ -22,6 +22,7 @@ import (
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
 )
@@ -44,6 +45,8 @@ type Member struct {
 	CreateTime    time.Time       `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
 	CreateAt      int             `orm:"type(int);column(create_at)" json:"create_at"`
 	LastLoginTime time.Time       `orm:"type(datetime);column(last_login_time);null" json:"last_login_time"`
+	//i18n
+	Lang string `orm:"-"`
 }
 
 // TableName 获取对应数据库表名.
@@ -327,11 +330,11 @@ func (m *Member) Find(id int, cols ...string) (*Member, error) {
 
 func (m *Member) ResolveRoleName() {
 	if m.Role == conf.MemberSuperRole {
-		m.RoleName = "超级管理员"
+		m.RoleName = i18n.Tr(m.Lang, "common.administrator")
 	} else if m.Role == conf.MemberAdminRole {
-		m.RoleName = "管理员"
+		m.RoleName = i18n.Tr(m.Lang, "common.editor")
 	} else if m.Role == conf.MemberGeneralRole {
-		m.RoleName = "普通用户"
+		m.RoleName = i18n.Tr(m.Lang, "common.obverser")
 	}
 }
 

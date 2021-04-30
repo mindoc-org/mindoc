@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>编辑用户 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "uc.edit_user"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -23,47 +23,47 @@
     {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
-        {{template "manager/widgets.tpl" "users"}}
+        {{template "manager/widgets.tpl" .}}
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 编辑用户</strong>
+                        <strong class="box-title"> {{i18n .Lang "uc.edit_user"}}</strong>
                     </div>
                 </div>
                 <div class="box-body col-lg-6 col-sm-12">
                     <form method="post" id="saveMemberInfoForm">
                         <div class="form-group">
-                            <label>用户账号</label>
-                            <input type="text" class="form-control" name="account" disabled placeholder="用户账号" value="{{.Model.Account}}">
+                            <label>{{i18n .Lang "uc.username"}}</label>
+                            <input type="text" class="form-control" name="account" disabled placeholder="{{i18n .Lang "uc.username"}}" value="{{.Model.Account}}">
                         </div>
                         <div class="form-group">
-                            <label>真实姓名</label>
-                            <input type="text" name="real_name" class="form-control" value="{{.Model.RealName}}" placeholder="真实姓名">
+                            <label>{{i18n .Lang "uc.realname"}}</label>
+                            <input type="text" name="real_name" class="form-control" value="{{.Model.RealName}}" placeholder="{{i18n .Lang "uc.realname"}}">
                         </div>
                         <div class="form-group">
-                            <label>用户密码</label>
-                            <input type="password" class="form-control" name="password1" placeholder="用户密码" maxlength="50">
-                            <p style="color: #999;font-size: 12px;">不修改密码请留空,只支持本地用户修改密码</p>
+                            <label>{{i18n .Lang "uc.password"}}</label>
+                            <input type="password" class="form-control" name="password1" placeholder="{{i18n .Lang "uc.password"}}" maxlength="50">
+                            <p style="color: #999;font-size: 12px;">{{i18n .Lang "uc.pwd_tips"}}</p>
                         </div>
                         <div class="form-group">
-                            <label>确认密码</label>
-                            <input type="password" class="form-control" name="password2" placeholder="确认密码" maxlength="50">
+                            <label>{{i18n .Lang "uc.confirm_pwd"}}</label>
+                            <input type="password" class="form-control" name="password2" placeholder="{{i18n .Lang "uc.confirm_pwd"}}" maxlength="50">
                         </div>
                         <div class="form-group">
-                            <label>用户邮箱 <strong class="text-danger">*</strong></label>
-                            <input type="email" class="form-control" name="email" placeholder="用户邮箱" value="{{.Model.Email}}" maxlength="50">
+                            <label>{{i18n .Lang "uc.email"}} <strong class="text-danger">*</strong></label>
+                            <input type="email" class="form-control" name="email" placeholder="{{i18n .Lang "uc.email"}}" value="{{.Model.Email}}" maxlength="50">
                         </div>
                         <div class="form-group">
-                            <label>手机号码</label>
-                            <input type="text" class="form-control" name="phone" placeholder="手机号码" maxlength="50" value="{{.Model.Phone}}">
+                            <label>{{i18n .Lang "uc.mobile"}}</label>
+                            <input type="text" class="form-control" name="phone" placeholder="{{i18n .Lang "uc.mobile"}}" maxlength="50" value="{{.Model.Phone}}">
                         </div>
                         <div class="form-group">
-                            <label class="description">描述</label>
-                            <textarea class="form-control" rows="3" title="描述" name="description" id="description" maxlength="500" >{{.Model.Description}}</textarea>
-                            <p style="color: #999;font-size: 12px;">描述不能超过500字</p>
+                            <label class="description">{{i18n .Lang "uc.description"}}</label>
+                            <textarea class="form-control" rows="3" title="{{i18n .Lang "uc.description"}}" name="description" id="description" maxlength="500" >{{.Model.Description}}</textarea>
+                            <p style="color: #999;font-size: 12px;">{{i18n .Lang "uc.description_tips"}}</p>
                         </div>
                         <div class="form-group">
-                            <button type="submit" id="btnMemberInfo" class="btn btn-success" data-loading-text="保存中...">保存修改</button>
+                            <button type="submit" id="btnMemberInfo" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
                             <span id="form-error-message" class="error-message"></span>
                         </div>
                     </form>
@@ -92,15 +92,15 @@
                 var password1 = $.trim($then.find("input[name='password1']").val());
                 var password2 = $.trim($then.find("input[name='password2']").val());
                 if (email === ""){
-                    return showError("用户邮箱不能为空!");
+                    return showError({{i18n .Lang "message.email_empty"}});
                 }
                 if (password1 !== "" && password1 !== password2){
-                    return showError("确认密码不正确!");
+                    return showError({{i18n .Lang "message.wrong_confirm_pwd"}});
                 }
                 $("#btnMemberInfo").button("loading");
             },success : function (res) {
                 if(res.errcode === 0) {
-                    showSuccess("保存成功")
+                    showSuccess({{i18n .Lang "message.success"}})
                 }else{
                     showError(res.message);
                 }

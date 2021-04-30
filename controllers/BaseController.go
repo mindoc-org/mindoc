@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"bytes"
-
 	"encoding/json"
 	"io"
 	"strings"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
@@ -25,6 +25,7 @@ type BaseController struct {
 	Option                map[string]string
 	EnableAnonymous       bool
 	EnableDocumentHistory bool
+	Lang                  string
 }
 
 type CookieRemember struct {
@@ -46,7 +47,6 @@ func (c *BaseController) Prepare() {
 	c.EnableDocumentHistory = false
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
-
 		c.Member = &member
 		c.Data["Member"] = c.Member
 	} else {
@@ -80,6 +80,7 @@ func (c *BaseController) Prepare() {
 		c.Data["Scripts"] = template.HTML(string(b))
 	}
 
+	c.SetLang()
 }
 
 //判断用户是否登录.
@@ -112,14 +113,16 @@ func (c *BaseController) JsonResult(errCode int, errMsg string, data ...interfac
 	}
 
 	returnJSON, err := json.Marshal(jsonData)
-
 	if err != nil {
 		logs.Error(err)
 	}
 
 	c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Ctx.ResponseWriter.Header().Set("Cache-Control", "no-cache, no-store")
-	io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+	_, err = io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+	if err != nil {
+		logs.Error(err)
+	}
 
 	c.StopRun()
 }
@@ -136,14 +139,16 @@ func (c *BaseController) CheckJsonError(code int, err error) {
 	jsonData["message"] = err.Error()
 
 	returnJSON, err := json.Marshal(jsonData)
-
 	if err != nil {
 		logs.Error(err)
 	}
 
 	c.Ctx.ResponseWriter.Header().Set("Content-Type", "application/json; charset=utf-8")
 	c.Ctx.ResponseWriter.Header().Set("Cache-Control", "no-cache, no-store")
-	io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+	_, err = io.WriteString(c.Ctx.ResponseWriter, string(returnJSON))
+	if err != nil {
+		logs.Error(err)
+	}
 
 	c.StopRun()
 }
@@ -200,4 +205,22 @@ func (c *BaseController) CheckErrorResult(code int, err error) {
 	if err != nil {
 		c.ShowErrorPage(code, err.Error())
 	}
+}
+
+func (c *BaseController) SetLang() {
+	hasCookie := false
+	lang := c.GetString("lang")
+	if len(lang) == 0 {
+		lang = c.Ctx.GetCookie("lang")
+		hasCookie = true
+	}
+	if len(lang) == 0 ||
+		!i18n.IsExist(lang) {
+		lang, _ = web.AppConfig.String("default_lang")
+	}
+	if !hasCookie {
+		c.Ctx.SetCookie("lang", lang, 1<<31-1, "/")
+	}
+	c.Data["Lang"] = lang
+	c.Lang = lang
 }

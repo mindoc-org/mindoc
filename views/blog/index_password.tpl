@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>请输入文章密码 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "doc.input_pwd"}} - Powered by MinDoc</title>
     <script src="{{cdnjs "static/jquery/1.12.4/jquery.min.js"}}"></script>
     <script src="{{cdnjs "static/js/jquery.form.js"}}"></script>
     <style type="text/css">
@@ -99,14 +99,14 @@
         <form action="{{urlfor "BlogController.Index" ":id" .Model.BlogId}}" method="post" id="auth_form">
         <input type="hidden" value="{{.Model.BlogId}}" name="blogId" />
     <div class="tit">
-        请输入浏览密码
+        {{i18n .Lang "doc.input_pwd"}}
     </div>
     <div style="margin-top: 10px;">
-        <input type="password" name="password" placeholder="浏览密码" class="inp"/>
+        <input type="password" name="password" placeholder="{{i18n .Lang "blog.access_pass"}}" class="inp"/>
     </div>
     <div class="btn">
         <span id="error" style="color: #919191; font-size: 13px;"></span>
-        <input type="submit" value="提交" class="button"/>
+        <input type="submit" value="{{i18n .Lang "doc.commit"}}" class="button"/>
     </div>
     <div class="clear"></div>
 </form>
@@ -117,7 +117,7 @@ $("#auth_form").ajaxForm({
     beforeSerialize: function () {
         var pwd = $("#auth_form input[name='password']").val();
         if (pwd === "") {
-            $("#error").html("请输入密码");
+            $("#error").html("{{i18n .Lang "doc.input_pwd"}}");
             return false;
         }
     },

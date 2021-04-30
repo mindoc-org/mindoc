@@ -8,7 +8,7 @@
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="SmartWiki" />
-    <title>历史版本 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "doc.his_ver"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -32,10 +32,10 @@
             <thead>
             <tr>
                 <td>#</td>
-                <td class="col-sm-6">修改时间</td>
-                <td class="col-sm-2">修改人</td>
-                <td class="col-sm=2">版本</td>
-                <td class="col-sm-2">操作</td>
+                <td class="col-sm-6">{{i18n .Lang "doc.update_time"}}</td>
+                <td class="col-sm-2">{{i18n .Lang "doc.updater"}}</td>
+                <td class="col-sm=2">{{i18n .Lang "doc.version"}}</td>
+                <td class="col-sm-2">{{i18n .Lang "doc.operation"}}</td>
             </tr>
             </thead>
             <tbody>
@@ -46,15 +46,15 @@
                 <td>{{$item.ModifyName}}</td>
                 <td>{{$item.Version}}</td>
                 <td>
-                    <button class="btn btn-danger btn-sm delete-btn" data-id="{{$item.HistoryId}}" data-loading-text="删除中...">
-                        删除
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="{{$item.HistoryId}}" data-loading-text="{{i18n .Lang "message.processing"}}">
+                        {{i18n .Lang "doc.delete"}}
                     </button>
-                    <button class="btn btn-success btn-sm restore-btn" data-id="{{$item.HistoryId}}" data-loading-text="恢复中...">
-                        恢复
+                    <button class="btn btn-success btn-sm restore-btn" data-id="{{$item.HistoryId}}" data-loading-text="{{i18n .Lang "message.processing"}}">
+                        {{i18n .Lang "doc.recover"}}
                     </button>
                     {{if eq $.Model.Editor "markdown"}}
                     <button class="btn btn-success btn-sm compare-btn" data-id="{{$item.HistoryId}}">
-                        合并
+                        {{i18n .Lang "doc.merge"}}
                     </button>
                     {{end}}
                 </td>
@@ -82,7 +82,7 @@
             var $then = $(this);
 
             if(!id){
-                layer.msg('参数错误');
+                layer.msg('{{i18n .Lang "message.param_error"}}');
             }else{
                 $.ajax({
                     url : "{{urlfor "DocumentController.DeleteHistory"}}",
@@ -110,7 +110,7 @@
             var index = parent.layer.getFrameIndex(window.name);
 
             if(!id){
-                layer.msg('参数错误');
+                layer.msg('{{i18n .Lang "message.param_error"}}');
             }else{
                 $.ajax({
                     url : "{{urlfor "DocumentController.RestoreHistory"}}",
@@ -138,7 +138,7 @@
 
             window.compareIndex = window.top.layer.open({
                 type: 2,
-                title: '文档比较【左侧为历史文档，右侧为当前文档，请将文档合并到右侧】',
+                title: '{{i18n .Lang "doc.comparison_title"}}',
                 shade: 0.8,
                 area: ['380px', '90%'],
                 content: "{{urlfor "DocumentController.Compare" ":key" .Model.Identify ":id" ""}}" + historyId

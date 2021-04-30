@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>文章列表 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "blog.blog_list"}} - Powered by MinDoc</title>
     <meta name="keywords" content="MinDoc,文档在线管理系统,WIKI,wiki,wiki在线,文档在线管理,接口文档在线管理,接口文档管理">
     <meta name="description" content="MinDoc文档在线管理系统 {{.site_description}}">
     <!-- Bootstrap -->
@@ -30,20 +30,20 @@
             <div class="manual-list">
             {{range $index,$item := .Lists}}
                 <div class="search-item">
-                    <div class="title">{{if eq $item.BlogStatus "password"}}<span class="label">密</span>{{end}} <a href="{{urlfor "BlogController.Index" ":id" $item.BlogId}}" title="{{$item.BlogTitle}}">{{$item.BlogTitle}}</a> </div>
+                    <div class="title">{{if eq $item.BlogStatus "password"}}<span class="label">{{i18n $.Lang "blog.encrypt"}}</span>{{end}} <a href="{{urlfor "BlogController.Index" ":id" $item.BlogId}}" title="{{$item.BlogTitle}}">{{$item.BlogTitle}}</a> </div>
                     <div class="description">
                     {{$item.BlogExcerpt}}
                     </div>
                     {{/*<div class="site">{{urlfor "BlogController.Index" ":id" $item.BlogId}}</div>*/}}
                     <div class="source">
-                        <span class="item">作者：{{$item.CreateName}}</span>
-                        <span class="item">更新时间：{{date_format  $item.Modified "2006-01-02 15:04:05"}}</span>
+                        <span class="item">{{i18n $.Lang "blog.author"}}：{{$item.CreateName}}</span>
+                        <span class="item">{{i18n $.Lang "blog.update_time"}}：{{date_format  $item.Modified "2006-01-02 15:04:05"}}</span>
                     </div>
                 </div>
             {{else}}
                 <div class="search-empty">
                     <img src="{{cdnimg "/static/images/search_empty.png"}}" class="empty-image">
-                    <span class="empty-text">暂无文章</span>
+                    <span class="empty-text">{{i18n $.Lang "blog.no_blog"}}</span>
                 </div>
             {{end}}
                 <nav class="pagination-container">

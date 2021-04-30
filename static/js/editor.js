@@ -5,7 +5,7 @@
 /**
  * 打开最后选中的节点
  */
-function openLastSelectedNode() {
+ function openLastSelectedNode() {
     //如果文档树或编辑器没有准备好则不加载文档
     if (window.treeCatalog == null || window.editor == null) {
         return false;
@@ -81,7 +81,14 @@ function jstree_save(node, parent) {
     var index = layer.load(1, {
         shade: [0.1, '#fff'] //0.1透明度的白色背景
     });
-
+    locales = {
+        'zh-CN': {
+            saveSortSucc: '保存排序成功',
+        },
+        'en': {
+            saveSortSucc: 'Save sort success',
+        }
+    }
     $.ajax({
         url: window.sortURL,
         type: "post",
@@ -89,7 +96,7 @@ function jstree_save(node, parent) {
         success: function (res) {
             layer.close(index);
             if (res.errcode === 0) {
-                layer.msg("保存排序成功");
+                layer.msg(locales[lang].saveSortSucc);
             } else {
                 layer.msg(res.message);
             }
@@ -138,8 +145,27 @@ function getSiblingSort(node) {
  * @param $node
  */
 function openDeleteDocumentDialog($node) {
-    var index = layer.confirm('你确定要删除该文档吗？', {
-        btn: ['确定', '取消'] //按钮
+    locales = {
+        'zh-CN': {
+            saveSortSucc: '保存排序成功',
+            confirmDeleteDoc: '你确定要删除该文档吗？',
+            confirm: '确定',
+            cancel: '取消',
+            deleteFailed: '删除失败',
+            confirmLeave: '您输入的内容尚未保存，确定离开此页面吗？'
+        },
+        'en': {
+            saveSortSucc: 'Save sort success',
+            confirmDeleteDoc: 'Are you sure you want to delete this document?',
+            confirm: 'Confirm',
+            cancel: 'Cancel',
+            deleteFailed: 'Delete Failed',
+            confirmLeave: 'The content you entered has not been saved. Are you sure you want to leave this page?'
+        }
+    }
+    langs = locales[lang];
+    var index = layer.confirm(langs.confirmDeleteDoc, {
+        btn: [langs.confirm, langs.cancel] //按钮
     }, function () {
 
         $.post(window.deleteURL, {"identify": window.book.identify, "doc_id": $node.id}).done(function (res) {
@@ -154,11 +180,11 @@ function openDeleteDocumentDialog($node) {
                 // console.log(window.documentCategory)
                 setLastSelectNode();
             } else {
-                layer.msg("删除失败", {icon: 2})
+                layer.msg(lang.deleteFailed, {icon: 2})
             }
         }).fail(function () {
             layer.close(index);
-            layer.msg("删除失败", {icon: 2})
+            layer.msg(lang.deleteFailed, {icon: 2})
         });
 
     });
@@ -228,6 +254,14 @@ function pushVueLists($lists) {
  * 发布项目
  */
 function releaseBook() {
+    locales = {
+        'zh-CN': {
+            publishToQueue: '发布任务已推送到任务队列，稍后将在后台执行。',
+        },
+        'en': {
+            publishToQueue: 'The publish task has been pushed to the queue</br> and will be executed soon.',
+        }
+    }
     $.ajax({
         url: window.releaseURL,
         data: {"identify": window.book.identify},
@@ -235,7 +269,7 @@ function releaseBook() {
         dataType: "json",
         success: function (res) {
             if (res.errcode === 0) {
-                layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
+                layer.msg(locales[lang].publishToQueue);
             } else {
                 layer.msg(res.message);
             }
@@ -298,9 +332,17 @@ function showSuccess($msg, $id) {
 }
 
 window.documentHistory = function () {
+    locales = {
+        'zh-CN': {
+            hisVer: '历史版本',
+        },
+        'en': {
+            hisVer: 'Historic version',
+        }
+    }
     layer.open({
         type: 2,
-        title: '历史版本',
+        title: locales[lang].hisVer,
         shadeClose: true,
         shade: 0.8,
         area: ['700px', '80%'],
@@ -320,6 +362,16 @@ window.documentHistory = function () {
 };
 
 function uploadImage($id, $callback) {
+    locales = {
+        'zh-CN': {
+            unsupportType: '不支持的图片格式',
+            uploadFailed: '图片上传失败'
+        },
+        'en': {
+            unsupportType: 'Unsupport image type',
+            uploadFailed: 'Upload image failed'
+        }
+    }
     /** 粘贴上传图片 **/
     document.getElementById($id).addEventListener('paste', function (e) {
         if (e.clipboardData && e.clipboardData.items) {
@@ -345,7 +397,7 @@ function uploadImage($id, $callback) {
                             fileName += ".gif";
                             break;
                         default :
-                            layer.msg("不支持的图片格式");
+                            layer.msg(locales[lang].unsupportType);
                             return;
                     }
                     var form = new FormData();
@@ -367,7 +419,7 @@ function uploadImage($id, $callback) {
                         error: function () {
                             layer.close(layerIndex);
                             $callback('error');
-                            layer.msg("图片上传失败");
+                            layer.msg(locales[lang].uploadFailed);
                         },
                         success: function (data) {
                             layer.close(layerIndex);

@@ -10,6 +10,8 @@ import (
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
@@ -96,9 +98,14 @@ func ModifyPassword() {
 func initialization() {
 
 	err := models.NewOption().Init()
-
 	if err != nil {
 		panic(err.Error())
+	}
+
+	lang, _ := web.AppConfig.String("default_lang")
+	err = i18n.SetMessage(lang, "conf/lang/"+lang+".ini")
+	if err != nil {
+		panic(fmt.Errorf("initialize locale error: %s", err))
 	}
 
 	member, err := models.NewMember().FindByFieldFirst("account", "admin")
@@ -122,10 +129,10 @@ func initialization() {
 		book := models.NewBook()
 
 		book.MemberId = member.MemberId
-		book.BookName = "MinDoc演示项目"
+		book.BookName = i18n.Tr(lang, "init.default_proj_name") //"MinDoc演示项目"
 		book.Status = 0
 		book.ItemId = 1
-		book.Description = "这是一个MinDoc演示项目，该项目是由系统初始化时自动创建。"
+		book.Description = i18n.Tr(lang, "init.default_proj_desc") //"这是一个MinDoc演示项目，该项目是由系统初始化时自动创建。"
 		book.CommentCount = 0
 		book.PrivatelyOwned = 0
 		book.CommentStatus = "closed"
@@ -137,7 +144,7 @@ func initialization() {
 		book.Editor = "markdown"
 		book.Theme = "default"
 
-		if err := book.Insert(); err != nil {
+		if err := book.Insert(lang); err != nil {
 			panic("初始化项目失败 -> " + err.Error())
 		}
 	} else if err != nil {
@@ -146,7 +153,7 @@ func initialization() {
 
 	if !models.NewItemsets().Exist(1) {
 		item := models.NewItemsets()
-		item.ItemName = "默认项目空间"
+		item.ItemName = i18n.Tr(lang, "init.default_proj_space") //"默认项目空间"
 		item.MemberId = 1
 		if err := item.Save(); err != nil {
 			panic("初始化项目空间失败 -> " + err.Error())

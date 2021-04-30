@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/beego/i18n"
 	"net/url"
 	"regexp"
 	"strings"
@@ -55,17 +56,17 @@ func (c *AccountController) Prepare() {
 		}
 		if token == "" {
 			if c.IsAjax() {
-				c.JsonResult(403, "非法请求")
+				c.JsonResult(403, i18n.Tr(c.Lang, "message.illegal_request"))
 			} else {
-				c.ShowErrorPage(403, "非法请求")
+				c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.illegal_request"))
 			}
 		}
 		xsrfToken := c.XSRFToken()
 		if xsrfToken != token {
 			if c.IsAjax() {
-				c.JsonResult(403, "非法请求")
+				c.JsonResult(403, i18n.Tr(c.Lang, "message.illegal_request"))
 			} else {
-				c.ShowErrorPage(403, "非法请求")
+				c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.illegal_request"))
 			}
 		}
 	}
@@ -109,12 +110,12 @@ func (c *AccountController) Login() {
 		if v, ok := c.Option["ENABLED_CAPTCHA"]; ok && strings.EqualFold(v, "true") {
 			v, ok := c.GetSession(conf.CaptchaSessionName).(string)
 			if !ok || !strings.EqualFold(v, captcha) {
-				c.JsonResult(6001, "验证码不正确")
+				c.JsonResult(6001, i18n.Tr(c.Lang, "message.captcha_wrong"))
 			}
 		}
 
 		if account == "" || password == "" {
-			c.JsonResult(6002, "账号或密码不能为空")
+			c.JsonResult(6002, i18n.Tr(c.Lang, "message.account_or_password_empty"))
 		}
 
 		member, err := models.NewMember().Login(account, password)
@@ -137,7 +138,7 @@ func (c *AccountController) Login() {
 			c.JsonResult(0, "ok", c.referer())
 		} else {
 			logs.Error("用户登录 ->", err)
-			c.JsonResult(500, "账号或密码错误", nil)
+			c.JsonResult(500, i18n.Tr(c.Lang, "message.wrong_account_password"), nil)
 		}
 	} else {
 		c.Data["url"] = c.referer()
@@ -150,7 +151,7 @@ func (c *AccountController) DingTalkLogin() {
 
 	code := c.GetString("dingtalk_code")
 	if code == "" {
-		c.JsonResult(500, "获取身份信息失败", nil)
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_obtain_user_info"), nil)
 	}
 
 	appKey, _ := web.AppConfig.String("dingtalk_app_key")
@@ -158,7 +159,7 @@ func (c *AccountController) DingTalkLogin() {
 	tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
 
 	if appKey == "" || appSecret == "" || tmpReader == "" {
-		c.JsonResult(500, "未开启钉钉自动登录功能", nil)
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.dingtalk_auto_login_not_enable"), nil)
 		c.StopRun()
 	}
 
@@ -166,21 +167,21 @@ func (c *AccountController) DingTalkLogin() {
 	err := dingtalkAgent.GetAccesstoken()
 	if err != nil {
 		logs.Warn("获取钉钉临时Token失败 ->", err)
-		c.JsonResult(500, "自动登录失败", nil)
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
 		c.StopRun()
 	}
 
 	userid, err := dingtalkAgent.GetUserIDByCode(code)
 	if err != nil {
 		logs.Warn("获取钉钉用户ID失败 ->", err)
-		c.JsonResult(500, "自动登录失败", nil)
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
 		c.StopRun()
 	}
 
 	username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
 	if err != nil {
 		logs.Warn("获取钉钉用户信息失败 ->", err)
-		c.JsonResult(500, "自动登录失败", nil)
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
 		c.StopRun()
 	}
 
@@ -309,29 +310,29 @@ func (c *AccountController) Register() {
 		captcha := c.GetString("code")
 
 		if ok, err := regexp.MatchString(conf.RegexpAccount, account); account == "" || !ok || err != nil {
-			c.JsonResult(6001, "账号只能由英文字母数字组成，且在3-50个字符")
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.username_invalid_format"))
 		}
 		if l := strings.Count(password1, ""); password1 == "" || l > 50 || l < 6 {
-			c.JsonResult(6002, "密码必须在6-50个字符之间")
+			c.JsonResult(6002, i18n.Tr(c.Lang, "message.password_length_invalid"))
 		}
 		if password1 != password2 {
-			c.JsonResult(6003, "确认密码不正确")
+			c.JsonResult(6003, i18n.Tr(c.Lang, "message.incorrect_confirm_password"))
 		}
 		if ok, err := regexp.MatchString(conf.RegexpEmail, email); !ok || err != nil || email == "" {
-			c.JsonResult(6004, "邮箱格式不正确")
+			c.JsonResult(6004, i18n.Tr(c.Lang, "message.email_invalid_format"))
 		}
 		// 如果开启了验证码
 		if v, ok := c.Option["ENABLED_CAPTCHA"]; ok && strings.EqualFold(v, "true") {
 			v, ok := c.GetSession(conf.CaptchaSessionName).(string)
 			if !ok || !strings.EqualFold(v, captcha) {
-				c.JsonResult(6001, "验证码不正确")
+				c.JsonResult(6001, i18n.Tr(c.Lang, "message.captcha_wrong"))
 			}
 		}
 
 		member := models.NewMember()
 
 		if _, err := member.FindByAccount(account); err == nil && member.MemberId > 0 {
-			c.JsonResult(6005, "账号已存在")
+			c.JsonResult(6005, i18n.Tr(c.Lang, "message.account_existed"))
 		}
 
 		member.Account = account
@@ -342,7 +343,7 @@ func (c *AccountController) Register() {
 		member.Email = email
 		member.Status = 0
 		if err := member.Add(); err != nil {
-			c.JsonResult(6006, "注册失败，请联系系统管理员处理")
+			c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed_register"))
 		}
 
 		c.JsonResult(0, "ok", member)
@@ -360,39 +361,39 @@ func (c *AccountController) FindPassword() {
 		captcha := c.GetString("code")
 
 		if email == "" {
-			c.JsonResult(6005, "邮箱地址不能为空")
+			c.JsonResult(6005, i18n.Tr(c.Lang, "message.email_empty"))
 		}
 		if !mailConf.EnableMail {
-			c.JsonResult(6004, "未启用邮件服务")
+			c.JsonResult(6004, i18n.Tr(c.Lang, "message.mail_service_not_enable"))
 		}
 
 		// 如果开启了验证码
 		if v, ok := c.Option["ENABLED_CAPTCHA"]; ok && strings.EqualFold(v, "true") {
 			v, ok := c.GetSession(conf.CaptchaSessionName).(string)
 			if !ok || !strings.EqualFold(v, captcha) {
-				c.JsonResult(6001, "验证码不正确")
+				c.JsonResult(6001, i18n.Tr(c.Lang, "message.captcha_wrong"))
 			}
 		}
 
 		member, err := models.NewMember().FindByFieldFirst("email", email)
 		if err != nil {
-			c.JsonResult(6006, "邮箱不存在")
+			c.JsonResult(6006, i18n.Tr(c.Lang, "message.email_not_exist"))
 		}
-		if member.Status != 0 {
-			c.JsonResult(6007, "账号已被禁用")
+		if member == nil || member.Status != 0 {
+			c.JsonResult(6007, i18n.Tr(c.Lang, "message.account_disable"))
 		}
-		if member.AuthMethod == conf.AuthMethodLDAP {
-			c.JsonResult(6011, "当前用户不支持找回密码")
+		if member == nil || member.AuthMethod == conf.AuthMethodLDAP {
+			c.JsonResult(6011, i18n.Tr(c.Lang, "message.account_not_support_retrieval"))
 		}
 
 		count, err := models.NewMemberToken().FindSendCount(email, time.Now().Add(-1*time.Hour), time.Now())
 
 		if err != nil {
 			logs.Error(err)
-			c.JsonResult(6008, "发送邮件失败")
+			c.JsonResult(6008, i18n.Tr(c.Lang, "message.failed_send_mail"))
 		}
 		if count > mailConf.MailNumber {
-			c.JsonResult(6008, "发送次数太多，请稍候再试")
+			c.JsonResult(6008, i18n.Tr(c.Lang, "message.sent_too_many_times"))
 		}
 
 		memberToken := models.NewMemberToken()
@@ -402,7 +403,7 @@ func (c *AccountController) FindPassword() {
 		memberToken.MemberId = member.MemberId
 		memberToken.IsValid = false
 		if _, err := memberToken.InsertOrUpdate(); err != nil {
-			c.JsonResult(6009, "邮件发送失败")
+			c.JsonResult(6009, i18n.Tr(c.Lang, "message.failed_send_mail"))
 		}
 
 		data := map[string]interface{}{
@@ -414,7 +415,7 @@ func (c *AccountController) FindPassword() {
 		body, err := c.ExecuteViewPathTemplate("account/mail_template.tpl", data)
 		if err != nil {
 			logs.Error(err)
-			c.JsonResult(6003, "邮件发送失败")
+			c.JsonResult(6003, i18n.Tr(c.Lang, "message.failed_send_mail"))
 		}
 
 		go func(mailConf *conf.SmtpConf, email string, body string) {
@@ -473,17 +474,16 @@ func (c *AccountController) FindPassword() {
 
 	if token != "" && email != "" {
 		memberToken, err := models.NewMemberToken().FindByFieldFirst("token", token)
-
 		if err != nil {
 			logs.Error(err)
-			c.Data["ErrorMessage"] = "邮件已失效"
+			c.Data["ErrorMessage"] = i18n.Tr(c.Lang, "message.mail_expired")
 			c.TplName = "errors/error.tpl"
 			return
 		}
 		subTime := time.Until(memberToken.SendTime)
 
 		if !strings.EqualFold(memberToken.Email, email) || subTime.Minutes() > float64(mailConf.MailExpired) || !memberToken.ValidTime.IsZero() {
-			c.Data["ErrorMessage"] = "验证码已过期，请重新操作。"
+			c.Data["ErrorMessage"] = i18n.Tr(c.Lang, "message.captcha_expired")
 			c.TplName = "errors/error.tpl"
 			return
 		}
@@ -504,48 +504,46 @@ func (c *AccountController) ValidEmail() {
 	email := c.GetString("mail")
 
 	if password1 == "" {
-		c.JsonResult(6001, "密码不能为空")
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.password_empty"))
 	}
 	if l := strings.Count(password1, ""); l < 6 || l > 50 {
-		c.JsonResult(6001, "密码不能为空且必须在6-50个字符之间")
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.password_length_invalid"))
 	}
 	if password2 == "" {
-		c.JsonResult(6002, "确认密码不能为空")
+		c.JsonResult(6002, i18n.Tr(c.Lang, "message.confirm_password_empty"))
 	}
 	if password1 != password2 {
-		c.JsonResult(6003, "确认密码输入不正确")
+		c.JsonResult(6003, i18n.Tr(c.Lang, "message.incorrect_confirm_password"))
 	}
 	if captcha == "" {
-		c.JsonResult(6004, "验证码不能为空")
+		c.JsonResult(6004, i18n.Tr(c.Lang, "message.captcha_empty"))
 	}
 	v, ok := c.GetSession(conf.CaptchaSessionName).(string)
 	if !ok || !strings.EqualFold(v, captcha) {
-		c.JsonResult(6001, "验证码不正确")
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.captcha_wrong"))
 	}
 
 	mailConf := conf.GetMailConfig()
 	memberToken, err := models.NewMemberToken().FindByFieldFirst("token", token)
-
 	if err != nil {
 		logs.Error(err)
-		c.JsonResult(6007, "邮件已失效")
+		c.JsonResult(6007, i18n.Tr(c.Lang, "message.mail_expired"))
 	}
 	subTime := time.Until(memberToken.SendTime)
 
 	if !strings.EqualFold(memberToken.Email, email) || subTime.Minutes() > float64(mailConf.MailExpired) || !memberToken.ValidTime.IsZero() {
 
-		c.JsonResult(6008, "验证码已过期，请重新操作。")
+		c.JsonResult(6008, i18n.Tr(c.Lang, "message.captcha_expired"))
 	}
 	member, err := models.NewMember().Find(memberToken.MemberId)
 	if err != nil {
 		logs.Error(err)
-		c.JsonResult(6005, "用户不存在")
+		c.JsonResult(6005, i18n.Tr(c.Lang, "message.user_not_existed"))
 	}
 	hash, err := utils.PasswordHash(password1)
-
 	if err != nil {
 		logs.Error(err)
-		c.JsonResult(6006, "保存密码失败")
+		c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed_save_password"))
 	}
 
 	member.Password = hash
@@ -557,7 +555,7 @@ func (c *AccountController) ValidEmail() {
 
 	if err != nil {
 		logs.Error(err)
-		c.JsonResult(6006, "保存密码失败")
+		c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed_save_password"))
 	}
 	c.JsonResult(0, "ok", conf.URLFor("AccountController.Login"))
 }
@@ -565,11 +563,8 @@ func (c *AccountController) ValidEmail() {
 // Logout 退出登录
 func (c *AccountController) Logout() {
 	c.SetMember(models.Member{})
-
 	c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
-
 	u := c.Ctx.Request.Header.Get("Referer")
-
 	c.Redirect(conf.URLFor("AccountController.Login", "url", u), 302)
 }
 
@@ -578,11 +573,6 @@ func (c *AccountController) Captcha() {
 	c.Prepare()
 
 	captchaImage := gocaptcha.NewCaptchaImage(140, 40, gocaptcha.RandLightColor())
-
-	//if err != nil {
-	//	logs.Error(err)
-	//	c.Abort("500")
-	//}
 
 	captchaImage.DrawNoise(gocaptcha.CaptchaComplexLower)
 

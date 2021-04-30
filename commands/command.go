@@ -22,6 +22,7 @@ import (
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/i18n"
 	"github.com/howeyc/fsnotify"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/mindoc-org/mindoc/cache"
@@ -267,6 +268,19 @@ func RegisterFunction() {
 	if err != nil {
 		logs.Error("注册函数 date_format 出错 ->", err)
 		os.Exit(-1)
+	}
+
+	err = web.AddFuncMap("i18n", i18n.Tr)
+	if err != nil {
+		logs.Error("注册函数 i18n 出错 ->", err)
+		os.Exit(-1)
+	}
+	langs := strings.Split("en-us|zh-cn", "|")
+	for _, lang := range langs {
+		if err := i18n.SetMessage(lang, "conf/lang/"+lang+".ini"); err != nil {
+			logs.Error("Fail to set message file: " + err.Error())
+			return
+		}
 	}
 }
 
