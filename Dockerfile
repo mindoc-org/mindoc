@@ -1,95 +1,121 @@
-FROM golang:1.11.4-alpine3.8 AS build
+FROM amd64/golang:1.13 AS build
 
-#新增 GLIBC
-ENV GLIBC_VERSION "2.28-r0"
+ARG TAG=0.0.1
 
-# Download and install glibc
-RUN apk add --update && \
-    apk add --no-cache --upgrade \
-    ca-certificates \
-    gcc \
-    g++ \
-    make \
-    curl \
-    git
+# 编译-环境变量
+ENV GO111MODULE=on
+ENV GOPROXY=https://goproxy.cn,direct
+ENV CGO_ENABLED=1
+ENV GOARCH=amd64
+ENV GOOS=linux
 
-RUN curl -Lo /etc/apk/keys/sgerrand.rsa.pub "https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub" && \
-    curl -Lo /var/glibc.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk" && \
-    curl -Lo /var/glibc-bin.apk "https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk" && \
-    apk add /var/glibc-bin.apk /var/glibc.apk && \
-    /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
-    echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
-
-#掛載 calibre 最新3.x
-
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/calibre/lib
-ENV PATH $PATH:/opt/calibre/bin
-
-RUN curl -Lo /var/linux-installer.py https://download.calibre-ebook.com/linux-installer.py
-
-#RUN mkdir -p /go/src/github.com/lifei6671/ && cd /go/src/github.com/lifei6671/ && git clone https://github.com/mindoc-org/mindoc.git && cd mindoc
-
+# 工作目录
 ADD . /go/src/github.com/mindoc-org/mindoc
-
 WORKDIR /go/src/github.com/mindoc-org/mindoc
 
-RUN	 go get -u github.com/golang/dep/cmd/dep && dep ensure  && \
-    CGO_ENABLE=1 go build -v -a -o mindoc_linux_amd64 -ldflags="-w -s -X main.VERSION=$TAG -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'" && \
-    rm -rf commands controllers models modules routers tasks vendor docs search data utils graphics .git Godeps uploads/* .gitignore .travis.yml Dockerfile gide.yaml LICENSE main.go README.md conf/enumerate.go conf/mail.go install.lock simsun.ttc
+# 编译
+RUN go env
+RUN go mod tidy -v
+RUN go build -o mindoc_linux_amd64 -ldflags "-w -s -X 'main.VERSION=$TAG' -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
+RUN cp conf/app.conf.example conf/app.conf
+# 清理不需要的文件
+RUN rm appveyor.yml docker-compose.yml Dockerfile .travis.yml .gitattributes .gitignore go.mod go.sum main.go README.md simsun.ttc start.sh
+RUN rm -rf cache commands controllers converter .git .github graphics mail models routers utils
 
-ADD start.sh /go/src/github.com/mindoc-org/mindoc
+# 测试编译的mindoc是否ok
+RUN ./mindoc_linux_amd64 version
+
+# 必要的文件复制
 ADD simsun.ttc /usr/share/fonts/win/
-
-FROM alpine:latest
-
-LABEL maintainer="longfei6671@163.com"
-
-RUN apk add --update && \
-    apk add --no-cache --upgrade \
-    tzdata \
-    mesa-gl \
-    python \
-    qt5-qtbase-x11 \
-    xdg-utils \
-    libxrender \
-    libxcomposite \
-    xz \
-    imagemagick \
-    imagemagick-dev \
-    msttcorefonts-installer \
-    fontconfig && \
-    update-ms-fonts && \
-    fc-cache -f
-
-COPY --from=build /var/glibc.apk .
-COPY --from=build /var/glibc-bin.apk .
-COPY --from=build /etc/apk/keys/sgerrand.rsa.pub /etc/apk/keys/sgerrand.rsa.pub
-COPY --from=build /var/linux-installer.py .
-COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
-COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=build /go/src/github.com/mindoc-org/mindoc /mindoc
-
-RUN  apk add glibc-bin.apk glibc.apk && \
-    /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
-    echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf && \
-    rm -rf glibc.apk glibc-bin.apk /var/cache/apk/* && \
-    chmod a+r /usr/share/fonts/win/simsun.ttc
+ADD start.sh /go/src/github.com/mindoc-org/mindoc
 
 
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/calibre/lib
-ENV PATH $PATH:/opt/calibre/bin
+# Ubuntu 20.04
+FROM ubuntu:focal
 
-RUN cat linux-installer.py | python -c "import sys; main=lambda x,y:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main(install_dir='/opt', isolated=True)" && \
-    rm -rf /tmp/* linux-installer.py
+# 切换默认shell为bash
+SHELL ["/bin/bash", "-c"]
 
-WORKDIR /mindoc
-
-
-# 时区设置
+# 时区设置(如果不设置, calibre依赖的tzdata在安装过程中会要求选择时区)
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
-RUN chmod +x start.sh
+COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
+COPY --from=build /go/src/github.com/mindoc-org/mindoc /mindoc
+WORKDIR /mindoc
+RUN chmod a+r /usr/share/fonts/win/simsun.ttc
 
-CMD ["./start.sh"]
+# 备份原有源
+RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
+# 最小化源，缩短apt update时间(ca-certificates必须先安装才支持换tsinghua源)
+RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
+RUN apt-get update
+RUN apt install -y ca-certificates
+# 更换tsinghua源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
+RUN echo $'\
+\n# from: https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\
+\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\
+\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\
+\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n\
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse\
+\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse\
+\n# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse\
+\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse'\
+> /etc/apt/sources.list
+
+# 更新软件包信息
+RUN apt-get update
+# 安装必要的系统工具
+RUN apt install -y apt-transport-https ca-certificates curl wget xz-utils
+# 安装 calibre 依赖的包
+RUN apt install -y libgl-dev libnss3-dev libxcomposite-dev libxrandr-dev libxi-dev
+# 安装文泉驿字体
+RUN apt install -y fonts-wqy-microhei fonts-wqy-zenhei
+# 安装中文语言包
+RUN apt-get install -y locales language-pack-zh-hans language-pack-zh-hans-base
+# 设置默认编码
+RUN locale-gen "zh_CN.UTF-8"
+RUN update-locale LANG=zh_CN.UTF-8
+ENV LANG=zh_CN.UTF-8
+ENV LANGUAGE=zh_CN:en
+ENV LC_ALL=zh_CN.UTF-8
+# 安装-calibre
+# RUN apt-get install -y calibre # 此种方式安装省事，但会安装很多额外不需要的软件包，导致体积过大
+RUN mkdir -p /tmp/calibre-cache
+# 获取最新版本号
+RUN curl -s http://code.calibre-ebook.com/latest>/tmp/calibre-cache/version
+# 下载最新版本
+RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/`cat /tmp/calibre-cache/version`/calibre-`cat /tmp/calibre-cache/version`-x86_64.txz
+# 注: 调试阶段，下载alibre-5.22.1-x86_64.txz到本地(使用 python -m http.server)，加速构建
+# RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c http://10.96.8.252:8000/calibre-5.22.1-x86_64.txz
+# 解压
+RUN mkdir -p /opt/calibre
+# RUN tar --extract --file=/tmp/calibre-cache/calibre-x86_64.txz --directory /opt/calibre
+RUN tar xJof /tmp/calibre-cache/calibre-x86_64.txz -C /opt/calibre
+ENV PATH=$PATH:/opt/calibre
+# 设置calibre相关环境变量
+ENV QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox"
+ENV QT_QPA_PLATFORM='offscreen'
+# 测试 calibre 可正常使用
+RUN ebook-convert --version
+# 清理calibre缓存
+RUN rm -rf /tmp/calibre-cache
+
+# refer: https://docs.docker.com/engine/reference/builder/#volume
+VOLUME /mindoc
+
+# refer: https://docs.docker.com/engine/reference/builder/#expose
+EXPOSE 8181/tcp
+
+ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
+RUN chmod +x ./start.sh
+
+CMD ["bash", "./start.sh"]
+
+# https://docs.docker.com/engine/reference/commandline/build/#options
+# docker build --progress plain --rm --build-arg TAG=2.0.1 --tag gsw945/mindoc:2.0.1 .
+# https://docs.docker.com/engine/reference/commandline/run/#options
+# docker run --rm -it  -p 8181:8181 -v "mindoc-docker":"/mindoc" --name mindoc -e MINDOC_ENABLE_EXPORT=true -d gsw945/mindoc:2.0.1
