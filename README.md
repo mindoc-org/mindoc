@@ -86,26 +86,29 @@ mail_expired=30
 
 
 # 使用Docker部署
-如果是Docker用户，可参考项目内置的Dockerfile文件编译镜像。
+如果是Docker用户，可参考项目内置的Dockerfile文件自行编译镜像(编译命令见Dockerfile文件底部注释，仅供参考)。
 
-在启动镜像时需要提供如下的环境变量：
-
+在启动镜像时需要提供如下的常用环境变量(全部支持的环境变量请参考: [`conf/app.conf.example`](https://github.com/mindoc-org/mindoc/blob/master/conf/app.conf.example))：
 ```ini
-DB_ADAPTER                  指定 DB
+DB_ADAPTER                  指定DB类型(默认为sqlite)
 MYSQL_PORT_3306_TCP_ADDR    MySQL地址
 MYSQL_PORT_3306_TCP_PORT    MySQL端口号
 MYSQL_INSTANCE_NAME         MySQL数据库名称
 MYSQL_USERNAME              MySQL账号
 MYSQL_PASSWORD              MySQL密码
 HTTP_PORT                   程序监听的端口号
+MINDOC_ENABLE_EXPORT        开启导出(默认为false)
 ```
 
-举个栗子
-
+举个栗子-当前(公开)镜像(信息页面: https://cr.console.aliyun.com/images/cn-hangzhou/mindoc-org/mindoc/detail)
 ```bash
-# TODO: 新版docker镜像将使用阿里云，配置中
+docker run -it --name=mindoc --restart=always -v /mindoc:/mindoc -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.1
+```
+举个栗子-更多环境变量示例(镜像已过期，仅供参考，请以当前镜像为准)
+```bash
 docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP_ADDR=10.xxx.xxx.xxx -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
 ```
+
 ### docker-compose 一键安装
 
 1. 修改配置文件
