@@ -112,9 +112,9 @@ VOLUME /mindoc
 EXPOSE 8181/tcp
 
 ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
-RUN chmod +x ./start.sh
+RUN chmod +x /mindoc/start.sh
 
-CMD ["bash", "./start.sh"]
+CMD ["bash", "/mindoc/start.sh"]
 
 # https://docs.docker.com/engine/reference/commandline/build/#options
 # docker build --progress plain --rm --build-arg TAG=2.0.1 --tag gsw945/mindoc:2.0.1 .
