@@ -1,7 +1,5 @@
 #!/bin/bash
-set -e
-
-cd /mindoc/
+set -eux
 
 if [ ! -f "/mindoc/conf/app.conf" ] ; then
     cp /mindoc/conf/app.conf.example /mindoc/conf/app.conf

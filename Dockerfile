@@ -36,10 +36,6 @@ FROM ubuntu:focal
 # 切换默认shell为bash
 SHELL ["/bin/bash", "-c"]
 
-# 时区设置(如果不设置, calibre依赖的tzdata在安装过程中会要求选择时区)
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
 COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
 COPY --from=build /go/src/github.com/mindoc-org/mindoc /mindoc
 WORKDIR /mindoc
@@ -70,6 +66,17 @@ deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted 
 RUN apt-get update
 # 安装必要的系统工具
 RUN apt install -y apt-transport-https ca-certificates curl wget xz-utils
+
+# 时区设置(如果不设置, calibre依赖的tzdata在安装过程中会要求选择时区)
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+# tzdata的前端类型默认为readline（Shell情况下）或dialog（支持GUI的情况下）
+ARG DEBIAN_FRONTEND=noninteractive
+# 安装时区信息
+RUN apt install -y --no-install-recommends tzdata
+# 重新配置tzdata软件包，使得时区设置生效
+RUN dpkg-reconfigure --frontend noninteractive tzdata
+
 # 安装 calibre 依赖的包
 RUN apt install -y libgl-dev libnss3-dev libxcomposite-dev libxrandr-dev libxi-dev
 # 安装文泉驿字体
@@ -89,9 +96,9 @@ RUN mkdir -p /tmp/calibre-cache
 RUN curl -s http://code.calibre-ebook.com/latest>/tmp/calibre-cache/version
 # 下载最新版本
 # RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/`cat /tmp/calibre-cache/version`/calibre-`cat /tmp/calibre-cache/version`-x86_64.txz
-RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://github.com/kovidgoyal/calibre/releases/download/v`cat /tmp/calibre-cache/version`/calibre-`cat /tmp/calibre-cache/version`-x86_64.txz
+# RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://github.com/kovidgoyal/calibre/releases/download/v`cat /tmp/calibre-cache/version`/calibre-`cat /tmp/calibre-cache/version`-x86_64.txz
 # 注: 调试阶段，下载alibre-5.22.1-x86_64.txz到本地(使用 python -m http.server)，加速构建
-# RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c http://10.96.8.252:8000/calibre-5.22.1-x86_64.txz
+RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c http://10.96.8.252:8000/calibre-5.22.1-x86_64.txz
 # 解压
 RUN mkdir -p /opt/calibre
 # RUN tar --extract --file=/tmp/calibre-cache/calibre-x86_64.txz --directory /opt/calibre
@@ -114,7 +121,7 @@ EXPOSE 8181/tcp
 ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
 RUN chmod +x /mindoc/start.sh
 
-CMD ["bash", "/mindoc/start.sh"]
+ENTRYPOINT ["/bin/bash", "/mindoc/start.sh"]
 
 # https://docs.docker.com/engine/reference/commandline/build/#options
 # docker build --progress plain --rm --build-arg TAG=2.0.1 --tag gsw945/mindoc:2.0.1 .
