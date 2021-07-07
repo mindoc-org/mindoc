@@ -100,11 +100,20 @@ HTTP_PORT                   程序监听的端口号
 MINDOC_ENABLE_EXPORT        开启导出(默认为false)
 ```
 
-举个栗子-当前(公开)镜像(信息页面: https://cr.console.aliyun.com/images/cn-hangzhou/mindoc-org/mindoc/detail)
+### 举个栗子-当前(公开)镜像(信息页面: https://cr.console.aliyun.com/images/cn-hangzhou/mindoc-org/mindoc/detail)
+##### Windows
 ```bash
-docker run -it --name=mindoc --restart=always -v /mindoc:/mindoc -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.1
+set MINDOC=//d/mindoc
+docker run -it --name=mindoc --restart=always -v "${MINDOC}":"/mindoc-sync-host" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.4
 ```
-举个栗子-更多环境变量示例(镜像已过期，仅供参考，请以当前镜像为准)
+
+##### Linux、Mac
+```bash
+export MINDOC=/home/ubuntu/mindoc-docker
+docker run -it --name=mindoc --restart=always -v "%MINDOC%":"/mindoc-sync-host" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.4
+```
+
+##### 举个栗子-更多环境变量示例(镜像已过期，仅供参考，请以当前镜像为准)
 ```bash
 docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP_ADDR=10.xxx.xxx.xxx -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
 ```

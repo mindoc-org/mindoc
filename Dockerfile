@@ -113,10 +113,14 @@ RUN ebook-convert --version
 RUN rm -rf /tmp/calibre-cache
 
 # refer: https://docs.docker.com/engine/reference/builder/#volume
-VOLUME /mindoc
+# 数据同步目录
+VOLUME /mindoc-sync-host
 
 # refer: https://docs.docker.com/engine/reference/builder/#expose
 EXPOSE 8181/tcp
+
+# 如果配置文件不存在就复制
+RUN cp --no-clobber /mindoc/conf/app.conf.example /mindoc/conf/app.conf
 
 ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
 RUN chmod +x /mindoc/start.sh
@@ -126,4 +130,6 @@ ENTRYPOINT ["/bin/bash", "/mindoc/start.sh"]
 # https://docs.docker.com/engine/reference/commandline/build/#options
 # docker build --progress plain --rm --build-arg TAG=2.0.1 --tag gsw945/mindoc:2.0.1 .
 # https://docs.docker.com/engine/reference/commandline/run/#options
-# docker run --rm -it  -p 8181:8181 -v "mindoc-docker":"/mindoc" --name mindoc -e MINDOC_ENABLE_EXPORT=true -d gsw945/mindoc:2.0.1
+# set MINDOC=//d/mindoc # windows
+# export MINDOC=/home/ubuntu/mindoc-docker # linux
+# docker run --rm -it  -p 8181:8181 -v "%MINDOC%":"/mindoc-sync-host" --name mindoc -e MINDOC_ENABLE_EXPORT=true -d gsw945/mindoc:2.0.1
