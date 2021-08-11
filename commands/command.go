@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -398,15 +399,15 @@ func RegisterCache() {
 		var redisConfig struct {
 			Conn     string `json:"conn"`
 			Password string `json:"password"`
-			DbNum    int    `json:"dbNum"`
+			DbNum    string `json:"dbNum"`
 		}
-		redisConfig.DbNum = 0
+		redisConfig.DbNum = "0"
 		redisConfig.Conn = web.AppConfig.DefaultString("cache_redis_host", "")
 		if pwd := web.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
 			redisConfig.Password = pwd
 		}
 		if dbNum := web.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
-			redisConfig.DbNum = dbNum
+			redisConfig.DbNum = strconv.Itoa(dbNum)
 		}
 
 		bc, err := json.Marshal(&redisConfig)
