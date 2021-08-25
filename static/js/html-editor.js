@@ -1,21 +1,60 @@
 $(function () {
-    wangEditor.config.mapAk = window.baiduMapKey;
     window.addDocumentModalFormHtml = $(this).find("form").html();
-    wangEditor.config.printLog = false;
-    window.editor = new wangEditor('htmlEditor');
+    window.editor = new wangEditor('#htmlEditor');
+    editor.config.mapAk = window.baiduMapKey;
+    editor.config.printLog = false;
+    editor.config.showMenuTooltips = true
+    editor.config.menuTooltipPosition = 'down'
     editor.config.uploadImgUrl = window.imageUploadURL;
     editor.config.uploadImgFileName = "editormd-image-file";
     editor.config.uploadParams = {
         "editor" : "wangEditor"
     };
-    wangEditor.config.menus.splice(0,0,"|");
-    wangEditor.config.menus.splice(0,0,"history");
-    wangEditor.config.menus.splice(0,0,"save");
-    wangEditor.config.menus.splice(0,0,"release");
-    wangEditor.config.menus.splice(29,0,"attach")
+    editor.config.uploadImgServer = window.imageUploadURL;
+    editor.config.customUploadImg = function (resultFiles, insertImgFn) {
+        // resultFiles 是 input 中选中的文件列表
+        // insertImgFn 是获取图片 url 后，插入到编辑器的方法
+        var file = resultFiles[0];
+        // file type is only image.
+        if (/^image\//.test(file.type)) {
+            var form = new FormData();
+            form.append('editormd-image-file', file, file.name);
+
+            var layerIndex = 0;
+
+            $.ajax({
+                url: window.imageUploadURL,
+                type: "POST",
+                dataType: "json",
+                data: form,
+                processData: false,
+                contentType: false,
+                error: function() {
+                    layer.close(layerIndex);
+                    layer.msg("图片上传失败");
+                },
+                success: function(data) {
+                    layer.close(layerIndex);
+                    if(data.errcode !== 0){
+                        layer.msg(data.message);
+                    }else{
+                        insertImgFn(data.url);
+                    }
+                }
+            });
+        } else {
+            console.warn('You could only upload images.');
+        }
+    };
+    /*
+    editor.config.menus.splice(0,0,"|");
+    editor.config.menus.splice(0,0,"history");
+    editor.config.menus.splice(0,0,"save");
+    editor.config.menus.splice(0,0,"release");
+    editor.config.menus.splice(29,0,"attach")
 
     //移除地图、背景色
-    editor.config.menus = $.map(wangEditor.config.menus, function(item, key) {
+    editor.config.menus = $.map(editor.config.menus, function(item, key) {
 
         if (item === 'fullscreen') {
             return null;
@@ -23,16 +62,8 @@ $(function () {
 
         return item;
     });
-
-    window.editor.ready(function () {
-        if(window.documentCategory.length > 0){
-            var item =  window.documentCategory[0];
-            var $select_node = { node : {id : item.id}};
-            loadDocument($select_node);
-        }
-
-    });
-
+    */
+    /*
     window.editor.config.uploadImgFns.onload = function (resultText, xhr) {
         // resultText 服务器端返回的text
         // xhr 是 xmlHttpRequest 对象，IE8、9中不支持
@@ -47,13 +78,15 @@ $(function () {
             layer.msg(res.message);
         }
     };
+    */
 
-    window.editor.onchange = function () {
+    window.editor.config.onchange = function (newHtml) {
+        var saveMenu = window.editor.menus.menuList.find((item) => item.key == 'save');
         // 判断内容是否改变
-        if (window.source !== this.$txt.html()) {
-            window.editor.menus.save.$domNormal.addClass('selected');
+        if (window.source !== window.editor.txt.html()) {
+            saveMenu.$elem.addClass('selected');
         } else {
-            window.editor.menus.save.$domNormal.removeClass('selected');
+            saveMenu.$elem.removeClass('selected');
         }
     };
 
@@ -62,7 +95,11 @@ $(function () {
 
     $("#htmlEditor").css("height","100%");
 
-
+    if(window.documentCategory.length > 0){
+        var item =  window.documentCategory[0];
+        var $select_node = { node : {id : item.id}};
+        loadDocument($select_node);
+    }
 
     /***
      * 加载指定的文档到编辑器中
@@ -78,8 +115,8 @@ $(function () {
 
             if(res.errcode === 0){
                 window.isLoad = true;
-                window.editor.clear();
-                window.editor.$txt.html(res.data.content);
+                window.editor.txt.clear();
+                window.editor.txt.html(res.data.content);
                 // 将原始内容备份
                 window.source = res.data.content;
                 var node = { "id" : res.data.doc_id,'parent' : res.data.parent_id === 0 ? '#' : res.data.parent_id ,"text" : res.data.doc_name,"identify" : res.data.identify,"version" : res.data.version};
@@ -105,7 +142,7 @@ $(function () {
         var index = null;
         var node = window.selectNode;
 
-        var html = window.editor.$txt.html() ;
+        var html = window.editor.txt.html() ;
 
         var content = "";
         if($.trim(html) !== ""){
@@ -149,7 +186,7 @@ $(function () {
                     // 更新内容备份
                     window.source = res.data.content;
                     // 触发编辑器 onchange 回调函数
-                    window.editor.onchange();
+                    window.editor.config.onchange();
                     if(typeof callback === "function"){
                         callback();
                     }
@@ -267,7 +304,7 @@ $(function () {
     }).on('loaded.jstree', function () {
         window.treeCatalog = $(this).jstree();
     }).on('select_node.jstree', function (node, selected, event) {
-        if(window.editor.menus.save.$domNormal.hasClass('selected')) {
+        if(window.editor.menus.menuList.find((item) => item.key == 'save').$elem.hasClass('selected')) {
             if(confirm("编辑内容未保存，需要保存吗？")){
                 saveDocument(false,function () {
                     loadDocument(selected);
@@ -283,7 +320,7 @@ $(function () {
 
     window.releaseBook = function () {
         if(Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0){
-            if(window.editor.menus.save.$domNormal.hasClass('selected')) {
+            if(window.editor.menus.menuList.find((item) => item.key == 'save').$elem.hasClass('selected')) {
                 if(confirm("编辑内容未保存，需要保存吗？")) {
                     saveDocument();
                 }

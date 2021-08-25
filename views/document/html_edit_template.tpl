@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>编辑文档 - Powered by MinDoc</title>
+    <style type="text/css">
+        .w-e-menu.selected > i {
+            color: #44B036 !important;
+        }
+    </style>
 
     <script type="text/javascript">
         window.editor = null;
@@ -27,7 +32,7 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/wangEditor/css/wangEditor.min.css"}}" rel="stylesheet">
+    <!-- <link href="{{cdncss "/static/wangEditor/css/wangEditor.min.css"}}" rel="stylesheet"> -->
 
     <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
@@ -188,11 +193,12 @@
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/js/wangEditor.min.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/plugins/save-menu.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/plugins/release-menu.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/plugins/attach-menu.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/plugins/history-menu.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/class2browser.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/wangEditor/wangEditor.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/wangEditor-plugins/save-menu.js"}}" type="text/javascript"></script>
+<!-- <script src="{{cdnjs "/static/wangEditor/old/plugins/release-menu.js"}}" type="text/javascript"></script> -->
+<!-- <script src="{{cdnjs "/static/wangEditor/old/plugins/attach-menu.js"}}" type="text/javascript"></script> -->
+<!-- <script src="{{cdnjs "/static/wangEditor/old/plugins/history-menu.js"}}" type="text/javascript"></script> -->
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/to-markdown/dist/to-markdown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
