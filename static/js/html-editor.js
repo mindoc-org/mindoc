@@ -342,4 +342,16 @@ $(function () {
             layer.msg("没有需要发布的文档")
         }
     };
+
+    $(window).resize(function(e) {
+      var $container = $(editor.$textContainerElem.elems[0]);
+      var $manual = $container.closest('.manual-wangEditor');
+      var maxHeight = $manual.closest('.manual-editor-container').innerHeight();
+      var statusHeight = $manual.siblings('.manual-editor-status').outerHeight(true);
+      var manualHeihgt = maxHeight - statusHeight;
+      $manual.height(manualHeihgt);
+      var toolbarHeight = $container.siblings('.w-e-toolbar').outerHeight(true);
+      $container.height($container.parent().innerHeight() - toolbarHeight);
+    });
+    $(window).trigger('resize');
 });
