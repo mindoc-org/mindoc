@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>编辑文档 - Powered by MinDoc</title>
+    <style type="text/css">
+        .w-e-menu.selected > i {
+            color: #44B036 !important;
+        }
+    </style>
 
     <script type="text/javascript">
         window.editor = null;
@@ -27,7 +32,7 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/wangEditor/css/wangEditor.min.css"}}" rel="stylesheet">
+    <!-- <link href="{{cdncss "/static/wangEditor/css/wangEditor.min.css"}}" rel="stylesheet"> -->
 
     <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
@@ -74,6 +79,9 @@
         <div class="manual-category" id="manualCategory" style="top: 0;">
             <div class="manual-nav">
                 <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> 文档</div>
+                <div class="nav-plus pull-right" data-toggle="tooltip" data-title="返回" data-direction="right">
+                    <a style="color: #999999;" href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" target="_blank"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+                </div>
                 <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="创建文档" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
                 <div class="clearfix"></div>
             </div>
@@ -86,14 +94,14 @@
                 <div id="htmlEditor" class="manual-editormd-active" style="height: 100%"></div>
             </div>
             <div class="manual-editor-status">
-                <div id="attachInfo" class="item">0 个附件</div>
+                <div id="attachInfo" class="item" style="display: inline-block; padding: 0 3em;">0 个附件</div>
             </div>
         </div>
 
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="addDocumentModal" tabindex="-1" role="dialog" aria-labelledby="addDocumentModalLabel">
+<div class="modal fade" id="addDocumentModal" tabindex="-1" style="z-index: 10001 !important;" role="dialog" aria-labelledby="addDocumentModalLabel">
     <div class="modal-dialog" role="document">
         <form method="post" action="{{urlfor "DocumentController.Create" ":key" .Model.Identify}}" id="addDocumentForm" class="form-horizontal">
             <input type="hidden" name="identify" value="{{.Model.Identify}}">
@@ -129,7 +137,7 @@
         </form>
     </div>
 </div>
-<div class="modal fade" id="uploadAttachModal" tabindex="-1" role="dialog" aria-labelledby="uploadAttachModalLabel">
+<div class="modal fade" id="uploadAttachModal" tabindex="-1" style="z-index: 10001 !important;" role="dialog" aria-labelledby="uploadAttachModalLabel">
     <div class="modal-dialog" role="document">
         <form method="post" action="{{urlfor "DocumentController.Create" ":key" .Model.Identify}}" id="addDocumentForm" class="form-horizontal">
             <input type="hidden" name="identify" value="{{.Model.Identify}}">
@@ -188,11 +196,12 @@
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/js/wangEditor.min.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/plugins/save-menu.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/plugins/release-menu.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/plugins/attach-menu.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/wangEditor/plugins/history-menu.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/class2browser.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/wangEditor/wangEditor.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/wangEditor-plugins/save-menu.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/wangEditor-plugins/release-menu.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/wangEditor-plugins/attach-menu.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/wangEditor-plugins/history-menu.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/to-markdown/dist/to-markdown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>

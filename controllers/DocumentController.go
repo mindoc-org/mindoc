@@ -223,6 +223,8 @@ func (c *DocumentController) Edit() {
 	if bookResult.Editor == "markdown" {
 		c.TplName = "document/markdown_edit_template.tpl"
 	} else if bookResult.Editor == "html" {
+		c.TplName = "document/html_edit_template.tpl"
+	} else if bookResult.Editor == "new_html" {
 		c.TplName = "document/new_html_edit_template.tpl"
 	} else {
 		c.TplName = "document/" + bookResult.Editor + "_edit_template.tpl"

@@ -205,6 +205,10 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 - ~~to-markdown~~[Turndown](https://github.com/domchristie/turndown) HTML转Markdown库
 - ~~quill 富文本编辑器~~
 - [wangEditor](https://github.com/wangeditor-team/wangEditor) 富文本编辑器
+  - 参考
+    - [wangEditor v4.7 富文本编辑器教程](https://www.bookstack.cn/books/wangeditor-4.7-zh)
+    - [扩展菜单注册太过繁琐 #2493](https://github.com/wangeditor-team/wangEditor/issues/2493)
+  - 工具： `https://babeljs.io/repl` + `@babel/plugin-transform-classes`
 - [Vue.js](https://github.com/vuejs/vue) 框架
 
 
