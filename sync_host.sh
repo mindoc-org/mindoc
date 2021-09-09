@@ -15,7 +15,10 @@ export HOST_DIR=/mindoc-sync-host
 export DOCKER_DIR=/mindoc
 
 function doSyncCopy() {
-    rclone $SYNC_ACTION --progress --exclude .git* --exclude .git/** "${1}" "${2}"
+    if [ -d "${1}" ] 
+    then
+        rclone $SYNC_ACTION --progress --exclude .git* --exclude .git/** "${1}" "${2}"
+    fi
 }
 
 function doSync() {
