@@ -115,7 +115,9 @@ docker run -it --name=mindoc --restart=always -v "${MINDOC}":"/mindoc-sync-host"
 
 ##### 举个栗子-更多环境变量示例(镜像已过期，仅供参考，请以当前镜像为准)
 ```bash
-docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP_ADDR=10.xxx.xxx.xxx -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
+docker pull registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc:v0.12
+
+docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP_ADDR=10.xxx.xxx.xxx -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc
 ```
 
 ### docker-compose 一键安装
