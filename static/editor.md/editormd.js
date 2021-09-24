@@ -170,6 +170,7 @@
         flowChart            : false,          // flowChart.js only support IE9+
         sequenceDiagram      : false,          // sequenceDiagram.js only support IE9+
         mermaid              : true,
+        mindMap              : true,           // 脑图
         previewCodeHighlight : true,
 
         toolbar              : true,           // show/hide toolbar
@@ -560,6 +561,20 @@
                     editormd.loadScript(loadPath + "raphael.min", function() {
                         editormd.loadScript(loadPath + "flowchart.min", function() {
                             editormd.loadScript(loadPath + "jquery.flowchart.min", function() {
+                                if (!isLoadedDisplay){
+                                    isLoadedDisplay = true;
+                                    _this.loadedDisplay();
+                                }
+                            });
+                        });
+                    });
+                }
+
+                if (settings.mindMap)
+                {
+                    editormd.loadScript(loadPath + "mindmap/transform.min", function() {
+                        editormd.loadScript(loadPath + "mindmap/d3@5", function() {
+                            editormd.loadScript(loadPath + "mindmap/view.min", function() {
                                 if (!isLoadedDisplay){
                                     isLoadedDisplay = true;
                                     _this.loadedDisplay();
@@ -1560,6 +1575,22 @@
             return this;
         },
 
+
+        /**
+         * 解析思维导图 - 2020-04-12
+         *
+         * @returns {editormd}             返回editormd的实例对象
+         */
+        mindmapRender:function(){
+            this.previewContainer.find(".mindmap").each(function(){
+                var mmap  = $(this);
+                var md_data = window.markmap.transform(mmap.text().trim());
+                window.markmap.markmap("svg#"+this.id,md_data)
+            });
+
+            return this;
+        },
+
         /**
          * 解析和渲染流程图及时序图
          * FlowChart and SequenceDiagram Renderer
@@ -2069,6 +2100,7 @@
                 sequenceDiagram      : settings.sequenceDiagram,
                 previewCodeHighlight : settings.previewCodeHighlight,
                 mermaid              : settings.mermaid,
+                mindMap              : settings.mindMap, // 思维导图
             };
 
             var markedOptions = this.markedOptions = {
@@ -2148,6 +2180,14 @@
                         editormd.$katex = katex;
                         this.katexRender();
                     }
+                }
+
+                // 渲染脑图
+                if(settings.mindMap){
+                    setTimeout(function(){
+                        _this.mindmapRender();
+                    },10)
+
                 }
 
                 if (settings.flowChart || settings.sequenceDiagram || settings.mermaid)
@@ -3539,7 +3579,7 @@
         ext   : ".png"
     };
 
-    // Twitter Emoji (Twemoji)  graphics files url path    
+    // Twitter Emoji (Twemoji)  graphics files url path
     editormd.twemoji = {
         path : "http://twemoji.maxcdn.com/36x36/",
         ext  : ".png"
@@ -3896,6 +3936,16 @@
             {
                 return "<p class=\"" + editormd.classNames.tex + "\">" + code + "</p>";
             }
+            else if (/^mindmap/i.test(lang)){
+            　　var len = 9 || 32;
+            　　var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+            　　var maxPos = $chars.length;
+            　　var map_id = '';
+            　　for (var i = 0; i < len; i++) {
+            　　　　map_id += $chars.charAt(Math.floor(Math.random() * maxPos));
+                }
+                return "<svg class='mindmap' style='width:100%;min-height=150px;' id='mindmap-"+ map_id +"'>"+code+"</svg>";
+            }
             else
             {
 
@@ -4183,6 +4233,7 @@
             sequenceDiagram      : false,
             previewCodeHighlight : true,
             mermaid              : true,
+            mindMap              : true, //思维导图
         };
 
         editormd.$marked  = marked;
@@ -4213,6 +4264,7 @@
             flowChart            : settings.flowChart,
             sequenceDiagram      : settings.sequenceDiagram,
             mermaid              : settings.mermaid,
+            mindMap              : settings.mindMap, // 思维导图
             previewCodeHighlight : settings.previewCodeHighlight,
         };
 
@@ -4305,6 +4357,18 @@
             {
                 katexHandle();
             }
+        }
+
+        // 前台渲染脑图
+        if(settings.mindMap){
+            var mindmapHandle = function(){
+                div.find(".mindmap").each(function(){
+                    var mmap  = $(this);
+                    var md_data = window.markmap.transform(mmap.text().trim());
+                    window.markmap.markmap("svg#"+this.id,md_data)
+                });
+            }
+            mindmapHandle();
         }
 
         div.getMarkdown = function() {
