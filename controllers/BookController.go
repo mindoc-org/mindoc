@@ -340,7 +340,8 @@ func (c *BookController) UploadCover() {
 	fileName := "cover_" + strconv.FormatInt(time.Now().UnixNano(), 16)
 
 	//附件路径按照项目组织
-	filePath := filepath.Join("uploads", book.Identify, "images", fileName+ext)
+// 	filePath := filepath.Join("uploads", book.Identify, "images", fileName+ext)
+	filePath := filepath.Join(conf.WorkingDirectory, "uploads", book.Identify, "images", fileName+ext)
 
 	path := filepath.Dir(filePath)
 
