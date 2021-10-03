@@ -3934,14 +3934,21 @@
                 return "<p class=\"" + editormd.classNames.tex + "\">" + code + "</p>";
             }
             else if (/^mindmap/i.test(lang)){
-            　　var len = 9 || 32;
-            　　var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
-            　　var maxPos = $chars.length;
-            　　var map_id = '';
-            　　for (var i = 0; i < len; i++) {
-            　　　　map_id += $chars.charAt(Math.floor(Math.random() * maxPos));
+                var len = 9 || 32;
+                var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+                var maxPos = $chars.length;
+                var map_id = '';
+                var custom_height;
+                var h = lang.split('>')[1];
+                if (h != undefined) {
+                    custom_height = h;
+                } else {
+                    custom_height = 150;
                 }
-                return "<svg class='mindmap' style='width:100%;min-height=150px;' id='mindmap-"+ map_id +"'>"+code+"</svg>";
+                for (var i = 0; i < len; i++) {
+                    map_id += $chars.charAt(Math.floor(Math.random() * maxPos));
+                }
+                return "<svg class='mindmap' style='width:100%;min-height=150px;height:"+custom_height+"px;' id='mindmap-"+ map_id +"'>"+code+"</svg>";
             }
             else
             {
