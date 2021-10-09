@@ -42,7 +42,9 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 对于没有Golang使用经验的用户，可以从 [https://github.com/mindoc-org/mindoc/releases](https://github.com/mindoc-org/mindoc/releases) 这里下载编译完的程序。
 
 如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.13(需支持`CGO`和`go mod`)。
+> 注意: CentOS7上GLibC版本低，需要源码编译, 编译好的二进制文件无法运行。
 
+## 常规编译
 ```bash
 # 克隆源码
 git clone https://github.com/mindoc-org/mindoc.git
@@ -63,6 +65,31 @@ MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。
 如果conf目录下不存在 `app.conf` 请重命名 `app.conf.example` 为 `app.conf`。
 
 **默认程序会自动初始化一个超级管理员用户：admin 密码：123456 。请登录后重新设置密码。**
+
+## Linux系统中不依赖gLibC的编译方式
+
+### 安装 musl-gcc
+```bash
+wget -c http://www.musl-libc.org/releases/musl-1.2.2.tar.gz
+tar -xvf musl-1.2.2.tar.gz
+cd musl-1.2.2
+./configure
+make
+sudo make install
+```
+### 使用 musl-gcc 编译 mindoc
+```bash
+go mod tidy -v
+export GOARCH=amd64
+export GOOS=linux
+# 设置使用musl-gcc
+export CC=/usr/local/musl/bin/musl-gcc
+# 设置版本
+export TRAVIS_TAG=temp-musl-v`date +%y%m%d`
+go build -o mindoc_linux_musl_amd64 --ldflags="-linkmode external -extldflags '-static' -w -X 'github.com/mindoc-org/mindoc/conf.VERSION=$TRAVIS_TAG' -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=`date`' -X 'github.com/mindoc-org/mindoc/conf.GO_VERSION=`go version`'"
+# 验证
+./mindoc_linux_amd64 version
+```
 
 
 ```bash

@@ -3,6 +3,10 @@ $(function () {
         js  : window.katex.js,
         css : window.katex.css
     };
+    var htmlDecodeList = ["style","script","title","onmouseover","onmouseout","style"];
+    if (!window.IS_ENABLE_IFRAME) {
+        htmlDecodeList.unshift("iframe");
+    }
     window.editor = editormd("docEditor", {
         width: "100%",
         height: "100%",
@@ -18,8 +22,8 @@ $(function () {
         taskList: true,
         flowChart: true,
         mermaid: true,
-        htmlDecode: "style,script,iframe,title,onmouseover,onmouseout,style",
-        lineNumbers: false,
+        htmlDecode: htmlDecodeList.join(','),
+        lineNumbers: true,
         sequenceDiagram: true,
         highlightStyle: window.highlightStyle ? window.highlightStyle : "github",
         tocStartLevel: 1,
