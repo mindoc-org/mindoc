@@ -1,8 +1,8 @@
 /*
  * Editor.md
  *
- * @file        editormd.js 
- * @version     v1.5.0 
+ * @file        editormd.js
+ * @version     v1.5.0
  * @description Open source online markdown editor.
  * @license     MIT License
  * @author      Pandao
@@ -512,48 +512,45 @@
 
 
                 if (settings.mermaid) {
-                    editormd.loadCSS(loadPath + "mermaid/mermaid", function () {
-                            editormd.loadScript(loadPath + "mermaid/mermaid.min", function () {
-                            window.mermaid.initialize({
-                                theme: 'default',
-                                startOnLoad:true,
-                                cloneCssStyles: true,
-                                flowchart: {
-                                    htmlLabels: false,
-                                    useMaxWidth:false
-                                },
-                            });
-                            mermaid.ganttConfig = {
-                                axisFormatter: [
-                                    // Within a day
-                                    ['%I:%M', function (d) {
-                                        return d.getHours();
-                                    }],
-                                    // Monday a week
-                                    ['%m/%d', function (d) { // redefine date here as '%m/%d'instead of 'w. %U', search mermaid.js
-                                        return d.getDay() == 1;
-                                    }],
-                                    // Day within a week (not monday)
-                                    ['%a %d', function (d) {
-                                        return d.getDay() && d.getDate() != 1;
-                                    }],
-                                    // within a month
-                                    ['%b %d', function (d) {
-                                        return d.getDate() != 1;
-                                    }],
-                                    // Month
-                                    ['%m-%y', function (d) {
-                                        return d.getMonth();
-                                    }],[ "%m-%Y", function () {
-                                        return d.getFullYear();
-                                    }]]
-                            };
-
-                            if (!isLoadedDisplay){
-                                isLoadedDisplay = true;
-                                _this.loadedDisplay();
-                            }
+                    editormd.loadScript(loadPath + "mermaid/mermaid.min", function () {
+                        window.mermaid.initialize({
+                            theme: 'default',
+                            logLevel: 3,
+                            securityLevel: 'loose',
+                            flowchart: { curve: 'basis' },
+                            gantt: { axisFormat: '%m/%d/%Y' },
+                            sequence: { actorMargin: 50 },
                         });
+                        mermaid.ganttConfig = {
+                            axisFormatter: [
+                                // Within a day
+                                ['%I:%M', function (d) {
+                                    return d.getHours();
+                                }],
+                                // Monday a week
+                                ['%m/%d', function (d) { // redefine date here as '%m/%d'instead of 'w. %U', search mermaid.js
+                                    return d.getDay() == 1;
+                                }],
+                                // Day within a week (not monday)
+                                ['%a %d', function (d) {
+                                    return d.getDay() && d.getDate() != 1;
+                                }],
+                                // within a month
+                                ['%b %d', function (d) {
+                                    return d.getDate() != 1;
+                                }],
+                                // Month
+                                ['%m-%y', function (d) {
+                                    return d.getMonth();
+                                }],[ "%m-%Y", function () {
+                                    return d.getFullYear();
+                                }]]
+                        };
+
+                        if (!isLoadedDisplay){
+                            isLoadedDisplay = true;
+                            _this.loadedDisplay();
+                        }
                     });
                 }
                 if (settings.flowChart)
@@ -3937,14 +3934,21 @@
                 return "<p class=\"" + editormd.classNames.tex + "\">" + code + "</p>";
             }
             else if (/^mindmap/i.test(lang)){
-            　　var len = 9 || 32;
-            　　var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
-            　　var maxPos = $chars.length;
-            　　var map_id = '';
-            　　for (var i = 0; i < len; i++) {
-            　　　　map_id += $chars.charAt(Math.floor(Math.random() * maxPos));
+                var len = 9 || 32;
+                var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+                var maxPos = $chars.length;
+                var map_id = '';
+                var custom_height;
+                var h = lang.split('>')[1];
+                if (h != undefined) {
+                    custom_height = h;
+                } else {
+                    custom_height = 150;
                 }
-                return "<svg class='mindmap' style='width:100%;min-height=150px;' id='mindmap-"+ map_id +"'>"+code+"</svg>";
+                for (var i = 0; i < len; i++) {
+                    map_id += $chars.charAt(Math.floor(Math.random() * maxPos));
+                }
+                return "<svg class='mindmap' style='width:100%;min-height=150px;height:"+custom_height+"px;' id='mindmap-"+ map_id +"'>"+code+"</svg>";
             }
             else
             {
