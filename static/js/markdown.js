@@ -54,7 +54,10 @@ $(function () {
             remark: 'Remark',
         }
     };
-
+    var htmlDecodeList = ["style","script","title","onmouseover","onmouseout","style"];
+    if (!window.IS_ENABLE_IFRAME) {
+        htmlDecodeList.unshift("iframe");
+    }
     window.editor = editormd("docEditor", {
         width: "100%",
         height: "100%",
@@ -69,8 +72,8 @@ $(function () {
         fileUploadURL: window.fileUploadURL,
         taskList: true,
         flowChart: true,
-        htmlDecode: "style,script,iframe,title,onmouseover,onmouseout,style",
-        lineNumbers: false,
+        htmlDecode: htmlDecodeList.join(','),
+        lineNumbers: true,
         sequenceDiagram: true,
         tocStartLevel: 1,
         tocm: true,
@@ -193,7 +196,7 @@ $(function () {
        } else {
            var action = window.editor.toolbarHandlers[name];
 
-           if (action !== "undefined") {
+           if (!!action && action !== "undefined") {
                $.proxy(action, window.editor)();
                window.editor.focus();
            }

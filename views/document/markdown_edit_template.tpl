@@ -7,6 +7,10 @@
 
     <title>{{i18n .Lang "doc.edit_doc"}} - Powered by MinDoc</title>
     <script type="text/javascript">
+        window.IS_ENABLE_IFRAME = '{{conf "enable_iframe" }}' === 'true';
+        window.BASE_URL = '{{urlfor "HomeController.Index" }}';
+    </script>
+    <script type="text/javascript">
         window.treeCatalog = null;
         window.baseUrl = "{{.BaseUrl}}";
         window.saveing = false;
@@ -452,6 +456,8 @@
 <script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/markdown.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/x-frame-bypass-1.0.2.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         editLangPath = {{cdnjs "/static/editor.md/languages/"}} + lang

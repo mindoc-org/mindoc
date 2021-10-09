@@ -8,6 +8,7 @@ sessionon = true
 sessionname = mindoc_id
 copyrequestbody = true
 enablexsrf = "${MINDOC_ENABLE_XSRF||false}"
+enable_iframe = "${MINDOC_ENABLE_IFRAME||false}"
 
 #系统完整URL(http://doc.iminho.me),如果该项不设置，会从请求头中获取地址。
 baseurl="${MINDOC_BASE_URL}"

@@ -9,7 +9,7 @@ import (
 	"github.com/mindoc-org/mindoc/conf"
 )
 
-func StripTags(s string) string  {
+func StripTags(s string) string {
 
 	//将HTML标签全转换成小写
 	re, _ := regexp.Compile("\\<[\\S\\s]+?\\>")
@@ -33,8 +33,9 @@ func StripTags(s string) string  {
 
 	return src
 }
+
 //自动提取文章摘要
-func AutoSummary(body string,l int) string {
+func AutoSummary(body string, l int) string {
 
 	//匹配图片，如果图片语法是在代码块中，这里同样会处理
 	re := regexp.MustCompile(`<p>(.*?)</p>`)
@@ -42,11 +43,11 @@ func AutoSummary(body string,l int) string {
 	contents := re.FindAllString(body, -1)
 
 	if len(contents) <= 0 {
-		return  ""
+		return ""
 	}
 	content := ""
-	for _,s := range contents {
-		b := strings.Replace(StripTags(s),"\n","", -1)
+	for _, s := range contents {
+		b := strings.Replace(StripTags(s), "\n", "", -1)
 
 		if l <= 0 {
 			break
@@ -70,7 +71,9 @@ func SafetyProcessor(html string) string {
 		docQuery.Find("applet").Remove()
 		docQuery.Find("frame").Remove()
 		docQuery.Find("meta").Remove()
-		docQuery.Find("iframe").Remove()
+		if !conf.GetEnableIframe() {
+			docQuery.Find("iframe").Remove()
+		}
 		docQuery.Find("*").Each(func(i int, selection *goquery.Selection) {
 
 			if href, ok := selection.Attr("href"); ok && strings.HasPrefix(href, "javascript:") {
@@ -117,9 +120,8 @@ func SafetyProcessor(html string) string {
 			}
 		}
 
-
 		if html, err := docQuery.Html(); err == nil {
-			return  strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html), "<html><head></head><body>"), "</body></html>")
+			return strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html), "<html><head></head><body>"), "</body></html>")
 		}
 	}
 	return html
