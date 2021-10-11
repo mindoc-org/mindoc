@@ -41,26 +41,26 @@ COPY --from=build /go/src/github.com/mindoc-org/mindoc /mindoc
 WORKDIR /mindoc
 RUN chmod a+r /usr/share/fonts/win/simsun.ttc
 
-# 备份原有源
-RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
-# 最小化源，缩短apt update时间(ca-certificates必须先安装才支持换tsinghua源)
-RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
-RUN apt-get update
-RUN apt install -y ca-certificates
-# 更换tsinghua源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
-RUN echo $'\
-\n# from: https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/\n\
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\
-\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\n\
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\
-\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n\
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\
-\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n\
-deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse\
-\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse\
-\n# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse\
-\n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse'\
-> /etc/apt/sources.list
+# # 备份原有源
+# RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
+# # 最小化源，缩短apt update时间(ca-certificates必须先安装才支持换tsinghua源)
+# RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
+# RUN apt-get update
+# RUN apt install -y ca-certificates
+# # 更换tsinghua源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
+# RUN echo $'\
+# \n# from: https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/\n\
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\
+# \n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal main restricted universe multiverse\n\
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\
+# \n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n\
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\
+# \n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n\
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse\
+# \n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-security main restricted universe multiverse\
+# \n# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse\
+# \n# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ focal-proposed main restricted universe multiverse'\
+# > /etc/apt/sources.list
 
 # 更新软件包信息
 RUN apt-get update
