@@ -1,12 +1,11 @@
 MinDoc_New:
-  image: registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc:v2.0-beta.2
+  image: registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc:v2.0-beta.5
   privileged: false
   restart: always
   ports:
     - 8181:8181
   volumes:
-    - /var/www/mindoc/database:/mindoc/database
-    - /var/www/mindoc/uploads:/mindoc/uploads
+    - /var/www/mindoc://mindoc-sync-host
   environment:
     - MINDOC_RUN_MODE=prod
     - MINDOC_DB_ADAPTER=sqlite3
