@@ -145,6 +145,10 @@ docker run -it --name=mindoc --restart=always -v "${MINDOC}":"/mindoc-sync-host"
 docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP_ADDR=10.xxx.xxx.xxx -e MYSQL_PORT_3306_TCP_PORT=3306 -e MYSQL_INSTANCE_NAME=mindoc -e MYSQL_USERNAME=root -e MYSQL_PASSWORD=123456 -e httpport=8181 -d daocloud.io/lifei6671/mindoc:latest
 ```
 
+#### dockerfile内容参考
+- [无需代理直接加速各种 GitHub 资源拉取 | 国内镜像赋能 | 助力开发](https://blog.frytea.com/archives/504/)
+- [阿里云 - Ubuntu 镜像](https://developer.aliyun.com/mirror/ubuntu)
+
 ### docker-compose 一键安装
 
 1. 修改配置文件
