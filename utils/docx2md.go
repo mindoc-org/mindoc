@@ -1,6 +1,6 @@
 // https://github.com/mattn/docx2md
 // License MIT
-package util
+package utils
 
 import (
 	"archive/zip"
