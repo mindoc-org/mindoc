@@ -979,49 +979,51 @@ func (book *Book) ImportBook(zipPath string, lang string) error {
 }
 
 // 导入docx项目
-func (book *Book) ImportWordBook(docxPath string, lang string) error {
+func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
 	if !filetil.FileExists(docxPath) {
 		return errors.New("文件不存在")
 	}
-  docxPath = strings.Replace(docxPath, "\\", "/", -1)
+	docxPath = strings.Replace(docxPath, "\\", "/", -1)
 
 	o := orm.NewOrm()
 
 	o.Insert(book)
 	relationship := NewRelationship()
 	relationship.BookId = book.BookId
-	relationship.RoldId = 0
+	// relationship.RoldId = 0
 	relationship.MemberId = book.MemberId
 	relationship.Insert()
 
-  doc := NewDocument()
-  doc.BookId = book.BookId
-  doc.MemberId = book.MemberId
-  docIdentify := strings.Replace(strings.TrimPrefix(docxPath, os.TempDir()+"/"), "/", "-", -1)
+	doc := NewDocument()
+	doc.BookId = book.BookId
+	doc.MemberId = book.MemberId
+	docIdentify := strings.Replace(strings.TrimPrefix(docxPath, os.TempDir()+"/"), "/", "-", -1)
 
-  if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
-    docIdentify = "import-" + docIdentify
-  }
+	if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
+		docIdentify = "import-" + docIdentify
+	}
 
-  doc.Identify = docIdentify
+	doc.Identify = docIdentify
 
-	if doc.Markdown, err := util.Docx2md(docxPath, false); err != nil {
-    logs.Error("导入doc项目转换异常 => ", err)
-    exit(1)
-  }
+	if doc.Markdown, err = utils.Docx2md(docxPath, false); err != nil {
+		logs.Error("导入doc项目转换异常 => ", err)
+		return err
+	}
 
-  doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
+	doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
 
-  doc.Version = time.Now().Unix()
+	doc.Version = time.Now().Unix()
 
-  for _, line := range strings.Split(doc.Markdown, "\n") {
-    if strings.HasPrefix(line, "#") {
-      docName := strings.TrimLeft(line, "#")
-      break
-    }
-  }
+	var docName string
+	for _, line := range strings.Split(doc.Markdown, "\n") {
+		if strings.HasPrefix(line, "#") {
+			docName = strings.TrimLeft(line, "#")
+			break
+		}
+	}
 
-  doc.DocumentName = strings.TrimSpace(docName)
+	doc.DocumentName = strings.TrimSpace(docName)
+	return err
 }
 
 func (book *Book) FindForRoleId(bookId, memberId int) (conf.BookRole, error) {
