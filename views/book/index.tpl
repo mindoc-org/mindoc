@@ -465,7 +465,7 @@
                 'required': true,
                 'validateInitialCount': true,
                 "language" : "{{i18n $.Lang "common.upload_lang"}}",
-                'allowedFileExtensions': ['zip'],
+                'allowedFileExtensions': ['zip', 'docx'],
                 'msgPlaceholder' : '{{i18n $.Lang "message.file_type_placeholder"}}',
                 'elErrorContainer' : "#import-book-form-error-message",
                 'uploadExtraData' : function () {

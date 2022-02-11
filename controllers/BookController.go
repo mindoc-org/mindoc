@@ -340,7 +340,7 @@ func (c *BookController) UploadCover() {
 	fileName := "cover_" + strconv.FormatInt(time.Now().UnixNano(), 16)
 
 	//附件路径按照项目组织
-// 	filePath := filepath.Join("uploads", book.Identify, "images", fileName+ext)
+	// 	filePath := filepath.Join("uploads", book.Identify, "images", fileName+ext)
 	filePath := filepath.Join(conf.WorkingDirectory, "uploads", book.Identify, "images", fileName+ext)
 
 	path := filepath.Dir(filePath)
@@ -571,7 +571,7 @@ func (c *BookController) Copy() {
 	}
 }
 
-//导入zip压缩包
+// 导入zip压缩包或docx
 func (c *BookController) Import() {
 
 	file, moreFile, err := c.GetFile("import-file")
@@ -608,7 +608,7 @@ func (c *BookController) Import() {
 
 	ext := filepath.Ext(moreFile.Filename)
 
-	if !strings.EqualFold(ext, ".zip") {
+	if !strings.EqualFold(ext, ".zip") && !strings.EqualFold(ext, ".docx") {
 		c.JsonResult(6004, "不支持的文件类型")
 	}
 
@@ -643,7 +643,11 @@ func (c *BookController) Import() {
 	book.Editor = "markdown"
 	book.Theme = "default"
 
-	go book.ImportBook(tempPath, c.Lang)
+	if strings.EqualFold(ext, ".zip") {
+		go book.ImportBook(tempPath, c.Lang)
+	} else if strings.EqualFold(ext, ".docx") {
+		go book.ImportWordBook(tempPath, c.Lang)
+	}
 
 	logs.Info("用户[", c.Member.Account, "]导入了项目 ->", book)
 
