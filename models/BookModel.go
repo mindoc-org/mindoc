@@ -990,9 +990,13 @@ func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
 	o.Insert(book)
 	relationship := NewRelationship()
 	relationship.BookId = book.BookId
-	// relationship.RoldId = 0
+	relationship.RoleId = 0
 	relationship.MemberId = book.MemberId
-	relationship.Insert()
+	err = relationship.Insert()
+	if err != nil {
+		logs.Error("插入项目与用户关联 -> ", err)
+		return err
+	}
 
 	doc := NewDocument()
 	doc.BookId = book.BookId
@@ -1010,7 +1014,15 @@ func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
 		return err
 	}
 
+	// fmt.Println("===doc.Markdown===")
+	// fmt.Println(doc.Markdown)
+	// fmt.Println("==================")
+
 	doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
+
+	// fmt.Println("===doc.Content===")
+	// fmt.Println(doc.Content)
+	// fmt.Println("==================")
 
 	doc.Version = time.Now().Unix()
 
@@ -1023,6 +1035,18 @@ func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
 	}
 
 	doc.DocumentName = strings.TrimSpace(docName)
+
+	doc.DocumentId = book.MemberId
+
+	if err := doc.InsertOrUpdate("document_name", "book_id", "markdown", "content"); err != nil {
+		logs.Error(doc.DocumentId, err)
+	}
+	if err != nil {
+		logs.Error("导入项目异常 => ", err)
+		book.Description = "【项目导入存在错误：" + err.Error() + "】"
+	}
+	logs.Info("项目导入完毕 => ", book.BookName)
+	book.ReleaseContent(book.BookId, lang)
 	return err
 }
 
