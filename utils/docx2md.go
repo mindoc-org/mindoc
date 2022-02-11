@@ -487,7 +487,7 @@ func findFile(files []*zip.File, target string) *zip.File {
 func Docx2md(arg string, embed bool) (string, error) {
 	r, err := zip.OpenReader(arg)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	defer r.Close()
 
@@ -502,12 +502,12 @@ func Docx2md(arg string, embed bool) (string, error) {
 
 			b, _ := ioutil.ReadAll(rc)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 
 			err = xml.Unmarshal(b, &rels)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 		case "word/numbering.xml":
 			rc, err := f.Open()
@@ -515,23 +515,23 @@ func Docx2md(arg string, embed bool) (string, error) {
 
 			b, _ := ioutil.ReadAll(rc)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 
 			err = xml.Unmarshal(b, &num)
 			if err != nil {
-				return nil, err
+				return "", err
 			}
 		}
 	}
 
 	f := findFile(r.File, "word/document*.xml")
 	if f == nil {
-		return nil, errors.New("incorrect document")
+		return "", errors.New("incorrect document")
 	}
 	node, err := readFile(f)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	var buf bytes.Buffer
@@ -544,7 +544,7 @@ func Docx2md(arg string, embed bool) (string, error) {
 	}
 	err = zf.walk(node, &buf)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	return buf.String(), nil

@@ -1007,6 +1007,7 @@ func (book *Book) ImportWordBook(docxPath string, lang string) error {
 
 	if doc.Markdown, err := util.Docx2md(docxPath, false); err != nil {
     logs.Error("导入doc项目转换异常 => ", err)
+    exit(1)
   }
 
   doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
