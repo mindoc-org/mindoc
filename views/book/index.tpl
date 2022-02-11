@@ -248,7 +248,7 @@
                         </div>
                         <div class="form-group">
                             <div class="file-loading">
-                                <input id="import-book-upload" name="import-file" type="file" accept=".zip">
+                                <input id="import-book-upload" name="import-file" type="file" accept=".zip,.docx">
                             </div>
                             <div id="kartik-file-errors"></div>
                         </div>
