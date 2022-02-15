@@ -152,7 +152,11 @@ func escape(s, set string) string {
 }
 
 func (zf *file) extract(rel *Relationship, w io.Writer) error {
-	err := os.MkdirAll(filepath.Join("uploads", zf.name, filepath.Dir(rel.Target)), 0755)
+	err := os.MkdirAll(
+		filepath.Join("uploads",
+			strings.TrimSuffix(zf.name, ".docx"),
+			filepath.Dir(rel.Target)),
+		0755)
 	if err != nil {
 		return err
 	}
@@ -175,11 +179,18 @@ func (zf *file) extract(rel *Relationship, w io.Writer) error {
 			fmt.Fprintf(w, "![](data:image/png;base64,%s)",
 				base64.StdEncoding.EncodeToString(b[:n]))
 		} else {
-			err = ioutil.WriteFile(filepath.Join("uploads", zf.name, rel.Target), b, 0644)
+			err = ioutil.WriteFile(
+				filepath.Join("uploads",
+					strings.TrimSuffix(zf.name, ".docx"),
+					rel.Target),
+				b, 0644)
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(w, "![](%s)", "/"+filepath.Join("uploads", zf.name, escape(rel.Target, "()")))
+			fmt.Fprintf(w, "![](%s)", "/"+filepath.Join(
+				"uploads",
+				strings.TrimSuffix(zf.name, ".docx"),
+				escape(rel.Target, "()")))
 		}
 		break
 	}
