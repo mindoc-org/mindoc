@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	_ "log"
+	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -123,6 +123,7 @@ type file struct {
 	r     *zip.ReadCloser
 	embed bool
 	list  map[string]int
+	name  string
 }
 
 // Node is
@@ -151,7 +152,7 @@ func escape(s, set string) string {
 }
 
 func (zf *file) extract(rel *Relationship, w io.Writer) error {
-	err := os.MkdirAll(filepath.Dir(rel.Target), 0755)
+	err := os.MkdirAll(filepath.Join("uploads", zf.name, filepath.Dir(rel.Target)), 0755)
 	if err != nil {
 		return err
 	}
@@ -174,11 +175,11 @@ func (zf *file) extract(rel *Relationship, w io.Writer) error {
 			fmt.Fprintf(w, "![](data:image/png;base64,%s)",
 				base64.StdEncoding.EncodeToString(b[:n]))
 		} else {
-			err = ioutil.WriteFile(rel.Target, b, 0644)
+			err = ioutil.WriteFile(filepath.Join("uploads", zf.name, rel.Target), b, 0644)
 			if err != nil {
 				return err
 			}
-			fmt.Fprintf(w, "![](%s)", escape(rel.Target, "()"))
+			fmt.Fprintf(w, "![](%s)", "/"+filepath.Join("uploads", zf.name, escape(rel.Target, "()")))
 		}
 		break
 	}
@@ -534,6 +535,13 @@ func Docx2md(arg string, embed bool) (string, error) {
 		return "", err
 	}
 
+	fileNames := strings.Split(arg, "/")
+	fileName := fileNames[len(fileNames)-1]
+	// make sure the file name
+	if !strings.HasSuffix(fileName, ".docx") {
+		log.Fatal("File name must end with .docx")
+	}
+
 	var buf bytes.Buffer
 	zf := &file{
 		r:     r,
@@ -541,6 +549,7 @@ func Docx2md(arg string, embed bool) (string, error) {
 		num:   num,
 		embed: embed,
 		list:  make(map[string]int),
+		name:  fileName,
 	}
 	err = zf.walk(node, &buf)
 	if err != nil {
