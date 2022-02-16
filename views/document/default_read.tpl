@@ -267,9 +267,11 @@ $(function () {
             return $(body).highlight(window.keyword);
         });
     });
-
-    window.menuControl = true;
-    window.menuSetting = "open" ;
+    //目录缺省展开还是收起：true、open 是展开
+    window.menuControl = false;
+    window.menuSetting = "unopen" ;
+    //注释此代码，解决阅读文档时目录未按创建文档时实际选择展开或收起问题
+    /*
     if (menuSetting == 'open' || menuSetting == 'first') {
         $('#handlerMenuShow').find('span').text('{{i18n .Lang "doc.fold"}}');
         $('#handlerMenuShow').find('i').attr("class","fa fa-angle-down");
@@ -290,7 +292,7 @@ $(function () {
     } else {
         menuControl = false;
         window.jsTree.jstree('close_all')
-    }
+    }*/
     $('#handlerMenuShow').on('click', function(){
         if(menuControl){
             $(this).find('span').text('{{i18n .Lang "doc.expand"}}')
