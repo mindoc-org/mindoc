@@ -248,7 +248,7 @@
                         </div>
                         <div class="form-group">
                             <div class="file-loading">
-                                <input id="import-book-upload" name="import-file" type="file" accept=".zip">
+                                <input id="import-book-upload" name="import-file" type="file" accept=".zip,.docx">
                             </div>
                             <div id="kartik-file-errors"></div>
                         </div>
@@ -465,7 +465,7 @@
                 'required': true,
                 'validateInitialCount': true,
                 "language" : "{{i18n $.Lang "common.upload_lang"}}",
-                'allowedFileExtensions': ['zip'],
+                'allowedFileExtensions': ['zip', 'docx'],
                 'msgPlaceholder' : '{{i18n $.Lang "message.file_type_placeholder"}}',
                 'elErrorContainer' : "#import-book-form-error-message",
                 'uploadExtraData' : function () {
