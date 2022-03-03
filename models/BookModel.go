@@ -541,7 +541,7 @@ WHERE book.privately_owned = 0 or rel.role_id >=0 or team.role_id >=0`
 		if err != nil {
 			return
 		}
-		sql2 := `SELECT book.*,rel1.*,member.account AS create_name,member.real_name FROM md_books AS book
+		sql2 := `SELECT book.*,rel1.*,mdmb.account AS create_name,mdmb.real_name FROM md_books AS book
   LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
   left join (select book_id,min(role_id) AS role_id
              from (select book_id,role_id
@@ -549,7 +549,7 @@ WHERE book.privately_owned = 0 or rel.role_id >=0 or team.role_id >=0`
                      left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )
 as t group by book_id) as team on team.book_id=book.book_id
   LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
-  LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
+  LEFT JOIN md_members AS mdmb ON rel1.member_id = mdmb.member_id
 WHERE book.privately_owned = 0 or rel.role_id >=0 or team.role_id >=0 ORDER BY order_index desc,book.book_id DESC LIMIT ?,?`
 
 		_, err = o.Raw(sql2, memberId, memberId, offset, pageSize).QueryRows(&books)
@@ -563,9 +563,9 @@ WHERE book.privately_owned = 0 or rel.role_id >=0 or team.role_id >=0 ORDER BY o
 		}
 		totalCount = int(count)
 
-		sql := `SELECT book.*,rel.*,member.account AS create_name,member.real_name FROM md_books AS book
+		sql := `SELECT book.*,rel.*,mdmb.account AS create_name,mdmb.real_name FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
-			LEFT JOIN md_members AS member ON rel.member_id = member.member_id
+			LEFT JOIN md_members AS mdmb ON rel.member_id = mdmb.member_id
 			WHERE book.privately_owned = 0 ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
 
 		_, err = o.Raw(sql, offset, pageSize).QueryRows(&books)
@@ -595,14 +595,14 @@ WHERE (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 
 		if err != nil {
 			return
 		}
-		sql2 := `SELECT book.*,rel1.*,member.account AS create_name FROM md_books AS book
+		sql2 := `SELECT book.*,rel1.*,mdmb.account AS create_name FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
 			left join (select * from (select book_id,team_member_id,role_id
                    	from md_team_relationship as mtr
 					left join md_team_member as mtm on mtm.team_id=mtr.team_id and mtm.member_id=? order by role_id desc )as t group by t.role_id,t.team_member_id,t.book_id) as team 
 					on team.book_id = book.book_id
 			LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
-			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
+			LEFT JOIN md_members AS mdmb ON rel1.member_id = mdmb.member_id
 			WHERE (rel.relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 0) 
 			AND book.label LIKE ? ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
 
@@ -619,9 +619,9 @@ WHERE (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 
 		}
 		totalCount = int(count)
 
-		sql := `SELECT book.*,rel.*,member.account AS create_name FROM md_books AS book
+		sql := `SELECT book.*,rel.*,mdmb.account AS create_name FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
-			LEFT JOIN md_members AS member ON rel.member_id = member.member_id
+			LEFT JOIN md_members AS mdmb ON rel.member_id = mdmb.member_id
 			WHERE book.privately_owned = 0 AND book.label LIKE ? ORDER BY order_index DESC ,book.book_id DESC LIMIT ?,?`
 
 		_, err = o.Raw(sql, keyword, offset, pageSize).QueryRows(&books)
