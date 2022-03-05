@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/models"
 )
@@ -20,7 +21,7 @@ func (c *TemplateController) isPermission() error {
 	bookIdentify := c.GetString("identify", "")
 
 	if bookIdentify == "" {
-		return errors.New("参数错误")
+		return errors.New(i18n.Tr(c.Lang, "message.param_error"))
 	}
 
 	if !c.Member.IsAdministrator() {

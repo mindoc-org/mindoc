@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/client/orm"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
@@ -54,19 +55,19 @@ func (m *MemberRelationshipResult) FromMember(member *Member) *MemberRelationshi
 	return m
 }
 
-func (m *MemberRelationshipResult) ResolveRoleName() *MemberRelationshipResult {
+func (m *MemberRelationshipResult) ResolveRoleName(lang string) *MemberRelationshipResult {
 	if m.RoleId == conf.BookAdmin {
-		m.RoleName = "管理者"
+		m.RoleName = i18n.Tr(lang, "common.administrator")
 	} else if m.RoleId == conf.BookEditor {
-		m.RoleName = "编辑者"
+		m.RoleName = i18n.Tr(lang, "common.editor")
 	} else if m.RoleId == conf.BookObserver {
-		m.RoleName = "观察者"
+		m.RoleName = i18n.Tr(lang, "common.obverser")
 	}
 	return m
 }
 
 // 根据项目ID查询用户
-func (m *MemberRelationshipResult) FindForUsersByBookId(bookId, pageIndex, pageSize int) ([]*MemberRelationshipResult, int, error) {
+func (m *MemberRelationshipResult) FindForUsersByBookId(lang string, bookId, pageIndex, pageSize int) ([]*MemberRelationshipResult, int, error) {
 	o := orm.NewOrm()
 
 	var members []*MemberRelationshipResult
@@ -92,7 +93,7 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(bookId, pageIndex, pageS
 	}
 
 	for _, item := range members {
-		item.ResolveRoleName()
+		item.ResolveRoleName(lang)
 	}
 	return members, total_count, nil
 }

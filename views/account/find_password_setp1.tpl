@@ -7,7 +7,7 @@
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="MinDoc" />
-    <title>找回密码 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "common.account_recovery"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -35,13 +35,13 @@
         <div class="login-body">
             <form role="form" method="post" id="findPasswordForm">
             {{ .xsrfdata }}
-                <h3 class="text-center">找回密码</h3>
+                <h3 class="text-center">{{i18n .Lang "common.account_recovery"}}</h3>
                 <div class="form-group">
                     <div class="input-group">
                         <div class="input-group-addon">
                             <i class="fa fa-at"></i>
                         </div>
-                        <input type="text" class="form-control" placeholder="邮箱" name="email" id="email" autocomplete="off">
+                        <input type="text" class="form-control" placeholder="{{i18n .Lang "common.email"}}" name="email" id="email" autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
@@ -49,14 +49,14 @@
                         <div class="input-group-addon">
                             <i class="fa fa-check-square"></i>
                         </div>
-                        <input type="text" name="code" id="code" class="form-control" style="width: 150px" maxlength="5" placeholder="验证码" autocomplete="off">&nbsp;
+                        <input type="text" name="code" id="code" class="form-control" style="width: 150px" maxlength="5" placeholder="{{i18n .Lang "common.captcha"}}" autocomplete="off">&nbsp;
                     </div>
-                    <img id="captcha-img" style="width: 140px;height: 40px;display: inline-block;float: right" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title="点击换一张">
+                    <img id="captcha-img" style="width: 140px;height: 40px;display: inline-block;float: right" src="{{urlfor "AccountController.Captcha"}}" onclick="this.src='{{urlfor "AccountController.Captcha"}}?key=login&t='+(new Date()).getTime();" title="{{i18n .Lang "message.click_to_change"}}">
                     <div class="clearfix"></div>
                 </div>
 
                 <div class="form-group">
-                    <button type="submit" id="btnSendMail" class="btn btn-success" style="width: 100%"  data-loading-text="正在处理..." autocomplete="off">找回密码</button>
+                    <button type="submit" id="btnSendMail" class="btn btn-success" style="width: 100%"  data-loading-text="{{i18n .Lang "message.processing"}}" autocomplete="off">{{i18n .Lang "common.account_recovery"}}</button>
                 </div>
 
             </form>
@@ -88,7 +88,7 @@
 
                 var email = $.trim($("#email").val());
                 if(email === ""){
-                    $("#email").tooltip({placement:"auto",title : "邮箱不能为空",trigger : 'manual'})
+                    $("#email").tooltip({placement:"auto",title : "{{i18n .Lang "message.email_empty"}}",trigger : 'manual'})
                         .tooltip('show')
                         .parents('.form-group').addClass('has-error');
                     $btn.button('reset');
@@ -97,7 +97,7 @@
                 }
                 var code = $.trim($("#code").val());
                 if(code === ""){
-                    $("#code").tooltip({title : '验证码不能为空',trigger : 'manual'})
+                    $("#code").tooltip({title : '{{i18n .Lang "message.captcha_empty"}}',trigger : 'manual'})
                         .tooltip('show')
                         .parents('.form-group').addClass('has-error');
                     $btn.button('reset');
@@ -113,14 +113,14 @@
                     layer.msg(res.message);
                     $("#btnSendMail").button('reset');
                 }else{
-                    alert("邮件发送成功，请登录邮箱查看。")
+                    alert("{{i18n .Lang "message.email_sent"}}")
                     window.location = res.data;
                 }
             },
             error :function () {
                 $("#captcha-img").click();
                 $("#code").val('');
-                layer.msg('系统错误');
+                layer.msg('{{i18n .Lang "message.system_error"}}');
                 $("#btnSendMail").button('reset');
             }
         });

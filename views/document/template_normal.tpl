@@ -61,7 +61,7 @@ nohup ./godoc &
 Windows 下后台运行需要借助 CMD 命令行命令：
 
 ```bash
-#在MinDoc跟目录下新建一个slave.vbs文件：
+#在MinDoc根目录下新建一个slave.vbs文件：
 
 Set ws = CreateObject("Wscript.Shell")
 ws.run "cmd /c start.bat",vbhide

@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/i18n"
 	"github.com/howeyc/fsnotify"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/mindoc-org/mindoc/cache"
@@ -262,12 +264,31 @@ func RegisterFunction() {
 		logs.Error("注册函数 urlfor 出错 ->", err)
 		os.Exit(-1)
 	}
+	//读取配置值(未作任何转换)
+	err = web.AddFuncMap("conf", conf.CONF)
+	if err != nil {
+		logs.Error("注册函数 conf 出错 ->", err)
+		os.Exit(-1)
+	}
 	err = web.AddFuncMap("date_format", func(t time.Time, format string) string {
 		return t.Local().Format(format)
 	})
 	if err != nil {
 		logs.Error("注册函数 date_format 出错 ->", err)
 		os.Exit(-1)
+	}
+
+	err = web.AddFuncMap("i18n", i18n.Tr)
+	if err != nil {
+		logs.Error("注册函数 i18n 出错 ->", err)
+		os.Exit(-1)
+	}
+	langs := strings.Split("en-us|zh-cn", "|")
+	for _, lang := range langs {
+		if err := i18n.SetMessage(lang, "conf/lang/"+lang+".ini"); err != nil {
+			logs.Error("Fail to set message file: " + err.Error())
+			return
+		}
 	}
 }
 
@@ -385,15 +406,15 @@ func RegisterCache() {
 		var redisConfig struct {
 			Conn     string `json:"conn"`
 			Password string `json:"password"`
-			DbNum    int    `json:"dbNum"`
+			DbNum    string `json:"dbNum"`
 		}
-		redisConfig.DbNum = 0
+		redisConfig.DbNum = "0"
 		redisConfig.Conn = web.AppConfig.DefaultString("cache_redis_host", "")
 		if pwd := web.AppConfig.DefaultString("cache_redis_password", ""); pwd != "" {
 			redisConfig.Password = pwd
 		}
 		if dbNum := web.AppConfig.DefaultInt("cache_redis_db", 0); dbNum > 0 {
-			redisConfig.DbNum = dbNum
+			redisConfig.DbNum = strconv.Itoa(dbNum)
 		}
 
 		bc, err := json.Marshal(&redisConfig)

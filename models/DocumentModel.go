@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/beego/i18n"
+
 	"fmt"
 	"strconv"
 
@@ -44,6 +46,8 @@ type Document struct {
 	IsOpen     int           `orm:"column(is_open);type(int);default(0)" json:"is_open"`
 	ViewCount  int           `orm:"column(view_count);type(int)" json:"view_count"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
+	//i18n
+	Lang string `orm:"-"`
 }
 
 // 多字段唯一键
@@ -276,7 +280,7 @@ func (item *Document) Processor() *Document {
 				//处理附件
 				attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
 				if err == nil && len(attachList) > 0 {
-					content := bytes.NewBufferString("<div class=\"attach-list\"><strong>附件</strong><ul>")
+					content := bytes.NewBufferString("<div class=\"attach-list\"><strong>" + i18n.Tr(item.Lang, "doc.attachment") + "</strong><ul>")
 					for _, attach := range attachList {
 						if strings.HasPrefix(attach.HttpPath, "/") {
 							attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
@@ -306,7 +310,7 @@ func (item *Document) Processor() *Document {
 				docCreator, err := NewMember().Find(item.MemberId, "real_name", "account")
 				release := "<div class=\"wiki-bottom\">"
 
-				release += "作者："
+				release += i18n.Tr(item.Lang, "doc.ft_author")
 				if err == nil && docCreator != nil {
 					if docCreator.RealName != "" {
 						release += docCreator.RealName
@@ -314,19 +318,19 @@ func (item *Document) Processor() *Document {
 						release += docCreator.Account
 					}
 				}
-				release += " &nbsp;创建时间：" + item.CreateTime.Local().Format("2006-01-02 15:04") + "<br>"
+				release += " &nbsp;" + i18n.Tr(item.Lang, "doc.ft_create_time") + item.CreateTime.Local().Format("2006-01-02 15:04") + "<br>"
 
 				if item.ModifyAt > 0 {
 					docModify, err := NewMember().Find(item.ModifyAt, "real_name", "account")
 					if err == nil {
 						if docModify.RealName != "" {
-							release += "最后编辑：" + docModify.RealName
+							release += i18n.Tr(item.Lang, "doc.ft_last_editor") + docModify.RealName
 						} else {
-							release += "最后编辑：" + docModify.Account
+							release += i18n.Tr(item.Lang, "doc.ft_last_editor") + docModify.Account
 						}
 					}
 				}
-				release += " &nbsp;更新时间：" + item.ModifyTime.Local().Format("2006-01-02 15:04") + "<br>"
+				release += " &nbsp;" + i18n.Tr(item.Lang, "doc.ft_update_time") + item.ModifyTime.Local().Format("2006-01-02 15:04") + "<br>"
 				release += "</div>"
 
 				if selector := docQuery.Find("div.markdown-article").First(); selector.Size() > 0 {
@@ -335,7 +339,7 @@ func (item *Document) Processor() *Document {
 					selector.First().AppendHtml(release)
 				}
 			}
-			cdnimg,_  := web.AppConfig.String("cdnimg")
+			cdnimg, _ := web.AppConfig.String("cdnimg")
 
 			docQuery.Find("img").Each(func(i int, selection *goquery.Selection) {
 

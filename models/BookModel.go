@@ -19,6 +19,7 @@ import (
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
 	"github.com/mindoc-org/mindoc/utils/cryptil"
@@ -115,7 +116,7 @@ func NewBook() *Book {
 }
 
 //添加一个项目
-func (book *Book) Insert() error {
+func (book *Book) Insert(lang string) error {
 	o := orm.NewOrm()
 	//	o.Begin()
 	book.BookName = utils.StripTags(book.BookName)
@@ -141,7 +142,7 @@ func (book *Book) Insert() error {
 		}
 		document := NewDocument()
 		document.BookId = book.BookId
-		document.DocumentName = "空白文档"
+		document.DocumentName = i18n.Tr(lang, "init.blank_doc") //"空白文档"
 		document.MemberId = book.MemberId
 		err = document.InsertOrUpdate()
 		if err != nil {
@@ -362,7 +363,7 @@ func (book *Book) FindByIdentify(identify string, cols ...string) (*Book, error)
 }
 
 //分页查询指定用户的项目
-func (book *Book) FindToPager(pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
+func (book *Book) FindToPager(pageIndex, pageSize, memberId int, lang string) (books []*BookResult, totalCount int, err error) {
 
 	o := orm.NewOrm()
 
@@ -430,13 +431,13 @@ ORDER BY book.order_index, book.book_id DESC limit ?,?`
 				books[index].LastModifyText = text.Account + " 于 " + text.ModifyTime.Format("2006-01-02 15:04:05")
 			}
 			if book.RoleId == 0 {
-				book.RoleName = "创始人"
+				book.RoleName = i18n.Tr(lang, "common.creator")
 			} else if book.RoleId == 1 {
-				book.RoleName = "管理员"
+				book.RoleName = i18n.Tr(lang, "common.administrator")
 			} else if book.RoleId == 2 {
-				book.RoleName = "编辑者"
+				book.RoleName = i18n.Tr(lang, "common.editor")
 			} else if book.RoleId == 3 {
-				book.RoleName = "观察者"
+				book.RoleName = i18n.Tr(lang, "common.observer")
 			}
 		}
 	}
@@ -631,7 +632,7 @@ WHERE (relationship_id > 0 OR book.privately_owned = 0 or team.team_member_id > 
 }
 
 // ReleaseContent 批量发布文档
-func (book *Book) ReleaseContent(bookId int) {
+func (book *Book) ReleaseContent(bookId int, lang string) {
 	releaseQueue <- bookId
 	once.Do(func() {
 		go func() {
@@ -652,6 +653,7 @@ func (book *Book) ReleaseContent(bookId int) {
 				}
 				for _, item := range docs {
 					item.BookId = bookId
+					item.Lang = lang
 					_ = item.ReleaseContent()
 				}
 
@@ -678,8 +680,8 @@ func (book *Book) ResetDocumentNumber(bookId int) {
 	}
 }
 
-//导入项目
-func (book *Book) ImportBook(zipPath string) error {
+// 导入zip项目
+func (book *Book) ImportBook(zipPath string, lang string) error {
 	if !filetil.FileExists(zipPath) {
 		return errors.New("文件不存在 => " + zipPath)
 	}
@@ -972,7 +974,79 @@ func (book *Book) ImportBook(zipPath string) error {
 		book.Description = "【项目导入存在错误：" + err.Error() + "】"
 	}
 	logs.Info("项目导入完毕 => ", book.BookName)
-	book.ReleaseContent(book.BookId)
+	book.ReleaseContent(book.BookId, lang)
+	return err
+}
+
+// 导入docx项目
+func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
+	if !filetil.FileExists(docxPath) {
+		return errors.New("文件不存在")
+	}
+	docxPath = strings.Replace(docxPath, "\\", "/", -1)
+
+	o := orm.NewOrm()
+
+	o.Insert(book)
+	relationship := NewRelationship()
+	relationship.BookId = book.BookId
+	relationship.RoleId = 0
+	relationship.MemberId = book.MemberId
+	err = relationship.Insert()
+	if err != nil {
+		logs.Error("插入项目与用户关联 -> ", err)
+		return err
+	}
+
+	doc := NewDocument()
+	doc.BookId = book.BookId
+	doc.MemberId = book.MemberId
+	docIdentify := strings.Replace(strings.TrimPrefix(docxPath, os.TempDir()+"/"), "/", "-", -1)
+
+	if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
+		docIdentify = "import-" + docIdentify
+	}
+
+	doc.Identify = docIdentify
+
+	if doc.Markdown, err = utils.Docx2md(docxPath, false); err != nil {
+		logs.Error("导入doc项目转换异常 => ", err)
+		return err
+	}
+
+	// fmt.Println("===doc.Markdown===")
+	// fmt.Println(doc.Markdown)
+	// fmt.Println("==================")
+
+	doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
+
+	// fmt.Println("===doc.Content===")
+	// fmt.Println(doc.Content)
+	// fmt.Println("==================")
+
+	doc.Version = time.Now().Unix()
+
+	var docName string
+	for _, line := range strings.Split(doc.Markdown, "\n") {
+		if strings.HasPrefix(line, "#") {
+			docName = strings.TrimLeft(line, "#")
+			break
+		}
+	}
+
+	doc.DocumentName = strings.TrimSpace(docName)
+
+	doc.DocumentId = book.MemberId
+
+	if err := doc.InsertOrUpdate("document_name", "book_id", "markdown", "content"); err != nil {
+		logs.Error(doc.DocumentId, err)
+	}
+	if err != nil {
+		logs.Error("导入项目异常 => ", err)
+		book.Description = "【项目导入存在错误：" + err.Error() + "】"
+	}
+	logs.Info("项目导入完毕 => ", book.BookName)
+	book.ReleaseContent(book.BookId, lang)
 	return err
 }
 

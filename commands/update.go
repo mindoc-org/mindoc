@@ -14,7 +14,9 @@ import (
 //检查最新版本.
 func CheckUpdate() {
 
-	resp, err := http.Get("https://api.github.com/repos/lifei6671/mindoc/tags")
+	fmt.Println("MinDoc current version => ", conf.VERSION)
+
+	resp, err := http.Get("https://api.github.com/repos/mindoc-org/mindoc/tags")
 
 	if err != nil {
 		logs.Error("CheckUpdate => ", err)
@@ -33,7 +35,6 @@ func CheckUpdate() {
 	}
 
 	err = json.Unmarshal(body, &result)
-	fmt.Println("MinDoc current version => ", conf.VERSION)
 	if err != nil {
 		logs.Error("CheckUpdate => ", err)
 		os.Exit(0)

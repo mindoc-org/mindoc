@@ -7,8 +7,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/client/cache"
+	"github.com/beego/beego/v2/core/logs"
 )
 
 var bm cache.Cache

@@ -1,11 +1,82 @@
 package routers
 
 import (
+	"crypto/tls"
+	"log"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strings"
+
+	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
+	"github.com/beego/beego/v2/server/web/context"
+	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/controllers"
 )
 
+func rt(req *http.Request) (*http.Response, error) {
+	log.Printf("request received. url=%s", req.URL)
+	// req.Header.Set("Host", "httpbin.org") // <--- I set it here as well
+	defer log.Printf("request complete. url=%s", req.URL)
+
+	return http.DefaultTransport.RoundTrip(req)
+}
+
+// roundTripper makes func signature a http.RoundTripper
+type roundTripper func(*http.Request) (*http.Response, error)
+
+func (f roundTripper) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
+
+type CorsTransport struct {
+	http.RoundTripper
+}
+
+func (t *CorsTransport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+	// refer:
+	// - https://stackoverflow.com/questions/31535569/golang-how-to-read-response-body-of-reverseproxy/31536962#31536962
+	// - https://gist.github.com/simon-cj/b4da0b2bca793ec3b8a5abe04c8fca41
+	resp, err = t.RoundTripper.RoundTrip(req)
+	logs.Debug(resp)
+	if err != nil {
+		return nil, err
+	}
+	resp.Header.Del("Access-Control-Request-Method")
+	resp.Header.Set("Access-Control-Allow-Origin", "*")
+	return resp, nil
+}
+
 func init() {
+	web.Any("/cors-anywhere", func(ctx *context.Context) {
+		u, _ := url.PathUnescape(ctx.Input.Query("url"))
+		logs.Error("ReverseProxy: ", u)
+		if len(u) > 0 && strings.HasPrefix(u, "http") {
+			if strings.TrimRight(conf.BaseUrl, "/") == ctx.Input.Site() {
+				ctx.Redirect(302, u)
+			} else {
+				target, _ := url.Parse(u)
+				logs.Debug("target: ", target)
+
+				proxy := &httputil.ReverseProxy{
+					Transport: roundTripper(rt),
+					Director: func(req *http.Request) {
+						req.Header = ctx.Request.Header
+						req.URL.Scheme = target.Scheme
+						req.URL.Host = target.Host
+						req.URL.Path = target.Path
+						req.Header.Set("Host", target.Host)
+					},
+				}
+
+				http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+				proxy.ServeHTTP(ctx.ResponseWriter, ctx.Request)
+			}
+		} else {
+			ctx.ResponseWriter.WriteHeader(http.StatusBadRequest)
+			ctx.Output.Body([]byte("400 Bad Request"))
+		}
+	})
+
 	web.Router("/", &controllers.HomeController{}, "*:Index")
 
 	web.Router("/login", &controllers.AccountController{}, "*:Login")

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/graphics"
 	"github.com/mindoc-org/mindoc/models"
@@ -28,7 +29,7 @@ func (c *SettingController) Index() {
 		description := strings.TrimSpace(c.GetString("description"))
 
 		if email == "" {
-			c.JsonResult(601, "邮箱不能为空")
+			c.JsonResult(601, i18n.Tr(c.Lang, "message.email_empty"))
 		}
 		member := c.Member
 		member.Email = email
@@ -48,34 +49,34 @@ func (c *SettingController) Password() {
 
 	if c.Ctx.Input.IsPost() {
 		if c.Member.AuthMethod == conf.AuthMethodLDAP {
-			c.JsonResult(6009, "当前用户不支持修改密码")
+			c.JsonResult(6009, i18n.Tr(c.Lang, "message.cur_user_cannot_change_pwd"))
 		}
 		password1 := c.GetString("password1")
 		password2 := c.GetString("password2")
 		password3 := c.GetString("password3")
 
 		if password1 == "" {
-			c.JsonResult(6003, "原密码不能为空")
+			c.JsonResult(6003, i18n.Tr(c.Lang, "message.origin_pwd_empty"))
 		}
 
 		if password2 == "" {
-			c.JsonResult(6004, "新密码不能为空")
+			c.JsonResult(6004, i18n.Tr(c.Lang, "message.new_pwd_empty"))
 		}
 		if count := strings.Count(password2, ""); count < 6 || count > 18 {
-			c.JsonResult(6009, "密码必须在6-18字之间")
+			c.JsonResult(6009, i18n.Tr(c.Lang, "message.pwd_length"))
 		}
 		if password2 != password3 {
 			c.JsonResult(6003, "确认密码不正确")
 		}
 		if ok, _ := utils.PasswordVerify(c.Member.Password, password1); !ok {
-			c.JsonResult(6005, "原始密码不正确")
+			c.JsonResult(6005, i18n.Tr(c.Lang, "message.wrong_origin_pwd"))
 		}
 		if password1 == password2 {
-			c.JsonResult(6006, "新密码不能和原始密码相同")
+			c.JsonResult(6006, i18n.Tr(c.Lang, "message.same_pwd"))
 		}
 		pwd, err := utils.PasswordHash(password2)
 		if err != nil {
-			c.JsonResult(6007, "密码加密失败")
+			c.JsonResult(6007, i18n.Tr(c.Lang, "message.pwd_encrypt_failed"))
 		}
 		c.Member.Password = pwd
 		if err := c.Member.Update(); err != nil {

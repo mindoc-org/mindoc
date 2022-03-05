@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>团队管理 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "mgr.team_mgr"}} - Powered by MinDoc</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -23,15 +23,15 @@
 {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
-        {{template "manager/widgets.tpl" "team"}}
+        {{template "manager/widgets.tpl" .}}
             <div class="page-right">
                 <div class="m-box">
                     <div class="box-head">
-                        <strong class="box-title"> 团队管理</strong>
+                        <strong class="box-title"> {{i18n .Lang "mgr.team_mgr"}}</strong>
                     {{if eq .Member.Role 0}}
                         <button type="button" class="btn btn-success btn-sm pull-right" data-toggle="modal"
                                 data-target="#addTeamDialogModal"><i class="fa fa-user-plus" aria-hidden="true"></i>
-                            创建团队
+                            {{i18n .Lang "mgr.create_team"}}
                         </button>
                     {{end}}
                     </div>
@@ -39,16 +39,16 @@
                 <div class="box-body">
                     <div class="users-list" id="teamList">
                         <template v-if="lists.length <= 0">
-                            <div class="text-center">暂无数据</div>
+                            <div class="text-center">{{i18n .Lang "message.no_data"}}</div>
                         </template>
                         <template v-else>
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th>团队名称</th>
-                                    <th width="150px">成员数量</th>
-                                    <th width="150px">项目数量</th>
-                                    <th align="center" width="220px">操作</th>
+                                    <th>{{i18n .Lang "mgr.team_name"}}</th>
+                                    <th width="150px">{{i18n .Lang "mgr.member_amount"}}</th>
+                                    <th width="150px">{{i18n .Lang "mgr.proj_amount"}}</th>
+                                    <th align="center" width="260px">{{i18n .Lang "common.operate"}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -57,10 +57,10 @@
                                     <td>${item.member_count}</td>
                                     <td>${item.book_count}</td>
                                     <td>
-                                        <a :href="'{{urlfor "ManagerController.TeamBookList" ":id" ""}}' + item.team_id" class="btn btn-primary btn-sm">项目</a>
-                                        <a :href="'{{urlfor "ManagerController.TeamMemberList" ":id" ""}}' + item.team_id" type="button" class="btn btn-success btn-sm">成员</a>
-                                        <button type="button" class="btn btn-sm btn-default" @click="editTeam(item.team_id)">编辑</button>
-                                        <button type="button" class="btn btn-danger btn-sm" @click="deleteTeam(item.team_id,$event)" data-loading-text="删除中">删除</button>
+                                        <a :href="'{{urlfor "ManagerController.TeamBookList" ":id" ""}}' + item.team_id" class="btn btn-primary btn-sm">{{i18n .Lang "mgr.proj"}}</a>
+                                        <a :href="'{{urlfor "ManagerController.TeamMemberList" ":id" ""}}' + item.team_id" type="button" class="btn btn-success btn-sm">{{i18n .Lang "mgr.member"}}</a>
+                                        <button type="button" class="btn btn-sm btn-default" @click="editTeam(item.team_id)">{{i18n .Lang "common.edit"}}</button>
+                                        <button type="button" class="btn btn-danger btn-sm" @click="deleteTeam(item.team_id,$event)" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.delete"}}</button>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -85,22 +85,22 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">创建团队</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "mgr.create_team"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="account">团队名称<span
+                        <label class="col-sm-2 control-label" for="account">{{i18n .Lang "mgr.team_name"}}<span
                                 class="error-message">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text" name="teamName" class="form-control" placeholder="团队名称" id="teamName" maxlength="50">
+                            <input type="text" name="teamName" class="form-control" placeholder="{{i18n .Lang "mgr.team_name"}}" id="teamName" maxlength="50">
                         </div>
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnAddTeam">保存
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}" id="btnAddTeam">{{i18n .Lang "common.save"}}
                     </button>
                 </div>
             </div>
@@ -115,21 +115,21 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">编辑团队</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "mgr.edit_team"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label" for="account">团队名称<span class="error-message">*</span></label>
+                        <label class="col-sm-2 control-label" for="account">{{i18n .Lang "mgr.team_name"}}<span class="error-message">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text" name="teamName" class="form-control" placeholder="团队名称" maxlength="50">
+                            <input type="text" name="teamName" class="form-control" placeholder="{{i18n .Lang "mgr.team_name"}}" maxlength="50">
                         </div>
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <div class="modal-footer">
                     <span id="form-error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="submit" class="btn btn-success" data-loading-text="保存中..." id="btnEditTeam">保存
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}" id="btnEditTeam">{{i18n .Lang "common.save"}}
                     </button>
                 </div>
             </div>
@@ -139,6 +139,8 @@
 
 
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
+
+
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}"></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
@@ -156,7 +158,7 @@
             beforeSubmit: function () {
                 var account = $.trim($("#addTeamDialogForm #teamName").val());
                 if (account === "") {
-                    return showError("团队名称不能为空");
+                    return showError({{i18n .Lang "message.team_name_empty"}});
                 }
                 $("#btnAddTeam").button("loading");
                 return true;
@@ -170,7 +172,7 @@
                 }
             },
             error: function () {
-                showError("服务器异常");
+                showError({{i18n .Lang "message.system_error"}});
             },
             complete: function () {
                 $("#btnAddTeam").button("reset");
@@ -184,7 +186,7 @@
             beforeSubmit: function () {
                 var account = $.trim(editTeamDialogModal.find("input[name='teamName']").val());
                 if (account === "") {
-                    return showError("团队名称不能为空");
+                    return showError({{i18n .Lang "message.team_name_empty"}});
                 }
                 $("#btnEditTeam").button("loading");
                 return true;
@@ -203,7 +205,7 @@
                 }
             },
             error: function () {
-                showError("服务器异常");
+                showError({{i18n .Lang "message.system_error"}});
             },
             complete: function () {
                 $("#btnEditTeam").button("reset");

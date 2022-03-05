@@ -28,14 +28,11 @@ func (c *HomeController) Index() {
 
 	pageIndex, _ := c.GetInt("page", 1)
 	pageSize := 18
-
 	memberId := 0
-
 	if c.Member != nil {
 		memberId = c.Member.MemberId
 	}
 	books, totalCount, err := models.NewBook().FindForHomeToPager(pageIndex, pageSize, memberId)
-
 	if err != nil {
 		logs.Error(err)
 		c.Abort("500")
@@ -47,6 +44,5 @@ func (c *HomeController) Index() {
 		c.Data["PageHtml"] = ""
 	}
 	c.Data["TotalPages"] = int(math.Ceil(float64(totalCount) / float64(pageSize)))
-
 	c.Data["Lists"] = books
 }
