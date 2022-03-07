@@ -269,6 +269,8 @@ $(function () {
     });
 
     window.menuControl = true;
+    //临时注释此代码：打开项目时，左侧目录应按创建文档时的实际选择默认展开或收起，而不是所有目录强制展开。 
+    /*
     window.menuSetting = "open" ;
     if (menuSetting == 'open' || menuSetting == 'first') {
         $('#handlerMenuShow').find('span').text('{{i18n .Lang "doc.fold"}}');
@@ -290,7 +292,7 @@ $(function () {
     } else {
         menuControl = false;
         window.jsTree.jstree('close_all')
-    }
+    }*/
     $('#handlerMenuShow').on('click', function(){
         if(menuControl){
             $(this).find('span').text('{{i18n .Lang "doc.expand"}}')
