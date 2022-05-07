@@ -680,7 +680,7 @@ func (book *Book) ResetDocumentNumber(bookId int) {
 	}
 }
 
-//导入项目
+// 导入zip项目
 func (book *Book) ImportBook(zipPath string, lang string) error {
 	if !filetil.FileExists(zipPath) {
 		return errors.New("文件不存在 => " + zipPath)
@@ -969,6 +969,78 @@ func (book *Book) ImportBook(zipPath string, lang string) error {
 		return nil
 	})
 
+	if err != nil {
+		logs.Error("导入项目异常 => ", err)
+		book.Description = "【项目导入存在错误：" + err.Error() + "】"
+	}
+	logs.Info("项目导入完毕 => ", book.BookName)
+	book.ReleaseContent(book.BookId, lang)
+	return err
+}
+
+// 导入docx项目
+func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
+	if !filetil.FileExists(docxPath) {
+		return errors.New("文件不存在")
+	}
+	docxPath = strings.Replace(docxPath, "\\", "/", -1)
+
+	o := orm.NewOrm()
+
+	o.Insert(book)
+	relationship := NewRelationship()
+	relationship.BookId = book.BookId
+	relationship.RoleId = 0
+	relationship.MemberId = book.MemberId
+	err = relationship.Insert()
+	if err != nil {
+		logs.Error("插入项目与用户关联 -> ", err)
+		return err
+	}
+
+	doc := NewDocument()
+	doc.BookId = book.BookId
+	doc.MemberId = book.MemberId
+	docIdentify := strings.Replace(strings.TrimPrefix(docxPath, os.TempDir()+"/"), "/", "-", -1)
+
+	if ok, err := regexp.MatchString(`[a-z]+[a-zA-Z0-9_.\-]*$`, docIdentify); !ok || err != nil {
+		docIdentify = "import-" + docIdentify
+	}
+
+	doc.Identify = docIdentify
+
+	if doc.Markdown, err = utils.Docx2md(docxPath, false); err != nil {
+		logs.Error("导入doc项目转换异常 => ", err)
+		return err
+	}
+
+	// fmt.Println("===doc.Markdown===")
+	// fmt.Println(doc.Markdown)
+	// fmt.Println("==================")
+
+	doc.Content = string(blackfriday.Run([]byte(doc.Markdown)))
+
+	// fmt.Println("===doc.Content===")
+	// fmt.Println(doc.Content)
+	// fmt.Println("==================")
+
+	doc.Version = time.Now().Unix()
+
+	var docName string
+	for _, line := range strings.Split(doc.Markdown, "\n") {
+		if strings.HasPrefix(line, "#") {
+			docName = strings.TrimLeft(line, "#")
+			break
+		}
+	}
+
+	doc.DocumentName = strings.TrimSpace(docName)
+
+	doc.DocumentId = book.MemberId
+
+	if err := doc.InsertOrUpdate("document_name", "book_id", "markdown", "content"); err != nil {
+		logs.Error(doc.DocumentId, err)
+	}
 	if err != nil {
 		logs.Error("导入项目异常 => ", err)
 		book.Description = "【项目导入存在错误：" + err.Error() + "】"

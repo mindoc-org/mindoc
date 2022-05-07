@@ -1,22 +1,25 @@
-MinDoc_New:
-  image: registry.cn-hangzhou.aliyuncs.com/mindoc/mindoc:v2.0-beta.5
-  privileged: false
-  restart: always
-  ports:
-    - 8181:8181
-  volumes:
-    - /var/www/mindoc://mindoc-sync-host
-  environment:
-    - MINDOC_RUN_MODE=prod
-    - MINDOC_DB_ADAPTER=sqlite3
-    - MINDOC_DB_DATABASE=./database/mindoc.db
-    - MINDOC_CACHE=true
-    - MINDOC_CACHE_PROVIDER=file
-    - MINDOC_ENABLE_EXPORT=false
-    - MINDOC_BASE_URL=
-    - MINDOC_CDN_IMG_URL=
-    - MINDOC_CDN_CSS_URL=
-    - MINDOC_CDN_JS_URL=
-  dns:
-    - 223.5.5.5
-    - 223.6.6.6
+version: "3"
+services:
+  mindoc:
+    image: registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.5
+    container_name: mindoc
+    privileged: false
+    restart: always
+    ports:
+      - 8181:8181
+    volumes:
+      - /var/www/mindoc://mindoc-sync-host
+    environment:
+      - MINDOC_RUN_MODE=prod
+      - MINDOC_DB_ADAPTER=sqlite3
+      - MINDOC_DB_DATABASE=./database/mindoc.db
+      - MINDOC_CACHE=true
+      - MINDOC_CACHE_PROVIDER=file
+      - MINDOC_ENABLE_EXPORT=false
+      - MINDOC_BASE_URL=
+      - MINDOC_CDN_IMG_URL=
+      - MINDOC_CDN_CSS_URL=
+      - MINDOC_CDN_JS_URL=
+    dns:
+      - 223.5.5.5
+      - 223.6.6.6

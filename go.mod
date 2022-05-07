@@ -14,6 +14,7 @@ require (
 	github.com/kardianos/service v1.1.0
 	github.com/lib/pq v1.7.0 // indirect
 	github.com/lifei6671/gocaptcha v0.1.1
+	github.com/mattn/go-runewidth v0.0.13
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/russross/blackfriday/v2 v2.1.0
