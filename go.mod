@@ -1,6 +1,6 @@
 module github.com/mindoc-org/mindoc
 
-go 1.18.1
+go 1.18
 
 require (
 	github.com/PuerkitoBio/goquery v1.4.1
