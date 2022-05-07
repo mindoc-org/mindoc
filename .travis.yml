@@ -3,7 +3,7 @@ dist: focal
 
 language: go
 go:
-  - "1.13"
+  - "1.18.1"
 
 arch:
 - amd64
