@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"crypto/tls"
-	"log"
+	// "crypto/tls"
+	// "log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -11,65 +11,107 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
-	"github.com/mindoc-org/mindoc/conf"
+	// "github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/controllers"
 )
-
-func rt(req *http.Request) (*http.Response, error) {
-	log.Printf("request received. url=%s", req.URL)
-	// req.Header.Set("Host", "httpbin.org") // <--- I set it here as well
-	defer log.Printf("request complete. url=%s", req.URL)
-
-	return http.DefaultTransport.RoundTrip(req)
-}
-
-// roundTripper makes func signature a http.RoundTripper
-type roundTripper func(*http.Request) (*http.Response, error)
-
-func (f roundTripper) RoundTrip(req *http.Request) (*http.Response, error) { return f(req) }
 
 type CorsTransport struct {
 	http.RoundTripper
 }
 
 func (t *CorsTransport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-	// refer:
-	// - https://stackoverflow.com/questions/31535569/golang-how-to-read-response-body-of-reverseproxy/31536962#31536962
-	// - https://gist.github.com/simon-cj/b4da0b2bca793ec3b8a5abe04c8fca41
+	// refer: https://stackoverflow.com/questions/31535569/golang-how-to-read-response-body-of-reverseproxy/31536962#31536962
 	resp, err = t.RoundTripper.RoundTrip(req)
-	logs.Debug(resp)
+	// beego.Debug(resp)
 	if err != nil {
 		return nil, err
 	}
-	resp.Header.Del("Access-Control-Request-Method")
+	/*
+		b, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		err = resp.Body.Close()
+		if err != nil {
+			return nil, err
+		}
+		b = bytes.Replace(b, []byte("server"), []byte("schmerver"), -1)
+		body := ioutil.NopCloser(bytes.NewReader(b))
+		resp.Body = body
+		resp.ContentLength = int64(len(b))
+		resp.Header.Set("Content-Length", strconv.Itoa(len(b)))
+	*/
+	// resp.Body.Close()
+	// resp.Header.Del("Access-Control-Request-Method")
+	// resp.Header.Del("Access-Control-Request-Headers")
 	resp.Header.Set("Access-Control-Allow-Origin", "*")
+	resp.Header.Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	// resp.Header.Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, X-Requested-With")
+	hs := ""
+	for name, values := range resp.Header {
+		hs = hs + name + ", "
+		_ = values
+	}
+	hs = strings.TrimRight(hs, " ")
+	hs = strings.TrimRight(hs, ",")
+	// beego.Debug(hs)
+	resp.Header.Set("Access-Control-Allow-Headers", hs)
+	resp.Header.Del("Mindoc-Version")
+	resp.Header.Del("Mindoc-Site")
+	resp.Header.Del("Server")
+	resp.Header.Del("X-Xss-Protection")
 	return resp, nil
 }
 
+func singleJoiningSlash(a, b string) string {
+	aslash := strings.HasSuffix(a, "/")
+	bslash := strings.HasPrefix(b, "/")
+	switch {
+	case aslash && bslash:
+		return a + b[1:]
+	case !aslash && !bslash:
+		return a + "/" + b
+	}
+	return a + b
+}
+
 func init() {
+	web.Any("/hello-any", func(ctx *context.Context) {
+		ctx.Output.Body([]byte("hello any demo"))
+	})
+
 	web.Any("/cors-anywhere", func(ctx *context.Context) {
 		u, _ := url.PathUnescape(ctx.Input.Query("url"))
-		logs.Error("ReverseProxy: ", u)
 		if len(u) > 0 && strings.HasPrefix(u, "http") {
-			if strings.TrimRight(conf.BaseUrl, "/") == ctx.Input.Site() {
-				ctx.Redirect(302, u)
+			target, _ := url.Parse(u)
+			if target.Path == ctx.Request.URL.Path {
+				ctx.Output.Body([]byte(""))
 			} else {
-				target, _ := url.Parse(u)
-				logs.Debug("target: ", target)
+				logs.Error("target: ", target)
 
-				proxy := &httputil.ReverseProxy{
-					Transport: roundTripper(rt),
-					Director: func(req *http.Request) {
-						req.Header = ctx.Request.Header
-						req.URL.Scheme = target.Scheme
-						req.URL.Host = target.Host
-						req.URL.Path = target.Path
-						req.Header.Set("Host", target.Host)
-					},
+				reverseProxy := httputil.NewSingleHostReverseProxy(target)
+
+				reverseProxy.Director = func(req *http.Request) {
+					for name, values := range ctx.Request.Header {
+						for _, value := range values {
+							req.Header.Set(name, value)
+						}
+					}
+					req.Header.Add("X-Forwarded-Host", req.Host)
+					req.Header.Add("X-Origin-Host", target.Host)
+					req.URL.Scheme = target.Scheme
+					req.URL.Host = target.Host
+
+					// proxyPath := singleJoiningSlash(target.Path, req.URL.Path)
+					proxyPath := target.Path
+					if strings.HasSuffix(proxyPath, "/") && len(proxyPath) > 1 {
+						proxyPath = proxyPath[:len(proxyPath)-1]
+					}
+					req.URL.Path = proxyPath
 				}
-
-				http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-				proxy.ServeHTTP(ctx.ResponseWriter, ctx.Request)
+				reverseProxy.Transport = &CorsTransport{http.DefaultTransport}
+				reverseProxy.ServeHTTP(ctx.ResponseWriter, ctx.Request)
+				panic(web.ErrAbort)
 			}
 		} else {
 			ctx.ResponseWriter.WriteHeader(http.StatusBadRequest)
@@ -81,6 +123,10 @@ func init() {
 
 	web.Router("/login", &controllers.AccountController{}, "*:Login")
 	web.Router("/dingtalk_login", &controllers.AccountController{}, "*:DingTalkLogin")
+	web.Router("/workweixin-login", &controllers.AccountController{}, "*:WorkWeixinLogin")
+	web.Router("/workweixin-callback", &controllers.AccountController{}, "*:WorkWeixinLoginCallback")
+	web.Router("/workweixin-bind", &controllers.AccountController{}, "*:WorkWeixinLoginBind")
+	web.Router("/workweixin-ignore", &controllers.AccountController{}, "*:WorkWeixinLoginIgnore")
 	web.Router("/qrlogin/:app", &controllers.AccountController{}, "*:QRLogin")
 	web.Router("/logout", &controllers.AccountController{}, "*:Logout")
 	web.Router("/register", &controllers.AccountController{}, "*:Register")

@@ -56,6 +56,8 @@ go build -ldflags "-w"
 ./mindoc install
 # 执行
 ./mindoc
+# 开发阶段运行
+bee run
 ```
 
 MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 `conf/app.conf` 中。
