@@ -472,9 +472,6 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	if err := filetil.CopyDir(filepath.Join(conf.WorkingDirectory, "static", "font-awesome"), filepath.Join(tempOutputPath, "styles", "font-awesome")); err != nil {
 		logs.Error("复制CSS样式出错 -> static/font-awesome", err)
 	}
-	if err := filetil.CopyFile(filepath.Join(conf.WorkingDirectory, "static", "editor.md", "lib", "mermaid", "mermaid.css"), filepath.Join(tempOutputPath, "styles", "css", "mermaid.css")); err != nil {
-		logs.Error("复制CSS样式出错 -> static/editor.md/lib/mermaid/mermaid.css", err)
-	}
 
 	eBookConverter := &converter.Converter{
 		BasePath:   tempOutputPath,

@@ -51,7 +51,7 @@ git clone https://github.com/mindoc-org/mindoc.git
 # go包安装
 go mod tidy
 # 编译(sqlite需要CGO支持)
-go build -ldflags "-w"
+go build -ldflags "-w" -o mindoc.exe main.go
 # 数据库初始化(此步骤执行之前，需配置`conf/app.conf`)
 ./mindoc install
 # 执行

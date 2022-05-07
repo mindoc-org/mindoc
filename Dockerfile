@@ -77,7 +77,7 @@ RUN apt install -y --no-install-recommends tzdata
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 
 # 安装 calibre 依赖的包
-RUN apt install -y libgl-dev libnss3-dev libxcomposite-dev libxrandr-dev libxi-dev
+RUN apt install -y libgl-dev libnss3-dev libxcomposite-dev libxrandr-dev libxi-dev libxdamage-dev
 # 安装文泉驿字体
 RUN apt install -y fonts-wqy-microhei fonts-wqy-zenhei
 # 安装中文语言包
