@@ -236,7 +236,7 @@ WHERE book.item_id = ? AND (book.privately_owned = 0 or rel.role_id >= 0 or team
 			logs.Error("查询项目空间时出错 ->", key, err)
 			return
 		}
-		sql2 := `SELECT book.*,rel1.*,member.account AS create_name FROM md_books AS book
+		sql2 := `SELECT book.*,rel1.*,mdmb.account AS create_name FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.member_id = ?
 			left join (select book_id,min(role_id) as role_id from (select book_id,role_id
                    	from md_team_relationship as mtr
@@ -244,7 +244,7 @@ WHERE book.item_id = ? AND (book.privately_owned = 0 or rel.role_id >= 0 or team
 as t group by book_id) as team 
 					on team.book_id = book.book_id
 			LEFT JOIN md_relationship AS rel1 ON rel1.book_id = book.book_id AND rel1.role_id = 0
-			LEFT JOIN md_members AS member ON rel1.member_id = member.member_id
+			LEFT JOIN md_members AS mdmb ON rel1.member_id = mdmb.member_id
 			WHERE book.item_id = ? AND (book.privately_owned = 0 or rel.role_id >= 0 or team.role_id >= 0) 
 			ORDER BY order_index desc,book.book_id DESC LIMIT ?,?`
 
@@ -261,9 +261,9 @@ as t group by book_id) as team
 		}
 		totalCount = int(count)
 
-		sql := `SELECT book.*,rel.*,member.account AS create_name FROM md_books AS book
+		sql := `SELECT book.*,rel.*,mdmb.account AS create_name FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
-			LEFT JOIN md_members AS member ON rel.member_id = member.member_id
+			LEFT JOIN md_members AS mdmb ON rel.member_id = mdmb.member_id
 			WHERE book.item_id = ? AND book.privately_owned = 0 ORDER BY order_index desc,book.book_id DESC LIMIT ?,?`
 
 		_, err = o.Raw(sql, item.ItemId, offset, pageSize).QueryRows(&books)
