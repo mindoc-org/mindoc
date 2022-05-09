@@ -14,6 +14,23 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
+    {{if .CanLoginWorkWeixin}}
+    <style type="text/css">
+        #wxwork-login-line > a {
+            display: block;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 0.3em;
+            padding-top: 0.8em;
+            padding-bottom: 0.75em;
+        }
+        #wxwork-login-line > a:hover {
+            color: #fff;
+            background-color: #5cb85c;
+            border-color: #4cae4c;
+        }
+    </style>
+    {{end}}
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 </head>
@@ -82,6 +99,13 @@
                 </div>
                 {{end}}
                 {{end}}
+                {{if .CanLoginWorkWeixin}}
+                <div class="form-group">
+                    <div id="wxwork-login-line">
+                        <a href="{{ .workweixin_login_url }}" title="手机企业微信-扫码登录">手机企业微信-扫码登录</a>
+                    </div>
+                </div>
+                {{end}}
             </form>
             <div class="form-group dingtalk-container" style="display: none;">
                 <div id="dingtalk-qr-container"></div>
@@ -98,6 +122,7 @@
 <script src="{{cdnjs "/static/js/dingtalk-jsapi.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/dingtalk-ddlogin.js"}}" type="text/javascript"></script>
 
+{{if .ENABLE_QR_DINGTALK}}
 <script type="text/javascript">
     if (dd.env.platform !== "notInDingTalk"){
         dd.ready(function() {
@@ -135,37 +160,41 @@
         });
     }
 
-</script>
+    $(document).ready(function () {
+        var url = 'https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid={{.dingtalk_qr_key}}&response_type=code&scope=snsapi_login&state=1&redirect_uri={{ urlfor "AccountController.QRLogin" ":app" "dingtalk"}}'
+        var obj = DDLogin({
+            id:"dingtalk-qr-container",
+            goto: encodeURIComponent(url), 
+            style: "border:none;background-color:#FFFFFF;",
+            width : "338",
+            height: "300"
+        });
+        $(window).on('message', function (event) {
+            var origin = event.origin;
+            if( origin == "https://login.dingtalk.com" ) { //判断是否来自ddLogin扫码事件。
+                layer.load(1, { shade: [0.1, '#fff'] })
+                var loginTmpCode = event.data; 
+                //获取到loginTmpCode后就可以在这里构造跳转链接进行跳转了
+                console.log("loginTmpCode", loginTmpCode);
+                url = url + "&loginTmpCode=" + loginTmpCode
+                window.location = url
+            }
+        });
+        $("#btn-dingtalk-qr").on('click', function(){
+            $('form').hide()
+            $(".dingtalk-container").show()
+        })
 
-<script type="text/javascript">
-    var url = 'https://oapi.dingtalk.com/connect/oauth2/sns_authorize?appid={{.dingtalk_qr_key}}&response_type=code&scope=snsapi_login&state=1&redirect_uri={{ urlfor "AccountController.QRLogin" ":app" "dingtalk"}}'
-    var obj = DDLogin({
-        id:"dingtalk-qr-container",
-        goto: encodeURIComponent(url), 
-        style: "border:none;background-color:#FFFFFF;",
-        width : "338",
-        height: "300"
+        $(".btn-dingtalk").on('click', function(){
+            $('form').show()
+            $(".dingtalk-container").hide()
+        })
     });
-    var handleMessage = function (event) {
-        var origin = event.origin;
-        if( origin == "https://login.dingtalk.com" ) { //判断是否来自ddLogin扫码事件。
-            layer.load(1, { shade: [0.1, '#fff'] })
-            var loginTmpCode = event.data; 
-            //获取到loginTmpCode后就可以在这里构造跳转链接进行跳转了
-            console.log("loginTmpCode", loginTmpCode);
-            url = url + "&loginTmpCode=" + loginTmpCode
-            window.location = url
-        }
-    };
-    if (typeof window.addEventListener != 'undefined') {
-        window.addEventListener('message', handleMessage, false);
-    } else if (typeof window.attachEvent != 'undefined') {
-        window.attachEvent('onmessage', handleMessage);
-    }
 </script>
+{{end}}
 
 <script type="text/javascript">
-    $(function () {
+    $(document).ready(function () {
         $("#account,#password,#code").on('focus', function () {
             $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');
         });
@@ -176,16 +205,6 @@
                 $("#btn-login").click();
             }
         });
-
-        $("#btn-dingtalk-qr").on('click', function(){
-            $('form').hide()
-            $(".dingtalk-container").show()
-        })
-
-        $(".btn-dingtalk").on('click', function(){
-            $('form').show()
-            $(".dingtalk-container").hide()
-        })
 
         $("#btn-login").on('click', function () {
             $(this).tooltip('destroy').parents('.form-group').removeClass('has-error');

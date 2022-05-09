@@ -1,7 +1,7 @@
 # MinDoc 简介
 
 [![Build Status](https://travis-ci.com/mindoc-org/mindoc.svg?branch=master)](https://travis-ci.com/mindoc-org/mindoc)
-[![Build status](https://ci.appveyor.com/api/projects/status/o3lcfmf5iy2cp9m6?svg=true)](https://ci.appveyor.com/project/gsw945/mindoc)
+[![Build status](https://ci.appveyor.com/api/projects/status/7680ia6mu29m12wx?svg=true)](https://ci.appveyor.com/project/mindoc-org/mindoc)
 
 MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。
 
@@ -41,7 +41,7 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 
 对于没有Golang使用经验的用户，可以从 [https://github.com/mindoc-org/mindoc/releases](https://github.com/mindoc-org/mindoc/releases) 这里下载编译完的程序。
 
-如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.13(需支持`CGO`和`go mod`)。
+如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.18.1(需支持`CGO`和`go mod`)。
 > 注意: CentOS7上GLibC版本低，需要源码编译, 编译好的二进制文件无法运行。
 
 ## 常规编译
@@ -51,11 +51,13 @@ git clone https://github.com/mindoc-org/mindoc.git
 # go包安装
 go mod tidy
 # 编译(sqlite需要CGO支持)
-go build -ldflags "-w"
+go build -ldflags "-w" -o mindoc.exe main.go
 # 数据库初始化(此步骤执行之前，需配置`conf/app.conf`)
 ./mindoc install
 # 执行
 ./mindoc
+# 开发阶段运行
+bee run
 ```
 
 MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 `conf/app.conf` 中。

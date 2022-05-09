@@ -9,7 +9,6 @@
     <link href="styles/editor.md/css/editormd.preview.css" rel="stylesheet"/>
     <link href="styles/css/markdown.preview.css" rel="stylesheet"/>
     <link href="styles/css/github.css" rel="stylesheet"/>
-    <link href="styles/css/mermaid.css" rel="stylesheet">
     <link href="styles/css/export.css" rel="stylesheet"/>
     <link href="styles/font-awesome/css/font-awesome.css" />
 </head>
