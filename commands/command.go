@@ -110,6 +110,7 @@ func RegisterModel() {
 		new(models.TeamMember),
 		new(models.TeamRelationship),
 		new(models.Itemsets),
+		new(models.Comment),
 	)
 	gob.Register(models.Blog{})
 	gob.Register(models.Document{})
