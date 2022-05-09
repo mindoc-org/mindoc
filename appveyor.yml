@@ -51,7 +51,7 @@ test_script:
 - cmd: >-
     cd c:\gopath\src\github.com\mindoc-org\mindoc
     
-    xcopy conf\app.conf.example conf\app.conf /F /Y
+    pwsh -NoProfile -ExecutionPolicy Bypass -Command "& {Copy-Item -Force -Path 'conf\app.conf.example' -Destination 'conf\app.conf'}"
     
     mindoc_windows_%GOARCH%.exe version
 artifacts:
