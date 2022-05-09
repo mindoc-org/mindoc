@@ -518,7 +518,6 @@ func (c *BookController) Create() {
 		book.Identify = identify
 		book.DocCount = 0
 		book.MemberId = c.Member.MemberId
-		book.CommentCount = 0
 		book.Version = time.Now().Unix()
 		book.IsEnableShare = 0
 		book.IsUseFirstDocument = 1
@@ -636,7 +635,6 @@ func (c *BookController) Import() {
 	book.Identify = identify
 	book.DocCount = 0
 	book.MemberId = c.Member.MemberId
-	book.CommentCount = 0
 	book.Version = time.Now().Unix()
 	book.ItemId = itemId
 

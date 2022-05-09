@@ -33,6 +33,8 @@ type Comment struct {
 	ParentId     int `orm:"column(parent_id);type(int);default(0)" json:"parent_id"`
 	AgreeCount   int `orm:"column(agree_count);type(int);default(0)" json:"agree_count"`
 	AgainstCount int `orm:"column(against_count);type(int);default(0)" json:"against_count"`
+	Index        int `orm:"-" json:"index"`
+	ShowDel      int `orm:"-" json:"show_del"`
 }
 
 // TableName 获取对应数据库表名.
@@ -52,14 +54,41 @@ func (m *Comment) TableNameWithPrefix() string {
 func NewComment() *Comment {
 	return &Comment{}
 }
-func (m *Comment) Find(id int) (*Comment, error) {
-	if id <= 0 {
-		return m, ErrInvalidParameter
-	}
-	o := orm.NewOrm()
-	err := o.Read(m)
 
-	return m, err
+// 是否有权限删除
+func (m *Comment) CanDelete(user_memberid int, user_bookrole conf.BookRole) bool {
+	return user_memberid == m.MemberId || user_bookrole == conf.BookFounder || user_bookrole == conf.BookAdmin
+}
+
+// 根据文档id查询文档评论
+func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize int, member *Member) (comments []Comment, count int64, ret_page int) {
+	doc, err := NewDocument().Find(doc_id)
+	if err != nil {
+		return
+	}
+
+	o := orm.NewOrm()
+	count, _ = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).Count()
+	if -1 == page {     // 请求最后一页
+		var total int = int(count)
+		if total % pagesize == 0 {
+			page = total / pagesize
+		} else {
+			page = total / pagesize + 1
+		}
+	}
+	offset := (page - 1) * pagesize
+	ret_page = page
+	o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).OrderBy("comment_date").Offset(offset).Limit(pagesize).All(&comments)
+
+	bookRole, _ := NewRelationship().FindForRoleId(doc.BookId, member.MemberId)
+	for i := 0; i < len(comments); i++ {
+		comments[i].Index = (i + 1) + (page - 1) * pagesize
+		if comments[i].CanDelete(member.MemberId, bookRole) {
+			comments[i].ShowDel = 1
+		}
+	}
+	return
 }
 
 func (m *Comment) Update(cols ...string) error {
@@ -134,4 +163,19 @@ func (m *Comment) Insert() error {
 	_, err = o.Insert(m)
 
 	return err
+}
+
+// 删除一条评论
+func (m *Comment) Delete() error {
+	o := orm.NewOrm()
+	_, err := o.Delete(m)
+	return err
+}
+
+func (m *Comment) Find(id int, cols ...string) (*Comment, error) {
+	o := orm.NewOrm()
+	if err := o.QueryTable(m.TableNameWithPrefix()).Filter("comment_id", id).One(m, cols...); err != nil {
+		return m, err
+	}
+	return m, nil
 }

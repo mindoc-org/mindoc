@@ -111,7 +111,8 @@ func RegisterModel() {
 		new(models.TeamMember),
 		new(models.TeamRelationship),
 		new(models.Itemsets),
-		new(models.WorkWeixinAccount),
+    new(models.Comment),
+    new(models.WorkWeixinAccount),
 	)
 	gob.Register(models.Blog{})
 	gob.Register(models.Document{})

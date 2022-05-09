@@ -251,6 +251,7 @@ func init() {
 	web.Router("/attach_files/:key/:attach_id", &controllers.DocumentController{}, "get:DownloadAttachment")
 
 	web.Router("/comment/create", &controllers.CommentController{}, "post:Create")
+	web.Router("/comment/delete", &controllers.CommentController{}, "post:Delete")
 	web.Router("/comment/lists", &controllers.CommentController{}, "get:Lists")
 	web.Router("/comment/index", &controllers.CommentController{}, "*:Index")
 

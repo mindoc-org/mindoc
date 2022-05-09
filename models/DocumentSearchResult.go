@@ -53,12 +53,12 @@ FROM (
          book.identify  AS book_identify,
          book.book_name,
          rel.member_id,
-         member.account AS author,
+         mdmb.account AS author,
          'document'     AS search_type
        FROM md_documents AS doc
          LEFT JOIN md_books AS book ON doc.book_id = book.book_id
          LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.role_id = 0
-         LEFT JOIN md_members AS member ON rel.member_id = member.member_id
+         LEFT JOIN md_members AS mdmb ON rel.member_id = mdmb.member_id
        WHERE book.privately_owned = 0 AND (doc.document_name LIKE ? OR doc.release LIKE ?)
      UNION ALL
 SELECT
@@ -71,11 +71,11 @@ SELECT
   book.identify  AS book_identify,
   book.book_name,
   rel.member_id,
-  member.account AS author,
+  mdmb.account AS author,
   'book'     AS search_type
 FROM  md_books AS book
        LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.role_id = 0
-       LEFT JOIN md_members AS member ON rel.member_id = member.member_id
+       LEFT JOIN md_members AS mdmb ON rel.member_id = mdmb.member_id
 WHERE book.privately_owned = 0 AND (book.book_name LIKE ? OR book.description LIKE ?)
 
        UNION ALL
@@ -89,10 +89,10 @@ WHERE book.privately_owned = 0 AND (book.book_name LIKE ? OR book.description LI
          blog.blog_identify,
          blog.blog_title as book_name,
          blog.member_id,
-         member.account,
+         mdmb.account,
          'blog' AS search_type
        FROM md_blogs AS blog
-         LEFT JOIN md_members AS member ON blog.member_id = member.member_id
+         LEFT JOIN md_members AS mdmb ON blog.member_id = mdmb.member_id
        WHERE blog.blog_status = 'public' AND (blog.blog_release LIKE ? OR blog.blog_title LIKE ?)
      ) AS union_table
 ORDER BY create_time DESC
@@ -156,12 +156,12 @@ FROM (
          book.identify  AS book_identify,
          book.book_name,
          rel.member_id,
-         member.account AS author,
+         mdmb.account AS author,
          'document'     AS search_type
        FROM md_documents AS doc
          LEFT JOIN md_books AS book ON doc.book_id = book.book_id
          LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.role_id = 0
-         LEFT JOIN md_members AS member ON rel.member_id = member.member_id
+         LEFT JOIN md_members AS mdmb ON rel.member_id = mdmb.member_id
          LEFT JOIN md_relationship AS rel1 ON doc.book_id = rel1.book_id AND rel1.member_id = ?
          LEFT JOIN (SELECT *
                     FROM (SELECT
@@ -187,11 +187,11 @@ FROM (
          book.identify  AS book_identify,
          book.book_name,
          rel.member_id,
-         member.account AS author,
+         mdmb.account AS author,
          'book'     AS search_type
        FROM md_books AS book
          LEFT JOIN md_relationship AS rel ON book.book_id = rel.book_id AND rel.role_id = 0
-         LEFT JOIN md_members AS member ON rel.member_id = member.member_id
+         LEFT JOIN md_members AS mdmb ON rel.member_id = mdmb.member_id
          LEFT JOIN md_relationship AS rel1 ON book.book_id = rel1.book_id AND rel1.member_id = ?
          LEFT JOIN (SELECT *
                     FROM (SELECT
@@ -216,10 +216,10 @@ FROM (
          blog.blog_identify  AS book_identify,
          blog.blog_title as book_name,
          blog.member_id,
-         member.account,
+         mdmb.account,
          'blog' AS search_type
        FROM md_blogs AS blog
-         LEFT JOIN md_members AS member ON blog.member_id = member.member_id
+         LEFT JOIN md_members AS mdmb ON blog.member_id = mdmb.member_id
        WHERE (blog.blog_status = 'public' OR blog.member_id = ?) AND blog.blog_type = 0 AND
              (blog.blog_release LIKE ? OR blog.blog_title LIKE ?)
      ) AS union_table

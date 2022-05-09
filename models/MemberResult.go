@@ -72,9 +72,9 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(lang string, bookId, pag
 
 	var members []*MemberRelationshipResult
 
-	sql1 := "SELECT * FROM md_relationship AS rel LEFT JOIN md_members as member ON rel.member_id = member.member_id WHERE rel.book_id = ? ORDER BY rel.relationship_id DESC  LIMIT ?,?"
+	sql1 := "SELECT * FROM md_relationship AS rel LEFT JOIN md_members as mdmb ON rel.member_id = mdmb.member_id WHERE rel.book_id = ? ORDER BY rel.relationship_id DESC  LIMIT ?,?"
 
-	sql2 := "SELECT count(*) AS total_count FROM md_relationship AS rel LEFT JOIN md_members as member ON rel.member_id = member.member_id WHERE rel.book_id = ?"
+	sql2 := "SELECT count(*) AS total_count FROM md_relationship AS rel LEFT JOIN md_members as mdmb ON rel.member_id = mdmb.member_id WHERE rel.book_id = ?"
 
 	var total_count int
 
