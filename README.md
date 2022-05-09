@@ -1,7 +1,7 @@
 # MinDoc 简介
 
 [![Build Status](https://travis-ci.com/mindoc-org/mindoc.svg?branch=master)](https://travis-ci.com/mindoc-org/mindoc)
-[![Build status](https://ci.appveyor.com/api/projects/status/o3lcfmf5iy2cp9m6?svg=true)](https://ci.appveyor.com/project/gsw945/mindoc)
+[![Build status](https://ci.appveyor.com/api/projects/status/7680ia6mu29m12wx?svg=true)](https://ci.appveyor.com/project/mindoc-org/mindoc)
 
 MinDoc 是一款针对IT团队开发的简单好用的文档管理系统。
 
