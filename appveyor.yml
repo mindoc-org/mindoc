@@ -7,9 +7,13 @@ clone_folder: c:\gopath\src\github.com\mindoc-org\mindoc
 init:
 - cmd: >-
     if [%tbs_arch%]==[x86] SET PATH=C:\msys64\mingw32\bin;%PATH%
+    
     if [%tbs_arch%]==[x64] SET PATH=C:\msys64\mingw64\bin;%PATH%
+    
     SET PATH=%GOPATH%\bin;%GOBIN%;%PATH%
+    
     FOR /f "delims=" %%i IN ('go version') DO (SET GO_VERSION=%%i)
+    
     git config --global --add safe.directory /cygdrive/c/gopath/src/github.com/mindoc-org/mindoc
 environment:
   GOPATH: c:\gopath
@@ -26,20 +30,29 @@ environment:
 install:
 - cmd: >-
     echo %PATH%
+    
     echo %GO_VERSION%
+    
     go env
+    
     where gcc
+    
     where g++
 build_script:
 - cmd: >-
     cd c:\gopath\src\github.com\mindoc-org\mindoc
+    
     go mod tidy -v
+    
     go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/mindoc-org/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
+    
     7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* conf/lang/* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
 test_script:
 - cmd: >-
     cd c:\gopath\src\github.com\mindoc-org\mindoc
+    
     xcopy conf\app.conf.example conf\app.conf /F /Y
+    
     mindoc_windows_%GOARCH%.exe version
 artifacts:
 - path: mindoc_windows_*.7z
