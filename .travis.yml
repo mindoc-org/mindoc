@@ -25,11 +25,11 @@ script:
   - rm conf/app.conf
 
 before_deploy:
-  - go mod tidy -v && GOARCH=amd64 GOOS=linux go build -o mindoc_linux_amd64 -ldflags="-w -X 'github.com/mindoc-org/mindoc/conf.VERSION=$TRAVIS_TAG' -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`go version`'"
+  - go mod tidy -v && GOARCH=amd64 GOOS=linux go build -v -o mindoc_linux_amd64 -ldflags="-w -X 'github.com/mindoc-org/mindoc/conf.VERSION=$TRAVIS_TAG' -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=`date`' -X 'conf.GO_VERSION=`go version`'"
   # remove files
-  - rm appveyor.yml docker-compose.yml Dockerfile .travis.yml .gitattributes .gitignore go.mod go.sum main.go README.md simsun.ttc start.sh
+  - rm appveyor.yml docker-compose.yml Dockerfile .travis.yml .gitattributes .gitignore go.mod go.sum main.go README.md simsun.ttc start.sh sync_host.sh build_amd64.sh build_musl_amd64.sh
   # remove dirs
-  - rm -rf cache commands controllers converter .git .github graphics mail models routers utils
+  - rm -rf cache commands controllers converter .git .github graphics mail models routers utils runtime
   - ls -alh
   - cp conf/app.conf.example conf/app.conf
   - zip -r mindoc_linux_amd64.zip conf static uploads views lib mindoc_linux_amd64 favicon.ico LICENSE.md

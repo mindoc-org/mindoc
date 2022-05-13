@@ -44,9 +44,9 @@ build_script:
     
     go mod tidy -v
     
-    go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/mindoc-org/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=%date% %time%' -X 'conf.GO_VERSION=%GO_VERSION%'"
+    go build -v -o "mindoc_windows_%GOARCH%.exe" -ldflags="-w -X github.com/mindoc-org/mindoc/conf.VERSION=%APPVEYOR_REPO_TAG_NAME% -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=%date% %time%' -X 'github.com/mindoc-org/mindoc/conf.GO_VERSION=%GO_VERSION%'"
     
-    7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* conf/lang/* static/* mindoc_windows_%GOARCH%.exe views/* uploads/*
+    7z a -t7z -r mindoc_windows_%GOARCH%.7z conf/*.conf* conf/lang/* static/* mindoc_windows_%GOARCH%.exe views/* uploads/* lib/* favicon.ico LICENSE.md
 test_script:
 - cmd: >-
     cd c:\gopath\src\github.com\mindoc-org\mindoc

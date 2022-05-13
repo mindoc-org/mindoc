@@ -1,4 +1,4 @@
-FROM amd64/golang:1.13 AS build
+FROM amd64/golang:1.18.1 AS build
 
 ARG TAG=0.0.1
 
@@ -16,7 +16,7 @@ WORKDIR /go/src/github.com/mindoc-org/mindoc
 # 编译
 RUN go env
 RUN go mod tidy -v
-RUN go build -o mindoc_linux_amd64 -ldflags "-w -s -X 'main.VERSION=$TAG' -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
+RUN go build -v -o mindoc_linux_amd64 -ldflags "-w -s -X 'main.VERSION=$TAG' -X 'main.BUILD_TIME=`date`' -X 'main.GO_VERSION=`go version`'"
 RUN cp conf/app.conf.example conf/app.conf
 # 清理不需要的文件
 RUN rm appveyor.yml docker-compose.yml Dockerfile .travis.yml .gitattributes .gitignore go.mod go.sum main.go README.md simsun.ttc start.sh conf/*.go

@@ -41,17 +41,17 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 
 对于没有Golang使用经验的用户，可以从 [https://github.com/mindoc-org/mindoc/releases](https://github.com/mindoc-org/mindoc/releases) 这里下载编译完的程序。
 
-如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.18.1(需支持`CGO`和`go mod`)。
-> 注意: CentOS7上GLibC版本低，需要源码编译, 编译好的二进制文件无法运行。
+如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.15.1(需支持`CGO`、`go mod`和`import _ "time/tzdata"`)(推荐Go版本为1.18.1)。
+> 注意: CentOS7上GLibC版本低，常规编译版本不能使用。需要自行源码编译,或使用使用musl编译版本。
 
 ## 常规编译
 ```bash
 # 克隆源码
 git clone https://github.com/mindoc-org/mindoc.git
 # go包安装
-go mod tidy
+go mod tidy -v
 # 编译(sqlite需要CGO支持)
-go build -ldflags "-w" -o mindoc.exe main.go
+go build -ldflags "-w" -o mindoc main.go
 # 数据库初始化(此步骤执行之前，需配置`conf/app.conf`)
 ./mindoc install
 # 执行
@@ -88,14 +88,13 @@ export GOOS=linux
 export CC=/usr/local/musl/bin/musl-gcc
 # 设置版本
 export TRAVIS_TAG=temp-musl-v`date +%y%m%d`
-go build -o mindoc_linux_musl_amd64 --ldflags="-linkmode external -extldflags '-static' -w -X 'github.com/mindoc-org/mindoc/conf.VERSION=$TRAVIS_TAG' -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=`date`' -X 'github.com/mindoc-org/mindoc/conf.GO_VERSION=`go version`'"
+go build -v -o mindoc_linux_musl_amd64 -ldflags="-linkmode external -extldflags '-static' -w -X 'github.com/mindoc-org/mindoc/conf.VERSION=$TRAVIS_TAG' -X 'github.com/mindoc-org/mindoc/conf.BUILD_TIME=`date`' -X 'github.com/mindoc-org/mindoc/conf.GO_VERSION=`go version`'"
 # 验证
-./mindoc_linux_amd64 version
+./mindoc_linux_musl_amd64 version
 ```
 
 
-```bash
-
+```ini
 #邮件配置-示例
 #是否启用邮件
 enable_mail=true
@@ -129,17 +128,17 @@ HTTP_PORT                   程序监听的端口号
 MINDOC_ENABLE_EXPORT        开启导出(默认为false)
 ```
 
-### 举个栗子-当前(公开)镜像(信息页面: https://cr.console.aliyun.com/images/cn-hangzhou/mindoc-org/mindoc/detail , 需要登录阿里云账号才可访问列表)
+#### 举个栗子-当前(公开)镜像(信息页面: https://cr.console.aliyun.com/images/cn-hangzhou/mindoc-org/mindoc/detail , 需要登录阿里云账号才可访问列表)
 ##### Windows
 ```bash
 set MINDOC=//d/mindoc
-docker run -it --name=mindoc --restart=always -v "%MINDOC%":"/mindoc-sync-host" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.5
+docker run -it --name=mindoc --restart=always -v "%MINDOC%":"/mindoc-sync-host" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.6
 ```
 
 ##### Linux、Mac
 ```bash
 export MINDOC=/home/ubuntu/mindoc-docker
-docker run -it --name=mindoc --restart=always -v "${MINDOC}":"/mindoc-sync-host" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.5
+docker run -it --name=mindoc --restart=always -v "${MINDOC}":"/mindoc-sync-host" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.6
 ```
 
 ##### 举个栗子-更多环境变量示例(镜像已过期，仅供参考，请以当前镜像为准)

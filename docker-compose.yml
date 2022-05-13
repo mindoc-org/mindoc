@@ -1,7 +1,7 @@
 version: "3"
 services:
   mindoc:
-    image: registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.5
+    image: registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.6
     container_name: mindoc
     privileged: false
     restart: always
