@@ -60,6 +60,7 @@ function timeFormat($time) {
 
 // 点击翻页
 function pageClicked($page, $docid) {
+    $("#articleComment").removeClass('not-show-comment');
     $.ajax({
         url : "/comment/lists?page=" + $page + "&docid=" + $docid,
         type : "GET",
@@ -137,7 +138,12 @@ function renderPage($data) {
     $("#article-info").text($data.doc_info);
     $("#view_count").text("阅读次数：" + $data.view_count);
     $("#doc_id").val($data.doc_id);
-    loadComment($data.page, $data.doc_id);
+    if ($data.page) {
+        loadComment($data.page, $data.doc_id);
+    }
+    else {
+        pageClicked(-1, $data.doc_id);
+    }
 }
 
 /***

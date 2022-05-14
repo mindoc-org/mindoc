@@ -67,6 +67,11 @@ func (c *DocumentController) Index() {
 			c.Data["Content"] = template.HTML(doc.Release)
 
 			c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
+
+			// 获取评论、分页
+			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+			page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
+			c.Data["Page"] = page
 		}
 	} else {
 		c.Data["Title"] = i18n.Tr(c.Lang, "blog.summary")
@@ -83,6 +88,7 @@ func (c *DocumentController) Index() {
 			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.build_doc_tree_error"))
 		}
 	}
+	c.Data["IS_DOCUMENT_INDEX"] = true
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 
@@ -95,8 +101,6 @@ func (c *DocumentController) Read() {
 	identify := c.Ctx.Input.Param(":key")
 	token := c.GetString("token")
 	id := c.GetString(":id")
-
-	c.Data["DocumentId"] = id
 
 	if identify == "" || id == "" {
 		c.ShowErrorPage(404, i18n.Tr(c.Lang, "message.item_not_exist"))
@@ -150,12 +154,16 @@ func (c *DocumentController) Read() {
 
 	if c.IsAjax() {
 		var data struct {
+			DocId  int `json:"doc_id"`
+			DocIdentify  string `json:"doc_identify"`
 			DocTitle  string `json:"doc_title"`
 			Body      string `json:"body"`
 			Title     string `json:"title"`
 			Version   int64  `json:"version"`
 			ViewCount int    `json:"view_count"`
 		}
+		data.DocId = doc.DocumentId
+		data.DocIdentify = doc.Identify
 		data.DocTitle = doc.DocumentName
 		data.Body = doc.Release
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
@@ -163,6 +171,13 @@ func (c *DocumentController) Read() {
 		data.ViewCount = doc.ViewCount
 
 		c.JsonResult(0, "ok", data)
+	} else {
+		c.Data["DocumentId"] = doc.DocumentId
+		c.Data["DocIdentify"] = doc.Identify
+		// 获取评论、分页
+		comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+		page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
+		c.Data["Page"] = page
 	}
 
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, doc.DocumentId)
