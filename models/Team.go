@@ -14,7 +14,7 @@ type Team struct {
 	TeamId      int       `orm:"column(team_id);pk;auto;unique;" json:"team_id"`
 	TeamName    string    `orm:"column(team_name);size(255)" json:"team_name"`
 	MemberId    int       `orm:"column(member_id);type(int);" json:"member_id"`
-	IsDelete    bool      `orm:"column(is_delete);default(0)" json:"is_delete"`
+	IsDelete    bool      `orm:"column(is_delete);default(false)" json:"is_delete"`
 	CreateTime  time.Time `orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
 	MemberCount int       `orm:"-" json:"member_count"`
 	BookCount   int       `orm:"-" json:"book_count"`
