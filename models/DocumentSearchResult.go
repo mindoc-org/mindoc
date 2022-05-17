@@ -96,7 +96,7 @@ WHERE book.privately_owned = 0 AND (book.book_name LIKE ? OR book.description LI
        WHERE blog.blog_status = 'public' AND (blog.blog_release LIKE ? OR blog.blog_title LIKE ?)
      ) AS union_table
 ORDER BY create_time DESC
-LIMIT ?, ?;`
+LIMIT ? OFFSET ?;`
 
 		err = o.Raw(sql1, keyword, keyword).QueryRow(&totalCount)
 		if err != nil {
@@ -128,7 +128,7 @@ WHERE book.privately_owned = 0 AND (book.book_name LIKE ? OR book.description LI
 
 		totalCount += c
 
-		_, err = o.Raw(sql2, keyword, keyword, keyword, keyword, keyword, keyword, offset, pageSize).QueryRows(&searchResult)
+		_, err = o.Raw(sql2, keyword, keyword, keyword, keyword, keyword, keyword, pageSize, offset).QueryRows(&searchResult)
 		if err != nil {
 			logs.Error("查询搜索结果失败 -> ", err)
 			return
@@ -224,7 +224,7 @@ FROM (
              (blog.blog_release LIKE ? OR blog.blog_title LIKE ?)
      ) AS union_table
 ORDER BY create_time DESC
-LIMIT ?, ?;`
+LIMIT ? OFFSET ?;`
 
 		err = o.Raw(sql1, memberId, memberId, keyword, keyword).QueryRow(&totalCount)
 		if err != nil {
@@ -262,7 +262,7 @@ WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_
 
 		totalCount += c
 
-		_, err = o.Raw(sql2, memberId, memberId, keyword, keyword, memberId, memberId, keyword, keyword, memberId, keyword, keyword, offset, pageSize).QueryRows(&searchResult)
+		_, err = o.Raw(sql2, memberId, memberId, keyword, keyword, memberId, memberId, keyword, keyword, memberId, keyword, keyword, pageSize, offset).QueryRows(&searchResult)
 		if err != nil {
 			return
 		}

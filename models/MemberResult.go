@@ -72,7 +72,7 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(lang string, bookId, pag
 
 	var members []*MemberRelationshipResult
 
-	sql1 := "SELECT * FROM md_relationship AS rel LEFT JOIN md_members as mdmb ON rel.member_id = mdmb.member_id WHERE rel.book_id = ? ORDER BY rel.relationship_id DESC  LIMIT ?,?"
+	sql1 := "SELECT * FROM md_relationship AS rel LEFT JOIN md_members as mdmb ON rel.member_id = mdmb.member_id WHERE rel.book_id = ? ORDER BY rel.relationship_id DESC  limit ? offset ?"
 
 	sql2 := "SELECT count(*) AS total_count FROM md_relationship AS rel LEFT JOIN md_members as mdmb ON rel.member_id = mdmb.member_id WHERE rel.book_id = ?"
 
@@ -86,7 +86,7 @@ func (m *MemberRelationshipResult) FindForUsersByBookId(lang string, bookId, pag
 
 	offset := (pageIndex - 1) * pageSize
 
-	_, err = o.Raw(sql1, bookId, offset, pageSize).QueryRows(&members)
+	_, err = o.Raw(sql1, bookId, pageSize, offset).QueryRows(&members)
 
 	if err != nil {
 		return members, 0, err
