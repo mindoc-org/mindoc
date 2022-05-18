@@ -32,6 +32,7 @@
         window.IS_ENABLE_IFRAME = '{{conf "enable_iframe" }}' === 'true';
         window.BASE_URL = '{{urlfor "HomeController.Index" }}';
         window.IS_DOCUMENT_INDEX = '{{if .IS_DOCUMENT_INDEX}}true{{end}}' === 'true';
+        window.IS_DISPLAY_COMMENT = '{{if .Model.IsDisplayComment}}true{{end}}' === 'true';
     </script>
     <script type="text/javascript">window.book={"identify":"{{.Model.Identify}}"};</script>
     <style>
@@ -349,7 +350,8 @@ $(function () {
             window.jsTree.jstree().open_all()
         }
     });
-    if (!window.IS_DOCUMENT_INDEX) {
+
+    if (!window.IS_DOCUMENT_INDEX && IS_DISPLAY_COMMENT) {
         pageClicked(-1, parseInt($('#doc_id').val()));
     }
 });

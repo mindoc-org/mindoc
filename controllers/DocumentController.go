@@ -68,10 +68,12 @@ func (c *DocumentController) Index() {
 
 			c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
 
-			// 获取评论、分页
-			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
-			page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
-			c.Data["Page"] = page
+			if bookResult.IsDisplayComment {
+				// 获取评论、分页
+				comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+				page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
+				c.Data["Page"] = page
+			}
 		}
 	} else {
 		c.Data["Title"] = i18n.Tr(c.Lang, "blog.summary")
@@ -154,13 +156,13 @@ func (c *DocumentController) Read() {
 
 	if c.IsAjax() {
 		var data struct {
-			DocId  int `json:"doc_id"`
-			DocIdentify  string `json:"doc_identify"`
-			DocTitle  string `json:"doc_title"`
-			Body      string `json:"body"`
-			Title     string `json:"title"`
-			Version   int64  `json:"version"`
-			ViewCount int    `json:"view_count"`
+			DocId       int    `json:"doc_id"`
+			DocIdentify string `json:"doc_identify"`
+			DocTitle    string `json:"doc_title"`
+			Body        string `json:"body"`
+			Title       string `json:"title"`
+			Version     int64  `json:"version"`
+			ViewCount   int    `json:"view_count"`
 		}
 		data.DocId = doc.DocumentId
 		data.DocIdentify = doc.Identify
@@ -174,10 +176,12 @@ func (c *DocumentController) Read() {
 	} else {
 		c.Data["DocumentId"] = doc.DocumentId
 		c.Data["DocIdentify"] = doc.Identify
-		// 获取评论、分页
-		comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
-		page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
-		c.Data["Page"] = page
+		if bookResult.IsDisplayComment {
+			// 获取评论、分页
+			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+			page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
+			c.Data["Page"] = page
+		}
 	}
 
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, doc.DocumentId)

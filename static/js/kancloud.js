@@ -60,6 +60,9 @@ function timeFormat($time) {
 
 // 点击翻页
 function pageClicked($page, $docid) {
+    if (!window.IS_DISPLAY_COMMENT) {
+        return;
+    }
     $("#articleComment").removeClass('not-show-comment');
     $.ajax({
         url : "/comment/lists?page=" + $page + "&docid=" + $docid,
