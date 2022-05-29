@@ -49,8 +49,8 @@
                                 <td>{{$item.LabelName}}</td>
                                 <td>{{$item.BookNumber}}</td>
                                 <td>
-                                    <button type="button" data-method="delete" class="btn btn-danger btn-sm" data-id="{{$item.LabelId}}" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.delete"}}</button>
-                                    <a href="{{urlfor "LabelController.Index" ":key" $item.LabelName}}" class="btn btn-success btn-sm" target="_blank">{{i18n .Lang "common.detail"}}</a>
+                                    <button type="button" data-method="delete" class="btn btn-danger btn-sm" data-id="{{$item.LabelId}}" data-loading-text="{{i18n $.Lang "message.processing"}}">{{i18n $.Lang "common.delete"}}</button>
+                                    <a href="{{urlfor "LabelController.Index" ":key" $item.LabelName}}" class="btn btn-success btn-sm" target="_blank">{{i18n $.Lang "common.detail"}}</a>
 
                                 </td>
                             </tr>
