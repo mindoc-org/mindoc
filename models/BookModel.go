@@ -699,6 +699,8 @@ func (book *Book) ImportBook(zipPath string, lang string) error {
 	}
 	//如果加压缩失败
 	if err := ziptil.Unzip(zipPath, tempPath); err != nil {
+		logs.Error("CAll ziptil.Unzip error, zipPath: %s, tempPath: %s, err: %v",
+			zipPath, tempPath, err)
 		return err
 	}
 	//当导入结束后，删除临时文件
