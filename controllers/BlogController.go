@@ -56,12 +56,23 @@ func (c *BlogController) Index() {
 		if blog.BlogStatus == "password" && password != blog.Password {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.blog_pwd_incorrect"))
 		} else if blog.BlogStatus == "password" && password == blog.Password {
-			//如果密码输入正确，则存入session中
-			_ = c.CruSession.Set(context.TODO(), blogReadSession, blogId)
+			// If the password is correct, then determine whether the user is correct
+			if c.Member != nil && (blog.MemberId == c.Member.MemberId || c.Member.IsAdministrator()) {
+				/* Private blog is accessible only to author and administrator.
+				   Anonymous users are not allowed access. */
+				// Store the session value
+				_ = c.CruSession.Set(context.TODO(), blogReadSession, blogId)
+				c.JsonResult(0, "OK")
+			} else {
+				c.JsonResult(6002, i18n.Tr(c.Lang, "blog.private_blog_tips"))
+			}
+		} else {
 			c.JsonResult(0, "OK")
 		}
-		c.JsonResult(0, "OK")
-	} else if blog.BlogStatus == "password" && (c.CruSession.Get(context.TODO(), blogReadSession) == nil || (c.Member != nil && blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) {
+	} else if blog.BlogStatus == "password" &&
+		(c.CruSession.Get(context.TODO(), blogReadSession) == nil || // Read session doesn't exist
+			c.Member == nil || // Anonymous, Not Allow
+			(blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) { // User isn't author or administrator
 		//如果不存在已输入密码的标记
 		c.TplName = "blog/index_password.tpl"
 	}
