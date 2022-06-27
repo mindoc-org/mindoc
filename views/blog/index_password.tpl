@@ -105,7 +105,7 @@
         <input type="password" name="password" placeholder="{{i18n .Lang "blog.access_pass"}}" class="inp"/>
     </div>
     <div class="btn">
-        <span id="error" style="color: #919191; font-size: 13px;"></span>
+        <span id="error" style="color: #919191; font-size: 13px;">{{i18n .Lang "blog.private_blog_tips"}}</span>
         <input type="submit" value="{{i18n .Lang "doc.commit"}}" class="button"/>
     </div>
     <div class="clear"></div>
