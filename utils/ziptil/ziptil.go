@@ -2,6 +2,7 @@ package ziptil
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -13,7 +14,7 @@ import (
 //@param			dest			需要解压到的目录
 //@return			err				返回错误
 func Unzip(zipFile, dest string) (err error) {
-	dest = strings.TrimSuffix(dest, "/") + "/"
+	dest = strings.TrimSuffix(dest, "/") + "/" // Make sure suffix with "/".
 	// 打开一个zip格式文件
 	r, err := zip.OpenReader(zipFile)
 	if err != nil {
@@ -22,10 +23,26 @@ func Unzip(zipFile, dest string) (err error) {
 	defer r.Close()
 	// 迭代压缩文件中的文件，打印出文件中的内容
 	for _, f := range r.File {
-		if !f.FileInfo().IsDir() { //非目录，且不包含__MACOSX
-			if folder := dest + filepath.Dir(f.Name); !strings.Contains(folder, "__MACOSX") {
-				os.MkdirAll(folder, 0777)
-				if fcreate, err := os.Create(dest + strings.TrimPrefix(f.Name, "./")); err == nil {
+		if !f.FileInfo().IsDir() {
+			path := filepath.Join(dest, f.Name)
+
+			// logs.Debug("file name: ", f.Name, ",dest:", dest,
+			// 	",absolute path: ", filepath.Join(dest, f.Name),
+			// 	",absolute dir: ", filepath.Dir(path),
+			// 	",relative dir: ", filepath.Dir(f.Name))
+
+			if dir := filepath.Dir(path); !strings.Contains(dir, "__MACOSX") {
+				// This branch : 非目录，且不包含__MACOSX目录
+
+				/*	Resolve the Zip Slip problem.(Solution: The decompressed file must be in the DEST directory.)
+					References: https://github.com/golang/go/issues/25849
+								https://github.com/mholt/archiver/blob/e4ef56d48eb029648b0e895bb0b6a393ef0829c3/archiver.go#L110-L119 */
+				if !strings.HasPrefix(path, filepath.Clean(dest)+string(os.PathSeparator)) {
+					return fmt.Errorf("illegal file path: %s", path)
+				}
+
+				os.MkdirAll(dir, 0777)
+				if fcreate, err := os.Create(path); err == nil {
 					if rc, err := f.Open(); err == nil {
 						io.Copy(fcreate, rc)
 						rc.Close() //不要用defer来关闭，如果文件太多的话，会报too many open files 的错误
