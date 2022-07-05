@@ -100,7 +100,7 @@
 <body>
 <div class="auth_form">
 <div class="shell">
-        <form action="{{urlfor "DocumentController.Index" ":key" .Identify}}" method="post" id="auth_form">
+        <form action="{{urlfor "DocumentController.CheckPassword" ":key" .Identify}}" method="post" id="auth_form">
             <div class="tit">{{i18n .Lang "doc.input_pwd"}}</div>
             <div style="margin-top: 10px;">
                 <input type="password" name="bPassword" placeholder="{{i18n .Lang "doc.read_pwd"}}" class="inp"/>
