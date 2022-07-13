@@ -99,8 +99,6 @@ func (c *AccountController) Prepare() {
 
 // Login 用户登录
 func (c *AccountController) Login() {
-	c.Prepare()
-
 	c.TplName = "account/login.tpl"
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
@@ -205,8 +203,6 @@ func (c *AccountController) Login() {
 
 // 钉钉登录
 func (c *AccountController) DingTalkLogin() {
-	c.Prepare()
-
 	code := c.GetString("dingtalk_code")
 	if code == "" {
 		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_obtain_user_info"), nil)
@@ -259,8 +255,6 @@ func (c *AccountController) DingTalkLogin() {
 
 // WorkWeixinLogin 用户企业微信登录
 func (c *AccountController) WorkWeixinLogin() {
-	c.Prepare()
-
 	logs.Info("UserAgent: ", c.Ctx.Input.UserAgent()) // debug
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
@@ -508,8 +502,6 @@ func (c *AccountController) WorkWeixinLoginCallback() {
 
 // WorkWeixinLoginBind 用户企业微信登录-绑定
 func (c *AccountController) WorkWeixinLoginBind() {
-	c.Prepare()
-
 	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserInfo); ok && len(user_info.UserId) > 0 {
 		req_account := c.GetString("account")
 		req_password := c.GetString("password")
@@ -670,8 +662,6 @@ func (c *AccountController) WorkWeixinLoginIgnore() {
 
 // QR二维码登录
 func (c *AccountController) QRLogin() {
-	c.Prepare()
-
 	appName := c.Ctx.Input.Param(":app")
 
 	switch appName {
@@ -969,7 +959,6 @@ func (c *AccountController) FindPassword() {
 
 // 校验邮件并修改密码
 func (c *AccountController) ValidEmail() {
-	c.Prepare()
 	password1 := c.GetString("password1")
 	password2 := c.GetString("password2")
 	captcha := c.GetString("code")
@@ -1043,8 +1032,6 @@ func (c *AccountController) Logout() {
 
 // 验证码
 func (c *AccountController) Captcha() {
-	c.Prepare()
-
 	captchaImage := gocaptcha.NewCaptchaImage(140, 40, gocaptcha.RandLightColor())
 
 	captchaImage.DrawNoise(gocaptcha.CaptchaComplexLower)
