@@ -99,8 +99,6 @@ func (c *DocumentController) Index() {
 // CheckPassword : Handles password verification for private documents,
 // and front-end requests are made through Ajax.
 func (c *DocumentController) CheckPassword() {
-	c.Prepare()
-
 	identify := c.Ctx.Input.Param(":key")
 	password := c.GetString("bPassword")
 
@@ -133,8 +131,6 @@ func (c *DocumentController) CheckPassword() {
 
 // 阅读文档
 func (c *DocumentController) Read() {
-	c.Prepare()
-
 	identify := c.Ctx.Input.Param(":key")
 	token := c.GetString("token")
 	id := c.GetString(":id")

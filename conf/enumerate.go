@@ -47,6 +47,8 @@ const (
 	BookEditor
 	//观察者
 	BookObserver
+	//未指定关系
+	BookRoleNoSpecific
 )
 
 //项目角色

@@ -100,8 +100,7 @@ func (m *Relationship) FindForRoleId(bookId, memberId int) (conf.BookRole, error
 	err := o.QueryTable(m.TableNameWithPrefix()).Filter("book_id", bookId).Filter("member_id", memberId).One(relationship)
 
 	if err != nil {
-
-		return 0, err
+		return conf.BookRoleNoSpecific, err
 	}
 	return relationship.RoleId, nil
 }
