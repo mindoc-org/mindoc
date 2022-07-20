@@ -330,11 +330,11 @@ func (m *Member) Find(id int, cols ...string) (*Member, error) {
 
 func (m *Member) ResolveRoleName() {
 	if m.Role == conf.MemberSuperRole {
-		m.RoleName = i18n.Tr(m.Lang, "common.administrator")
+		m.RoleName = i18n.Tr(m.Lang, "uc.super_admin")
 	} else if m.Role == conf.MemberAdminRole {
-		m.RoleName = i18n.Tr(m.Lang, "common.editor")
+		m.RoleName = i18n.Tr(m.Lang, "uc.admin")
 	} else if m.Role == conf.MemberGeneralRole {
-		m.RoleName = i18n.Tr(m.Lang, "common.obverser")
+		m.RoleName = i18n.Tr(m.Lang, "uc.user")
 	}
 }
 
@@ -385,8 +385,9 @@ func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int, error) {
 		return members, 0, err
 	}
 
-	for _, m := range members {
-		m.ResolveRoleName()
+	for _, tm := range members {
+		tm.Lang = m.Lang
+		tm.ResolveRoleName()
 	}
 	return members, int(totalCount), nil
 }
