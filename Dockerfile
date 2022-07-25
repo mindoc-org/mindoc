@@ -36,30 +36,41 @@ FROM ubuntu:focal
 # 切换默认shell为bash
 SHELL ["/bin/bash", "-c"]
 
-COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
-COPY --from=build /go/src/github.com/mindoc-org/mindoc /mindoc
 WORKDIR /mindoc
+
+# 文件复制
+COPY --from=build /usr/share/fonts/win/simsun.ttc /usr/share/fonts/win/
+COPY --from=build /go/src/github.com/mindoc-org/mindoc/mindoc_linux_amd64 /mindoc/
+COPY --from=build /go/src/github.com/mindoc-org/mindoc/start.sh /mindoc/
+COPY --from=build /go/src/github.com/mindoc-org/mindoc/LICENSE.md /mindoc/
+# 文件夹复制
+COPY --from=build /go/src/github.com/mindoc-org/mindoc/lib /mindoc/lib
+COPY --from=build /go/src/github.com/mindoc-org/mindoc/conf /mindoc/__default_assets__/conf
+COPY --from=build /go/src/github.com/mindoc-org/mindoc/static /mindoc/__default_assets__/static
+COPY --from=build /go/src/github.com/mindoc-org/mindoc/views /mindoc/__default_assets__/views
+COPY --from=build /go/src/github.com/mindoc-org/mindoc/uploads /mindoc/__default_assets__/uploads
+
 RUN chmod a+r /usr/share/fonts/win/simsun.ttc
 
 # 备份原有源
-RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
-# 最小化源，缩短apt update时间(ca-certificates必须先安装才支持换tsinghua源)
-RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
-RUN apt-get update
-RUN apt install -y ca-certificates
-# 更换aliyun源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
-RUN echo $'\
-deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\n\
-deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\n\
-deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\n\
-deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\n\
-deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse'\
-> /etc/apt/sources.list
+# RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
+# 最小化源，缩短apt update时间(ca-certificates必须先安装才支持换aliyun源)
+# RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
+# RUN apt-get update
+# RUN apt install -y ca-certificates
+# # 更换aliyun源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
+# RUN echo $'\
+# deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\
+# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\n\
+# deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\
+# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\n\
+# deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\
+# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\n\
+# deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\
+# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\n\
+# deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse\
+# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse'\
+# > /etc/apt/sources.list
 
 # 更新软件包信息
 RUN apt-get update
@@ -88,6 +99,7 @@ RUN update-locale LANG=zh_CN.UTF-8
 ENV LANG=zh_CN.UTF-8
 ENV LANGUAGE=zh_CN:en
 ENV LC_ALL=zh_CN.UTF-8
+
 # 安装-calibre
 # RUN apt-get install -y calibre # 此种方式安装省事，但会安装很多额外不需要的软件包，导致体积过大
 RUN mkdir -p /tmp/calibre-cache
@@ -114,14 +126,10 @@ RUN ebook-convert --version
 RUN rm -rf /tmp/calibre-cache
 
 # refer: https://docs.docker.com/engine/reference/builder/#volume
-# 数据同步目录
-VOLUME /mindoc-sync-host
+VOLUME ["/mindoc/conf","/mindoc/static","/mindoc/views","/mindoc/uploads","/mindoc/runtime","/mindoc/database"]
 
 # refer: https://docs.docker.com/engine/reference/builder/#expose
 EXPOSE 8181/tcp
-
-# 如果配置文件不存在就复制
-RUN cp --no-clobber /mindoc/conf/app.conf.example /mindoc/conf/app.conf
 
 ENV ZONEINFO=/mindoc/lib/time/zoneinfo.zip
 RUN chmod +x /mindoc/start.sh
@@ -129,8 +137,8 @@ RUN chmod +x /mindoc/start.sh
 ENTRYPOINT ["/bin/bash", "/mindoc/start.sh"]
 
 # https://docs.docker.com/engine/reference/commandline/build/#options
-# docker build --progress plain --rm --build-arg TAG=2.0.1 --tag gsw945/mindoc:2.0.1 .
+# docker build --progress plain --rm --build-arg TAG=2.1 --tag gsw945/mindoc:2.1 .
 # https://docs.docker.com/engine/reference/commandline/run/#options
 # set MINDOC=//d/mindoc # windows
 # export MINDOC=/home/ubuntu/mindoc-docker # linux
-# docker run --rm -it  -p 8181:8181 -v "%MINDOC%":"/mindoc-sync-host" --name mindoc -e MINDOC_ENABLE_EXPORT=true -d gsw945/mindoc:2.0.1
+# docker run --rm -it  -p 8181:8181 -v "%MINDOC%":"/mindoc-sync-host" --name mindoc -e MINDOC_ENABLE_EXPORT=true -d gsw945/mindoc:2.1
