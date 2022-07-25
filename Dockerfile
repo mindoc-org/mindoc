@@ -53,24 +53,24 @@ COPY --from=build /go/src/github.com/mindoc-org/mindoc/uploads /mindoc/__default
 RUN chmod a+r /usr/share/fonts/win/simsun.ttc
 
 # 备份原有源
-# RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
+RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
 # 最小化源，缩短apt update时间(ca-certificates必须先安装才支持换aliyun源)
-# RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
-# RUN apt-get update
-# RUN apt install -y ca-certificates
-# # 更换aliyun源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
-# RUN echo $'\
-# deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\
-# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\n\
-# deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\
-# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\n\
-# deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\
-# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\n\
-# deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\
-# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\n\
-# deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse\
-# \n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse'\
-# > /etc/apt/sources.list
+RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
+RUN apt-get update
+RUN apt install -y ca-certificates
+# 更换aliyun源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
+RUN echo $'\
+deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\
+\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\n\
+deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\
+\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\n\
+deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\
+\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\n\
+deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\
+\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\n\
+deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse\
+\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse'\
+> /etc/apt/sources.list
 
 # 更新软件包信息
 RUN apt-get update
