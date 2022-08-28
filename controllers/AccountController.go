@@ -406,7 +406,10 @@ func (c *AccountController) WorkWeixinLoginCallback() {
 				contact_access_token, ok := workweixin.GetAccessToken(true)
 				if ok {
 					logs.Warning("contact_access_token: ", contact_access_token)
-					user_info, err_msg, ok := workweixin.RequestUserInfo(contact_access_token, user_id)
+					// 获取用户信息
+					//user_info, err_msg, ok := workweixin.RequestUserInfo(contact_access_token, user_id)
+					// 获取用户id 列表
+					user_info, err_msg, ok := workweixin.GetUserListId(contact_access_token, user_id)
 					if ok {
 						// [-------所有字段-Debug----------
 						// user_info.UserId
@@ -502,7 +505,7 @@ func (c *AccountController) WorkWeixinLoginCallback() {
 
 // WorkWeixinLoginBind 用户企业微信登录-绑定
 func (c *AccountController) WorkWeixinLoginBind() {
-	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserInfo); ok && len(user_info.UserId) > 0 {
+	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinDeptUserInfo); ok && len(user_info.UserId) > 0 {
 		req_account := c.GetString("account")
 		req_password := c.GetString("password")
 		if req_account == "" || req_password == "" {
@@ -517,29 +520,30 @@ func (c *AccountController) WorkWeixinLoginBind() {
 				ormer := orm.NewOrm()
 				o, err := ormer.Begin()
 				if err != nil {
-					logs.Error("开启事物时出错 -> ", err)
-					c.JsonResult(500, "开启事物时出错: ", err.Error())
+					logs.Error("开启事务时出错 -> ", err)
+					c.JsonResult(500, "开启事务时出错: ", err.Error())
 				}
 				if err := account.AddBind(ormer); err != nil {
 					o.Rollback()
 					c.JsonResult(500, "绑定失败，数据库错误: "+err.Error())
 				} else {
+					// 绑定成功之后修改用户信息
 					member.LastLoginTime = time.Now()
-					member.RealName = user_info.Name
-					member.Avatar = user_info.Avatar
+					//member.RealName = user_info.Name
+					//member.Avatar = user_info.Avatar
 					if len(member.Avatar) < 1 {
 						member.Avatar = conf.GetDefaultAvatar()
 					}
-					member.Email = user_info.Email
-					member.Phone = user_info.Mobile
+					//member.Email = user_info.Email
+					//member.Phone = user_info.Mobile
 					if _, err := ormer.Update(member, "last_login_time", "real_name", "avatar", "email", "phone"); err != nil {
 						o.Rollback()
 						logs.Error("保存用户信息失败=>", err)
 						c.JsonResult(500, "绑定失败，现有账户信息更新失败: "+err.Error())
 					} else {
 						if err := o.Commit(); err != nil {
-							logs.Error("提交事物时出错 -> ", err)
-							c.JsonResult(500, "提交事物时出错: ", err.Error())
+							logs.Error("开启事务时出错 -> ", err)
+							c.JsonResult(500, "开启事务时出错: ", err.Error())
 						} else {
 							c.DelSession(SessionUserInfoKey)
 							c.SetMember(*member)
@@ -588,8 +592,8 @@ func (c *AccountController) WorkWeixinLoginIgnore() {
 		ormer := orm.NewOrm()
 		o, err := ormer.Begin()
 		if err != nil {
-			logs.Error("开启事物时出错 -> ", err)
-			c.JsonResult(500, "开启事物时出错: ", err.Error())
+			logs.Error("开启事务时出错 -> ", err)
+			c.JsonResult(500, "开启事务时出错: ", err.Error())
 		}
 
 		member.Account = user_info.UserId
@@ -630,8 +634,8 @@ func (c *AccountController) WorkWeixinLoginIgnore() {
 				c.JsonResult(500, "注册失败，数据库错误: "+err.Error())
 			} else {
 				if err := o.Commit(); err != nil {
-					logs.Error("提交事物时出错 -> ", err)
-					c.JsonResult(500, "提交事物时出错: ", err.Error())
+					logs.Error("提交事务时出错 -> ", err)
+					c.JsonResult(500, "提交事务时出错: ", err.Error())
 				} else {
 					member.LastLoginTime = time.Now()
 					_ = member.Update("last_login_time")
