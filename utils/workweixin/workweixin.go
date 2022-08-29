@@ -279,9 +279,8 @@ func GetUserListId(contact_access_token string, userid string) (user_info WorkWe
 			info = WorkWeixinDeptUserInfo{
 				UserId: uir.DeptUser[i].UserId,
 			}
-		} else {
-			return info, uir.ErrMsg, false
+			return info, "", true
 		}
 	}
-	return info, "", true
+	return info, uir.ErrMsg, false
 }
