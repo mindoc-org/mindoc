@@ -75,7 +75,7 @@ func AddMember(account, password string) error {
 	defer lc.Close()
 	user := fmt.Sprintf("cn=%s,dc=minho,dc=com", account)
 
-	member := ldap.NewAddRequest(user)
+	member := ldap.NewAddRequest(user, []ldap.Control{})
 
 	member.Attribute("mail", []string{"longfei6671@163.com"})
 
