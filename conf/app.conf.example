@@ -125,7 +125,9 @@ ldap_host=ad.example.com
 #ldap端口
 ldap_port=3268
 #ldap内哪个属性作为用户名
-ldap_attribute=sAMAccountName
+ldap_account=sAMAccountName
+#ldap内哪个属性作为邮箱
+ldap_mail=mail
 #搜索范围
 ldap_base=DC=example,DC=com
 #第一次绑定ldap用户dn
