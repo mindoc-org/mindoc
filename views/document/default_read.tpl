@@ -315,7 +315,7 @@ $(function () {
     });
 
     window.menuControl = true;
-    window.menuSetting = "open" ;
+    // window.menuSetting = "open" ;
     if (menuSetting == 'open' || menuSetting == 'first') {
         $('#handlerMenuShow').find('span').text('{{i18n .Lang "doc.fold"}}');
         $('#handlerMenuShow').find('i').attr("class","fa fa-angle-down");

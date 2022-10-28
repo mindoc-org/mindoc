@@ -386,7 +386,7 @@ $(function () {
             if(res.errcode === 0){
                 layer.msg("保存成功");
             }else{
-                layer.msg("保存失败");
+                layer.msg(res.message);
             }
             $("#btnSubmitComment").button("reset");
             $("#commentContent").val("");

@@ -25,26 +25,26 @@ import (
 // Document struct.
 type Document struct {
 	DocumentId   int    `orm:"pk;auto;unique;column(document_id)" json:"doc_id"`
-	DocumentName string `orm:"column(document_name);size(500)" json:"doc_name"`
+	DocumentName string `orm:"column(document_name);size(500);description(文档名称)" json:"doc_name"`
 	// Identify 文档唯一标识
-	Identify  string `orm:"column(identify);size(100);index;null;default(null)" json:"identify"`
-	BookId    int    `orm:"column(book_id);type(int);index" json:"book_id"`
-	ParentId  int    `orm:"column(parent_id);type(int);index;default(0)" json:"parent_id"`
-	OrderSort int    `orm:"column(order_sort);default(0);type(int);index" json:"order_sort"`
+	Identify  string `orm:"column(identify);size(100);index;null;default(null);description(唯一标识)" json:"identify"`
+	BookId    int    `orm:"column(book_id);type(int);index;description(关联bools表主键)" json:"book_id"`
+	ParentId  int    `orm:"column(parent_id);type(int);index;default(0);description(父级文档)" json:"parent_id"`
+	OrderSort int    `orm:"column(order_sort);default(0);type(int);index;description(排序从小到大排序)" json:"order_sort"`
 	// Markdown markdown格式文档.
-	Markdown string `orm:"column(markdown);type(text);null" json:"markdown"`
+	Markdown string `orm:"column(markdown);type(text);null;description(markdown内容)" json:"markdown"`
 	// Release 发布后的Html格式内容.
-	Release string `orm:"column(release);type(text);null" json:"release"`
+	Release string `orm:"column(release);type(text);null;description(文章内容)" json:"release"`
 	// Content 未发布的 Html 格式内容.
-	Content    string    `orm:"column(content);type(text);null" json:"content"`
-	CreateTime time.Time `orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
-	MemberId   int       `orm:"column(member_id);type(int)" json:"member_id"`
-	ModifyTime time.Time `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
-	ModifyAt   int       `orm:"column(modify_at);type(int)" json:"-"`
-	Version    int64     `orm:"column(version);type(bigint);" json:"version"`
+	Content    string    `orm:"column(content);type(text);null;description(文章内容)" json:"content"`
+	CreateTime time.Time `orm:"column(create_time);type(datetime);auto_now_add;description(创建时间)" json:"create_time"`
+	MemberId   int       `orm:"column(member_id);type(int);description(关系用户id)" json:"member_id"`
+	ModifyTime time.Time `orm:"column(modify_time);type(datetime);auto_now;description(修改时间)" json:"modify_time"`
+	ModifyAt   int       `orm:"column(modify_at);type(int);description(修改人id)" json:"-"`
+	Version    int64     `orm:"column(version);type(bigint);description(版本，关联历史文档里的version)" json:"version"`
 	//是否展开子目录：0 否/1 是 /2 空间节点，单击时展开下一级
-	IsOpen     int           `orm:"column(is_open);type(int);default(0)" json:"is_open"`
-	ViewCount  int           `orm:"column(view_count);type(int)" json:"view_count"`
+	IsOpen     int           `orm:"column(is_open);type(int);default(0);description(是否展开子目录 0：阅读时关闭节点 1：阅读时展开节点 2：空目录 单击时会展开下级节点)" json:"is_open"`
+	ViewCount  int           `orm:"column(view_count);type(int);description(浏览量)" json:"view_count"`
 	AttachList []*Attachment `orm:"-" json:"attach"`
 	//i18n
 	Lang string `orm:"-"`

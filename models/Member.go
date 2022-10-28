@@ -29,22 +29,22 @@ import (
 
 type Member struct {
 	MemberId int    `orm:"pk;auto;unique;column(member_id)" json:"member_id"`
-	Account  string `orm:"size(100);unique;column(account)" json:"account"`
-	RealName string `orm:"size(255);column(real_name)" json:"real_name"`
-	Password string `orm:"size(1000);column(password)" json:"-"`
+	Account  string `orm:"size(100);unique;column(account);description(登录名)" json:"account"`
+	RealName string `orm:"size(255);column(real_name);description(真实姓名)" json:"real_name"`
+	Password string `orm:"size(1000);column(password);description(密码)" json:"-"`
 	//认证方式: local 本地数据库 /ldap LDAP
-	AuthMethod  string `orm:"column(auth_method);default(local);size(50);" json:"auth_method"`
-	Description string `orm:"column(description);size(2000)" json:"description"`
-	Email       string `orm:"size(100);column(email);unique" json:"email"`
-	Phone       string `orm:"size(255);column(phone);null;default(null)" json:"phone"`
-	Avatar      string `orm:"size(1000);column(avatar)" json:"avatar"`
+	AuthMethod  string `orm:"column(auth_method);default(local);size(50);description(授权方式 local:本地校验 ldap：LDAP用户校验)" json:"auth_method"`
+	Description string `orm:"column(description);size(2000);description(描述)" json:"description"`
+	Email       string `orm:"size(100);column(email);unique;description(邮箱)" json:"email"`
+	Phone       string `orm:"size(255);column(phone);null;default(null);description(手机)" json:"phone"`
+	Avatar      string `orm:"size(1000);column(avatar);description(头像)" json:"avatar"`
 	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户 .
-	Role          conf.SystemRole `orm:"column(role);type(int);default(1);index" json:"role"`
+	Role          conf.SystemRole `orm:"column(role);type(int);default(1);index;description(用户角色： 0：超级管理员 1：管理员 2：普通用户)" json:"role"`
 	RoleName      string          `orm:"-" json:"role_name"`
-	Status        int             `orm:"column(status);type(int);default(0)" json:"status"` //用户状态：0 正常/1 禁用
-	CreateTime    time.Time       `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
-	CreateAt      int             `orm:"type(int);column(create_at)" json:"create_at"`
-	LastLoginTime time.Time       `orm:"type(datetime);column(last_login_time);null" json:"last_login_time"`
+	Status        int             `orm:"column(status);type(int);default(0);description(状态  0：启用 1：禁用)" json:"status"` //用户状态：0 正常/1 禁用
+	CreateTime    time.Time       `orm:"type(datetime);column(create_time);auto_now_add;description(创建时间)" json:"create_time"`
+	CreateAt      int             `orm:"type(int);column(create_at);description(创建人id)" json:"create_at"`
+	LastLoginTime time.Time       `orm:"type(datetime);column(last_login_time);null;description(最后登录时间)" json:"last_login_time"`
 	//i18n
 	Lang string `orm:"-"`
 }
