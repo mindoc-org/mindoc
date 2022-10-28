@@ -19,19 +19,19 @@ import (
 type Blog struct {
 	BlogId int `orm:"pk;auto;unique;column(blog_id)" json:"blog_id"`
 	//文章标题
-	BlogTitle string `orm:"column(blog_title);size(500)" json:"blog_title"`
+	BlogTitle string `orm:"column(blog_title);size(500);description(文章标题)" json:"blog_title"`
 	//文章标识
-	BlogIdentify string `orm:"column(blog_identify);size(100);unique" json:"blog_identify"`
+	BlogIdentify string `orm:"column(blog_identify);size(100);unique;description(文章标识)" json:"blog_identify"`
 	//排序序号
-	OrderIndex int `orm:"column(order_index);type(int);default(0)" json:"order_index"`
+	OrderIndex int `orm:"column(order_index);type(int);default(0);description(排序序号)" json:"order_index"`
 	//所属用户
-	MemberId int `orm:"column(member_id);type(int);default(0);index" json:"member_id"`
+	MemberId int `orm:"column(member_id);type(int);default(0);index;description(所属用户)" json:"member_id"`
 	//用户头像
 	MemberAvatar string `orm:"-" json:"member_avatar"`
 	//文章类型:0 普通文章/1 链接文章
-	BlogType int `orm:"column(blog_type);type(int);default(0)" json:"blog_type"`
+	BlogType int `orm:"column(blog_type);type(int);default(0);description(文章类型: 0普通文章/1 链接文章)" json:"blog_type"`
 	//链接到的项目中的文档ID
-	DocumentId int `orm:"column(document_id);type(int);default(0)" json:"document_id"`
+	DocumentId int `orm:"column(document_id);type(int);default(0);description(链接到的项目中的文档ID)" json:"document_id"`
 	//文章的标识
 	DocumentIdentify string `orm:"-" json:"document_identify"`
 	//关联文档的项目标识
@@ -39,25 +39,25 @@ type Blog struct {
 	//关联文档的项目ID
 	BookId int `orm:"-" json:"book_id"`
 	//文章摘要
-	BlogExcerpt string `orm:"column(blog_excerpt);size(1500)" json:"blog_excerpt"`
+	BlogExcerpt string `orm:"column(blog_excerpt);size(1500);description(文章摘要)" json:"blog_excerpt"`
 	//文章内容
-	BlogContent string `orm:"column(blog_content);type(text);null" json:"blog_content"`
+	BlogContent string `orm:"column(blog_content);type(text);null;description(文章内容)" json:"blog_content"`
 	//发布后的文章内容
-	BlogRelease string `orm:"column(blog_release);type(text);null" json:"blog_release"`
+	BlogRelease string `orm:"column(blog_release);type(text);null;description(发布后的文章内容)" json:"blog_release"`
 	//文章当前的状态，枚举enum(’publish’,’draft’,’password’)值，publish为已 发表，draft为草稿，password 为私人内容(不会被公开) 。默认为publish。
-	BlogStatus string `orm:"column(blog_status);size(100);default(publish)" json:"blog_status"`
+	BlogStatus string `orm:"column(blog_status);size(100);default(publish);description(状态：publish为已发表-默认，draft:草稿，password :私人内容-不会被公开)" json:"blog_status"`
 	//文章密码，varchar(100)值。文章编辑才可为文章设定一个密码，凭这个密码才能对文章进行重新强加或修改。
-	Password string `orm:"column(password);size(100)" json:"-"`
+	Password string `orm:"column(password);size(100);description(文章密码)" json:"-"`
 	//最后修改时间
-	Modified time.Time `orm:"column(modify_time);type(datetime);auto_now" json:"modify_time"`
+	Modified time.Time `orm:"column(modify_time);type(datetime);auto_now;description(最后修改时间)" json:"modify_time"`
 	//修改人id
-	ModifyAt       int    `orm:"column(modify_at);type(int)" json:"-"`
+	ModifyAt       int    `orm:"column(modify_at);type(int);description(修改人id)" json:"-"`
 	ModifyRealName string `orm:"-" json:"modify_real_name"`
 	//创建时间
-	Created    time.Time `orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
+	Created    time.Time `orm:"column(create_time);type(datetime);auto_now_add;description(创建时间)" json:"create_time"`
 	CreateName string    `orm:"-" json:"create_name"`
 	//版本号
-	Version int64 `orm:"type(bigint);column(version)" json:"version"`
+	Version int64 `orm:"type(bigint);column(version);description(版本号)" json:"version"`
 	//附件列表
 	AttachList []*Attachment `orm:"-" json:"attach_list"`
 }

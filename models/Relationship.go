@@ -10,13 +10,13 @@ import (
 
 type Relationship struct {
 	RelationshipId int `orm:"pk;auto;unique;column(relationship_id)" json:"relationship_id"`
-	MemberId       int `orm:"column(member_id);type(int)" json:"member_id"`
-	BookId         int `orm:"column(book_id);type(int)" json:"book_id"`
+	MemberId       int `orm:"column(member_id);type(int);description(作者id)" json:"member_id"`
+	BookId         int `orm:"column(book_id);type(int);description(所属项目id)" json:"book_id"`
 	// RoleId 角色：0 创始人(创始人不能被移除) / 1 管理员/2 编辑者/3 观察者
-	RoleId conf.BookRole `orm:"column(role_id);type(int)" json:"role_id"`
+	RoleId conf.BookRole `orm:"column(role_id);type(int);description(角色-配置文件里写死：0 创始人-不能被移除 / 1 管理员/2 编辑者/3 观察者)" json:"role_id"`
 }
 
-// TableName 获取对应数据库表名.
+// TableName 获取对应数据库表名. 用户和项目的关联表
 func (m *Relationship) TableName() string {
 	return "relationship"
 }

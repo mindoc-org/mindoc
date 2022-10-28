@@ -22,8 +22,8 @@ func (c *CommentController) Lists() {
 	page := pagination.PageUtil(int(count), pageIndex, conf.PageSize, comments)
 
 	var data struct {
-		DocId     int               `json:"doc_id"`
-		Page      pagination.Page   `json:"page"`
+		DocId int             `json:"doc_id"`
+		Page  pagination.Page `json:"page"`
 	}
 	data.DocId = docid
 	data.Page = page
@@ -43,6 +43,9 @@ func (c *CommentController) Create() {
 
 	m := models.NewComment()
 	m.DocumentId = id
+	if c.Member == nil {
+		c.JsonResult(1, "请先登录，再评论")
+	}
 	if len(c.Member.RealName) != 0 {
 		m.Author = c.Member.RealName
 	} else {
@@ -56,7 +59,7 @@ func (c *CommentController) Create() {
 	m.Insert()
 
 	var data struct {
-		DocId    int    `json:"doc_id"`
+		DocId int `json:"doc_id"`
 	}
 	data.DocId = id
 

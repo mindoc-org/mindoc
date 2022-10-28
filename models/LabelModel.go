@@ -9,9 +9,9 @@ import (
 )
 
 type Label struct {
-	LabelId    int    `orm:"column(label_id);pk;auto;unique;" json:"label_id"`
-	LabelName  string `orm:"column(label_name);size(50);unique" json:"label_name"`
-	BookNumber int    `orm:"column(book_number)" json:"book_number"`
+	LabelId    int    `orm:"column(label_id);pk;auto;unique;description(项目标签id)" json:"label_id"`
+	LabelName  string `orm:"column(label_name);size(50);unique;description(项目标签名称)" json:"label_name"`
+	BookNumber int    `orm:"column(book_number);description(包涵项目数量)" json:"book_number"`
 }
 
 // TableName 获取对应数据库表名.

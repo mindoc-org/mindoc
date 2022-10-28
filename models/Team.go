@@ -12,10 +12,10 @@ import (
 //团队.
 type Team struct {
 	TeamId      int       `orm:"column(team_id);pk;auto;unique;" json:"team_id"`
-	TeamName    string    `orm:"column(team_name);size(255)" json:"team_name"`
-	MemberId    int       `orm:"column(member_id);type(int);" json:"member_id"`
-	IsDelete    bool      `orm:"column(is_delete);default(0)" json:"is_delete"`
-	CreateTime  time.Time `orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
+	TeamName    string    `orm:"column(team_name);size(255);description(团队名称)" json:"team_name"`
+	MemberId    int       `orm:"column(member_id);type(int);description(创建人id)" json:"member_id"`
+	IsDelete    bool      `orm:"column(is_delete);default(0);description(是否删除 0：否 1：是)" json:"is_delete"`
+	CreateTime  time.Time `orm:"column(create_time);type(datetime);auto_now_add;description(创建时间)" json:"create_time"`
 	MemberCount int       `orm:"-" json:"member_count"`
 	BookCount   int       `orm:"-" json:"book_count"`
 	MemberName  string    `orm:"-" json:"member_name"`

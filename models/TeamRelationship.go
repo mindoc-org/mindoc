@@ -11,9 +11,9 @@ import (
 
 type TeamRelationship struct {
 	TeamRelationshipId int       `orm:"column(team_relationship_id);pk;auto;unique;" json:"team_relationship_id"`
-	BookId             int       `orm:"column(book_id)" json:"book_id"`
-	TeamId             int       `orm:"column(team_id)" json:"team_id"`
-	CreateTime         time.Time `orm:"column(create_time);type(datetime);auto_now_add" json:"create_time"`
+	BookId             int       `orm:"column(book_id);description(项目id)" json:"book_id"`
+	TeamId             int       `orm:"column(team_id);description(团队id)" json:"team_id"`
+	CreateTime         time.Time `orm:"column(create_time);type(datetime);auto_now_add;description(创建时间)" json:"create_time"`
 	TeamName           string    `orm:"-" json:"team_name"`
 	MemberCount        int       `orm:"-" json:"member_count"`
 	BookMemberId       int       `orm:"-" json:"book_member_id"`
