@@ -115,7 +115,7 @@ func NewBook() *Book {
 	return &Book{}
 }
 
-//添加一个项目
+// 添加一个项目
 func (book *Book) Insert(lang string) error {
 	o := orm.NewOrm()
 	//	o.Begin()
@@ -167,7 +167,7 @@ func (book *Book) Find(id int, cols ...string) (*Book, error) {
 	return book, err
 }
 
-//更新一个项目
+// 更新一个项目
 func (book *Book) Update(cols ...string) error {
 	o := orm.NewOrm()
 
@@ -188,7 +188,7 @@ func (book *Book) Update(cols ...string) error {
 	return err
 }
 
-//复制项目
+// 复制项目
 func (book *Book) Copy(identify string) error {
 	o := orm.NewOrm()
 
@@ -290,7 +290,7 @@ func (book *Book) Copy(identify string) error {
 	return nil
 }
 
-//递归的复制文档
+// 递归的复制文档
 func recursiveInsertDocument(docs []*Document, o orm.TxOrmer, bookId int, parentId int) error {
 	for _, doc := range docs {
 
@@ -333,7 +333,7 @@ func recursiveInsertDocument(docs []*Document, o orm.TxOrmer, bookId int, parent
 	return nil
 }
 
-//根据指定字段查询结果集.
+// 根据指定字段查询结果集.
 func (book *Book) FindByField(field string, value interface{}, cols ...string) ([]*Book, error) {
 	o := orm.NewOrm()
 
@@ -343,7 +343,7 @@ func (book *Book) FindByField(field string, value interface{}, cols ...string) (
 	return books, err
 }
 
-//根据指定字段查询一个结果.
+// 根据指定字段查询一个结果.
 func (book *Book) FindByFieldFirst(field string, value interface{}) (*Book, error) {
 	o := orm.NewOrm()
 
@@ -353,7 +353,7 @@ func (book *Book) FindByFieldFirst(field string, value interface{}) (*Book, erro
 
 }
 
-//根据项目标识查询项目
+// 根据项目标识查询项目
 func (book *Book) FindByIdentify(identify string, cols ...string) (*Book, error) {
 	o := orm.NewOrm()
 
@@ -362,7 +362,7 @@ func (book *Book) FindByIdentify(identify string, cols ...string) (*Book, error)
 	return book, err
 }
 
-//分页查询指定用户的项目
+// 分页查询指定用户的项目
 func (book *Book) FindToPager(pageIndex, pageSize, memberId int, lang string) (books []*BookResult, totalCount int, err error) {
 
 	o := orm.NewOrm()
@@ -521,7 +521,7 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 
 }
 
-//分页查找系统首页数据.
+// 分页查找系统首页数据.
 func (book *Book) FindForHomeToPager(pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
@@ -574,7 +574,7 @@ WHERE book.privately_owned = 0 or rel.role_id >=0 or team.role_id >=0 ORDER BY o
 	return
 }
 
-//分页全局搜索.
+// 分页全局搜索.
 func (book *Book) FindForLabelToPager(keyword string, pageIndex, pageSize, memberId int) (books []*BookResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
@@ -665,7 +665,7 @@ func (book *Book) ReleaseContent(bookId int, lang string) {
 	})
 }
 
-//重置文档数量
+// 重置文档数量
 func (book *Book) ResetDocumentNumber(bookId int) {
 	o := orm.NewOrm()
 
@@ -1037,8 +1037,6 @@ func (book *Book) ImportWordBook(docxPath string, lang string) (err error) {
 	}
 
 	doc.DocumentName = strings.TrimSpace(docName)
-
-	doc.DocumentId = book.MemberId
 
 	if err := doc.InsertOrUpdate("document_name", "book_id", "markdown", "content"); err != nil {
 		logs.Error(doc.DocumentId, err)
