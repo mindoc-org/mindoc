@@ -71,7 +71,7 @@
                         <img src="{{cdnimg .Member.Avatar}}" onerror="this.src='{{cdnimg "/static/images/headimgurl.jpg"}}';" class="img-circle userbar-avatar" alt="{{.Member.Account}}">
                         <div class="userbar-content">
                             <span>{{.Member.Account}}</span>
-                            <div>{{.Member.RoleName}}</div>
+                            <div>{{i18n .Lang .Member.RoleName}}</div>
                         </div>
                         <i class="fa fa-chevron-down" aria-hidden="true"></i>
                     </div>
