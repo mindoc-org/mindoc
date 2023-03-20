@@ -77,7 +77,9 @@ token_size=12
 #上传文件的后缀,如果不限制后缀可以设置为 *
 upload_file_ext=txt|doc|docx|xls|xlsx|ppt|pptx|pdf|7z|rar|jpg|jpeg|png|gif
 
-#上传的文件大小限制,如果不填写,默认不限制，单位可以是 GB KB MB
+#上传的文件大小限制
+# - 如果不填写, 则默认1GB，如果希望超过1GB，必须带单位
+# - 如果填写，单位可以是 TB、GB、MB、KB，不带单位表示字节
 upload_file_size=10MB
 
 ####################邮件配置######################
