@@ -250,7 +250,7 @@
         <div class="manual-category" id="manualCategory" style=" border-right: 1px solid #DDDDDD;width: 281px;position: absolute;">
             <div class="manual-nav">
                 <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> {{i18n .Lang "doc.document"}}</div>
-                <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="{{i18n .Lang "doc.create_document"}}" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
+                <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="{{i18n .Lang "doc.create_doc"}}" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
                 <div class="clearfix"></div>
             </div>
             <div class="manual-tree" id="sidebar"> </div>
@@ -275,20 +275,21 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "doc.create_document"}}</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "doc.create_doc"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{i18n .Lang "doc.doc_name"}} <span class="error-message">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text" name="doc_name" id="documentName" placeholder="{{i18n .Lang "doc.doc_name_desc"}}" class="form-control"  maxlength="50">
+                            <input type="text" name="doc_name" id="documentName" placeholder="{{i18n .Lang "doc.doc_name"}}" class="form-control"  maxlength="50">
+                            <p style="color: #999;font-size: 12px;">{{i18n .Lang "doc.doc_name_tips"}}</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">{{i18n .Lang "doc.doc_id"}}</label>
                         <div class="col-sm-10">
                             <input type="text" name="doc_identify" id="documentIdentify" placeholder="{{i18n .Lang "doc.doc_id"}}" class="form-control" maxlength="50">
-                            <p style="color: #999;font-size: 12px;">{{i18n .Lang "doc.doc_id_desc"}}</p>
+                            <p style="color: #999;font-size: 12px;">{{i18n .Lang "doc.doc_id_tips"}}</p>
                         </div>
 
                     </div>
