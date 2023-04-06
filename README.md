@@ -73,7 +73,7 @@ MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。
 
 ### 安装 musl-gcc
 ```bash
-wget -c http://www.musl-libc.org/releases/musl-1.2.2.tar.gz
+wget -c http://musl.libc.org/releases/musl-1.2.2.tar.gz
 tar -xvf musl-1.2.2.tar.gz
 cd musl-1.2.2
 ./configure
