@@ -53,13 +53,19 @@ timezone = Asia/Shanghai
 
 
 ####################MySQL 数据库配置###########################
-#支持MySQL和sqlite3两种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
+#支持MySQL，sqlite3，postgres三种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
 db_adapter="${MINDOC_DB_ADAPTER||sqlite3}"
 db_host="${MINDOC_DB_HOST||127.0.0.1}"
 db_port="${MINDOC_DB_PORT||3306}"
 db_database="${MINDOC_DB_DATABASE||./database/mindoc.db}"
 db_username="${MINDOC_DB_USERNAME||root}"
 db_password="${MINDOC_DB_PASSWORD||123456}"
+#是否使用SSL，支持posgres，可选的值有：
+#disable - No SSL
+#require - Always SSL (skip verification)
+#verify-ca - Always SSL (verify that the certificate presented by the server was signed by a trusted CA)
+#verify-full - Always SSL (verify that the certification presented by the server was signed by a trusted CA and the server host name matches the one in the certificate)
+db_sslmode="${MINDOC_DB_SSLMODE||disable}"
 
 ####################sqlite3 数据库配置###########################
 #db_adapter=sqlite3
