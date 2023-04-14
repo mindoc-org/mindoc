@@ -190,8 +190,9 @@ func (c *BaseController) ShowErrorPage(errCode int, errMsg string) {
 	c.Data["ErrorCode"] = errCode
 
 	var buf bytes.Buffer
+	exeData := map[string]interface{}{"ErrorMessage": errMsg, "ErrorCode": errCode, "BaseUrl": conf.BaseUrl, "Lang": c.Lang}
 
-	if err := web.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, map[string]interface{}{"ErrorMessage": errMsg, "ErrorCode": errCode, "BaseUrl": conf.BaseUrl}); err != nil {
+	if err := web.ExecuteViewPathTemplate(&buf, "errors/error.tpl", web.BConfig.WebConfig.ViewsPath, exeData); err != nil {
 		c.Abort("500")
 	}
 	if errCode >= 200 && errCode <= 510 {

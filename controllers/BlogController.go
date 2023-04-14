@@ -34,7 +34,7 @@ func (c *BlogController) Prepare() {
 	}
 }
 
-//文章阅读
+// 文章阅读
 func (c *BlogController) Index() {
 	c.Prepare()
 	c.TplName = "blog/index.tpl"
@@ -56,12 +56,23 @@ func (c *BlogController) Index() {
 		if blog.BlogStatus == "password" && password != blog.Password {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.blog_pwd_incorrect"))
 		} else if blog.BlogStatus == "password" && password == blog.Password {
-			//如果密码输入正确，则存入session中
-			_ = c.CruSession.Set(context.TODO(), blogReadSession, blogId)
+			// If the password is correct, then determine whether the user is correct
+			if c.Member != nil && (blog.MemberId == c.Member.MemberId || c.Member.IsAdministrator()) {
+				/* Private blog is accessible only to author and administrator.
+				   Anonymous users are not allowed access. */
+				// Store the session value
+				_ = c.CruSession.Set(context.TODO(), blogReadSession, blogId)
+				c.JsonResult(0, "OK")
+			} else {
+				c.JsonResult(6002, i18n.Tr(c.Lang, "blog.private_blog_tips"))
+			}
+		} else {
 			c.JsonResult(0, "OK")
 		}
-		c.JsonResult(0, "OK")
-	} else if blog.BlogStatus == "password" && (c.CruSession.Get(context.TODO(), blogReadSession) == nil || (c.Member != nil && blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) {
+	} else if blog.BlogStatus == "password" &&
+		(c.CruSession.Get(context.TODO(), blogReadSession) == nil || // Read session doesn't exist
+			c.Member == nil || // Anonymous, Not Allow
+			(blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) { // User isn't author or administrator
 		//如果不存在已输入密码的标记
 		c.TplName = "blog/index_password.tpl"
 	}
@@ -87,7 +98,7 @@ func (c *BlogController) Index() {
 	}
 }
 
-//文章列表
+// 文章列表
 func (c *BlogController) List() {
 	c.Prepare()
 	c.TplName = "blog/list.tpl"
@@ -119,7 +130,7 @@ func (c *BlogController) List() {
 	c.Data["Lists"] = blogList
 }
 
-//管理后台文章列表
+// 管理后台文章列表
 func (c *BlogController) ManageList() {
 	c.Prepare()
 	c.TplName = "blog/manage_list.tpl"
@@ -142,7 +153,7 @@ func (c *BlogController) ManageList() {
 
 }
 
-//文章设置
+// 文章设置
 func (c *BlogController) ManageSetting() {
 	c.Prepare()
 	c.TplName = "blog/manage_setting.tpl"
@@ -279,7 +290,7 @@ func (c *BlogController) ManageSetting() {
 	}
 }
 
-//文章创建或编辑
+// 文章创建或编辑
 func (c *BlogController) ManageEdit() {
 	c.Prepare()
 	c.TplName = "blog/manage_edit.tpl"
@@ -392,7 +403,7 @@ func (c *BlogController) ManageEdit() {
 	c.Data["Model"] = blog
 }
 
-//删除文章
+// 删除文章
 func (c *BlogController) ManageDelete() {
 	c.Prepare()
 	blogId, _ := c.GetInt("blog_id", 0)
@@ -613,7 +624,7 @@ func (c *BlogController) RemoveAttachment() {
 	c.JsonResult(0, "ok", attach)
 }
 
-//下载附件
+// 下载附件
 func (c *BlogController) Download() {
 	c.Prepare()
 

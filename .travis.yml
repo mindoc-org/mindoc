@@ -32,7 +32,7 @@ before_deploy:
   - rm -rf cache commands controllers converter .git .github graphics mail models routers utils runtime
   - ls -alh
   - cp conf/app.conf.example conf/app.conf
-  - zip -r mindoc_linux_amd64.zip conf static uploads views lib mindoc_linux_amd64 favicon.ico LICENSE.md
+  - zip -r mindoc_linux_amd64.zip conf static uploads views lib mindoc_linux_amd64 LICENSE.md
 
 deploy:
   provider: releases

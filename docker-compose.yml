@@ -1,14 +1,19 @@
 version: "3"
 services:
   mindoc:
-    image: registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.6
+    image: registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1
     container_name: mindoc
     privileged: false
     restart: always
     ports:
       - 8181:8181
     volumes:
-      - /var/www/mindoc://mindoc-sync-host
+      - /var/www/mindoc/conf://mindoc/conf
+      - /var/www/mindoc/static://mindoc/static
+      - /var/www/mindoc/views://mindoc/views
+      - /var/www/mindoc/uploads://mindoc/uploads
+      - /var/www/mindoc/runtime://mindoc/runtime
+      - /var/www/mindoc/database://mindoc/database
     environment:
       - MINDOC_RUN_MODE=prod
       - MINDOC_DB_ADAPTER=sqlite3

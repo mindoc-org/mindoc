@@ -61,7 +61,7 @@ func (m *Comment) CanDelete(user_memberid int, user_bookrole conf.BookRole) bool
 }
 
 // 根据文档id查询文档评论
-func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize int, member *Member) (comments []Comment, count int64, ret_page int) {
+func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize int, member *Member) (comments []*Comment, count int64, ret_page int) {
 	doc, err := NewDocument().Find(doc_id)
 	if err != nil {
 		return
@@ -69,22 +69,26 @@ func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize int, member *M
 
 	o := orm.NewOrm()
 	count, _ = o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).Count()
-	if -1 == page {     // 请求最后一页
+	if -1 == page { // 请求最后一页
 		var total int = int(count)
-		if total % pagesize == 0 {
+		if total%pagesize == 0 {
 			page = total / pagesize
 		} else {
-			page = total / pagesize + 1
+			page = total/pagesize + 1
 		}
 	}
 	offset := (page - 1) * pagesize
 	ret_page = page
 	o.QueryTable(m.TableNameWithPrefix()).Filter("document_id", doc_id).OrderBy("comment_date").Offset(offset).Limit(pagesize).All(&comments)
 
-	bookRole, _ := NewRelationship().FindForRoleId(doc.BookId, member.MemberId)
+	// 需要判断未登录的情况
+	var bookRole conf.BookRole
+	if member != nil {
+		bookRole, _ = NewRelationship().FindForRoleId(doc.BookId, member.MemberId)
+	}
 	for i := 0; i < len(comments); i++ {
-		comments[i].Index = (i + 1) + (page - 1) * pagesize
-		if comments[i].CanDelete(member.MemberId, bookRole) {
+		comments[i].Index = (i + 1) + (page-1)*pagesize
+		if member != nil && comments[i].CanDelete(member.MemberId, bookRole) {
 			comments[i].ShowDel = 1
 		}
 	}

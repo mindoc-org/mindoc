@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/beego/beego/v2/core/logs"
-	"gopkg.in/ldap.v2"
+	"github.com/go-ldap/ldap/v3"
 )
 
 /*
@@ -23,9 +23,9 @@ ldap:
 func ValidLDAPLogin(password string) (result bool, err error) {
 	result = false
 	err = nil
-	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.3.104", 389))
+	lc, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%d", "192.168.3.104", 389))
 	if err != nil {
-		logs.Error("Dial => ", err)
+		logs.Error("DialURL => ", err)
 		return
 	}
 
@@ -66,16 +66,16 @@ func ValidLDAPLogin(password string) (result bool, err error) {
 }
 
 func AddMember(account, password string) error {
-	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.3.104", 389))
+	lc, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%d", "192.168.3.104", 389))
 	if err != nil {
-		logs.Error("Dial => ", err)
+		logs.Error("DialURL => ", err)
 		return err
 	}
 
 	defer lc.Close()
 	user := fmt.Sprintf("cn=%s,dc=minho,dc=com", account)
 
-	member := ldap.NewAddRequest(user)
+	member := ldap.NewAddRequest(user, []ldap.Control{})
 
 	member.Attribute("mail", []string{"longfei6671@163.com"})
 
@@ -102,9 +102,9 @@ func AddMember(account, password string) error {
 }
 
 func ModifyPassword(account, old_password, new_password string) error {
-	l, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", "192.168.3.104", 389))
+	l, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%d", "192.168.3.104", 389))
 	if err != nil {
-		logs.Error("Dial => ", err)
+		logs.Error("DialURL => ", err)
 	}
 	defer l.Close()
 

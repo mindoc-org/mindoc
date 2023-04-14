@@ -99,8 +99,6 @@ func (c *AccountController) Prepare() {
 
 // Login 用户登录
 func (c *AccountController) Login() {
-	c.Prepare()
-
 	c.TplName = "account/login.tpl"
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
@@ -205,8 +203,6 @@ func (c *AccountController) Login() {
 
 // 钉钉登录
 func (c *AccountController) DingTalkLogin() {
-	c.Prepare()
-
 	code := c.GetString("dingtalk_code")
 	if code == "" {
 		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_obtain_user_info"), nil)
@@ -259,8 +255,6 @@ func (c *AccountController) DingTalkLogin() {
 
 // WorkWeixinLogin 用户企业微信登录
 func (c *AccountController) WorkWeixinLogin() {
-	c.Prepare()
-
 	logs.Info("UserAgent: ", c.Ctx.Input.UserAgent()) // debug
 
 	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
@@ -412,7 +406,10 @@ func (c *AccountController) WorkWeixinLoginCallback() {
 				contact_access_token, ok := workweixin.GetAccessToken(true)
 				if ok {
 					logs.Warning("contact_access_token: ", contact_access_token)
-					user_info, err_msg, ok := workweixin.RequestUserInfo(contact_access_token, user_id)
+					// 获取用户信息
+					//user_info, err_msg, ok := workweixin.RequestUserInfo(contact_access_token, user_id)
+					// 获取用户id 列表
+					user_info, err_msg, ok := workweixin.GetUserListId(contact_access_token, user_id)
 					if ok {
 						// [-------所有字段-Debug----------
 						// user_info.UserId
@@ -508,9 +505,7 @@ func (c *AccountController) WorkWeixinLoginCallback() {
 
 // WorkWeixinLoginBind 用户企业微信登录-绑定
 func (c *AccountController) WorkWeixinLoginBind() {
-	c.Prepare()
-
-	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserInfo); ok && len(user_info.UserId) > 0 {
+	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinDeptUserInfo); ok && len(user_info.UserId) > 0 {
 		req_account := c.GetString("account")
 		req_password := c.GetString("password")
 		if req_account == "" || req_password == "" {
@@ -525,29 +520,30 @@ func (c *AccountController) WorkWeixinLoginBind() {
 				ormer := orm.NewOrm()
 				o, err := ormer.Begin()
 				if err != nil {
-					logs.Error("开启事物时出错 -> ", err)
-					c.JsonResult(500, "开启事物时出错: ", err.Error())
+					logs.Error("开启事务时出错 -> ", err)
+					c.JsonResult(500, "开启事务时出错: ", err.Error())
 				}
 				if err := account.AddBind(ormer); err != nil {
 					o.Rollback()
 					c.JsonResult(500, "绑定失败，数据库错误: "+err.Error())
 				} else {
+					// 绑定成功之后修改用户信息
 					member.LastLoginTime = time.Now()
-					member.RealName = user_info.Name
-					member.Avatar = user_info.Avatar
+					//member.RealName = user_info.Name
+					//member.Avatar = user_info.Avatar
 					if len(member.Avatar) < 1 {
 						member.Avatar = conf.GetDefaultAvatar()
 					}
-					member.Email = user_info.Email
-					member.Phone = user_info.Mobile
+					//member.Email = user_info.Email
+					//member.Phone = user_info.Mobile
 					if _, err := ormer.Update(member, "last_login_time", "real_name", "avatar", "email", "phone"); err != nil {
 						o.Rollback()
 						logs.Error("保存用户信息失败=>", err)
 						c.JsonResult(500, "绑定失败，现有账户信息更新失败: "+err.Error())
 					} else {
 						if err := o.Commit(); err != nil {
-							logs.Error("提交事物时出错 -> ", err)
-							c.JsonResult(500, "提交事物时出错: ", err.Error())
+							logs.Error("开启事务时出错 -> ", err)
+							c.JsonResult(500, "开启事务时出错: ", err.Error())
 						} else {
 							c.DelSession(SessionUserInfoKey)
 							c.SetMember(*member)
@@ -596,8 +592,8 @@ func (c *AccountController) WorkWeixinLoginIgnore() {
 		ormer := orm.NewOrm()
 		o, err := ormer.Begin()
 		if err != nil {
-			logs.Error("开启事物时出错 -> ", err)
-			c.JsonResult(500, "开启事物时出错: ", err.Error())
+			logs.Error("开启事务时出错 -> ", err)
+			c.JsonResult(500, "开启事务时出错: ", err.Error())
 		}
 
 		member.Account = user_info.UserId
@@ -638,8 +634,8 @@ func (c *AccountController) WorkWeixinLoginIgnore() {
 				c.JsonResult(500, "注册失败，数据库错误: "+err.Error())
 			} else {
 				if err := o.Commit(); err != nil {
-					logs.Error("提交事物时出错 -> ", err)
-					c.JsonResult(500, "提交事物时出错: ", err.Error())
+					logs.Error("提交事务时出错 -> ", err)
+					c.JsonResult(500, "提交事务时出错: ", err.Error())
 				} else {
 					member.LastLoginTime = time.Now()
 					_ = member.Update("last_login_time")
@@ -670,8 +666,6 @@ func (c *AccountController) WorkWeixinLoginIgnore() {
 
 // QR二维码登录
 func (c *AccountController) QRLogin() {
-	c.Prepare()
-
 	appName := c.Ctx.Input.Param(":app")
 
 	switch appName {
@@ -969,7 +963,6 @@ func (c *AccountController) FindPassword() {
 
 // 校验邮件并修改密码
 func (c *AccountController) ValidEmail() {
-	c.Prepare()
 	password1 := c.GetString("password1")
 	password2 := c.GetString("password2")
 	captcha := c.GetString("code")
@@ -1043,8 +1036,6 @@ func (c *AccountController) Logout() {
 
 // 验证码
 func (c *AccountController) Captcha() {
-	c.Prepare()
-
 	captchaImage := gocaptcha.NewCaptchaImage(140, 40, gocaptcha.RandLightColor())
 
 	captchaImage.DrawNoise(gocaptcha.CaptchaComplexLower)

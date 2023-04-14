@@ -60,6 +60,9 @@ function timeFormat($time) {
 
 // 点击翻页
 function pageClicked($page, $docid) {
+    if (!window.IS_DISPLAY_COMMENT) {
+        return;
+    }
     $("#articleComment").removeClass('not-show-comment');
     $.ajax({
         url : "/comment/lists?page=" + $page + "&docid=" + $docid,
@@ -383,7 +386,7 @@ $(function () {
             if(res.errcode === 0){
                 layer.msg("保存成功");
             }else{
-                layer.msg("保存失败");
+                layer.msg(res.message);
             }
             $("#btnSubmitComment").button("reset");
             $("#commentContent").val("");

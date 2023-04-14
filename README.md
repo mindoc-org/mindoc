@@ -19,23 +19,24 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 
 ### 开发&维护&使用 悉知
 
-感谢作者 [lifei6671](https://github.com/lifei6671) 创造了MinDoc，并持续维护了很久。
-
-作者因工作等原因，精力有限，无法花费足够的时间来持续维护mindoc，已于北京时间2021年3月23日将mindoc交给社区(github组织[mindoc-org](https://github.com/mindoc-org))维护，期待热心开发者加入[mindoc-org](https://github.com/mindoc-org)一起来维护MinDoc。
-
-遇到问题请提 [Issues](https://github.com/mindoc-org/mindoc/issues )，欢迎使用者和贡献者加入QQ群 `1051164153`
+- 感谢作者 [lifei6671](https://github.com/lifei6671) 创造了MinDoc，并持续维护了很久。
+- 作者因工作等原因，精力有限，无法花费足够的时间来持续维护mindoc，已于北京时间2021年3月23日将mindoc交给社区(github组织[mindoc-org](https://github.com/mindoc-org))维护，期待热心开发者加入[mindoc-org](https://github.com/mindoc-org)一起来维护MinDoc。
+- 遇到问题请提 [Issues](https://github.com/mindoc-org/mindoc/issues )，欢迎使用者和贡献者加入QQ群 `1051164153`
 <a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=bHFR7P3Qp1nsSPbsTw4KN_ZpFLUAblIU&jump_from=webapi"><img border="0" src="https://pub.idqqimg.com/wpa/images/group.png" alt="MinDoc使用&amp;开发交流群" title="MinDoc使用&amp;开发交流群"></a>
-
-对开发感兴趣请关注 [Development](https://github.com/mindoc-org/mindoc/projects/1):
-- [Todo List](https://github.com/mindoc-org/mindoc/projects/1#column-13554511)
-- [Work in progress](https://github.com/mindoc-org/mindoc/projects/1#column-13554512)
-- [Review in progress](https://github.com/mindoc-org/mindoc/projects/1#column-13554513)
+- 对开发感兴趣请关注 [Development](https://github.com/mindoc-org/mindoc/projects/1):
+  - [Todo List](https://github.com/mindoc-org/mindoc/projects/1#column-13554511)
+  - [Work in progress](https://github.com/mindoc-org/mindoc/projects/1#column-13554512)
+  - [Review in progress](https://github.com/mindoc-org/mindoc/projects/1#column-13554513)
+- Mindoc基于 [beeego](https://github.com/beego/beego) 开发，beego文档地址: https://github.com/beego/beego-doc/tree/main/docs/zh
+- :warning: **特别声明**:
+  - 原作者 [lifei6671](https://github.com/lifei6671) 已于 2021-08-06 删除了个人捐赠信息，参见: [1a179179c1fe4d0d4db95e0b757d863aee5bf395](https://github.com/mindoc-org/mindoc/commit/1a179179c1fe4d0d4db95e0b757d863aee5bf395)
+  - 截止目前(2023-03-27)，[mindoc-org](https://github.com/mindoc-org) 暂未发布任何捐赠信息，请勿轻信
 
 ---
 
 # 安装与使用
 
-**如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。**
+~~如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。~~
 
 更多信息请查看手册： [MinDoc 使用手册](https://www.iminho.me/wiki/docs/mindoc/mindoc-summary.md)
 
@@ -72,7 +73,7 @@ MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。
 
 ### 安装 musl-gcc
 ```bash
-wget -c http://www.musl-libc.org/releases/musl-1.2.2.tar.gz
+wget -c http://musl.libc.org/releases/musl-1.2.2.tar.gz
 tar -xvf musl-1.2.2.tar.gz
 cd musl-1.2.2
 ./configure
@@ -132,13 +133,13 @@ MINDOC_ENABLE_EXPORT        开启导出(默认为false)
 ##### Windows
 ```bash
 set MINDOC=//d/mindoc
-docker run -it --name=mindoc --restart=always -v "%MINDOC%":"/mindoc-sync-host" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.6
+docker run -it --name=mindoc --restart=always -v "%MINDOC%/conf":"/mindoc/conf" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1
 ```
 
 ##### Linux、Mac
 ```bash
 export MINDOC=/home/ubuntu/mindoc-docker
-docker run -it --name=mindoc --restart=always -v "${MINDOC}":"/mindoc-sync-host" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1-beta.6
+docker run -it --name=mindoc --restart=always -v "${MINDOC}/conf":"/mindoc/conf" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1
 ```
 
 ##### 举个栗子-更多环境变量示例(镜像已过期，仅供参考，请以当前镜像为准)

@@ -46,12 +46,13 @@ func (c *ManagerController) Index() {
 
 // 用户列表.
 func (c *ManagerController) Users() {
-	c.Prepare()
 	c.TplName = "manager/users.tpl"
 	c.Data["Action"] = "users"
 	pageIndex, _ := c.GetInt("page", 0)
 
-	members, totalCount, err := models.NewMember().FindToPager(pageIndex, conf.PageSize)
+	tempMember := models.NewMember()
+	tempMember.Lang = c.Lang
+	members, totalCount, err := tempMember.FindToPager(pageIndex, conf.PageSize)
 	if err != nil {
 		c.Data["ErrorMessage"] = err.Error()
 		return
@@ -78,7 +79,6 @@ func (c *ManagerController) Users() {
 
 // 添加用户.
 func (c *ManagerController) CreateMember() {
-	c.Prepare()
 
 	account := strings.TrimSpace(c.GetString("account"))
 	password1 := strings.TrimSpace(c.GetString("password1"))
@@ -120,6 +120,8 @@ func (c *ManagerController) CreateMember() {
 	member.CreateAt = c.Member.MemberId
 	member.Email = email
 	member.RealName = strings.TrimSpace(c.GetString("real_name", ""))
+	member.Lang = c.Lang
+
 	if phone != "" {
 		member.Phone = phone
 	}

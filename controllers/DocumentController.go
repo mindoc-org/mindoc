@@ -68,10 +68,12 @@ func (c *DocumentController) Index() {
 
 			c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
 
-			// 获取评论、分页
-			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
-			page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
-			c.Data["Page"] = page
+			if bookResult.IsDisplayComment {
+				// 获取评论、分页
+				comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+				page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
+				c.Data["Page"] = page
+			}
 		}
 	} else {
 		c.Data["Title"] = i18n.Tr(c.Lang, "blog.summary")
@@ -94,10 +96,41 @@ func (c *DocumentController) Index() {
 
 }
 
+// CheckPassword : Handles password verification for private documents,
+// and front-end requests are made through Ajax.
+func (c *DocumentController) CheckPassword() {
+	identify := c.Ctx.Input.Param(":key")
+	password := c.GetString("bPassword")
+
+	if identify == "" || password == "" {
+		c.JsonResult(http.StatusBadRequest, i18n.Tr(c.Lang, "message.param_error"))
+	}
+
+	// You have not logged in and need to log in again.
+	if !c.EnableAnonymous && !c.isUserLoggedIn() {
+		logs.Info("You have not logged in and need to log in again(SessionId: %s).",
+			c.CruSession.SessionID(context.TODO()))
+		c.JsonResult(6000, i18n.Tr(c.Lang, "message.need_relogin"))
+		return
+	}
+
+	book, err := models.NewBook().FindByFieldFirst("identify", identify)
+
+	if err != nil {
+		logs.Error(err)
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.item_not_exist"))
+	}
+
+	if book.BookPassword != password {
+		c.JsonResult(5001, i18n.Tr(c.Lang, "message.wrong_password"))
+	} else {
+		c.SetSession(identify, password)
+		c.JsonResult(0, "OK")
+	}
+}
+
 // 阅读文档
 func (c *DocumentController) Read() {
-	c.Prepare()
-
 	identify := c.Ctx.Input.Param(":key")
 	token := c.GetString("token")
 	id := c.GetString(":id")
@@ -154,13 +187,13 @@ func (c *DocumentController) Read() {
 
 	if c.IsAjax() {
 		var data struct {
-			DocId  int `json:"doc_id"`
-			DocIdentify  string `json:"doc_identify"`
-			DocTitle  string `json:"doc_title"`
-			Body      string `json:"body"`
-			Title     string `json:"title"`
-			Version   int64  `json:"version"`
-			ViewCount int    `json:"view_count"`
+			DocId       int    `json:"doc_id"`
+			DocIdentify string `json:"doc_identify"`
+			DocTitle    string `json:"doc_title"`
+			Body        string `json:"body"`
+			Title       string `json:"title"`
+			Version     int64  `json:"version"`
+			ViewCount   int    `json:"view_count"`
 		}
 		data.DocId = doc.DocumentId
 		data.DocIdentify = doc.Identify
@@ -174,10 +207,12 @@ func (c *DocumentController) Read() {
 	} else {
 		c.Data["DocumentId"] = doc.DocumentId
 		c.Data["DocIdentify"] = doc.Identify
-		// 获取评论、分页
-		comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
-		page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
-		c.Data["Page"] = page
+		if bookResult.IsDisplayComment {
+			// 获取评论、分页
+			comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
+			page := pagination.PageUtil(int(count), 1, conf.PageSize, comments)
+			c.Data["Page"] = page
+		}
 	}
 
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, doc.DocumentId)
@@ -1254,46 +1289,56 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 			bookResult.RoleId = roleId
 		}
 	}
-	// 如果文档是私有的
-	if book.PrivatelyOwned == 1 && (!c.isUserLoggedIn() || !c.Member.IsAdministrator()) {
-		if s, ok := c.GetSession(identify).(string); !ok || (!strings.EqualFold(s, book.PrivateToken) && !strings.EqualFold(s, book.BookPassword)) {
 
-			if book.PrivateToken != "" && !isOk && token != "" {
-				// 如果有访问的 Token，并且该项目设置了访问 Token，并且和用户提供的相匹配，则记录到 Session 中。
-				// 如果用户未提供 Token 且用户登录了，则判断用户是否参与了该项目。
-				// 如果用户未登录，则从 Session 中读取 Token。
-				if token != "" && strings.EqualFold(token, book.PrivateToken) {
-					c.SetSession(identify, token)
-				} else if token, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(token, book.PrivateToken) {
-					logs.Info("尝试访问文档但权限不足 ->", identify, token)
-					c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.no_permission"))
-				}
-			} else if password := c.GetString("bPassword", ""); !isOk && book.BookPassword != "" && password != "" {
+	/* 	私有项目：
+	 *   管理员可以直接访问
+	 *   参与者可以直接访问
+	 *   其他用户（支持匿名访问）
+	 *   	token设置情况
+	 *   		已设置：可以通过token访问
+	 *   		未设置：不可以通过token访问
+	 *   	password设置情况
+	 *   		已设置：可以通过password访问
+	 *   		未设置：不可以通过password访问
+	 *   注意：
+	 *   1. 第一次访问需要存session
+	 *   2. 有session优先使用session中的token或者password，再使用携带的token或者password
+	 *   3. 私有项目如果token和password都没有设置，则除管理员和参与者的其他用户不可以访问
+	 *   4. 使用token访问如果不通过，则提示输入密码
+	 */
+	if book.PrivatelyOwned == 1 {
+		if c.isUserLoggedIn() && c.Member.IsAdministrator() {
+			return bookResult
+		}
+		if isOk { // Project participant.
+			return bookResult
+		}
 
-				//如果设置了密码，则判断密码是否正确
-				if book.BookPassword != password {
-					c.JsonResult(5001, i18n.Tr(c.Lang, "message.wrong_password"))
-				} else {
-					c.SetSession(identify, password)
-					c.JsonResult(0, "OK")
-				}
-
-			} else if !isOk {
-				//如果设置了密码，则显示密码输入页面
-				if book.BookPassword != "" {
-					//判断已存在的密码是否正确
-					if password, ok := c.GetSession(identify).(string); !ok || !strings.EqualFold(password, book.BookPassword) {
-						body, err := c.ExecuteViewPathTemplate("document/document_password.tpl", map[string]string{"Identify": book.Identify})
-						if err != nil {
-							logs.Error("显示密码页面失败 ->", err)
-						}
-						c.CustomAbort(200, body)
-					}
-				} else {
-					logs.Info("尝试访问文档但权限不足 ->", identify, token)
-					c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.no_permission"))
-				}
+		// Use session in preference.
+		if tokenOrPassword, ok := c.GetSession(identify).(string); ok {
+			if strings.EqualFold(book.PrivateToken, tokenOrPassword) || strings.EqualFold(book.BookPassword, tokenOrPassword) {
+				return bookResult
 			}
+		}
+
+		// Next: Session not exist or not correct.
+		if book.PrivateToken != "" && book.PrivateToken == token {
+			c.SetSession(identify, token)
+			return bookResult
+		} else if book.BookPassword != "" {
+			// Send a page for inputting password.
+			// For verification, see function DocumentController.CheckPassword
+			body, err := c.ExecuteViewPathTemplate("document/document_password.tpl",
+				map[string]string{"Identify": book.Identify, "Lang": c.Lang})
+			if err != nil {
+				logs.Error("显示密码页面失败 ->", err)
+				c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.system_error"))
+			}
+			c.CustomAbort(200, body)
+		} else {
+			// No permission to access this book.
+			logs.Info("尝试访问文档但权限不足 ->", identify, token)
+			c.ShowErrorPage(403, i18n.Tr(c.Lang, "message.no_permission"))
 		}
 	}
 

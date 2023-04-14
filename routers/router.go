@@ -11,6 +11,7 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
+
 	// "github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/controllers"
 )
@@ -243,6 +244,7 @@ func init() {
 	web.Router("/history/restore", &controllers.DocumentController{}, "*:RestoreHistory")
 
 	web.Router("/docs/:key", &controllers.DocumentController{}, "*:Index")
+	web.Router("/docs/:key/check-password", &controllers.DocumentController{}, "post:CheckPassword")
 	web.Router("/docs/:key/:id", &controllers.DocumentController{}, "*:Read")
 	web.Router("/docs/:key/search", &controllers.DocumentController{}, "post:Search")
 	web.Router("/export/:key", &controllers.DocumentController{}, "*:Export")

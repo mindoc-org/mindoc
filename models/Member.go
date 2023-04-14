@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"gopkg.in/ldap.v2"
+	"github.com/go-ldap/ldap/v3"
 
 	"math"
 
@@ -29,22 +29,22 @@ import (
 
 type Member struct {
 	MemberId int    `orm:"pk;auto;unique;column(member_id)" json:"member_id"`
-	Account  string `orm:"size(100);unique;column(account)" json:"account"`
-	RealName string `orm:"size(255);column(real_name)" json:"real_name"`
-	Password string `orm:"size(1000);column(password)" json:"-"`
+	Account  string `orm:"size(100);unique;column(account);description(登录名)" json:"account"`
+	RealName string `orm:"size(255);column(real_name);description(真实姓名)" json:"real_name"`
+	Password string `orm:"size(1000);column(password);description(密码)" json:"-"`
 	//认证方式: local 本地数据库 /ldap LDAP
-	AuthMethod  string `orm:"column(auth_method);default(local);size(50);" json:"auth_method"`
-	Description string `orm:"column(description);size(2000)" json:"description"`
-	Email       string `orm:"size(100);column(email);unique" json:"email"`
-	Phone       string `orm:"size(255);column(phone);null;default(null)" json:"phone"`
-	Avatar      string `orm:"size(1000);column(avatar)" json:"avatar"`
+	AuthMethod  string `orm:"column(auth_method);default(local);size(50);description(授权方式 local:本地校验 ldap：LDAP用户校验)" json:"auth_method"`
+	Description string `orm:"column(description);size(2000);description(描述)" json:"description"`
+	Email       string `orm:"size(100);column(email);unique;description(邮箱)" json:"email"`
+	Phone       string `orm:"size(255);column(phone);null;default(null);description(手机)" json:"phone"`
+	Avatar      string `orm:"size(1000);column(avatar);description(头像)" json:"avatar"`
 	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户 .
-	Role          conf.SystemRole `orm:"column(role);type(int);default(1);index" json:"role"`
+	Role          conf.SystemRole `orm:"column(role);type(int);default(1);index;description(用户角色： 0：超级管理员 1：管理员 2：普通用户)" json:"role"`
 	RoleName      string          `orm:"-" json:"role_name"`
-	Status        int             `orm:"column(status);type(int);default(0)" json:"status"` //用户状态：0 正常/1 禁用
-	CreateTime    time.Time       `orm:"type(datetime);column(create_time);auto_now_add" json:"create_time"`
-	CreateAt      int             `orm:"type(int);column(create_at)" json:"create_at"`
-	LastLoginTime time.Time       `orm:"type(datetime);column(last_login_time);null" json:"last_login_time"`
+	Status        int             `orm:"column(status);type(int);default(0);description(状态  0：启用 1：禁用)" json:"status"` //用户状态：0 正常/1 禁用
+	CreateTime    time.Time       `orm:"type(datetime);column(create_time);auto_now_add;description(创建时间)" json:"create_time"`
+	CreateAt      int             `orm:"type(int);column(create_at);description(创建人id)" json:"create_at"`
+	LastLoginTime time.Time       `orm:"type(datetime);column(last_login_time);null;description(最后登录时间)" json:"last_login_time"`
 	//i18n
 	Lang string `orm:"-"`
 }
@@ -119,14 +119,14 @@ func (m *Member) TmpLogin(account string) (*Member, error) {
 	return member, nil
 }
 
-//ldapLogin 通过LDAP登陆
+// ldapLogin 通过LDAP登陆
 func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	if !web.AppConfig.DefaultBool("ldap_enable", false) {
 		return m, ErrMemberAuthMethodInvalid
 	}
 	var err error
 	ldaphost, _ := web.AppConfig.String("ldap_host")
-	lc, err := ldap.Dial("tcp", fmt.Sprintf("%s:%d", ldaphost, web.AppConfig.DefaultInt("ldap_port", 3268)))
+	lc, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%d", ldaphost, web.AppConfig.DefaultInt("ldap_port", 3268)))
 	if err != nil {
 		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrLDAPConnect
@@ -141,13 +141,23 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 	}
 	ldapbase, _ := web.AppConfig.String("ldap_base")
 	ldapfilter, _ := web.AppConfig.String("ldap_filter")
-	ldapattr, _ := web.AppConfig.String("ldap_attribute")
+	ldapaccount, _ := web.AppConfig.String("ldap_account")
+	ldapmail, _ := web.AppConfig.String("ldap_mail")
+	// 判断account是否是email
+	isEmail := false
+	var email string
+	ldapattr := ldapaccount
+	if ok, err := regexp.MatchString(conf.RegexpEmail, account); ok && err == nil {
+		isEmail = true
+		email = account
+		ldapattr = ldapmail
+	}
 	searchRequest := ldap.NewSearchRequest(
 		ldapbase,
 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-		//修改objectClass通过配置文件获取值
+		// 修改objectClass通过配置文件获取值
 		fmt.Sprintf("(&(%s)(%s=%s))", ldapfilter, ldapattr, account),
-		[]string{"dn", "mail"},
+		[]string{"dn", "mail", "cn", "ou", "sAMAccountName"},
 		nil,
 	)
 	searchResult, err := lc.Search(searchRequest)
@@ -164,10 +174,33 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrorMemberPasswordError
 	}
+
+	ldap_cn := searchResult.Entries[0].GetAttributeValue("cn")
+	ldap_mail := searchResult.Entries[0].GetAttributeValue(ldapmail)       // "mail"
+	ldap_account := searchResult.Entries[0].GetAttributeValue(ldapaccount) // "sAMAccountName"
+
+	m.RealName = ldap_cn
+	m.Account = ldap_account
+	m.AuthMethod = "ldap"
+	// 如果ldap配置了email
+	if len(ldap_mail) > 0 && strings.Contains(ldap_mail, "@") {
+		// 如果member已配置email
+		if len(m.Email) > 0 {
+			// 如果member配置的email和ldap配置的email不同
+			if m.Email != ldap_mail {
+				return m, errors.New(fmt.Sprintf("ldap配置的email(%s)与数据库中已有email({%s})不同, 请联系管理员修改", ldap_mail, m.Email))
+			}
+		} else {
+			// 如果member未配置email，则用ldap的email配置
+			m.Email = ldap_mail
+		}
+	} else {
+		// 如果ldap未配置email，则直接绑定到member
+		if isEmail {
+			m.Email = email
+		}
+	}
 	if m.MemberId <= 0 {
-		m.Account = account
-		m.Email = searchResult.Entries[0].GetAttributeValue("mail")
-		m.AuthMethod = "ldap"
 		m.Avatar = "/static/images/headimgurl.jpg"
 		m.Role = conf.SystemRole(web.AppConfig.DefaultInt("ldap_user_role", 2))
 		m.CreateTime = time.Now()
@@ -176,6 +209,14 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		if err != nil {
 			logs.Error("自动注册LDAP用户错误", err)
 			return m, ErrorMemberPasswordError
+		}
+		m.ResolveRoleName()
+	} else {
+		// 更新ldap信息
+		err = m.Update("account", "real_name", "email", "auth_method")
+		if err != nil {
+			logs.Error("LDAP更新用户信息失败", err)
+			return m, errors.New("LDAP更新用户信息失败")
 		}
 		m.ResolveRoleName()
 	}
@@ -330,15 +371,15 @@ func (m *Member) Find(id int, cols ...string) (*Member, error) {
 
 func (m *Member) ResolveRoleName() {
 	if m.Role == conf.MemberSuperRole {
-		m.RoleName = i18n.Tr(m.Lang, "common.administrator")
+		m.RoleName = i18n.Tr(m.Lang, "uc.super_admin")
 	} else if m.Role == conf.MemberAdminRole {
-		m.RoleName = i18n.Tr(m.Lang, "common.editor")
+		m.RoleName = i18n.Tr(m.Lang, "uc.admin")
 	} else if m.Role == conf.MemberGeneralRole {
-		m.RoleName = i18n.Tr(m.Lang, "common.obverser")
+		m.RoleName = i18n.Tr(m.Lang, "uc.user")
 	}
 }
 
-//根据账号查找用户.
+// 根据账号查找用户.
 func (m *Member) FindByAccount(account string) (*Member, error) {
 	o := orm.NewOrm()
 
@@ -350,7 +391,7 @@ func (m *Member) FindByAccount(account string) (*Member, error) {
 	return m, err
 }
 
-//批量查询用户
+// 批量查询用户
 func (m *Member) FindByAccountList(accounts ...string) ([]*Member, error) {
 	o := orm.NewOrm()
 
@@ -365,7 +406,7 @@ func (m *Member) FindByAccountList(accounts ...string) ([]*Member, error) {
 	return members, err
 }
 
-//分页查找用户.
+// 分页查找用户.
 func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int, error) {
 	o := orm.NewOrm()
 
@@ -385,8 +426,9 @@ func (m *Member) FindToPager(pageIndex, pageSize int) ([]*Member, int, error) {
 		return members, 0, err
 	}
 
-	for _, m := range members {
-		m.ResolveRoleName()
+	for _, tm := range members {
+		tm.Lang = m.Lang
+		tm.ResolveRoleName()
 	}
 	return members, int(totalCount), nil
 }
@@ -398,7 +440,7 @@ func (m *Member) IsAdministrator() bool {
 	return m.Role == 0 || m.Role == 1
 }
 
-//根据指定字段查找用户.
+// 根据指定字段查找用户.
 func (m *Member) FindByFieldFirst(field string, value interface{}) (*Member, error) {
 	o := orm.NewOrm()
 
@@ -407,7 +449,7 @@ func (m *Member) FindByFieldFirst(field string, value interface{}) (*Member, err
 	return m, err
 }
 
-//校验用户.
+// 校验用户.
 func (m *Member) Valid(is_hash_password bool) error {
 
 	//邮箱不能为空
@@ -463,7 +505,7 @@ func (m *Member) Valid(is_hash_password bool) error {
 	return nil
 }
 
-//删除一个用户.
+// 删除一个用户.
 func (m *Member) Delete(oldId int, newId int) error {
 	ormer := orm.NewOrm()
 
