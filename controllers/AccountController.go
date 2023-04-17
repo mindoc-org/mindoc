@@ -323,8 +323,8 @@ func (c *AccountController) WorkWeixinLogin() {
 		c.Data["IsInWorkWeixin"] = isInWorkWeixin
 		if isInWorkWeixin {
 			// 企业微信内-网页授权登录
-			urlFmt := "%s?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect"
-			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_AuthorizeUrlBase, appid, url.PathEscape(callback_u), state)
+			urlFmt := "%s?appid=%s&agentid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect"
+			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_AuthorizeUrlBase, appid, agentid, url.PathEscape(callback_u), state)
 		} else {
 			// 浏览器内-扫码授权登录
 			urlFmt := "%s?login_type=CorpApp&appid=%s&agentid=%s&redirect_uri=%s&state=%s"
