@@ -65,8 +65,8 @@ func (c *DocumentController) Index() {
 			selected = doc.DocumentId
 			c.Data["Title"] = doc.DocumentName
 			c.Data["Content"] = template.HTML(doc.Release)
-
 			c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
+			c.Data["FoldSetting"] = "first"
 
 			if bookResult.IsDisplayComment {
 				// 获取评论、分页
@@ -78,6 +78,7 @@ func (c *DocumentController) Index() {
 	} else {
 		c.Data["Title"] = i18n.Tr(c.Lang, "blog.summary")
 		c.Data["Content"] = template.HTML(blackfriday.Run([]byte(bookResult.Description)))
+		c.Data["FoldSetting"] = "closed"
 	}
 
 	tree, err := models.NewDocument().CreateDocumentTreeForHtml(bookResult.BookId, selected)
@@ -230,6 +231,12 @@ func (c *DocumentController) Read() {
 	c.Data["Title"] = doc.DocumentName
 	c.Data["Content"] = template.HTML(doc.Release)
 	c.Data["ViewCount"] = doc.ViewCount
+	c.Data["FoldSetting"] = "closed"
+	if doc.IsOpen == 1 {
+		c.Data["FoldSetting"] = "open"
+	} else if doc.IsOpen == 2 {
+		c.Data["FoldSetting"] = "empty"
+	}
 }
 
 // 编辑文档
@@ -1148,7 +1155,7 @@ func (c *DocumentController) DeleteHistory() {
 	c.JsonResult(0, "ok")
 }
 
-//通过文档历史恢复文档
+// 通过文档历史恢复文档
 func (c *DocumentController) RestoreHistory() {
 	c.Prepare()
 
