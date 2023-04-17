@@ -10,6 +10,7 @@ require (
 	github.com/go-ldap/ldap/v3 v3.4.4
 	github.com/howeyc/fsnotify v0.9.0
 	github.com/kardianos/service v1.2.1
+	github.com/lib/pq v1.10.5
 	github.com/lifei6671/gocaptcha v0.2.0
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/mattn/go-sqlite3 v1.14.15
