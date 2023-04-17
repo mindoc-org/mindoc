@@ -27,7 +27,7 @@ import (
 
 const (
 	WorkWeixin_AuthorizeUrlBase = "https://open.weixin.qq.com/connect/oauth2/authorize"
-	WorkWeixin_QRConnectUrlBase = "https://open.work.weixin.qq.com/wwopen/sso/qrConnect"
+	WorkWeixin_QRConnectUrlBase = "https://login.work.weixin.qq.com/wwlogin/sso/login"
 	SessionUserInfoKey          = "session-user-info-key"
 )
 
@@ -327,7 +327,7 @@ func (c *AccountController) WorkWeixinLogin() {
 			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_AuthorizeUrlBase, appid, url.PathEscape(callback_u), state)
 		} else {
 			// 浏览器内-扫码授权登录
-			urlFmt := "%s?appid=%s&agentid=%s&redirect_uri=%s&state=%s"
+			urlFmt := "%s?login_type=CorpApp&appid=%s&agentid=%s&redirect_uri=%s&state=%s"
 			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_QRConnectUrlBase, appid, agentid, url.PathEscape(callback_u), state)
 		}
 		logs.Info("redirect_uri: ", redirect_uri) // debug
