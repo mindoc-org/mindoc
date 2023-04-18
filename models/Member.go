@@ -514,12 +514,18 @@ func (m *Member) Delete(oldId int, newId int) error {
 		return err
 	}
 
+	_, err = o.Raw("DELETE FROM md_workweixin_accounts WHERE member_id = ?", oldId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+
 	_, err = o.Raw("DELETE FROM md_members WHERE member_id = ?", oldId).Exec()
 	if err != nil {
 		o.Rollback()
 		return err
 	}
-	_, err = o.Raw("UPDATE md_attachment SET `create_at` = ? WHERE `create_at` = ?", newId, oldId).Exec()
+	_, err = o.Raw("UPDATE md_attachment SET create_at = ? WHERE create_at = ?", newId, oldId).Exec()
 
 	if err != nil {
 		o.Rollback()
