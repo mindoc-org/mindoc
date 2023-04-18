@@ -480,7 +480,7 @@ func (c *AccountController) WorkWeixinLoginCallback() {
 
 // WorkWeixinLoginBind 用户企业微信登录-绑定
 func (c *AccountController) WorkWeixinLoginBind() {
-	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinDeptUserInfo); ok && len(user_info.UserId) > 0 {
+	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserPrivateInfo); ok && len(user_info.UserId) > 0 {
 		req_account := c.GetString("account")
 		req_password := c.GetString("password")
 		if req_account == "" || req_password == "" {
