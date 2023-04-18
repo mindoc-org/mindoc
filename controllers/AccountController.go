@@ -442,7 +442,7 @@ func (c *AccountController) WorkWeixinLoginCallback() {
 					}
 				} else {
 					logs.Error("Error: ", err)
-					error_msg = "数据库错误: " + err.Error()
+					error_msg = "登录错误: " + err.Error()
 				}
 			} else {
 				error_msg = "获取用户Id失败: " + user_id

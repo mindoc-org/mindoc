@@ -47,15 +47,21 @@ func (a *WorkWeixinAccount) ExistedMember(workweixin_user_id string) (*Member, e
 	account := NewWorkWeixinAccount()
 	member := NewMember()
 	err := o.QueryTable(a.TableNameWithPrefix()).Filter("workweixin_user_id", workweixin_user_id).One(account)
-	if err == nil {
-		if member, err = member.Find(account.MemberId); err == nil {
-			return member, nil
-		} else {
-			return member, err
-		}
-	} else {
+	if err != nil {
 		return member, err
 	}
+
+	member, err = member.Find(account.MemberId)
+	if err != nil {
+		return member, err
+	}
+
+	if member.Status != 0 {
+		return member, errors.New("receive_account_disabled")
+	}
+
+	return member, nil
+
 }
 
 // Add 添加一个用户.
