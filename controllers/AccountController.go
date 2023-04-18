@@ -323,7 +323,7 @@ func (c *AccountController) WorkWeixinLogin() {
 		c.Data["IsInWorkWeixin"] = isInWorkWeixin
 		if isInWorkWeixin {
 			// 企业微信内-网页授权登录
-			urlFmt := "%s?appid=%s&agentid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base&state=%s#wechat_redirect"
+			urlFmt := "%s?appid=%s&agentid=%s&redirect_uri=%s&response_type=code&scope=snsapi_privateinfo&state=%s#wechat_redirect"
 			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_AuthorizeUrlBase, appid, agentid, url.PathEscape(callback_u), state)
 		} else {
 			// 浏览器内-扫码授权登录
@@ -395,79 +395,54 @@ func (c *AccountController) WorkWeixinLoginCallback() {
 	var bind_existed string
 	if len(req_code) > 0 && req_state == "mindoc" {
 		// 获取当前应用的access_token
-		access_token, ok := workweixin.GetAccessToken(false)
+		access_token, ok := workweixin.GetAccessToken()
 		if ok {
 			logs.Warning("access_token: ", access_token)
 			// 获取当前请求的userid
-			user_id, ok := workweixin.RequestUserId(access_token, req_code)
+			user_id, ticket, ok := workweixin.RequestUserId(access_token, req_code)
 			if ok {
 				logs.Warning("user_id: ", user_id)
-				// 获取通讯录应用的access_token
-				contact_access_token, ok := workweixin.GetAccessToken(true)
-				if ok {
-					logs.Warning("contact_access_token: ", contact_access_token)
-					// 获取用户信息
-					//user_info, err_msg, ok := workweixin.RequestUserInfo(contact_access_token, user_id)
-					// 获取用户id 列表
-					user_info, err_msg, ok := workweixin.GetUserListId(contact_access_token, user_id)
-					if ok {
-						// [-------所有字段-Debug----------
-						// user_info.UserId
-						// user_info.Name
-						// user_info.HideMobile
-						// user_info.Mobile
-						// user_info.Department
-						// user_info.Email
-						// user_info.IsLeaderInDept
-						// user_info.IsLeader
-						// user_info.Avatar
-						// user_info.Alias
-						// user_info.Status
-						// user_info.MainDepartment
-						// -----------------------------]
-						// logs.Debug("user_info.UserId: ", user_info.UserId)
-						// logs.Debug("user_info.Name: ", user_info.Name)
-						json_info, _ := json.Marshal(user_info)
-						user_info_json = string(json_info)
-						// 查询系统现有数据，是否绑定了当前请求用户的企业微信
-						member, err := models.NewWorkWeixinAccount().ExistedMember(user_info.UserId)
-						if err == nil {
-							member.LastLoginTime = time.Now()
-							_ = member.Update("last_login_time")
+				// 查询系统现有数据，是否绑定了当前请求用户的企业微信
+				member, err := models.NewWorkWeixinAccount().ExistedMember(user_id)
+				if err == nil {
+					member.LastLoginTime = time.Now()
+					_ = member.Update("last_login_time")
 
-							c.SetMember(*member)
+					c.SetMember(*member)
 
-							var remember CookieRemember
-							remember.MemberId = member.MemberId
-							remember.Account = member.Account
-							remember.Time = time.Now()
-							v, err := utils.Encode(remember)
-							if err == nil {
-								c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
-							}
-							bind_existed = "true"
-							error_msg = ""
-							u := c.GetString("url")
-							if u == "" {
-								u = conf.URLFor("HomeController.Index")
-							}
-							c.Redirect(u, 302)
-						} else {
-							if err == orm.ErrNoRows {
-								c.SetSession(SessionUserInfoKey, user_info)
-								bind_existed = "false"
-								error_msg = ""
-							} else {
-								logs.Error("Error: ", err)
-								error_msg = "数据库错误: " + err.Error()
-							}
-						}
-						//
+					var remember CookieRemember
+					remember.MemberId = member.MemberId
+					remember.Account = member.Account
+					remember.Time = time.Now()
+					v, err := utils.Encode(remember)
+					if err == nil {
+						c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
+					}
+					bind_existed = "true"
+					error_msg = ""
+					u := c.GetString("url")
+					if u == "" {
+						u = conf.URLFor("HomeController.Index")
+					}
+					c.Redirect(u, 302)
+				} else if err == orm.ErrNoRows {
+					bind_existed = "false"
+					if ticket == "" {
+						error_msg = "请到企业微信中登录，并授权获取敏感信息。"
 					} else {
-						error_msg = "获取用户信息失败: " + err_msg
+						user_info, err := workweixin.RequestUserPrivateInfo(access_token, user_id, ticket)
+						if err != nil {
+							error_msg = "获取敏感信息错误: " + err.Error()
+						} else {
+							json_info, _ := json.Marshal(user_info)
+							user_info_json = string(json_info)
+							error_msg = ""
+							c.SetSession(SessionUserInfoKey, user_info)
+						}
 					}
 				} else {
-					error_msg = "通讯录访问凭据获取失败: " + contact_access_token
+					logs.Error("Error: ", err)
+					error_msg = "数据库错误: " + err.Error()
 				}
 			} else {
 				error_msg = "获取用户Id失败: " + user_id
@@ -581,7 +556,7 @@ func (c *AccountController) WorkWeixinLoginBind() {
 
 // WorkWeixinLoginIgnore 用户企业微信登录-忽略
 func (c *AccountController) WorkWeixinLoginIgnore() {
-	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserInfo); ok && len(user_info.UserId) > 0 {
+	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserPrivateInfo); ok && len(user_info.UserId) > 0 {
 		c.DelSession(SessionUserInfoKey)
 		member := models.NewMember()
 
@@ -602,7 +577,7 @@ func (c *AccountController) WorkWeixinLoginIgnore() {
 		// fmt.Sprintf("%x", rnd.Uint64())
 		// strconv.FormatUint(rnd.Uint64(), 16)
 		member.Password = user_info.UserId + strconv.FormatUint(rnd.Uint64(), 16)
-		member.Password = "pathea.2020" // 强制设置默认密码，不然无法修改密码(因为目前修改密码需要知道当前密码)
+		member.Password = "123456" // 强制设置默认密码，需修改一次密码后，才可以进行账号密码登录
 		hash, err := utils.PasswordHash(member.Password)
 		if err != nil {
 			logs.Error("加密用户密码失败 =>", err)
@@ -618,7 +593,7 @@ func (c *AccountController) WorkWeixinLoginIgnore() {
 			member.Avatar = conf.GetDefaultAvatar()
 		}
 		member.CreateAt = 0
-		member.Email = user_info.Email
+		member.Email = user_info.BizMail
 		member.Phone = user_info.Mobile
 		member.Status = 0
 		if _, err = ormer.Insert(member); err != nil {

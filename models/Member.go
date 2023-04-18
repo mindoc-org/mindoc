@@ -90,7 +90,6 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 	}
 
 	switch member.AuthMethod {
-	case "":
 	case "local":
 		ok, err := utils.PasswordVerify(member.Password, password)
 		if ok && err == nil {

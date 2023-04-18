@@ -3,7 +3,9 @@ package workweixin
 import (
 	"context"
 	"crypto/tls"
-	// "encoding/json"
+	"encoding/json"
+	"errors"
+
 	"net/http"
 	"time"
 
@@ -17,8 +19,8 @@ import (
 // - 全局错误码: https://work.weixin.qq.com/api/doc/90000/90139/90313
 
 const (
-	AccessTokenCacheKey        = "access-token-cache-key"
-	ContactAccessTokenCacheKey = "contact-access-token-cache-key"
+	AccessTokenCacheKey = "access-token-cache-key"
+	// ContactAccessTokenCacheKey = "contact-access-token-cache-key"
 )
 
 // 获取访问凭据-请求响应结构
@@ -31,11 +33,13 @@ type AccessTokenResponse struct {
 
 // 获取用户Id-请求响应结构
 type UserIdResponse struct {
-	ErrCode  int    `json:"errcode"`
-	ErrMsg   string `json:"errmsg"`
-	UserId   string `json:"UserId"`   // 企业成员UserID
-	OpenId   string `json:"OpenId"`   // 非企业成员的标识，对当前企业唯一
-	DeviceId string `json:"DeviceId"` // 设备号
+	// 接口文档: https://developer.work.weixin.qq.com/document/path/91023
+	ErrCode        int    `json:"errcode"`
+	ErrMsg         string `json:"errmsg"`
+	UserId         string `json:"userid"`          // 企业成员UserID
+	UserTicket     string `json:"user_ticket"`     // 用于获取敏感信息
+	OpenId         string `json:"openid"`          // 非企业成员的标识，对当前企业唯一
+	ExternalUserId string `json:"external_userid"` // 外部联系人ID
 }
 
 // 获取成员ID列表-请求响应结构
@@ -65,11 +69,38 @@ type UserInfoResponse struct {
 	MainDepartment int    `json:"main_department"`   // 主部门
 }
 
+type UserPrivateInfoResponse struct {
+	// 文档地址: https://developer.work.weixin.qq.com/document/path/95833
+	ErrCode int    `json:"errcode"`
+	ErrMsg  string `json:"errmsg"`
+	UserId  string `json:"userid"`   // 企业成员userid
+	Gender  string `json:"gender"`   // 成员性别
+	Avatar  string `json:"avatar"`   // 头像
+	QrCode  string `json:"qr_code"`  // 二维码
+	Mobile  string `json:"mobile"`   // 手机号
+	Mail    string `json:"mail"`     // 邮箱
+	BizMail string `json:"biz_mail"` // 企业邮箱
+	Address string `json:"address"`  // 地址
+}
+
 // 访问凭据缓存-结构
 type AccessTokenCache struct {
 	AccessToken string    `json:"access_token"`
 	ExpiresIn   int       `json:"expires_in"`
 	UpdateTime  time.Time `json:"update_time"`
+}
+
+// 企业微信用户敏感信息-结构
+type WorkWeixinUserPrivateInfo struct {
+	UserId  string `json:"userid"`   // 企业成员userid
+	Name    string `json:"Name"`     // 姓名
+	Gender  string `json:"gender"`   // 成员性别
+	Avatar  string `json:"avatar"`   // 头像
+	QrCode  string `json:"qr_code"`  // 二维码
+	Mobile  string `json:"mobile"`   // 手机号
+	Mail    string `json:"mail"`     // 邮箱
+	BizMail string `json:"biz_mail"` // 企业邮箱
+	Address string `json:"address"`  // 地址
 }
 
 // 企业微信用户信息-结构
@@ -133,12 +164,9 @@ func RequestAccessToken(corpid string, secret string) (cache_token AccessTokenCa
 }
 
 // 获取访问凭据
-func GetAccessToken(is_contact bool) (access_token string, ok bool) {
+func GetAccessToken() (access_token string, ok bool) {
 	var cache_token AccessTokenCache
 	cache_key := AccessTokenCacheKey
-	if is_contact {
-		cache_key = ContactAccessTokenCacheKey
-	}
 	err := cache.Get(cache_key, &cache_token)
 	if err == nil {
 		logs.Info("AccessToken从缓存读取成功")
@@ -150,11 +178,7 @@ func GetAccessToken(is_contact bool) (access_token string, ok bool) {
 		logs.Debug("corp_id: ", workweixinConfig.CorpId)
 		logs.Debug("agent_id: ", workweixinConfig.AgentId)
 		logs.Debug("secret: ", workweixinConfig.Secret)
-		logs.Debug("contact_secret: ", workweixinConfig.ContactSecret)
 		secret := workweixinConfig.Secret
-		if is_contact {
-			secret = workweixinConfig.ContactSecret
-		}
 		new_token, ok := RequestAccessToken(workweixinConfig.CorpId, secret)
 		if ok {
 			logs.Debug(new_token)
@@ -171,8 +195,8 @@ func GetAccessToken(is_contact bool) (access_token string, ok bool) {
 }
 
 // 获取用户id-请求
-func RequestUserId(access_token string, code string) (user_id string, ok bool) {
-	url := "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo"
+func RequestUserId(access_token string, code string) (user_id string, ticket string, ok bool) {
+	url := "https://qyapi.weixin.qq.com/cgi-bin/auth/getuserinfo"
 	req := httplib.Get(url)
 	req.Param("access_token", access_token) // 应用调用接口凭证
 	req.Param("code", code)                 // 通过成员授权获取到的code
@@ -182,15 +206,63 @@ func RequestUserId(access_token string, code string) (user_id string, ok bool) {
 	_ = resp
 	if err != nil {
 		logs.Error(err)
-		return "", false
+		return "", "", false
 	}
 	var uir UserIdResponse
 	err = req.ToJSON(&uir)
 	if err != nil {
 		logs.Error(err)
-		return "", false
+		return "", "", false
 	}
-	return uir.UserId, true
+	return uir.UserId, uir.UserTicket, uir.UserId != ""
+}
+
+func RequestUserPrivateInfo(access_token, userid, ticket string) (WorkWeixinUserPrivateInfo, error) {
+	url := "https://qyapi.weixin.qq.com/cgi-bin/auth/getuserdetail?access_token=" + access_token
+	req := httplib.Post(url)
+	body := map[string]string{
+		"user_ticket": ticket,
+	}
+	b, _ := json.Marshal(body)
+	req.Body(b)
+
+	req.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: false})
+	req.AddFilters(httpFilter)
+	resp, err := req.Response()
+	_ = resp
+	var uir UserPrivateInfoResponse
+	var info WorkWeixinUserPrivateInfo
+	if err != nil {
+		logs.Error(err)
+		return info, err
+	}
+	err = req.ToJSON(&uir)
+	if err != nil {
+		logs.Error(err)
+		return info, err
+	}
+
+	if uir.ErrCode != 0 {
+		return info, errors.New(uir.ErrMsg)
+	}
+
+	user_info, err, _ := RequestUserInfo(access_token, userid)
+	if err != nil {
+		return info, err
+	}
+
+	info = WorkWeixinUserPrivateInfo{
+		UserId:  userid,
+		Name:    user_info.Name,
+		Gender:  uir.Gender,
+		Avatar:  uir.Avatar,
+		QrCode:  uir.QrCode,
+		Mobile:  uir.Mobile,
+		Mail:    uir.Mail,
+		BizMail: uir.BizMail,
+		Address: uir.Address,
+	}
+	return info, nil
 }
 
 /*
@@ -198,7 +270,7 @@ func RequestUserId(access_token string, code string) (user_id string, ok bool) {
 从2022年8月15日10点开始，“企业管理后台 - 管理工具 - 通讯录同步”的新增IP将不能再调用此接口
 url:https://developer.work.weixin.qq.com/document/path/96079
 */
-func RequestUserInfo(contact_access_token string, userid string) (user_info WorkWeixinUserInfo, error_msg string, ok bool) {
+func RequestUserInfo(contact_access_token string, userid string) (user_info WorkWeixinUserInfo, error_msg error, ok bool) {
 	url := "https://qyapi.weixin.qq.com/cgi-bin/user/get"
 	req := httplib.Get(url)
 	req.Param("access_token", contact_access_token) // 通讯录应用调用接口凭证
@@ -210,7 +282,7 @@ func RequestUserInfo(contact_access_token string, userid string) (user_info Work
 	var info WorkWeixinUserInfo
 	if err != nil {
 		logs.Error(err)
-		return info, "请求失败", false
+		return info, err, false
 	} else {
 		logs.Debug(resp_str)
 	}
@@ -218,10 +290,10 @@ func RequestUserInfo(contact_access_token string, userid string) (user_info Work
 	err = req.ToJSON(&uir)
 	if err != nil {
 		logs.Error(err)
-		return info, "请求数据结果错误", false
+		return info, err, false
 	}
 	if uir.ErrCode != 0 {
-		return info, uir.ErrMsg, false
+		return info, errors.New(uir.ErrMsg), false
 	}
 	info = WorkWeixinUserInfo{
 		UserId:         uir.UserId,
@@ -237,7 +309,7 @@ func RequestUserInfo(contact_access_token string, userid string) (user_info Work
 		Status:         uir.Status,
 		MainDepartment: uir.MainDepartment,
 	}
-	return info, "", true
+	return info, nil, true
 }
 
 /*
