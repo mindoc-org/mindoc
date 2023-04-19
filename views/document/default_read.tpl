@@ -315,39 +315,39 @@ $(function () {
     });
 
     window.menuControl = true;
-    // window.menuSetting = "open" ;
-    if (menuSetting == 'open' || menuSetting == 'first') {
+    window.foldSetting = '{{.FoldSetting}}';
+    if (foldSetting == 'open' || foldSetting == 'first') {
         $('#handlerMenuShow').find('span').text('{{i18n .Lang "doc.fold"}}');
         $('#handlerMenuShow').find('i').attr("class","fa fa-angle-down");
-        if (menuSetting == 'open') {
-            window.jsTree.jstree().open_all()
+        if (foldSetting == 'open') {
+            window.jsTree.jstree().open_all();
         }
-        if (menuSetting == 'first') {
-            window.jsTree.jstree('close_all')
+        if (foldSetting == 'first') {
+            window.jsTree.jstree('close_all');
             var $target = $('.jstree-container-ul').children('li').filter(function(index){
                 if($(this).attr('aria-expanded')==false||$(this).attr('aria-expanded')){
-                    return $(this)
+                    return $(this);
                 }else{
-                    delete $(this)
+                    delete $(this);
                 }
-            })
-            $target.children('i').trigger('click')
+            });
+            $target.children('i').trigger('click');
         }
     } else {
         menuControl = false;
-        window.jsTree.jstree('close_all')
+        window.jsTree.jstree('close_all');
     }
     $('#handlerMenuShow').on('click', function(){
         if(menuControl){
-            $(this).find('span').text('{{i18n .Lang "doc.expand"}}')
-            $(this).find('i').attr("class","fa fa-angle-left")
-            window.menuControl = false
-            window.jsTree.jstree('close_all')
+            $(this).find('span').text('{{i18n .Lang "doc.expand"}}');
+            $(this).find('i').attr("class","fa fa-angle-left");
+            window.menuControl = false;
+            window.jsTree.jstree('close_all');
         }else{
             window.menuControl = true
-            $(this).find('span').text('{{i18n .Lang "doc.fold"}}')
-            $(this).find('i').attr("class","fa fa-angle-down")
-            window.jsTree.jstree().open_all()
+            $(this).find('span').text('{{i18n .Lang "doc.fold"}}');
+            $(this).find('i').attr("class","fa fa-angle-down");
+            window.jsTree.jstree().open_all();
         }
     });
 
