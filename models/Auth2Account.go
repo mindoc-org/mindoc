@@ -3,12 +3,26 @@ package models
 
 import (
 	"errors"
+	"github.com/mindoc-org/mindoc/utils/auth2"
 	"time"
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
+
+var (
+	_ Auth2Account = (*WorkWeixinAccount)(nil)
+)
+
+type Auth2Account interface {
+	ExistedMember(id string) (*Member, error)
+	AddBind(o orm.Ormer, userInfo auth2.UserInfo, member *Member) error
+}
+
+func NewWorkWeixinAccount() *WorkWeixinAccount {
+	return &WorkWeixinAccount{}
+}
 
 type WorkWeixinAccount struct {
 	MemberId          int    `orm:"column(member_id);type(int);default(-1);index" json:"member_id"`
@@ -38,15 +52,11 @@ func (m *WorkWeixinAccount) TableNameWithPrefix() string {
 	return conf.GetDatabasePrefix() + m.TableName()
 }
 
-func NewWorkWeixinAccount() *WorkWeixinAccount {
-	return &WorkWeixinAccount{}
-}
-
-func (a *WorkWeixinAccount) ExistedMember(workweixin_user_id string) (*Member, error) {
+func (m *WorkWeixinAccount) ExistedMember(workweixin_user_id string) (*Member, error) {
 	o := orm.NewOrm()
 	account := NewWorkWeixinAccount()
 	member := NewMember()
-	err := o.QueryTable(a.TableNameWithPrefix()).Filter("workweixin_user_id", workweixin_user_id).One(account)
+	err := o.QueryTable(m.TableNameWithPrefix()).Filter("workweixin_user_id", workweixin_user_id).One(account)
 	if err != nil {
 		return member, err
 	}
@@ -64,13 +74,16 @@ func (a *WorkWeixinAccount) ExistedMember(workweixin_user_id string) (*Member, e
 
 }
 
-// Add 添加一个用户.
-func (a *WorkWeixinAccount) AddBind(o orm.Ormer) error {
-	if c, err := o.QueryTable(a.TableNameWithPrefix()).Filter("member_id", a.MemberId).Count(); err == nil && c > 0 {
+// AddBind 添加一个用户.
+func (m *WorkWeixinAccount) AddBind(o orm.Ormer, userInfo auth2.UserInfo, member *Member) error {
+	m.MemberId = member.MemberId
+	m.WorkWeixin_UserId = userInfo.UserId
+
+	if c, err := o.QueryTable(m.TableNameWithPrefix()).Filter("member_id", m.MemberId).Count(); err == nil && c > 0 {
 		return errors.New("已绑定，不可重复绑定")
 	}
 
-	_, err := o.Insert(a)
+	_, err := o.Insert(m)
 	if err != nil {
 		logs.Error("保存用户数据到数据时失败 =>", err)
 		return errors.New("用户信息绑定失败, 数据库错误")

@@ -93,7 +93,7 @@ type AccessTokenCache struct {
 // 企业微信用户敏感信息-结构
 type WorkWeixinUserPrivateInfo struct {
 	UserId  string `json:"userid"`   // 企业成员userid
-	Name    string `json:"Name"`     // 姓名
+	Name    string `json:"name"`     // 姓名
 	Gender  string `json:"gender"`   // 成员性别
 	Avatar  string `json:"avatar"`   // 头像
 	QrCode  string `json:"qr_code"`  // 二维码

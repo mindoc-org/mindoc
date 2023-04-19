@@ -1,14 +1,18 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
+	"github.com/mindoc-org/mindoc/cache"
+	"github.com/mindoc-org/mindoc/utils/auth2"
+	"github.com/mindoc-org/mindoc/utils/auth2/wecom"
 	"html/template"
 	"math/rand"
+	"net/http"
 	"net/url"
 	"reflect"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -22,13 +26,11 @@ import (
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
 	"github.com/mindoc-org/mindoc/utils/dingtalk"
-	"github.com/mindoc-org/mindoc/utils/workweixin"
 )
 
 const (
-	WorkWeixin_AuthorizeUrlBase = "https://open.weixin.qq.com/connect/oauth2/authorize"
-	WorkWeixin_QRConnectUrlBase = "https://login.work.weixin.qq.com/wwlogin/sso/login"
-	SessionUserInfoKey          = "session-user-info-key"
+	SessionUserInfoKey  = "session-user-info-key"
+	AccessTokenCacheKey = "access-token-cache-key"
 )
 
 var src = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -46,7 +48,7 @@ func (c *AccountController) referer() string {
 	return u
 }
 
-func (c *AccountController) IsInWorkWeixin() (is_in_workweixin bool) {
+func (c *AccountController) IsInWorkWeixin() bool {
 	ua := c.Ctx.Input.UserAgent()
 	var wechatRule = regexp.MustCompile(`\bMicroMessenger\/\d+(\.\d+)*\b`)
 	var wxworkRule = regexp.MustCompile(`\bwxwork\/\d+(\.\d+)*\b`)
@@ -163,42 +165,439 @@ func (c *AccountController) Login() {
 			logs.Error("用户登录 ->", err)
 			c.JsonResult(500, i18n.Tr(c.Lang, "message.wrong_account_password"), nil)
 		}
+		return
+	}
+
+	referer := c.referer()
+	u := c.GetString("url")
+	if u == "" {
+		u = referer
+		if u == "" {
+			u = conf.BaseUrl
+		}
 	} else {
-		// 默认登录方式
-		login_method := "AccountController.Login"
-		var redirect_uri string
-		// 企业微信登录检查
-		canLoginWorkWeixin := reflect.ValueOf(c.Data["CanLoginWorkWeixin"]).Bool()
-		referer := c.referer()
-		if canLoginWorkWeixin {
-			// 企业微信登录方式
-			login_method = "AccountController.WorkWeixinLogin"
-			u := c.GetString("url")
-			if u == "" {
-				u = referer
-				if u == "" {
-					u = conf.BaseUrl
-				}
-			} else {
-				var schemaRule = regexp.MustCompile(`^https?\:\/\/`)
-				if !schemaRule.MatchString(u) {
-					u = conf.BaseUrl + u
-				}
-			}
-			redirect_uri = conf.URLFor(login_method, "url", url.PathEscape(u))
-			// 是否在企业微信内部打开
-			isInWorkWeixin := c.IsInWorkWeixin()
-			c.Data["IsInWorkWeixin"] = isInWorkWeixin
-			if isInWorkWeixin {
-				// 客户端拥有微信标识和企业微信标识
-				c.Redirect(redirect_uri, 302)
-				return
-			} else {
-				c.Data["workweixin_login_url"] = redirect_uri
+		var schemaRule = regexp.MustCompile(`^https?\:\/\/`)
+		if !schemaRule.MatchString(u) {
+			u = conf.BaseUrl + u
+		}
+	}
+	c.Data["url"] = referer
+
+	auth2Redirect := "AccountController.Auth2Redirect"
+	if can, _ := c.Data["CanLoginWorkWeixin"].(bool); can {
+		c.Data["workweixin_login_url"] = conf.URLFor(auth2Redirect, ":app", wecom.AppName, "url", url.PathEscape(u))
+	}
+	return
+}
+
+/*
+Auth2.0 第三方对接思路:
+1. Auth2Redirect: 点击相应第三方接口，路由重定向至第三方提供的Auth2.0地址
+2. Auth2Callback: 第三方回调处理，接收回调的授权码，并获取用户信息
+	已绑定: 则读取用户信息，直接登录
+	未绑定: 则弹窗提示（需要敏感信息）
+		a) Auth2BindAccount: 绑定已有账户（用户名+密码）
+		b) Auth2AutoAccount: 自动创建账户，以第三方用户ID作为用户名，密码123456。
+							 用该方式创建的账户，无法使用账号密码登录，需要修改一次密码后才可以进行账号密码登录。
+*/
+
+func (c *AccountController) getAuth2Client() (auth2.Client, error) {
+	var client auth2.Client
+	var tokenKey string
+
+	switch c.Ctx.Input.Param(":app") {
+	case wecom.AppName:
+		if can, _ := c.Data["CanLoginWorkWeixin"].(bool); !can {
+			return nil, errors.New("auth2.client.wecom.disabled")
+		}
+		corpId, _ := web.AppConfig.String("workweixin_corpid")
+		agentId, _ := web.AppConfig.String("workweixin_agentid")
+		secret, _ := web.AppConfig.String("workweixin_secret")
+
+		tokenKey = AccessTokenCacheKey + "-wecom"
+		client = wecom.NewClient(corpId, agentId, secret)
+
+	case "dingtalk":
+
+	default:
+		return nil, errors.New("auth2.client.notsupported")
+	}
+
+	var tokenCache auth2.AccessTokenCache
+	err := cache.Get(tokenKey, &tokenCache)
+	if err != nil {
+		logs.Info("AccessToken从缓存读取失败")
+		token, err := client.GetAccessToken(context.Background())
+		if err != nil {
+			return client, nil
+		}
+		tokenCache = auth2.NewAccessToken(token)
+		cache.Put(tokenKey, tokenCache, tokenCache.GetExpireIn())
+	}
+
+	// 处理过期Token
+	if tokenCache.IsExpired() {
+		token, err := client.GetAccessToken(context.Background())
+		if err != nil {
+			return client, nil
+		}
+		tokenCache = auth2.NewAccessToken(token)
+		cache.Put(tokenKey, tokenCache, tokenCache.GetExpireIn())
+	}
+
+	client.SetAccessToken(tokenCache)
+	return client, nil
+}
+
+func (c *AccountController) getAuth2Account() (models.Auth2Account, error) {
+	switch c.Ctx.Input.Param(":app") {
+	case wecom.AppName:
+		return models.NewWorkWeixinAccount(), nil
+
+	case "dingtalk":
+
+	}
+
+	return nil, errors.New("auth2.account.notsupported")
+}
+
+// Auth2Redirect 第三方auth2.0登录: 钉钉、企业微信
+func (c *AccountController) Auth2Redirect() {
+	client, err := c.getAuth2Client()
+	if err != nil {
+		c.DelSession(conf.LoginSessionName)
+		c.SetMember(models.Member{})
+		c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
+		c.StopRun()
+		return
+	}
+
+	app := c.Ctx.Input.Param(":app")
+	var isAppBrowser bool
+	switch app {
+	case wecom.AppName:
+		isAppBrowser = c.IsInWorkWeixin()
+	}
+
+	var callback string
+	u := c.GetString("url")
+	if u == "" {
+		u = c.referer()
+		callback = conf.URLFor("AccountController.Auth2Callback", ":app", app)
+	}
+	if u != "" {
+		var schemaRule = regexp.MustCompile(`^https?\:\/\/`)
+		if !schemaRule.MatchString(u) {
+			u = strings.TrimRight(conf.BaseUrl, "/") + strings.TrimLeft(u, "/")
+		}
+		callback = conf.URLFor("AccountController.Auth2Callback", ":app", app, "url", url.PathEscape(u))
+	}
+
+	logs.Debug("callback: ", callback) // debug
+	c.Redirect(client.BuildURL(callback, isAppBrowser), http.StatusFound)
+}
+
+// Auth2Callback 第三方auth2.0回调
+func (c *AccountController) Auth2Callback() {
+	client, err := c.getAuth2Client()
+	if err != nil {
+		c.DelSession(conf.LoginSessionName)
+		c.SetMember(models.Member{})
+		c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
+		c.StopRun()
+		logs.Error(err)
+		return
+	}
+
+	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
+		u := c.GetString("url")
+		if u == "" {
+			u = c.Ctx.Request.Header.Get("Referer")
+		}
+		if u == "" {
+			u = conf.URLFor("HomeController.Index")
+		}
+		member, err := models.NewMember().Find(member.MemberId)
+		if err != nil {
+			c.DelSession(conf.LoginSessionName)
+			c.SetMember(models.Member{})
+			c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
+		} else {
+			c.SetMember(*member)
+		}
+		c.Redirect(u, 302)
+	}
+
+	var remember CookieRemember
+	// 如果 Cookie 中存在登录信息
+	if cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login"); ok {
+		if err := utils.Decode(cookie, &remember); err == nil {
+			if member, err := models.NewMember().Find(remember.MemberId); err == nil {
+				c.SetMember(*member)
+				c.LoggedIn(false)
+				c.StopRun()
 			}
 		}
-		c.Data["url"] = referer
 	}
+
+	c.TplName = "account/auth2_callback.tpl"
+	bindExisted := "false"
+	errMsg := ""
+	userInfoJson := "{}"
+	defer func() {
+		c.Data["bind_existed"] = template.JS(bindExisted)
+		logs.Debug("bind_existed: ", bindExisted)
+		c.Data["error_msg"] = template.JS(errMsg)
+		c.Data["user_info_json"] = template.JS(userInfoJson)
+		c.Data["app"] = template.JS(c.Ctx.Input.Param(":app"))
+	}()
+
+	// 请求参数获取
+	code := c.GetString("code")
+	logs.Debug("code: ", code)
+	state := c.GetString("state")
+	logs.Debug("state: ", state)
+
+	if err := client.ValidateCallback(state); err != nil {
+		c.DelSession(conf.LoginSessionName)
+		c.SetMember(models.Member{})
+		c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
+		errMsg = err.Error()
+		logs.Error(err)
+		return
+	}
+
+	userInfo, err := client.GetUserInfo(context.Background(), code)
+	if err != nil {
+		c.DelSession(conf.LoginSessionName)
+		c.SetMember(models.Member{})
+		c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
+		errMsg = err.Error()
+		logs.Error(err)
+		return
+	}
+
+	member, err := models.NewWorkWeixinAccount().ExistedMember(userInfo.UserId)
+	if err != nil {
+		if err == orm.ErrNoRows {
+			if userInfo.Mobile == "" {
+				errMsg = "请到应用浏览器中登录，并授权获取敏感信息。"
+			} else {
+				jsonInfo, _ := json.Marshal(userInfo)
+				userInfoJson = string(jsonInfo)
+				errMsg = ""
+				c.SetSession(SessionUserInfoKey, userInfo)
+			}
+		} else {
+			logs.Error("Error: ", err)
+			errMsg = "登录错误: " + err.Error()
+		}
+		return
+	}
+
+	bindExisted = "true"
+	errMsg = ""
+
+	member.LastLoginTime = time.Now()
+	_ = member.Update("last_login_time")
+
+	c.SetMember(*member)
+	remember.MemberId = member.MemberId
+	remember.Account = member.Account
+	remember.Time = time.Now()
+	v, err := utils.Encode(remember)
+	if err == nil {
+		c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
+	}
+	u := c.GetString("url")
+	if u == "" {
+		u = conf.URLFor("HomeController.Index")
+	}
+	c.Redirect(u, 302)
+
+}
+
+// Auth2BindAccount 第三方auth2.0绑定已有账号
+func (c *AccountController) Auth2BindAccount() {
+	userInfo, ok := c.GetSession(SessionUserInfoKey).(auth2.UserInfo)
+	if !ok || len(userInfo.UserId) <= 0 {
+		c.DelSession(SessionUserInfoKey)
+		c.JsonResult(400, "请求错误, 请从首页重新登录")
+		return
+	}
+
+	account := c.GetString("account")
+	password := c.GetString("password")
+	if account == "" || password == "" {
+		c.JsonResult(400, "账号或密码不能为空")
+		return
+	}
+
+	member, err := models.NewMember().Login(account, password)
+	if err != nil {
+		logs.Error("用户登录 ->", err)
+		c.JsonResult(500, "账号或密码错误", nil)
+		return
+	}
+
+	bindAccount, err := c.getAuth2Account()
+	if err != nil {
+		logs.Error("获取Auth2用户失败 ->", err)
+		c.JsonResult(500, "不支持的第三方用户", nil)
+		return
+	}
+
+	member.CreateAt = 0
+	ormer := orm.NewOrm()
+	o, err := ormer.Begin()
+	if err != nil {
+		logs.Error("开启事务时出错 -> ", err)
+		c.JsonResult(500, "开启事务时出错: ", err.Error())
+		return
+	}
+	if err := bindAccount.AddBind(ormer, userInfo, member); err != nil {
+		logs.Error(err)
+		o.Rollback()
+		c.JsonResult(500, "绑定失败，数据库错误: "+err.Error())
+		return
+	}
+
+	// 绑定成功之后修改用户信息
+	member.LastLoginTime = time.Now()
+	//member.RealName = user_info.Name
+	//member.Avatar = user_info.Avatar
+	if len(member.Avatar) < 1 {
+		member.Avatar = conf.GetDefaultAvatar()
+	}
+	//member.Email = user_info.Email
+	//member.Phone = user_info.Mobile
+	if _, err := ormer.Update(member, "last_login_time", "real_name", "avatar", "email", "phone"); err != nil {
+		o.Rollback()
+		logs.Error("保存用户信息失败=>", err)
+		c.JsonResult(500, "绑定失败，现有账户信息更新失败: "+err.Error())
+		return
+
+	}
+
+	if err := o.Commit(); err != nil {
+		logs.Error("开启事务时出错 -> ", err)
+		c.JsonResult(500, "开启事务时出错: ", err.Error())
+		return
+	}
+
+	c.DelSession(SessionUserInfoKey)
+	c.SetMember(*member)
+
+	var remember CookieRemember
+	remember.MemberId = member.MemberId
+	remember.Account = member.Account
+	remember.Time = time.Now()
+	v, err := utils.Encode(remember)
+	if err != nil {
+		c.JsonResult(500, "绑定成功, 但自动登录失败, 请返回首页重新登录", nil)
+		return
+	}
+
+	c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
+	c.JsonResult(0, "绑定成功", nil)
+}
+
+// Auth2AutoAccount auth2.0自动创建账号
+func (c *AccountController) Auth2AutoAccount() {
+	app := c.Ctx.Input.Param(":app")
+	logs.Debug("app: ", app)
+
+	userInfo, ok := c.GetSession(SessionUserInfoKey).(auth2.UserInfo)
+	if !ok || len(userInfo.UserId) <= 0 {
+		c.DelSession(SessionUserInfoKey)
+		c.JsonResult(400, "请求错误, 请从首页重新登录")
+		return
+	}
+
+	c.DelSession(SessionUserInfoKey)
+	member := models.NewMember()
+
+	if _, err := member.FindByAccount(userInfo.UserId); err == nil && member.MemberId > 0 {
+		c.JsonResult(400, "账号已存在")
+		return
+	}
+
+	ormer := orm.NewOrm()
+	o, err := ormer.Begin()
+	if err != nil {
+		logs.Error("开启事务时出错 -> ", err)
+		c.JsonResult(500, "开启事务时出错: ", err.Error())
+		return
+	}
+
+	member.Account = userInfo.UserId
+	member.RealName = userInfo.Name
+	member.Password = "123456" // 强制设置默认密码，需修改一次密码后，才可以进行账号密码登录
+	hash, err := utils.PasswordHash(member.Password)
+
+	if err != nil {
+		logs.Error("加密用户密码失败 =>", err)
+		c.JsonResult(500, "加密用户密码失败"+err.Error())
+		return
+	}
+
+	logs.Debug("member.Password: ", member.Password)
+	logs.Debug("hash: ", hash)
+	member.Password = hash
+
+	member.Role = conf.MemberGeneralRole
+	member.Avatar = userInfo.Avatar
+	if len(member.Avatar) < 1 {
+		member.Avatar = conf.GetDefaultAvatar()
+	}
+	member.CreateAt = 0
+	member.Email = userInfo.Mail
+	member.Phone = userInfo.Mobile
+	member.Status = 0
+	if _, err = ormer.Insert(member); err != nil {
+		o.Rollback()
+		c.JsonResult(500, "注册失败，数据库错误: "+err.Error())
+		return
+	}
+
+	account, err := c.getAuth2Account()
+	if err != nil {
+		logs.Error("获取Auth2用户失败 ->", err)
+		c.JsonResult(500, "不支持的第三方用户", nil)
+		return
+	}
+
+	member.CreateAt = 0
+	if err := account.AddBind(ormer, userInfo, member); err != nil {
+		logs.Error(err)
+		o.Rollback()
+		c.JsonResult(500, "注册失败，数据库错误: "+err.Error())
+		return
+	}
+
+	if err := o.Commit(); err != nil {
+		logs.Error("提交事务时出错 -> ", err)
+		c.JsonResult(500, "提交事务时出错: ", err.Error())
+		return
+	}
+
+	member.LastLoginTime = time.Now()
+	_ = member.Update("last_login_time")
+
+	c.SetMember(*member)
+
+	var remember CookieRemember
+	remember.MemberId = member.MemberId
+	remember.Account = member.Account
+	remember.Time = time.Now()
+	v, err := utils.Encode(remember)
+	if err != nil {
+		c.JsonResult(500, "绑定成功, 但自动登录失败, 请返回首页重新登录", nil)
+		return
+	}
+
+	c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
+	c.JsonResult(0, "绑定成功", nil)
 }
 
 // 钉钉登录
@@ -254,86 +653,86 @@ func (c *AccountController) DingTalkLogin() {
 }
 
 // WorkWeixinLogin 用户企业微信登录
-func (c *AccountController) WorkWeixinLogin() {
-	logs.Info("UserAgent: ", c.Ctx.Input.UserAgent()) // debug
-
-	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
-		u := c.GetString("url")
-		if u == "" {
-			u = c.Ctx.Request.Header.Get("Referer")
-			if u == "" {
-				u = conf.URLFor("HomeController.Index")
-			}
-		}
-		// session自动登录时刷新session内容
-		member, err := models.NewMember().Find(member.MemberId)
-		if err != nil {
-			c.DelSession(conf.LoginSessionName)
-			c.SetMember(models.Member{})
-			c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
-		} else {
-			c.SetMember(*member)
-		}
-		c.Redirect(u, 302)
-	}
-	var remember CookieRemember
-	// 如果 Cookie 中存在登录信息
-	if cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login"); ok {
-		if err := utils.Decode(cookie, &remember); err == nil {
-			if member, err := models.NewMember().Find(remember.MemberId); err == nil {
-				c.SetMember(*member)
-				c.LoggedIn(false)
-				c.StopRun()
-			}
-		}
-	}
-
-	if c.Ctx.Input.IsPost() {
-		// account := c.GetString("account")
-		// password := c.GetString("password")
-		// captcha := c.GetString("code")
-		// isRemember := c.GetString("is_remember")
-		c.JsonResult(400, "request method not allowed", nil)
-	} else {
-		var callback_u string
-		u := c.GetString("url")
-		if u == "" {
-			u = c.referer()
-		}
-		if u != "" {
-			var schemaRule = regexp.MustCompile(`^https?\:\/\/`)
-			if !schemaRule.MatchString(u) {
-				u = strings.TrimRight(conf.BaseUrl, "/") + strings.TrimLeft(u, "/")
-			}
-		}
-		if u == "" {
-			callback_u = conf.URLFor("AccountController.WorkWeixinLoginCallback")
-		} else {
-			callback_u = conf.URLFor("AccountController.WorkWeixinLoginCallback", "url", url.PathEscape(u))
-		}
-		logs.Info("callback_u: ", callback_u) // debug
-
-		state := "mindoc"
-		workweixinConf := conf.GetWorkWeixinConfig()
-		appid := workweixinConf.CorpId
-		agentid := workweixinConf.AgentId
-		var redirect_uri string
-
-		isInWorkWeixin := c.IsInWorkWeixin()
-		c.Data["IsInWorkWeixin"] = isInWorkWeixin
-		if isInWorkWeixin {
-			// 企业微信内-网页授权登录
-			urlFmt := "%s?appid=%s&agentid=%s&redirect_uri=%s&response_type=code&scope=snsapi_privateinfo&state=%s#wechat_redirect"
-			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_AuthorizeUrlBase, appid, agentid, url.PathEscape(callback_u), state)
-		} else {
-			// 浏览器内-扫码授权登录
-			urlFmt := "%s?login_type=CorpApp&appid=%s&agentid=%s&redirect_uri=%s&state=%s"
-			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_QRConnectUrlBase, appid, agentid, url.PathEscape(callback_u), state)
-		}
-		logs.Info("redirect_uri: ", redirect_uri) // debug
-		c.Redirect(redirect_uri, 302)
-	}
-}
+//func (c *AccountController) WorkWeixinLogin() {
+//	logs.Info("UserAgent: ", c.Ctx.Input.UserAgent()) // debug
+//
+//	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
+//		u := c.GetString("url")
+//		if u == "" {
+//			u = c.Ctx.Request.Header.Get("Referer")
+//			if u == "" {
+//				u = conf.URLFor("HomeController.Index")
+//			}
+//		}
+//		// session自动登录时刷新session内容
+//		member, err := models.NewMember().Find(member.MemberId)
+//		if err != nil {
+//			c.DelSession(conf.LoginSessionName)
+//			c.SetMember(models.Member{})
+//			c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
+//		} else {
+//			c.SetMember(*member)
+//		}
+//		c.Redirect(u, 302)
+//	}
+//	var remember CookieRemember
+//	// 如果 Cookie 中存在登录信息
+//	if cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login"); ok {
+//		if err := utils.Decode(cookie, &remember); err == nil {
+//			if member, err := models.NewMember().Find(remember.MemberId); err == nil {
+//				c.SetMember(*member)
+//				c.LoggedIn(false)
+//				c.StopRun()
+//			}
+//		}
+//	}
+//
+//	if c.Ctx.Input.IsPost() {
+//		// account := c.GetString("account")
+//		// password := c.GetString("password")
+//		// captcha := c.GetString("code")
+//		// isRemember := c.GetString("is_remember")
+//		c.JsonResult(400, "request method not allowed", nil)
+//	} else {
+//		var callback_u string
+//		u := c.GetString("url")
+//		if u == "" {
+//			u = c.referer()
+//		}
+//		if u != "" {
+//			var schemaRule = regexp.MustCompile(`^https?\:\/\/`)
+//			if !schemaRule.MatchString(u) {
+//				u = strings.TrimRight(conf.BaseUrl, "/") + strings.TrimLeft(u, "/")
+//			}
+//		}
+//		if u == "" {
+//			callback_u = conf.URLFor("AccountController.WorkWeixinLoginCallback")
+//		} else {
+//			callback_u = conf.URLFor("AccountController.WorkWeixinLoginCallback", "url", url.PathEscape(u))
+//		}
+//		logs.Info("callback_u: ", callback_u) // debug
+//
+//		state := "mindoc"
+//		workweixinConf := conf.GetWorkWeixinConfig()
+//		appid := workweixinConf.CorpId
+//		agentid := workweixinConf.AgentId
+//		var redirect_uri string
+//
+//		isInWorkWeixin := c.IsInWorkWeixin()
+//		c.Data["IsInWorkWeixin"] = isInWorkWeixin
+//		if isInWorkWeixin {
+//			// 企业微信内-网页授权登录
+//			urlFmt := "%s?appid=%s&agentid=%s&redirect_uri=%s&response_type=code&scope=snsapi_privateinfo&state=%s#wechat_redirect"
+//			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_AuthorizeUrlBase, appid, agentid, url.PathEscape(callback_u), state)
+//		} else {
+//			// 浏览器内-扫码授权登录
+//			urlFmt := "%s?login_type=CorpApp&appid=%s&agentid=%s&redirect_uri=%s&state=%s"
+//			redirect_uri = fmt.Sprintf(urlFmt, WorkWeixin_QRConnectUrlBase, appid, agentid, url.PathEscape(callback_u), state)
+//		}
+//		logs.Info("redirect_uri: ", redirect_uri) // debug
+//		c.Redirect(redirect_uri, 302)
+//	}
+//}
 
 /*
 思路:
@@ -351,293 +750,293 @@ func (c *AccountController) WorkWeixinLogin() {
 */
 
 // WorkWeixinLoginCallback 用户企业微信登录-回调
-func (c *AccountController) WorkWeixinLoginCallback() {
-	c.TplName = "account/workweixin-login-callback.tpl"
-
-	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
-		u := c.GetString("url")
-		if u == "" {
-			u = c.Ctx.Request.Header.Get("Referer")
-		}
-		if u == "" {
-			u = conf.URLFor("HomeController.Index")
-		}
-		member, err := models.NewMember().Find(member.MemberId)
-		if err != nil {
-			c.DelSession(conf.LoginSessionName)
-			c.SetMember(models.Member{})
-			c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
-		} else {
-			c.SetMember(*member)
-		}
-		c.Redirect(u, 302)
-	}
-
-	var remember CookieRemember
-	// 如果 Cookie 中存在登录信息
-	if cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login"); ok {
-		if err := utils.Decode(cookie, &remember); err == nil {
-			if member, err := models.NewMember().Find(remember.MemberId); err == nil {
-				c.SetMember(*member)
-				c.LoggedIn(false)
-				c.StopRun()
-			}
-		}
-	}
-
-	// 请求参数获取
-	req_code := c.GetString("code")
-	logs.Warning("req_code: ", req_code)
-	req_state := c.GetString("state")
-	logs.Warning("req_state: ", req_state)
-	var user_info_json string
-	var error_msg string
-	var bind_existed string
-	if len(req_code) > 0 && req_state == "mindoc" {
-		// 获取当前应用的access_token
-		access_token, ok := workweixin.GetAccessToken()
-		if ok {
-			logs.Warning("access_token: ", access_token)
-			// 获取当前请求的userid
-			user_id, ticket, ok := workweixin.RequestUserId(access_token, req_code)
-			if ok {
-				logs.Warning("user_id: ", user_id)
-				// 查询系统现有数据，是否绑定了当前请求用户的企业微信
-				member, err := models.NewWorkWeixinAccount().ExistedMember(user_id)
-				if err == nil {
-					member.LastLoginTime = time.Now()
-					_ = member.Update("last_login_time")
-
-					c.SetMember(*member)
-
-					var remember CookieRemember
-					remember.MemberId = member.MemberId
-					remember.Account = member.Account
-					remember.Time = time.Now()
-					v, err := utils.Encode(remember)
-					if err == nil {
-						c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
-					}
-					bind_existed = "true"
-					error_msg = ""
-					u := c.GetString("url")
-					if u == "" {
-						u = conf.URLFor("HomeController.Index")
-					}
-					c.Redirect(u, 302)
-				} else if err == orm.ErrNoRows {
-					bind_existed = "false"
-					if ticket == "" {
-						error_msg = "请到企业微信中登录，并授权获取敏感信息。"
-					} else {
-						user_info, err := workweixin.RequestUserPrivateInfo(access_token, user_id, ticket)
-						if err != nil {
-							error_msg = "获取敏感信息错误: " + err.Error()
-						} else {
-							json_info, _ := json.Marshal(user_info)
-							user_info_json = string(json_info)
-							error_msg = ""
-							c.SetSession(SessionUserInfoKey, user_info)
-						}
-					}
-				} else {
-					logs.Error("Error: ", err)
-					error_msg = "登录错误: " + err.Error()
-				}
-			} else {
-				error_msg = "获取用户Id失败: " + user_id
-			}
-		} else {
-			error_msg = "应用凭据获取失败: " + access_token
-		}
-	} else {
-		error_msg = "参数错误"
-	}
-	if user_info_json == "" {
-		user_info_json = "{}"
-	}
-	if bind_existed == "" {
-		bind_existed = "null"
-	}
-	// refer & doc:
-	// - https://golang.org/pkg/html/template/#HTML
-	// - https://stackoverflow.com/questions/24411880/go-html-templates-can-i-stop-the-templates-package-inserting-quotes-around-stri
-	// - https://stackoverflow.com/questions/38035176/insert-javascript-snippet-inside-template-with-beego-golang
-	c.Data["bind_existed"] = template.JS(bind_existed)
-	logs.Debug("bind_existed: ", bind_existed)
-	c.Data["error_msg"] = template.JS(error_msg)
-	c.Data["user_info_json"] = template.JS(user_info_json)
-	/*
-		// 调试: 显示源码
-		result, err := c.RenderString()
-		if err != nil {
-			logs.Error(err)
-		} else {
-			logs.Warning(result)
-		}
-	*/
-}
+//func (c *AccountController) WorkWeixinLoginCallback() {
+//	c.TplName = "account/auth2_callback.tpl"
+//
+//	if member, ok := c.GetSession(conf.LoginSessionName).(models.Member); ok && member.MemberId > 0 {
+//		u := c.GetString("url")
+//		if u == "" {
+//			u = c.Ctx.Request.Header.Get("Referer")
+//		}
+//		if u == "" {
+//			u = conf.URLFor("HomeController.Index")
+//		}
+//		member, err := models.NewMember().Find(member.MemberId)
+//		if err != nil {
+//			c.DelSession(conf.LoginSessionName)
+//			c.SetMember(models.Member{})
+//			c.SetSecureCookie(conf.GetAppKey(), "login", "", -3600)
+//		} else {
+//			c.SetMember(*member)
+//		}
+//		c.Redirect(u, 302)
+//	}
+//
+//	var remember CookieRemember
+//	// 如果 Cookie 中存在登录信息
+//	if cookie, ok := c.GetSecureCookie(conf.GetAppKey(), "login"); ok {
+//		if err := utils.Decode(cookie, &remember); err == nil {
+//			if member, err := models.NewMember().Find(remember.MemberId); err == nil {
+//				c.SetMember(*member)
+//				c.LoggedIn(false)
+//				c.StopRun()
+//			}
+//		}
+//	}
+//
+//	// 请求参数获取
+//	req_code := c.GetString("code")
+//	logs.Warning("req_code: ", req_code)
+//	req_state := c.GetString("state")
+//	logs.Warning("req_state: ", req_state)
+//	var user_info_json string
+//	var error_msg string
+//	var bind_existed string
+//	if len(req_code) > 0 && req_state == "mindoc" {
+//		// 获取当前应用的access_token
+//		access_token, ok := workweixin.GetAccessToken()
+//		if ok {
+//			logs.Warning("access_token: ", access_token)
+//			// 获取当前请求的userid
+//			user_id, ticket, ok := workweixin.RequestUserId(access_token, req_code)
+//			if ok {
+//				logs.Warning("user_id: ", user_id)
+//				// 查询系统现有数据，是否绑定了当前请求用户的企业微信
+//				member, err := models.NewWorkWeixinAccount().ExistedMember(user_id)
+//				if err == nil {
+//					member.LastLoginTime = time.Now()
+//					_ = member.Update("last_login_time")
+//
+//					c.SetMember(*member)
+//
+//					var remember CookieRemember
+//					remember.MemberId = member.MemberId
+//					remember.Account = member.Account
+//					remember.Time = time.Now()
+//					v, err := utils.Encode(remember)
+//					if err == nil {
+//						c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
+//					}
+//					bind_existed = "true"
+//					error_msg = ""
+//					u := c.GetString("url")
+//					if u == "" {
+//						u = conf.URLFor("HomeController.Index")
+//					}
+//					c.Redirect(u, 302)
+//				} else if err == orm.ErrNoRows {
+//					bind_existed = "false"
+//					if ticket == "" {
+//						error_msg = "请到企业微信中登录，并授权获取敏感信息。"
+//					} else {
+//						user_info, err := workweixin.RequestUserPrivateInfo(access_token, user_id, ticket)
+//						if err != nil {
+//							error_msg = "获取敏感信息错误: " + err.Error()
+//						} else {
+//							json_info, _ := json.Marshal(user_info)
+//							user_info_json = string(json_info)
+//							error_msg = ""
+//							c.SetSession(SessionUserInfoKey, user_info)
+//						}
+//					}
+//				} else {
+//					logs.Error("Error: ", err)
+//					error_msg = "登录错误: " + err.Error()
+//				}
+//			} else {
+//				error_msg = "获取用户Id失败: " + user_id
+//			}
+//		} else {
+//			error_msg = "应用凭据获取失败: " + access_token
+//		}
+//	} else {
+//		error_msg = "参数错误"
+//	}
+//	if user_info_json == "" {
+//		user_info_json = "{}"
+//	}
+//	if bind_existed == "" {
+//		bind_existed = "null"
+//	}
+//	// refer & doc:
+//	// - https://golang.org/pkg/html/template/#HTML
+//	// - https://stackoverflow.com/questions/24411880/go-html-templates-can-i-stop-the-templates-package-inserting-quotes-around-stri
+//	// - https://stackoverflow.com/questions/38035176/insert-javascript-snippet-inside-template-with-beego-golang
+//	c.Data["bind_existed"] = template.JS(bind_existed)
+//	logs.Debug("bind_existed: ", bind_existed)
+//	c.Data["error_msg"] = template.JS(error_msg)
+//	c.Data["user_info_json"] = template.JS(user_info_json)
+//	/*
+//		// 调试: 显示源码
+//		result, err := c.RenderString()
+//		if err != nil {
+//			logs.Error(err)
+//		} else {
+//			logs.Warning(result)
+//		}
+//	*/
+//}
 
 // WorkWeixinLoginBind 用户企业微信登录-绑定
-func (c *AccountController) WorkWeixinLoginBind() {
-	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserPrivateInfo); ok && len(user_info.UserId) > 0 {
-		req_account := c.GetString("account")
-		req_password := c.GetString("password")
-		if req_account == "" || req_password == "" {
-			c.JsonResult(400, "账号或密码不能为空")
-		} else {
-			member, err := models.NewMember().Login(req_account, req_password)
-			if err == nil {
-				account := models.NewWorkWeixinAccount()
-				account.MemberId = member.MemberId
-				account.WorkWeixin_UserId = user_info.UserId
-				member.CreateAt = 0
-				ormer := orm.NewOrm()
-				o, err := ormer.Begin()
-				if err != nil {
-					logs.Error("开启事务时出错 -> ", err)
-					c.JsonResult(500, "开启事务时出错: ", err.Error())
-				}
-				if err := account.AddBind(ormer); err != nil {
-					o.Rollback()
-					c.JsonResult(500, "绑定失败，数据库错误: "+err.Error())
-				} else {
-					// 绑定成功之后修改用户信息
-					member.LastLoginTime = time.Now()
-					//member.RealName = user_info.Name
-					//member.Avatar = user_info.Avatar
-					if len(member.Avatar) < 1 {
-						member.Avatar = conf.GetDefaultAvatar()
-					}
-					//member.Email = user_info.Email
-					//member.Phone = user_info.Mobile
-					if _, err := ormer.Update(member, "last_login_time", "real_name", "avatar", "email", "phone"); err != nil {
-						o.Rollback()
-						logs.Error("保存用户信息失败=>", err)
-						c.JsonResult(500, "绑定失败，现有账户信息更新失败: "+err.Error())
-					} else {
-						if err := o.Commit(); err != nil {
-							logs.Error("开启事务时出错 -> ", err)
-							c.JsonResult(500, "开启事务时出错: ", err.Error())
-						} else {
-							c.DelSession(SessionUserInfoKey)
-							c.SetMember(*member)
-
-							var remember CookieRemember
-							remember.MemberId = member.MemberId
-							remember.Account = member.Account
-							remember.Time = time.Now()
-							v, err := utils.Encode(remember)
-							if err == nil {
-								c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
-								c.JsonResult(0, "绑定成功", nil)
-							} else {
-								c.JsonResult(500, "绑定成功, 但自动登录失败, 请返回首页重新登录", nil)
-							}
-						}
-					}
-
-				}
-
-			} else {
-				logs.Error("用户登录 ->", err)
-				c.JsonResult(500, "账号或密码错误", nil)
-			}
-			c.JsonResult(500, "TODO: 绑定以后账号功能开发中")
-		}
-	} else {
-		if ok {
-			c.DelSession(SessionUserInfoKey)
-		}
-		c.JsonResult(400, "请求错误, 请从首页重新登录")
-	}
-
-}
+//func (c *AccountController) WorkWeixinLoginBind() {
+//	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserPrivateInfo); ok && len(user_info.UserId) > 0 {
+//		req_account := c.GetString("account")
+//		req_password := c.GetString("password")
+//		if req_account == "" || req_password == "" {
+//			c.JsonResult(400, "账号或密码不能为空")
+//		} else {
+//			member, err := models.NewMember().Login(req_account, req_password)
+//			if err == nil {
+//				account := models.NewWorkWeixinAccount()
+//				account.MemberId = member.MemberId
+//				account.WorkWeixin_UserId = user_info.UserId
+//				member.CreateAt = 0
+//				ormer := orm.NewOrm()
+//				o, err := ormer.Begin()
+//				if err != nil {
+//					logs.Error("开启事务时出错 -> ", err)
+//					c.JsonResult(500, "开启事务时出错: ", err.Error())
+//				}
+//				if err := account.AddBind(ormer); err != nil {
+//					o.Rollback()
+//					c.JsonResult(500, "绑定失败，数据库错误: "+err.Error())
+//				} else {
+//					// 绑定成功之后修改用户信息
+//					member.LastLoginTime = time.Now()
+//					//member.RealName = user_info.Name
+//					//member.Avatar = user_info.Avatar
+//					if len(member.Avatar) < 1 {
+//						member.Avatar = conf.GetDefaultAvatar()
+//					}
+//					//member.Email = user_info.Email
+//					//member.Phone = user_info.Mobile
+//					if _, err := ormer.Update(member, "last_login_time", "real_name", "avatar", "email", "phone"); err != nil {
+//						o.Rollback()
+//						logs.Error("保存用户信息失败=>", err)
+//						c.JsonResult(500, "绑定失败，现有账户信息更新失败: "+err.Error())
+//					} else {
+//						if err := o.Commit(); err != nil {
+//							logs.Error("开启事务时出错 -> ", err)
+//							c.JsonResult(500, "开启事务时出错: ", err.Error())
+//						} else {
+//							c.DelSession(SessionUserInfoKey)
+//							c.SetMember(*member)
+//
+//							var remember CookieRemember
+//							remember.MemberId = member.MemberId
+//							remember.Account = member.Account
+//							remember.Time = time.Now()
+//							v, err := utils.Encode(remember)
+//							if err == nil {
+//								c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
+//								c.JsonResult(0, "绑定成功", nil)
+//							} else {
+//								c.JsonResult(500, "绑定成功, 但自动登录失败, 请返回首页重新登录", nil)
+//							}
+//						}
+//					}
+//
+//				}
+//
+//			} else {
+//				logs.Error("用户登录 ->", err)
+//				c.JsonResult(500, "账号或密码错误", nil)
+//			}
+//			c.JsonResult(500, "TODO: 绑定以后账号功能开发中")
+//		}
+//	} else {
+//		if ok {
+//			c.DelSession(SessionUserInfoKey)
+//		}
+//		c.JsonResult(400, "请求错误, 请从首页重新登录")
+//	}
+//
+//}
 
 // WorkWeixinLoginIgnore 用户企业微信登录-忽略
-func (c *AccountController) WorkWeixinLoginIgnore() {
-	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserPrivateInfo); ok && len(user_info.UserId) > 0 {
-		c.DelSession(SessionUserInfoKey)
-		member := models.NewMember()
-
-		if _, err := member.FindByAccount(user_info.UserId); err == nil && member.MemberId > 0 {
-			c.JsonResult(400, "账号已存在")
-		}
-
-		ormer := orm.NewOrm()
-		o, err := ormer.Begin()
-		if err != nil {
-			logs.Error("开启事务时出错 -> ", err)
-			c.JsonResult(500, "开启事务时出错: ", err.Error())
-		}
-
-		member.Account = user_info.UserId
-		member.RealName = user_info.Name
-		var rnd = rand.New(src)
-		// fmt.Sprintf("%x", rnd.Uint64())
-		// strconv.FormatUint(rnd.Uint64(), 16)
-		member.Password = user_info.UserId + strconv.FormatUint(rnd.Uint64(), 16)
-		member.Password = "123456" // 强制设置默认密码，需修改一次密码后，才可以进行账号密码登录
-		hash, err := utils.PasswordHash(member.Password)
-		if err != nil {
-			logs.Error("加密用户密码失败 =>", err)
-			c.JsonResult(500, "加密用户密码失败"+err.Error())
-		} else {
-			logs.Error("member.Password: ", member.Password)
-			logs.Error("hash: ", hash)
-			member.Password = hash
-		}
-		member.Role = conf.MemberGeneralRole
-		member.Avatar = user_info.Avatar
-		if len(member.Avatar) < 1 {
-			member.Avatar = conf.GetDefaultAvatar()
-		}
-		member.CreateAt = 0
-		member.Email = user_info.BizMail
-		member.Phone = user_info.Mobile
-		member.Status = 0
-		if _, err = ormer.Insert(member); err != nil {
-			o.Rollback()
-			c.JsonResult(500, "注册失败，数据库错误: "+err.Error())
-		} else {
-			account := models.NewWorkWeixinAccount()
-			account.MemberId = member.MemberId
-			account.WorkWeixin_UserId = user_info.UserId
-			member.CreateAt = 0
-			if err := account.AddBind(ormer); err != nil {
-				o.Rollback()
-				c.JsonResult(500, "注册失败，数据库错误: "+err.Error())
-			} else {
-				if err := o.Commit(); err != nil {
-					logs.Error("提交事务时出错 -> ", err)
-					c.JsonResult(500, "提交事务时出错: ", err.Error())
-				} else {
-					member.LastLoginTime = time.Now()
-					_ = member.Update("last_login_time")
-
-					c.SetMember(*member)
-
-					var remember CookieRemember
-					remember.MemberId = member.MemberId
-					remember.Account = member.Account
-					remember.Time = time.Now()
-					v, err := utils.Encode(remember)
-					if err == nil {
-						c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
-						c.JsonResult(0, "绑定成功", nil)
-					} else {
-						c.JsonResult(500, "绑定成功, 但自动登录失败, 请返回首页重新登录", nil)
-					}
-				}
-			}
-		}
-	} else {
-		if ok {
-			c.DelSession(SessionUserInfoKey)
-		}
-		c.JsonResult(400, "请求错误, 请从首页重新登录")
-	}
-}
+//func (c *AccountController) WorkWeixinLoginIgnore() {
+//	if user_info, ok := c.GetSession(SessionUserInfoKey).(workweixin.WorkWeixinUserPrivateInfo); ok && len(user_info.UserId) > 0 {
+//		c.DelSession(SessionUserInfoKey)
+//		member := models.NewMember()
+//
+//		if _, err := member.FindByAccount(user_info.UserId); err == nil && member.MemberId > 0 {
+//			c.JsonResult(400, "账号已存在")
+//		}
+//
+//		ormer := orm.NewOrm()
+//		o, err := ormer.Begin()
+//		if err != nil {
+//			logs.Error("开启事务时出错 -> ", err)
+//			c.JsonResult(500, "开启事务时出错: ", err.Error())
+//		}
+//
+//		member.Account = user_info.UserId
+//		member.RealName = user_info.Name
+//		var rnd = rand.New(src)
+//		// fmt.Sprintf("%x", rnd.Uint64())
+//		// strconv.FormatUint(rnd.Uint64(), 16)
+//		member.Password = user_info.UserId + strconv.FormatUint(rnd.Uint64(), 16)
+//		member.Password = "123456" // 强制设置默认密码，需修改一次密码后，才可以进行账号密码登录
+//		hash, err := utils.PasswordHash(member.Password)
+//		if err != nil {
+//			logs.Error("加密用户密码失败 =>", err)
+//			c.JsonResult(500, "加密用户密码失败"+err.Error())
+//		} else {
+//			logs.Error("member.Password: ", member.Password)
+//			logs.Error("hash: ", hash)
+//			member.Password = hash
+//		}
+//		member.Role = conf.MemberGeneralRole
+//		member.Avatar = user_info.Avatar
+//		if len(member.Avatar) < 1 {
+//			member.Avatar = conf.GetDefaultAvatar()
+//		}
+//		member.CreateAt = 0
+//		member.Email = user_info.BizMail
+//		member.Phone = user_info.Mobile
+//		member.Status = 0
+//		if _, err = ormer.Insert(member); err != nil {
+//			o.Rollback()
+//			c.JsonResult(500, "注册失败，数据库错误: "+err.Error())
+//		} else {
+//			account := models.NewWorkWeixinAccount()
+//			account.MemberId = member.MemberId
+//			account.WorkWeixin_UserId = user_info.UserId
+//			member.CreateAt = 0
+//			if err := account.AddBind(ormer); err != nil {
+//				o.Rollback()
+//				c.JsonResult(500, "注册失败，数据库错误: "+err.Error())
+//			} else {
+//				if err := o.Commit(); err != nil {
+//					logs.Error("提交事务时出错 -> ", err)
+//					c.JsonResult(500, "提交事务时出错: ", err.Error())
+//				} else {
+//					member.LastLoginTime = time.Now()
+//					_ = member.Update("last_login_time")
+//
+//					c.SetMember(*member)
+//
+//					var remember CookieRemember
+//					remember.MemberId = member.MemberId
+//					remember.Account = member.Account
+//					remember.Time = time.Now()
+//					v, err := utils.Encode(remember)
+//					if err == nil {
+//						c.SetSecureCookie(conf.GetAppKey(), "login", v, time.Now().Add(time.Hour*24*30*5).Unix())
+//						c.JsonResult(0, "绑定成功", nil)
+//					} else {
+//						c.JsonResult(500, "绑定成功, 但自动登录失败, 请返回首页重新登录", nil)
+//					}
+//				}
+//			}
+//		}
+//	} else {
+//		if ok {
+//			c.DelSession(SessionUserInfoKey)
+//		}
+//		c.JsonResult(400, "请求错误, 请从首页重新登录")
+//	}
+//}
 
 // QR二维码登录
 func (c *AccountController) QRLogin() {
