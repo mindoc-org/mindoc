@@ -6,12 +6,12 @@ import (
 	"errors"
 	"github.com/mindoc-org/mindoc/cache"
 	"github.com/mindoc-org/mindoc/utils/auth2"
+	"github.com/mindoc-org/mindoc/utils/auth2/dingtalk"
 	"github.com/mindoc-org/mindoc/utils/auth2/wecom"
 	"html/template"
 	"math/rand"
 	"net/http"
 	"net/url"
-	"reflect"
 	"regexp"
 	"strings"
 	"time"
@@ -25,7 +25,6 @@ import (
 	"github.com/mindoc-org/mindoc/mail"
 	"github.com/mindoc-org/mindoc/models"
 	"github.com/mindoc-org/mindoc/utils"
-	"github.com/mindoc-org/mindoc/utils/dingtalk"
 )
 
 const (
@@ -60,15 +59,8 @@ func (c *AccountController) Prepare() {
 	c.EnableXSRF = web.AppConfig.DefaultBool("enablexsrf", true)
 
 	c.Data["xsrfdata"] = template.HTML(c.XSRFFormHTML())
-
 	c.Data["CanLoginWorkWeixin"] = len(web.AppConfig.DefaultString("workweixin_corpid", "")) > 0
-
-	c.Data["corpID"], _ = web.AppConfig.String("dingtalk_corpid")
-	c.Data["CanLoginDingTalk"] = len(web.AppConfig.DefaultString("dingtalk_corpid", "")) > 0
-	if reflect.ValueOf(c.Data["CanLoginDingTalk"]).Bool() {
-		c.Data["ENABLE_QR_DINGTALK"] = true
-	}
-	c.Data["dingtalk_qr_key"], _ = web.AppConfig.String("dingtalk_qr_key")
+	c.Data["CanLoginDingTalk"] = len(web.AppConfig.DefaultString("dingtalk_app_key", "")) > 0
 
 	if !c.EnableXSRF {
 		return
@@ -187,6 +179,11 @@ func (c *AccountController) Login() {
 	if can, _ := c.Data["CanLoginWorkWeixin"].(bool); can {
 		c.Data["workweixin_login_url"] = conf.URLFor(auth2Redirect, ":app", wecom.AppName, "url", url.PathEscape(u))
 	}
+
+	if can, _ := c.Data["CanLoginDingTalk"].(bool); can {
+		c.Data["dingtalk_login_url"] = conf.URLFor(auth2Redirect, ":app", dingtalk.AppName, "url", url.PathEscape(u))
+
+	}
 	return
 }
 
@@ -202,10 +199,11 @@ Auth2.0 第三方对接思路:
 */
 
 func (c *AccountController) getAuth2Client() (auth2.Client, error) {
+	app := c.Ctx.Input.Param(":app")
 	var client auth2.Client
-	var tokenKey string
+	tokenKey := AccessTokenCacheKey + "-" + app
 
-	switch c.Ctx.Input.Param(":app") {
+	switch app {
 	case wecom.AppName:
 		if can, _ := c.Data["CanLoginWorkWeixin"].(bool); !can {
 			return nil, errors.New("auth2.client.wecom.disabled")
@@ -213,11 +211,16 @@ func (c *AccountController) getAuth2Client() (auth2.Client, error) {
 		corpId, _ := web.AppConfig.String("workweixin_corpid")
 		agentId, _ := web.AppConfig.String("workweixin_agentid")
 		secret, _ := web.AppConfig.String("workweixin_secret")
-
-		tokenKey = AccessTokenCacheKey + "-wecom"
 		client = wecom.NewClient(corpId, agentId, secret)
 
-	case "dingtalk":
+	case dingtalk.AppName:
+		if can, _ := c.Data["CanLoginDingTalk"].(bool); !can {
+			return nil, errors.New("auth2.client.dingtalk.disabled")
+		}
+
+		appKey, _ := web.AppConfig.String("dingtalk_app_key")
+		appSecret, _ := web.AppConfig.String("dingtalk_app_secret")
+		client = dingtalk.NewClient(appSecret, appKey)
 
 	default:
 		return nil, errors.New("auth2.client.notsupported")
@@ -249,13 +252,28 @@ func (c *AccountController) getAuth2Client() (auth2.Client, error) {
 	return client, nil
 }
 
+func (c *AccountController) parseAuth2CallbackParam() (code, state string) {
+	switch c.Ctx.Input.Param(":app") {
+	case wecom.AppName:
+		code = c.GetString("code")
+		state = c.GetString("state")
+	case dingtalk.AppName:
+		code = c.GetString("authCode")
+		state = c.GetString("state")
+	}
+
+	logs.Debug("code: ", code)
+	logs.Debug("state: ", state)
+	return
+}
+
 func (c *AccountController) getAuth2Account() (models.Auth2Account, error) {
 	switch c.Ctx.Input.Param(":app") {
 	case wecom.AppName:
 		return models.NewWorkWeixinAccount(), nil
 
-	case "dingtalk":
-
+	case dingtalk.AppName:
+		return models.NewDingTalkAccount(), nil
 	}
 
 	return nil, errors.New("auth2.account.notsupported")
@@ -353,11 +371,7 @@ func (c *AccountController) Auth2Callback() {
 	}()
 
 	// 请求参数获取
-	code := c.GetString("code")
-	logs.Debug("code: ", code)
-	state := c.GetString("state")
-	logs.Debug("state: ", state)
-
+	code, state := c.parseAuth2CallbackParam()
 	if err := client.ValidateCallback(state); err != nil {
 		c.DelSession(conf.LoginSessionName)
 		c.SetMember(models.Member{})
@@ -377,7 +391,14 @@ func (c *AccountController) Auth2Callback() {
 		return
 	}
 
-	member, err := models.NewWorkWeixinAccount().ExistedMember(userInfo.UserId)
+	account, err := c.getAuth2Account()
+	if err != nil {
+		logs.Error("获取Auth2用户失败 ->", err)
+		c.JsonResult(500, "不支持的第三方用户", nil)
+		return
+	}
+
+	member, err := account.ExistedMember(userInfo.UserId)
 	if err != nil {
 		if err == orm.ErrNoRows {
 			if userInfo.Mobile == "" {
@@ -601,56 +622,56 @@ func (c *AccountController) Auth2AutoAccount() {
 }
 
 // 钉钉登录
-func (c *AccountController) DingTalkLogin() {
-	code := c.GetString("dingtalk_code")
-	if code == "" {
-		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_obtain_user_info"), nil)
-	}
-
-	appKey, _ := web.AppConfig.String("dingtalk_app_key")
-	appSecret, _ := web.AppConfig.String("dingtalk_app_secret")
-	tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
-
-	if appKey == "" || appSecret == "" || tmpReader == "" {
-		c.JsonResult(500, i18n.Tr(c.Lang, "message.dingtalk_auto_login_not_enable"), nil)
-		c.StopRun()
-	}
-
-	dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
-	err := dingtalkAgent.GetAccesstoken()
-	if err != nil {
-		logs.Warn("获取钉钉临时Token失败 ->", err)
-		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
-		c.StopRun()
-	}
-
-	userid, err := dingtalkAgent.GetUserIDByCode(code)
-	if err != nil {
-		logs.Warn("获取钉钉用户ID失败 ->", err)
-		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
-		c.StopRun()
-	}
-
-	username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
-	if err != nil {
-		logs.Warn("获取钉钉用户信息失败 ->", err)
-		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
-		c.StopRun()
-	}
-
-	member, err := models.NewMember().TmpLogin(tmpReader)
-	if err == nil {
-		member.LastLoginTime = time.Now()
-		_ = member.Update("last_login_time")
-		member.Account = username
-		if avatar != "" {
-			member.Avatar = avatar
-		}
-
-		c.SetMember(*member)
-	}
-	c.JsonResult(0, "ok", username)
-}
+//func (c *AccountController) DingTalkLogin() {
+//	code := c.GetString("dingtalk_code")
+//	if code == "" {
+//		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_obtain_user_info"), nil)
+//	}
+//
+//	appKey, _ := web.AppConfig.String("dingtalk_app_key")
+//	appSecret, _ := web.AppConfig.String("dingtalk_app_secret")
+//	tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
+//
+//	if appKey == "" || appSecret == "" || tmpReader == "" {
+//		c.JsonResult(500, i18n.Tr(c.Lang, "message.dingtalk_auto_login_not_enable"), nil)
+//		c.StopRun()
+//	}
+//
+//	dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
+//	err := dingtalkAgent.GetAccesstoken()
+//	if err != nil {
+//		logs.Warn("获取钉钉临时Token失败 ->", err)
+//		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
+//		c.StopRun()
+//	}
+//
+//	userid, err := dingtalkAgent.GetUserIDByCode(code)
+//	if err != nil {
+//		logs.Warn("获取钉钉用户ID失败 ->", err)
+//		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
+//		c.StopRun()
+//	}
+//
+//	username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
+//	if err != nil {
+//		logs.Warn("获取钉钉用户信息失败 ->", err)
+//		c.JsonResult(500, i18n.Tr(c.Lang, "message.failed_auto_login"), nil)
+//		c.StopRun()
+//	}
+//
+//	member, err := models.NewMember().TmpLogin(tmpReader)
+//	if err == nil {
+//		member.LastLoginTime = time.Now()
+//		_ = member.Update("last_login_time")
+//		member.Account = username
+//		if avatar != "" {
+//			member.Avatar = avatar
+//		}
+//
+//		c.SetMember(*member)
+//	}
+//	c.JsonResult(0, "ok", username)
+//}
 
 // WorkWeixinLogin 用户企业微信登录
 //func (c *AccountController) WorkWeixinLogin() {
@@ -1039,79 +1060,79 @@ func (c *AccountController) DingTalkLogin() {
 //}
 
 // QR二维码登录
-func (c *AccountController) QRLogin() {
-	appName := c.Ctx.Input.Param(":app")
-
-	switch appName {
-	// 钉钉扫码登录
-	case "dingtalk":
-		code := c.GetString("code")
-		state := c.GetString("state")
-		if state != "1" || code == "" {
-			c.Redirect(conf.URLFor("AccountController.Login"), 302)
-			c.StopRun()
-		}
-		appKey, _ := web.AppConfig.String("dingtalk_qr_key")
-		appSecret, _ := web.AppConfig.String("dingtalk_qr_secret")
-
-		qrDingtalk := dingtalk.NewDingtalkQRLogin(appSecret, appKey)
-		unionID, err := qrDingtalk.GetUnionIDByCode(code)
-		if err != nil {
-			logs.Warn("获取钉钉临时UnionID失败 ->", err)
-			c.Redirect(conf.URLFor("AccountController.Login"), 302)
-			c.StopRun()
-		}
-
-		appKey, _ = web.AppConfig.String("dingtalk_app_key")
-		appSecret, _ = web.AppConfig.String("dingtalk_app_secret")
-		tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
-
-		dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
-		err = dingtalkAgent.GetAccesstoken()
-		if err != nil {
-			logs.Warn("获取钉钉临时Token失败 ->", err)
-			c.Redirect(conf.URLFor("AccountController.Login"), 302)
-			c.StopRun()
-		}
-
-		userid, err := dingtalkAgent.GetUserIDByUnionID(unionID)
-		if err != nil {
-			logs.Warn("获取钉钉用户ID失败 ->", err)
-			c.Redirect(conf.URLFor("AccountController.Login"), 302)
-			c.StopRun()
-		}
-
-		username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
-		if err != nil {
-			logs.Warn("获取钉钉用户信息失败 ->", err)
-			c.Redirect(conf.URLFor("AccountController.Login"), 302)
-			c.StopRun()
-		}
-
-		member, err := models.NewMember().TmpLogin(tmpReader)
-		if err == nil {
-			member.LastLoginTime = time.Now()
-			_ = member.Update("last_login_time")
-			member.Account = username
-			if avatar != "" {
-				member.Avatar = avatar
-			}
-
-			c.SetMember(*member)
-			c.LoggedIn(false)
-			c.StopRun()
-		}
-		c.Redirect(conf.URLFor("AccountController.Login"), 302)
-
-	// 企业微信扫码登录
-	case "workweixin":
-		//
-
-	default:
-		c.Redirect(conf.URLFor("AccountController.Login"), 302)
-		c.StopRun()
-	}
-}
+//func (c *AccountController) QRLogin() {
+//	appName := c.Ctx.Input.Param(":app")
+//
+//	switch appName {
+//	// 钉钉扫码登录
+//	case "dingtalk":
+//		code := c.GetString("code")
+//		state := c.GetString("state")
+//		if state != "1" || code == "" {
+//			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+//			c.StopRun()
+//		}
+//		appKey, _ := web.AppConfig.String("dingtalk_qr_key")
+//		appSecret, _ := web.AppConfig.String("dingtalk_qr_secret")
+//
+//		qrDingtalk := dingtalk.NewDingtalkQRLogin(appSecret, appKey)
+//		unionID, err := qrDingtalk.GetUnionIDByCode(code)
+//		if err != nil {
+//			logs.Warn("获取钉钉临时UnionID失败 ->", err)
+//			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+//			c.StopRun()
+//		}
+//
+//		appKey, _ = web.AppConfig.String("dingtalk_app_key")
+//		appSecret, _ = web.AppConfig.String("dingtalk_app_secret")
+//		tmpReader, _ := web.AppConfig.String("dingtalk_tmp_reader")
+//
+//		dingtalkAgent := dingtalk.NewDingTalkAgent(appSecret, appKey)
+//		err = dingtalkAgent.GetAccesstoken()
+//		if err != nil {
+//			logs.Warn("获取钉钉临时Token失败 ->", err)
+//			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+//			c.StopRun()
+//		}
+//
+//		userid, err := dingtalkAgent.GetUserIDByUnionID(unionID)
+//		if err != nil {
+//			logs.Warn("获取钉钉用户ID失败 ->", err)
+//			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+//			c.StopRun()
+//		}
+//
+//		username, avatar, err := dingtalkAgent.GetUserNameAndAvatarByUserID(userid)
+//		if err != nil {
+//			logs.Warn("获取钉钉用户信息失败 ->", err)
+//			c.Redirect(conf.URLFor("AccountController.Login"), 302)
+//			c.StopRun()
+//		}
+//
+//		member, err := models.NewMember().TmpLogin(tmpReader)
+//		if err == nil {
+//			member.LastLoginTime = time.Now()
+//			_ = member.Update("last_login_time")
+//			member.Account = username
+//			if avatar != "" {
+//				member.Avatar = avatar
+//			}
+//
+//			c.SetMember(*member)
+//			c.LoggedIn(false)
+//			c.StopRun()
+//		}
+//		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+//
+//	// 企业微信扫码登录
+//	case "workweixin":
+//		//
+//
+//	default:
+//		c.Redirect(conf.URLFor("AccountController.Login"), 302)
+//		c.StopRun()
+//	}
+//}
 
 // 登录成功后的操作，如重定向到原始请求页面
 func (c *AccountController) LoggedIn(isPost bool) interface{} {

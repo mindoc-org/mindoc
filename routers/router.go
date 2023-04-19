@@ -128,8 +128,8 @@ func init() {
 	web.Router("/auth2/account/bind/:app", &controllers.AccountController{}, "*:Auth2BindAccount")
 	web.Router("/auth2/account/auto/:app", &controllers.AccountController{}, "*:Auth2AutoAccount")
 
-	web.Router("/dingtalk_login", &controllers.AccountController{}, "*:DingTalkLogin")
-	web.Router("/qrlogin/:app", &controllers.AccountController{}, "*:QRLogin")
+	//web.Router("/dingtalk_login", &controllers.AccountController{}, "*:DingTalkLogin")
+	//web.Router("/qrlogin/:app", &controllers.AccountController{}, "*:QRLogin")
 	web.Router("/logout", &controllers.AccountController{}, "*:Logout")
 	web.Router("/register", &controllers.AccountController{}, "*:Register")
 	web.Router("/find_password", &controllers.AccountController{}, "*:FindPassword")

@@ -33,6 +33,10 @@ func (r *BasicResponse) Error() string {
 }
 
 func (r *BasicResponse) AsError() error {
+	if r == nil {
+		return nil
+	}
+
 	if r.ErrCode != 0 {
 		return r
 	}
