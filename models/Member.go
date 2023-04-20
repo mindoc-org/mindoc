@@ -90,7 +90,6 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 	}
 
 	switch member.AuthMethod {
-	case "":
 	case "local":
 		ok, err := utils.PasswordVerify(member.Password, password)
 		if ok && err == nil {
@@ -109,15 +108,15 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 }
 
 // TmpLogin 用于钉钉临时登录
-func (m *Member) TmpLogin(account string) (*Member, error) {
-	o := orm.NewOrm()
-	member := &Member{}
-	err := o.Raw("select * from md_members where account = ? and status = 0 limit 1;", account).QueryRow(member)
-	if err != nil {
-		return member, ErrorMemberPasswordError
-	}
-	return member, nil
-}
+//func (m *Member) TmpLogin(account string) (*Member, error) {
+//	o := orm.NewOrm()
+//	member := &Member{}
+//	err := o.Raw("select * from md_members where account = ? and status = 0 limit 1;", account).QueryRow(member)
+//	if err != nil {
+//		return member, ErrorMemberPasswordError
+//	}
+//	return member, nil
+//}
 
 // ldapLogin 通过LDAP登陆
 func (m *Member) ldapLogin(account string, password string) (*Member, error) {
@@ -510,8 +509,17 @@ func (m *Member) Delete(oldId int, newId int) error {
 	ormer := orm.NewOrm()
 
 	o, err := ormer.Begin()
-
 	if err != nil {
+		return err
+	}
+	_, err = o.Raw("DELETE FROM md_dingtalk_accounts WHERE member_id = ?", oldId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	_, err = o.Raw("DELETE FROM md_workweixin_accounts WHERE member_id = ?", oldId).Exec()
+	if err != nil {
+		o.Rollback()
 		return err
 	}
 
@@ -520,7 +528,7 @@ func (m *Member) Delete(oldId int, newId int) error {
 		o.Rollback()
 		return err
 	}
-	_, err = o.Raw("UPDATE md_attachment SET `create_at` = ? WHERE `create_at` = ?", newId, oldId).Exec()
+	_, err = o.Raw("UPDATE md_attachment SET create_at = ? WHERE create_at = ?", newId, oldId).Exec()
 
 	if err != nil {
 		o.Rollback()

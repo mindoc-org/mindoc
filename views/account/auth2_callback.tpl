@@ -39,8 +39,8 @@
         window.user_info_json = {{ .user_info_json }};
         window.server_error_msg = "{{ .error_msg }}";
         window.home_url = "{{ .BaseUrl }}";
-        window.workweixin_login_bind = "{{urlfor "AccountController.WorkWeixinLoginBind"}}";
-        window.workweixin_login_ignore = "{{urlfor "AccountController.WorkWeixinLoginIgnore"}}";
+        window.account_bind = "{{urlfor "AccountController.Auth2BindAccount" ":app" .app}}";
+        window.account_auto_create = "{{urlfor "AccountController.Auth2AutoAccount" ":app" .app}}";
     </script>
 </head>
 <body class="manual-container">
@@ -114,7 +114,7 @@
                 btn: ['绑定','取消'],
                 yes: function(index, layero){
                     $.ajax({
-                        url: window.workweixin_login_bind,
+                        url: window.account_bind,
                         type: 'POST',
                         beforeSend: function(request) {
                             request.setRequestHeader("X-Xsrftoken", $('.bind-existed-form input[name="_xsrf"]').val());
@@ -165,7 +165,7 @@
             });
             */
             $.ajax({
-                url: window.workweixin_login_ignore,
+                url: window.account_auto_create,
                 type: 'GET',
                 beforeSend: function(request) {
                     request.setRequestHeader("X-Xsrftoken", $('.bind-existed-form input[name="_xsrf"]').val());
