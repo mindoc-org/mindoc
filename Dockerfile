@@ -103,15 +103,10 @@ ENV LC_ALL=zh_CN.UTF-8
 # 安装-calibre
 # RUN apt-get install -y calibre # 此种方式安装省事，但会安装很多额外不需要的软件包，导致体积过大
 RUN mkdir -p /tmp/calibre-cache
-# 获取最新版本号
-RUN curl -s http://code.calibre-ebook.com/latest>/tmp/calibre-cache/version
-# 下载最新版本
-# RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/`cat /tmp/calibre-cache/version`/calibre-`cat /tmp/calibre-cache/version`-x86_64.txz
-# 使用 ghproxy.com 替换 github 实现加速
-RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://ghproxy.com/https://github.com/kovidgoyal/calibre/releases/download/v`cat /tmp/calibre-cache/version`/calibre-`cat /tmp/calibre-cache/version`-x86_64.txz
-# RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://github.com/kovidgoyal/calibre/releases/download/v`cat /tmp/calibre-cache/version`/calibre-`cat /tmp/calibre-cache/version`-x86_64.txz
-# 注: 调试阶段，下载alibre-5.22.1-x86_64.txz到本地(使用 python -m http.server)，加速构建
-# RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c http://10.96.8.252:8000/calibre-5.22.1-x86_64.txz
+# 强制使用 5.44.0 版本(5.x的最新版本)
+RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/5.44.0/calibre-5.44.0-x86_64.txz
+# 注: 调试阶段，下载alibre-5.44.0-x86_64.txz到本地(使用 python -m http.server)，加速构建
+# RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c http://10.96.8.252:8000/calibre-5.44.0-x86_64.txz
 # 解压
 RUN mkdir -p /opt/calibre
 # RUN tar --extract --file=/tmp/calibre-cache/calibre-x86_64.txz --directory /opt/calibre
