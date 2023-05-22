@@ -94,6 +94,9 @@ go build -v -o mindoc_linux_musl_amd64 -ldflags="-linkmode external -extldflags 
 ./mindoc_linux_musl_amd64 version
 ```
 
+## Windows 上后台运行
+ 使用 [mindoc-daemon](https://github.com/mindoc-org/mindoc-daemon)
+
 
 ```ini
 #邮件配置-示例
