@@ -128,6 +128,8 @@ baidumapkey=
 ################Active Directory/LDAP################
 #是否启用ldap
 ldap_enable=false
+#ldap协议(ldap/ldaps)
+ldap_scheme=ldap
 #ldap主机名
 ldap_host=ad.example.com
 #ldap端口

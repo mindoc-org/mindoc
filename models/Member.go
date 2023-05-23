@@ -3,11 +3,13 @@ package models
 
 import (
 	"crypto/md5"
+	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -26,6 +28,8 @@ import (
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
 )
+
+var LdapDefaultTimeout = 8 * time.Second
 
 type Member struct {
 	MemberId int    `orm:"pk;auto;unique;column(member_id)" json:"member_id"`
@@ -124,8 +128,18 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		return m, ErrMemberAuthMethodInvalid
 	}
 	var err error
-	ldaphost, _ := web.AppConfig.String("ldap_host")
-	lc, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%d", ldaphost, web.AppConfig.DefaultInt("ldap_port", 3268)))
+	var ldapOpt ldap.DialOpt
+	ldap_scheme := web.AppConfig.DefaultString("ldap_scheme", "ldap")
+	dialer := net.Dialer{Timeout: LdapDefaultTimeout}
+	if ldap_scheme == "ldaps" {
+		ldapOpt = ldap.DialWithTLSDialer(&tls.Config{InsecureSkipVerify: true}, &dialer)
+	} else {
+		ldapOpt = ldap.DialWithDialer(&dialer)
+	}
+	ldap_host, _ := web.AppConfig.String("ldap_host")
+	ldap_port := web.AppConfig.DefaultInt("ldap_port", 3268)
+	ldap_url := fmt.Sprintf("%s://%s:%d", ldap_scheme, ldap_host, ldap_port)
+	lc, err := ldap.DialURL(ldap_url, ldapOpt)
 	if err != nil {
 		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrLDAPConnect
