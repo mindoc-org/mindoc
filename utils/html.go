@@ -110,8 +110,8 @@ func SafetyProcessor(html string) string {
 			}
 		})
 		//添加文档标签包裹
-		if selector := docQuery.Find("article.markdown-article-inner").First(); selector.Size() <= 0 {
-			docQuery.Children().WrapAllHtml("<article class=\"markdown-article-inner\"></article>")
+		if selector := docQuery.Find("div.whole-article-wrap").First(); selector.Size() <= 0 {
+			docQuery.Find("body").Children().WrapAllHtml("<div class=\"whole-article-wrap\"></div>")
 		}
 		//解决文档内容缺少包裹标签的问题
 		if selector := docQuery.Find("div.markdown-article").First(); selector.Size() <= 0 {

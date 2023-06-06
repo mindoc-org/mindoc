@@ -95,7 +95,7 @@
             <div class="article-body  markdown-body editormd-preview-container content">
                 {{.Content}}
                 {{if .Model.AttachList}}
-                <div class="attach-list"><strong>{{i18n .Lang "blog.attachment"}}</strong><ul>
+                <div class="attach-list"><strong>{{i18n .Lang "doc.attachment"}}</strong><ul>
                 {{range $index,$item := .Model.AttachList}}
                 <li><a href="{{$item.HttpPath}}" title="{{$item.FileName}}">{{$item.FileName}}</a> </li>
                 {{end}}

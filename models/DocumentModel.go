@@ -267,127 +267,133 @@ func (item *Document) ReleaseContent() error {
 	return nil
 }
 
-//处理文档的外链，附件，底部编辑信息等.
+// Processor 调用位置两处：
+// 1. 项目发布和文档发布: 处理文档的外链，附件，底部编辑信息等;
+// 2. 文档阅读：可以修复存在问题的文档，使其能正常显示附件下载和文档作者信息等。
 func (item *Document) Processor() *Document {
 	if item.Release != "" {
 		item.Release = utils.SafetyProcessor(item.Release)
+	} else {
+		// Release内容为空，直接赋值文档标签，保证附件下载正常
+		item.Release = "<div class=\"whole-article-wrap\"></div>"
+	}
 
-		//安全过滤，移除危险标签和属性
-		if docQuery, err := goquery.NewDocumentFromReader(bytes.NewBufferString(item.Release)); err == nil {
+	// Next: 生成文档的一些附加信息
+	if docQuery, err := goquery.NewDocumentFromReader(bytes.NewBufferString(item.Release)); err == nil {
 
+		//处理附件
+		if selector := docQuery.Find("div.attach-list").First(); selector.Size() <= 0 {
 			//处理附件
-			if selector := docQuery.Find("div.attach-list").First(); selector.Size() <= 0 {
-				//处理附件
-				attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
-				if err == nil && len(attachList) > 0 {
-					content := bytes.NewBufferString("<div class=\"attach-list\"><strong>" + i18n.Tr(item.Lang, "doc.attachment") + "</strong><ul>")
-					for _, attach := range attachList {
-						if strings.HasPrefix(attach.HttpPath, "/") {
-							attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
-						}
-						li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
-
-						content.WriteString(li)
+			attachList, err := NewAttachment().FindListByDocumentId(item.DocumentId)
+			if err == nil && len(attachList) > 0 {
+				content := bytes.NewBufferString("<div class=\"attach-list\"><strong>" + i18n.Tr(item.Lang, "doc.attachment") + "</strong><ul>")
+				for _, attach := range attachList {
+					if strings.HasPrefix(attach.HttpPath, "/") {
+						attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
 					}
-					content.WriteString("</ul></div>")
-					if docQuery == nil {
-						docQuery, err = goquery.NewDocumentFromReader(content)
-					} else {
-						if selector := docQuery.Find("div.wiki-bottom").First(); selector.Size() > 0 {
-							selector.BeforeHtml(content.String())
-						} else if selector := docQuery.Find("div.markdown-article").First(); selector.Size() > 0 {
-							selector.AppendHtml(content.String())
-						} else if selector := docQuery.Find("article.markdown-article-inner").First(); selector.Size() > 0 {
-							selector.AppendHtml(content.String())
-						}
+					li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
+
+					content.WriteString(li)
+				}
+				content.WriteString("</ul></div>")
+				if docQuery == nil {
+					docQuery, err = goquery.NewDocumentFromReader(content)
+				} else {
+					if selector := docQuery.Find("div.wiki-bottom").First(); selector.Size() > 0 {
+						selector.BeforeHtml(content.String()) //This branch should be a compatible branch.
+					} else if selector := docQuery.Find("div.markdown-article").First(); selector.Size() > 0 {
+						selector.AppendHtml(content.String()) //The document produced by the editor of Markdown will have this tag.class.
+					} else if selector := docQuery.Find("div.whole-article-wrap").First(); selector.Size() > 0 {
+						selector.AppendHtml(content.String()) //All documents should have this tag.
 					}
 				}
-			}
-
-			//处理了文档底部信息
-			if selector := docQuery.Find("div.wiki-bottom").First(); selector.Size() <= 0 && item.MemberId > 0 {
-				//处理文档结尾信息
-				docCreator, err := NewMember().Find(item.MemberId, "real_name", "account")
-				release := "<div class=\"wiki-bottom\">"
-
-				release += i18n.Tr(item.Lang, "doc.ft_author")
-				if err == nil && docCreator != nil {
-					if docCreator.RealName != "" {
-						release += docCreator.RealName
-					} else {
-						release += docCreator.Account
-					}
-				}
-				release += " &nbsp;" + i18n.Tr(item.Lang, "doc.ft_create_time") + item.CreateTime.Local().Format("2006-01-02 15:04") + "<br>"
-
-				if item.ModifyAt > 0 {
-					docModify, err := NewMember().Find(item.ModifyAt, "real_name", "account")
-					if err == nil {
-						if docModify.RealName != "" {
-							release += i18n.Tr(item.Lang, "doc.ft_last_editor") + docModify.RealName
-						} else {
-							release += i18n.Tr(item.Lang, "doc.ft_last_editor") + docModify.Account
-						}
-					}
-				}
-				release += " &nbsp;" + i18n.Tr(item.Lang, "doc.ft_update_time") + item.ModifyTime.Local().Format("2006-01-02 15:04") + "<br>"
-				release += "</div>"
-
-				if selector := docQuery.Find("div.markdown-article").First(); selector.Size() > 0 {
-					selector.AppendHtml(release)
-				} else if selector := docQuery.Find("article.markdown-article-inner").First(); selector.Size() > 0 {
-					selector.First().AppendHtml(release)
-				}
-			}
-			cdnimg, _ := web.AppConfig.String("cdnimg")
-
-			docQuery.Find("img").Each(func(i int, selection *goquery.Selection) {
-
-				if src, ok := selection.Attr("src"); ok {
-					src = strings.TrimSpace(strings.ToLower(src))
-					//过滤掉没有链接的图片标签
-					if src == "" || strings.HasPrefix(src, "data:text/html") {
-						selection.Remove()
-						return
-					}
-
-					//设置图片为CDN地址
-					if cdnimg != "" && strings.HasPrefix(src, "/uploads/") {
-						selection.SetAttr("src", utils.JoinURI(cdnimg, src))
-					}
-
-				}
-				selection.RemoveAttr("onerror").RemoveAttr("onload")
-			})
-			//过滤A标签的非法连接
-			docQuery.Find("a").Each(func(i int, selection *goquery.Selection) {
-				if val, exists := selection.Attr("href"); exists {
-					if val == "" {
-						selection.SetAttr("href", "#")
-						return
-					}
-					val = strings.Replace(strings.ToLower(val), " ", "", -1)
-					//移除危险脚本链接
-					if strings.HasPrefix(val, "data:text/html") ||
-						strings.HasPrefix(val, "vbscript:") ||
-						strings.HasPrefix(val, "&#106;avascript:") ||
-						strings.HasPrefix(val, "javascript:") {
-						selection.SetAttr("href", "#")
-					}
-				}
-				//移除所有 onerror 属性
-				selection.RemoveAttr("onerror").RemoveAttr("onload").RemoveAttr("onclick")
-			})
-
-			docQuery.Find("script").Remove()
-			docQuery.Find("link").Remove()
-			docQuery.Find("vbscript").Remove()
-
-			if html, err := docQuery.Html(); err == nil {
-				item.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html), "<html><head></head><body>"), "</body></html>")
 			}
 		}
+
+		//处理了文档底部信息
+		if selector := docQuery.Find("div.wiki-bottom").First(); selector.Size() <= 0 && item.MemberId > 0 {
+			//处理文档结尾信息
+			docCreator, err := NewMember().Find(item.MemberId, "real_name", "account")
+			release := "<div class=\"wiki-bottom\">"
+
+			release += i18n.Tr(item.Lang, "doc.ft_author")
+			if err == nil && docCreator != nil {
+				if docCreator.RealName != "" {
+					release += docCreator.RealName
+				} else {
+					release += docCreator.Account
+				}
+			}
+			release += " &nbsp;" + i18n.Tr(item.Lang, "doc.ft_create_time") + item.CreateTime.Local().Format("2006-01-02 15:04") + "<br>"
+
+			if item.ModifyAt > 0 {
+				docModify, err := NewMember().Find(item.ModifyAt, "real_name", "account")
+				if err == nil {
+					if docModify.RealName != "" {
+						release += i18n.Tr(item.Lang, "doc.ft_last_editor") + docModify.RealName
+					} else {
+						release += i18n.Tr(item.Lang, "doc.ft_last_editor") + docModify.Account
+					}
+				}
+			}
+			release += " &nbsp;" + i18n.Tr(item.Lang, "doc.ft_update_time") + item.ModifyTime.Local().Format("2006-01-02 15:04") + "<br>"
+			release += "</div>"
+
+			if selector := docQuery.Find("div.markdown-article").First(); selector.Size() > 0 {
+				selector.AppendHtml(release)
+			} else if selector := docQuery.Find("div.whole-article-wrap").First(); selector.Size() > 0 {
+				selector.AppendHtml(release)
+			}
+		}
+		cdnimg, _ := web.AppConfig.String("cdnimg")
+
+		docQuery.Find("img").Each(func(i int, selection *goquery.Selection) {
+
+			if src, ok := selection.Attr("src"); ok {
+				src = strings.TrimSpace(strings.ToLower(src))
+				//过滤掉没有链接的图片标签
+				if src == "" || strings.HasPrefix(src, "data:text/html") {
+					selection.Remove()
+					return
+				}
+
+				//设置图片为CDN地址
+				if cdnimg != "" && strings.HasPrefix(src, "/uploads/") {
+					selection.SetAttr("src", utils.JoinURI(cdnimg, src))
+				}
+
+			}
+			selection.RemoveAttr("onerror").RemoveAttr("onload")
+		})
+		//过滤A标签的非法连接
+		docQuery.Find("a").Each(func(i int, selection *goquery.Selection) {
+			if val, exists := selection.Attr("href"); exists {
+				if val == "" {
+					selection.SetAttr("href", "#")
+					return
+				}
+				val = strings.Replace(strings.ToLower(val), " ", "", -1)
+				//移除危险脚本链接
+				if strings.HasPrefix(val, "data:text/html") ||
+					strings.HasPrefix(val, "vbscript:") ||
+					strings.HasPrefix(val, "&#106;avascript:") ||
+					strings.HasPrefix(val, "javascript:") {
+					selection.SetAttr("href", "#")
+				}
+			}
+			//移除所有 onerror 属性
+			selection.RemoveAttr("onerror").RemoveAttr("onload").RemoveAttr("onclick")
+		})
+
+		docQuery.Find("script").Remove()
+		docQuery.Find("link").Remove()
+		docQuery.Find("vbscript").Remove()
+
+		if html, err := docQuery.Html(); err == nil {
+			item.Release = strings.TrimSuffix(strings.TrimPrefix(strings.TrimSpace(html), "<html><head></head><body>"), "</body></html>")
+		}
 	}
+
 	return item
 }
 
