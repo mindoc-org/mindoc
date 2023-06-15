@@ -23,6 +23,7 @@
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/editor.md/lib/sequence/sequence-diagram-min.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/cherry/cherry-markdown.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">

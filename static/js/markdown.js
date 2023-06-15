@@ -1,8 +1,4 @@
 $(function () {
-    editormd.katexURL = {
-        js  : window.katex.js,
-        css : window.katex.css
-    };
 
     window.editormdLocales = {
         'zh-CN': {
@@ -58,6 +54,7 @@ $(function () {
     if (!window.IS_ENABLE_IFRAME) {
         htmlDecodeList.unshift("iframe");
     }
+/*
     window.editor = editormd("docEditor", {
         width: "100%",
         height: "100%",
@@ -118,6 +115,200 @@ $(function () {
             resetEditorChanged(true);
         }
     });
+*/
+var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TYPE_LIST.PAR, {
+    makeHtml(str) {
+      console.warn('custom hook', 'hello');
+      return str;
+    },
+    rule(str) {
+      const regex = {
+        begin: '',
+        content: '',
+        end: '',
+      };
+      regex.reg = new RegExp(regex.begin + regex.content + regex.end, 'g');
+      return regex;
+    },
+  });
+  /**
+   * 自定义一个自定义菜单
+   * 点第一次时，把选中的文字变成同时加粗和斜体
+   * 保持光标选区不变，点第二次时，把加粗斜体的文字变成普通文本
+   */
+  var customMenuA = Cherry.createMenuHook('加粗斜体', {
+    iconName: 'font',
+    onClick: function (selection) {
+      // 获取用户选中的文字，调用getSelection方法后，如果用户没有选中任何文字，会尝试获取光标所在位置的单词或句子
+      let $selection = this.getSelection(selection) || '同时加粗斜体';
+      // 如果是单选，并且选中内容的开始结束内没有加粗语法，则扩大选中范围
+      if (!this.isSelections && !/^\s*(\*\*\*)[\s\S]+(\1)/.test($selection)) {
+        this.getMoreSelection('***', '***', () => {
+          const newSelection = this.editor.editor.getSelection();
+          const isBoldItalic = /^\s*(\*\*\*)[\s\S]+(\1)/.test(newSelection);
+          if (isBoldItalic) {
+            $selection = newSelection;
+          }
+          return isBoldItalic;
+        });
+      }
+      // 如果选中的文本中已经有加粗语法了，则去掉加粗语法
+      if (/^\s*(\*\*\*)[\s\S]+(\1)/.test($selection)) {
+        return $selection.replace(/(^)(\s*)(\*\*\*)([^\n]+)(\3)(\s*)($)/gm, '$1$4$7');
+      }
+      /**
+       * 注册缩小选区的规则
+       *    注册后，插入“***TEXT***”，选中状态会变成“***【TEXT】***”
+       *    如果不注册，插入后效果为：“【***TEXT***】”
+       */
+      this.registerAfterClickCb(() => {
+        this.setLessSelection('***', '***');
+      });
+      return $selection.replace(/(^)([^\n]+)($)/gm, '$1***$2***$3');
+    }
+  });
+  /**
+   * 定义一个空壳，用于自行规划cherry已有工具栏的层级结构
+   */
+  var customMenuB = Cherry.createMenuHook('发布', {
+    iconName: '',
+    onClick: releaseDocument,
+  });
+  
+  var customMenuC = Cherry.createMenuHook("返回", {
+    iconName: '',
+    onClick: backWard,
+  })
+
+  var customMenuD = Cherry.createMenuHook('保存', {
+    iconName: '',
+    onClick: saveDocument,
+  });
+
+  
+  var basicConfig = {
+    id: 'manualEditorContainer',
+    externals: {
+      echarts: window.echarts,
+      katex: window.katex,
+      MathJax: window.MathJax,
+    },
+    isPreviewOnly: false,
+    engine: {
+      global: {
+        urlProcessor(url, srcType) {
+          console.log(`url-processor`, url, srcType);
+          return url;
+        },
+      },
+      syntax: {
+        codeBlock: {
+          theme: 'twilight',
+        },
+        table: {
+          enableChart: false,
+          // chartEngine: Engine Class
+        },
+        fontEmphasis: {
+          allowWhitespace: false, // 是否允许首尾空格
+        },
+        strikethrough: {
+          needWhitespace: false, // 是否必须有前后空格
+        },
+        mathBlock: {
+          engine: 'MathJax', // katex或MathJax
+          src: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js', // 如果使用MathJax plugins，则需要使用该url通过script标签引入
+        },
+        inlineMath: {
+          engine: 'MathJax', // katex或MathJax
+        },
+        emoji: {
+          useUnicode: false,
+          customResourceURL: 'https://github.githubassets.com/images/icons/emoji/unicode/${code}.png?v8',
+          upperCase: true,
+        },
+        // toc: {
+        //     tocStyle: 'nested'
+        // }
+        // 'header': {
+        //   strict: false
+        // }
+      },
+      customSyntax: {
+        // SyntaxHookClass
+        CustomHook: {
+          syntaxClass: CustomHookA,
+          force: false,
+          after: 'br',
+        },
+      },
+    },
+    toolbars: {
+      toolbar: [
+        'customMenuCName',
+        'bold',
+        'italic',
+        {
+          strikethrough: ['strikethrough', 'underline', 'sub', 'sup', 'ruby', 'customMenuAName'],
+        },
+        'size',
+        '|',
+        'color',
+        'header',
+        '|',
+        'drawIo',
+        '|',
+        'ol',
+        'ul',
+        'checklist',
+        'panel',
+        'detail',
+        '|',
+        'formula',
+        {
+          insert: ['image', 'audio', 'video', 'link', 'hr', 'br', 'code', 'formula', 'toc', 'table', 'pdf', 'word', 'ruby'],
+        },
+        'graph',
+        'togglePreview',
+        'settings',
+        'switchModel',
+        'codeTheme',
+        'export',
+        'customMenuDName',
+        'customMenuBName',
+        'theme'
+      ],
+      bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
+      sidebar: ['mobilePreview', 'copy', 'theme'],
+      customMenu: {
+        customMenuAName: customMenuA,
+        customMenuBName: customMenuB,
+        customMenuCName: customMenuC,
+        customMenuDName: customMenuD,
+      },
+    },
+    drawioIframeUrl: '/static/cherry/drawio_demo.html',
+    editor: {
+      defaultModel: 'edit&preview',
+      height: "100%",
+    },
+    previewer: {
+      // 自定义markdown预览区域class
+      // className: 'markdown'
+    },
+    keydown: [],
+    //extensions: [],
+    //callback: {
+    //changeString2Pinyin: pinyin,
+    //}
+  };
+  
+  fetch('').then((response) => response.text()).then((value) => {
+    //var markdownarea = document.getElementById("markdown_area").value
+    var config = Object.assign({}, basicConfig);// { value: markdownarea });// { value: value });不显示获取的初始化值
+    window.editor = new Cherry(config);
+    openLastSelectedNode();
+  });
 
     function insertToMarkdown(body) {
         window.isLoad = true;
@@ -162,20 +353,6 @@ $(function () {
                 }
                 window.editor.resize();
             });
-       } else if (name === "release") {
-            if (Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0) {
-                if ($("#markdown-save").hasClass('change')) {
-                    var confirm_result = confirm(editormdLocales[lang].contentUnsaved);
-                    if (confirm_result) {
-                        saveDocument(false, releaseBook);
-                        return;
-                    }
-                }
-
-                releaseBook();
-            } else {
-                layer.msg(editormdLocales[lang].noDocNeedPublish)
-            }
        } else if (name === "tasks") {
            // 插入 GFM 任务列表
            var cm = window.editor.cm;
@@ -218,9 +395,7 @@ $(function () {
             if (res.errcode === 0) {
                 window.isLoad = true;
                 try {
-                    window.editor.clear();
-                    window.editor.insertValue(res.data.markdown);
-                    window.editor.setCursor({line: 0, ch: 0});
+                    window.editor.setMarkdown(res.data.markdown);
                 }catch(e){
                     console.log(e);
                 }
@@ -246,7 +421,7 @@ $(function () {
         var index = null;
         var node = window.selectNode;
         var content = window.editor.getMarkdown();
-        var html = window.editor.getPreviewedHTML();
+        var html = window.editor.getHtml(true);
         var version = "";
 
         if (!node) {
@@ -333,6 +508,32 @@ $(function () {
             $("#markdown-save").removeClass('change').addClass('disabled');
         }
         window.isLoad = false;
+    }
+
+    /**
+     * 返回上一个页面
+     */
+    function backWard() {
+        history.back();
+    }
+
+    /**
+     * 发布文档
+     */
+
+    function releaseDocument() {
+        if (Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0) {
+            if ($("#markdown-save").hasClass('change')) {
+                var confirm_result = confirm(editormdLocales[lang].contentUnsaved);
+                if (confirm_result) {
+                    saveDocument(false, releaseBook);
+                    return;
+                }
+            }
+            releaseBook();
+            return
+        }
+        layer.msg(editormdLocales[lang].noDocNeedPublish)
     }
 
     /**

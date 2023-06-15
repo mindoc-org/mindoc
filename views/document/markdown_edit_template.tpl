@@ -15,7 +15,6 @@
         window.baseUrl = "{{.BaseUrl}}";
         window.saveing = false;
         window.katex = { js: "{{cdnjs "/static/katex/katex"}}",css: "{{cdncss "/static/katex/katex"}}"};
-        window.editormdLib = "{{cdnjs "/static/editor.md/lib/"}}";
         window.editor = null;
         window.imageUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
         window.fileUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
@@ -36,12 +35,11 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/jstree/3.3.4/themes/default/style.min.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/css/editormd.css" "version"}}" rel="stylesheet">
 
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/webuploader/webuploader.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.css" "version"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/cherry/cherry-markdown.css" "version"}}" rel="stylesheet">
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -59,85 +57,20 @@
 <body>
 
 <div class="m-manual manual-editor">
-    <div class="manual-head" id="editormd-tools" style="min-width: 1200px; position:absolute;">
-        <div class="editormd-group">
-            <!--a href="{{urlfor "BookController.Index"}}" data-toggle="tooltip" data-title="{{i18n .Lang "doc.backward"}}"><i class="fa fa-chevron-left" aria-hidden="true"></i></a-->
-            <a href="javascript:" onclick="self.location=document.referrer;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.backward"}}"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
-        </div>
-        <div class="editormd-group">
-            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="{{i18n .Lang "doc.save"}}" class="disabled save"><i class="fa fa-save first" aria-hidden="true" name="save"></i></a>
-            <a href="javascript:;" id="markdown-template" data-toggle="tooltip" data-title="{{i18n .Lang "doc.save_as_tpl"}}" class="template"><i class="fa fa-briefcase last" aria-hidden="true" name="save-template"></i></a>
-        </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.undo"}} (Ctrl-Z)"><i class="fa fa-undo first" name="undo" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.redo"}} (Ctrl-Y)"><i class="fa fa-repeat last" name="redo" unselectable="on"></i></a>
-        </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.bold"}}"><i class="fa fa-bold first" name="bold" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.italic"}}"><i class="fa fa-italic item" name="italic" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.strikethrough"}}"><i class="fa fa-strikethrough last" name="del" unselectable="on"></i></a>
-        </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h1"}}"><i class="fa editormd-bold first" name="h1" unselectable="on">H1</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h2"}}"><i class="fa editormd-bold item" name="h2" unselectable="on">H2</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h3"}}"><i class="fa editormd-bold item" name="h3" unselectable="on">H3</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h4"}}"><i class="fa editormd-bold item" name="h4" unselectable="on">H4</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h5"}}"><i class="fa editormd-bold item" name="h5" unselectable="on">H5</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h6"}}"><i class="fa editormd-bold last" name="h6" unselectable="on">H6</i></a>
-        </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.unorder_list"}}"><i class="fa fa-list-ul first" name="list-ul" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.order_list"}}"><i class="fa fa-list-ol item" name="list-ol" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.hline"}}"><i class="fa fa-minus last" name="hr" unselectable="on"></i></a>
-        </div>
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.link"}}"><i class="fa fa-link first" name="link" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.ref_link"}}"><i class="fa fa-anchor item" name="reference-link" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.add_pic"}}"><i class="fa fa-picture-o item" name="image" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.code"}}"><i class="fa fa-code item" name="code" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.code_block"}}" unselectable="on"><i class="fa fa-file-code-o item" name="code-block" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.table"}}"><i class="fa fa-table item" name="table" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.quote"}}"><i class="fa fa-quote-right item" name="quote" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.gfm_task"}}"><i class="fa fa-tasks item" name="tasks" aria-hidden="true"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.attachment"}}"><i class="fa fa-paperclip item" aria-hidden="true" name="attachment"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.json_to_table"}}"><i class="fa fa-wrench item" aria-hidden="true" name="json"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.template"}}"><i class="fa fa-tachometer last" name="template"></i></a>
-
-        </div>
-
-        <div class="editormd-group pull-right">
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.close_preview"}}"><i class="fa fa-eye-slash first" name="watch" unselectable="on"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.modify_history"}}"><i class="fa fa-history item" name="history" aria-hidden="true"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.sidebar"}}"><i class="fa fa-columns item" aria-hidden="true" name="sidebar"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.help"}}"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
-        </div>
-
-        <div class="editormd-group pull-right">
-            <a target="_blank" href="{{urlfor "DocumentController.Read" ":key" .Model.Identify ":id" ""}}" data-toggle="tooltip" data-title="{{i18n .Lang "blog.preview"}}"><i class="fa fa-external-link" name="preview-open" aria-hidden="true"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.publish"}}"><i class="fa fa-cloud-upload" name="release" aria-hidden="true"></i></a>
-        </div>
-
-        <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title=""></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title=""></a>
-        </div>
-
-        <div class="clearfix"></div>
-    </div>
-    <div class="manual-body">
-        <div class="manual-category" id="manualCategory" style="position:absolute;">
-            <div class="manual-nav">
+    <div class="markdown-body">
+        <div class="markdown-category" id="manualCategory" style="position:absolute;">
+            <div class="markdown-nav">
                 <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> {{i18n .Lang "doc.document"}}</div>
                 <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="{{i18n .Lang "doc.create_doc"}}" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
                 <div class="clearfix"></div>
             </div>
-            <div class="manual-tree" id="sidebar"> </div>
+            <div class="markdown-tree" id="sidebar"> </div>
         </div>
-        <div class="manual-editor-container" id="manualEditorContainer" style="min-width: 920px;">
-            <div class="manual-editormd">
-                <div id="docEditor" class="manual-editormd-active"></div>
+        <div class="markdown-editor-container" id="manualEditorContainer" style="min-width: 920px;">
+            <div class="markdown-editormd">
+                <div id="docEditor" class="markdown-editormd-active"></div>
             </div>
-            <div class="manual-editor-status">
+            <div class="markdown-editor-status">
                 <div id="attachInfo" class="item">0 {{i18n .Lang "doc.attachments"}}</div>
             </div>
         </div>
@@ -450,23 +383,16 @@
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/webuploader/webuploader.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/editor.md/editormd.min.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript" ></script>
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/markdown.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/cherry/cherry-markdown.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/x-frame-bypass-1.0.2.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
-        editLangPath = {{cdnjs "/static/editor.md/languages/"}} + lang
-        if(lang != 'zh-CN') {
-            editormd.loadScript(editLangPath, function(){
-                window.editor.lang = editormd.defaults.lang;
-                window.editor.recreate()
-            });
-        }
         
         $("#attachInfo").on("click",function () {
             $("#uploadAttachModal").modal("show");
