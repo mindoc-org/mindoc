@@ -185,6 +185,16 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
     onClick: saveDocument,
   });
 
+  var customMenuE = Cherry.createMenuHook('边栏', {
+    iconName: '',
+    onClick: siderChange,
+  });
+
+  var customMenuF = Cherry.createMenuHook('历史', {
+    iconName: '',
+    onClick: showHistory,
+  });
+
   
   var basicConfig = {
     id: 'manualEditorContainer',
@@ -276,6 +286,8 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
         'export',
         'customMenuDName',
         'customMenuBName',
+        'customMenuEName',
+        'customMenuFName',
         'theme'
       ],
       bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
@@ -285,6 +297,8 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
         customMenuBName: customMenuB,
         customMenuCName: customMenuC,
         customMenuDName: customMenuD,
+        customMenuEName: customMenuE,
+        customMenuFName: customMenuF,
       },
     },
     drawioIframeUrl: '/static/cherry/drawio_demo.html',
@@ -534,6 +548,32 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
             return
         }
         layer.msg(editormdLocales[lang].noDocNeedPublish)
+    }
+
+
+    /**
+     * 显示/隐藏边栏
+     */
+
+    function siderChange() {
+        $("#manualCategory").toggle(0, "swing", function () {
+            var $then = $("#manualEditorContainer");
+            var left = parseInt($then.css("left"));
+            if (left > 0) {
+                window.editorContainerLeft = left;
+                $then.css("left", "0");
+            } else {
+                $then.css("left", window.editorContainerLeft + "px");
+            }
+        });
+    }
+
+    /**
+     * 显示文档历史
+     */
+
+    function showHistory() {
+        window.documentHistory();
     }
 
     /**
