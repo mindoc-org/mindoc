@@ -3441,6 +3441,10 @@ div[data-type=codeBlock] .token.inserted {
   background-color: rgb(51, 51, 51);
 }
 
+.manual-article.theme__dark {
+  background-color: rgb(51, 51, 51) !important;
+}
+
 .cherry.theme__dark .cherry-previewer .cherry-mobile-previewer-content {
   background-color: rgb(37, 37, 38);
 }
@@ -3753,6 +3757,10 @@ div[data-type=codeBlock] .token.inserted {
   background-color: rgb(255, 255, 255);
 }
 
+.manual-article.theme__light {
+  background-color: rgb(255, 255, 255) !important;
+}
+
 .cherry.theme__light .cherry-previewer .cherry-mobile-previewer-content {
   background-color: rgb(255, 255, 255);
 }
@@ -4024,6 +4032,10 @@ div[data-type=codeBlock] .token.inserted {
 
 .cherry.theme__green .cherry-previewer {
   background-color: #ebfbee;
+}
+
+.manual-article.theme__green {
+  background-color: #ebfbee !important;
 }
 
 .cherry.theme__green .cherry-previewer .cherry-mobile-previewer-content {
@@ -4325,6 +4337,10 @@ div[data-type=codeBlock] .token.inserted {
 
 .cherry.theme__red .cherry-previewer {
   background-color: #fff0f6;
+}
+
+.manual-article.theme__red {
+  background-color: #fff0f6 !important;
 }
 
 .cherry.theme__red .cherry-previewer .cherry-mobile-previewer-content {
@@ -5018,4 +5034,8 @@ span.CodeMirror-selectedtext {
 iframe.cherry-dialog-iframe {
   width: 100%;
   height: 100%;
+}
+
+.manual-article.cherry {
+  height: auto !important;
 }

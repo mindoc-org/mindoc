@@ -525,3 +525,12 @@ body .scrollbar-track-color {
     margin-left: 10px;
     cursor: pointer;
 }
+
+iframe.cherry-dialog-iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.manual-article.cherry {
+    height: auto !important;
+}

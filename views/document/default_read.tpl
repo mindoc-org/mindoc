@@ -22,10 +22,7 @@
     <link href="{{cdncss "/static/css/kancloud.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/editor.md/lib/sequence/sequence-diagram-min.css" "version"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/css/editormd.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/cherry/cherry-markdown.css" "version"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
-    <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
@@ -162,7 +159,7 @@
             </div>
         </div>
         <div class="manual-right">
-            <div class="manual-article">
+            <div class="manual-article {{if eq .Model.Editor "markdown"}} cherry cherry-markdown {{.MarkdownTheme}} {{end}}">
                 <div class="article-head">
                     <div class="container-fluid">
                         <div class="row">
@@ -178,7 +175,7 @@
                     </div>
                 </div>
                 <div class="article-content">
-                    <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
+                    <div class="article-body  {{if eq .Model.Editor "markdown"}} cherry-markdown  {{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
                     </div>
 
@@ -297,7 +294,7 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/cherry/cherry-markdown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>

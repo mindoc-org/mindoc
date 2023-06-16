@@ -237,6 +237,9 @@ func (c *DocumentController) Read() {
 	} else if doc.IsOpen == 2 {
 		c.Data["FoldSetting"] = "empty"
 	}
+	if bookResult.Editor == "markdown" {
+		c.Data["MarkdownTheme"] = doc.MarkdownTheme
+	}
 }
 
 // 编辑文档
@@ -774,6 +777,7 @@ func (c *DocumentController) Content() {
 	if c.Ctx.Input.IsPost() {
 		markdown := strings.TrimSpace(c.GetString("markdown", ""))
 		content := c.GetString("html")
+		markdownTheme := c.GetString("markdown_theme", "theme__light")
 		version, _ := c.GetInt64("version", 0)
 		isCover := c.GetString("cover")
 
@@ -808,6 +812,7 @@ func (c *DocumentController) Content() {
 			doc.Markdown = content
 		} else {
 			doc.Markdown = markdown
+			doc.MarkdownTheme = markdownTheme
 		}
 
 		doc.Version = time.Now().Unix()

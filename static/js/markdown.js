@@ -50,72 +50,7 @@ $(function () {
             remark: 'Remark',
         }
     };
-    var htmlDecodeList = ["style","script","title","onmouseover","onmouseout","style"];
-    if (!window.IS_ENABLE_IFRAME) {
-        htmlDecodeList.unshift("iframe");
-    }
-/*
-    window.editor = editormd("docEditor", {
-        width: "100%",
-        height: "100%",
-        path: window.editormdLib,
-        toolbar: true,
-        placeholder: window.editormdLocales[window.lang].placeholder,
-        imageUpload: true,
-        imageFormats: ["jpg", "jpeg", "gif", "png","svg", "JPG", "JPEG", "GIF", "PNG","SVG"],
-        imageUploadURL: window.imageUploadURL,
-        toolbarModes: "full",
-        fileUpload: true,
-        fileUploadURL: window.fileUploadURL,
-        taskList: true,
-        flowChart: true,
-        htmlDecode: htmlDecodeList.join(','),
-        lineNumbers: true,
-        sequenceDiagram: true,
-        tocStartLevel: 1,
-        tocm: true,
-        previewCodeHighlight: 1,
-        highlightStyle: window.highlightStyle ? window.highlightStyle : "github",
-        tex:true,
-        saveHTMLToTextarea: true,
 
-        onload: function() {
-            this.hideToolbar();
-            var keyMap = {
-                "Ctrl-S": function(cm) {
-                    saveDocument(false);
-                },
-                "Cmd-S": function(cm){
-                    saveDocument(false);
-                },
-                "Ctrl-A": function(cm) {
-                    cm.execCommand("selectAll");
-                }
-            };
-            this.addKeyMap(keyMap);
-
-            //如果没有选中节点则选中默认节点
-            openLastSelectedNode();
-            uploadImage("docEditor", function ($state, $res) {
-                if ($state === "before") {
-                    return layer.load(1, {
-                        shade: [0.1, '#fff'] // 0.1 透明度的白色背景
-                    });
-                } else if ($state === "success") {
-                    if ($res.errcode === 0) {
-                        var value = '![](' + $res.url + ')';
-                        window.editor.insertValue(value);
-                    }
-                }
-            });
-            
-            window.isLoad = true;
-        },
-        onchange: function () {
-            resetEditorChanged(true);
-        }
-    });
-*/
 var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TYPE_LIST.PAR, {
     makeHtml(str) {
       console.warn('custom hook', 'hello');
@@ -256,6 +191,8 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
     toolbars: {
       toolbar: [
         'customMenuCName',
+        'undo',
+        'redo',
         'bold',
         'italic',
         {
@@ -338,62 +275,6 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
         resetEditorChanged(true);
     }
 
-    /**
-     * 实现标题栏操作
-     */
-    $("#editormd-tools").on("click", "a[class!='disabled']", function () {
-       var name = $(this).find("i").attr("name");
-       if (name === "attachment") {
-           $("#uploadAttachModal").modal("show");
-       } else if (name === "history") {
-           window.documentHistory();
-       } else if (name === "save") {
-            saveDocument(false);
-       } else if (name === "template") {
-           $("#documentTemplateModal").modal("show");
-       } else if(name === "save-template"){
-           $("#saveTemplateModal").modal("show");
-       } else if(name === 'json'){
-           $("#convertJsonToTableModal").modal("show");
-       } else if (name === "sidebar") {
-            $("#manualCategory").toggle(0, "swing", function () {
-                var $then = $("#manualEditorContainer");
-                var left = parseInt($then.css("left"));
-                if (left > 0) {
-                    window.editorContainerLeft = left;
-                    $then.css("left", "0");
-                } else {
-                    $then.css("left", window.editorContainerLeft + "px");
-                }
-                window.editor.resize();
-            });
-       } else if (name === "tasks") {
-           // 插入 GFM 任务列表
-           var cm = window.editor.cm;
-           var selection = cm.getSelection();
-           var cursor    = cm.getCursor();
-           if (selection === "") {
-               cm.setCursor(cursor.line, 0);
-               cm.replaceSelection("- [x] " + selection);
-               cm.setCursor(cursor.line, cursor.ch + 6);
-           } else {
-               var selectionText = selection.split("\n");
-
-               for (var i = 0, len = selectionText.length; i < len; i++) {
-                   selectionText[i] = (selectionText[i] === "") ? "" : "- [x] " + selectionText[i];
-               }
-               cm.replaceSelection(selectionText.join("\n"));
-           }
-       } else {
-           var action = window.editor.toolbarHandlers[name];
-
-           if (!!action && action !== "undefined") {
-               $.proxy(action, window.editor)();
-               window.editor.focus();
-           }
-       }
-   }) ;
-
     /***
      * 加载指定的文档到编辑器中
      * @param $node
@@ -409,6 +290,7 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
             if (res.errcode === 0) {
                 window.isLoad = true;
                 try {
+                    window.editor.setTheme(res.data.markdown_theme);
                     window.editor.setMarkdown(res.data.markdown);
                 }catch(e){
                     console.log(e);
@@ -436,6 +318,7 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
         var node = window.selectNode;
         var content = window.editor.getMarkdown();
         var html = window.editor.getHtml(true);
+        var markdownTheme = window.editor.getTheme();
         var version = "";
 
         if (!node) {
@@ -463,7 +346,7 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
                 window.saveing = true;
             },
             url: window.editURL,
-            data: { "identify": window.book.identify, "doc_id": doc_id, "markdown": content, "html": html, "cover": $is_cover ? "yes" : "no", "version": version },
+            data: { "identify": window.book.identify, "doc_id": doc_id, "markdown": content, "html": html, "markdown_theme":markdownTheme, "cover": $is_cover ? "yes" : "no", "version": version },
             type: "post",
             timeout : 30000,
             dataType: "json",
@@ -722,154 +605,5 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
             resetEditorChanged(true);
         }
         $("#documentTemplateModal").modal('hide');
-    });
-    /**
-     * 展示自定义模板列表
-     */
-    $("#displayCustomsTemplateModal").on("show.bs.modal",function () {
-        window.sessionStorage.setItem("displayCustomsTemplateList",$("#displayCustomsTemplateList").html());
-
-        var index ;
-        $.ajax({
-            beforeSend: function () {
-                index = layer.load(1, { shade: [0.1, '#fff'] });
-            },
-           url : window.template.listUrl,
-           data: {"identify":window.book.identify},
-           type: "POST",
-           dataType: "html",
-            success: function ($res) {
-                $("#displayCustomsTemplateList").html($res);
-            },
-            error : function () {
-                layer.msg(window.editormdLocales[window.lang].loadFailed);
-            },
-            complete : function () {
-                layer.close(index);
-            }
-        });
-        $("#documentTemplateModal").modal("hide");
-    }).on("hidden.bs.modal",function () {
-        var cache = window.sessionStorage.getItem("displayCustomsTemplateList");
-        $("#displayCustomsTemplateList").html(cache);
-    });
-    /**
-     * 添加模板
-     */
-    $("#saveTemplateForm").ajaxForm({
-        beforeSubmit: function () {
-            var doc_name = $.trim($("#templateName").val());
-            if (doc_name === "") {
-                return showError(window.editormdLocales[window.lang].tplNameEmpty, "#saveTemplateForm .show-error-message");
-            }
-            var content = $("#saveTemplateForm").find("input[name='content']").val();
-            if (content === ""){
-                return showError(window.editormdLocales[window.lang].tplContentEmpty, "#saveTemplateForm .show-error-message");
-            }
-
-            $("#btnSaveTemplate").button("loading");
-
-            return true;
-        },
-        success: function ($res) {
-            if($res.errcode === 0){
-                $("#saveTemplateModal").modal("hide");
-                layer.msg(window.editormdLocales[window.lang].saveSucc);
-            }else{
-                return showError($res.message, "#saveTemplateForm .show-error-message");
-            }
-        },
-        complete : function () {
-            $("#btnSaveTemplate").button("reset");
-        }
-    });
-    /**
-     * 当添加模板弹窗事件发生
-     */
-    $("#saveTemplateModal").on("show.bs.modal",function () {
-        window.sessionStorage.setItem("saveTemplateModal",$(this).find(".modal-body").html());
-        var content = window.editor.getMarkdown();
-        $("#saveTemplateForm").find("input[name='content']").val(content);
-        $("#saveTemplateForm .show-error-message").html("");
-    }).on("hidden.bs.modal",function () {
-        $(this).find(".modal-body").html(window.sessionStorage.getItem("saveTemplateModal"));
-    });
-    /**
-     * 插入自定义模板内容
-     */
-    $("#displayCustomsTemplateList").on("click",".btn-insert",function () {
-        var templateId = $(this).attr("data-id");
-
-        $.ajax({
-            url: window.template.getUrl,
-            data :{"identify": window.book.identify, "template_id": templateId},
-            dataType: "json",
-            type: "get",
-            success : function ($res) {
-               if ($res.errcode !== 0){
-                   layer.msg($res.message);
-                   return;
-               }
-                window.isLoad = true;
-                window.editor.clear();
-                window.editor.insertValue($res.data.template_content);
-                window.editor.setCursor({ line: 0, ch: 0 });
-                resetEditorChanged(true);
-                $("#displayCustomsTemplateModal").modal("hide");
-            },error : function () {
-                layer.msg(window.editormdLocales[window.lang].serverExcept);
-            }
-        });
-    }).on("click",".btn-delete",function () {
-        var $then = $(this);
-        var templateId = $then.attr("data-id");
-        $then.button("loading");
-
-        $.ajax({
-            url : window.template.deleteUrl,
-            data: {"identify": window.book.identify, "template_id": templateId},
-            dataType: "json",
-            type: "post",
-            success: function ($res) {
-                if($res.errcode !== 0){
-                    layer.msg($res.message);
-                }else{
-                    $then.parents("tr").empty().remove();
-                }
-            },error : function () {
-                layer.msg(window.editormdLocales[window.lang].serverExcept);
-            },
-            complete: function () {
-                $then.button("reset");
-            }
-        })
-    });
-
-    $("#btnInsertTable").on("click",function () {
-       var content = $("#jsonContent").val();
-       if(content !== "") {
-           try {
-               var jsonObj = $.parseJSON(content);
-               var data = foreachJson(jsonObj,"");
-               var table = "| " + window.editormdLocales[window.lang].paramName 
-                + "  | " + window.editormdLocales[window.lang].paramType
-                + " | " + window.editormdLocales[window.lang].example
-                + "  |  " + window.editormdLocales[window.lang].remark
-                + " |\n| ------------ | ------------ | ------------ | ------------ |\n";
-               $.each(data,function (i,item) {
-                    table += "|" + item.key + "|" + item.type + "|" + item.value +"| |\n";
-               });
-                insertToMarkdown(table);
-           }catch (e) {
-               showError("Json 格式错误:" + e.toString(),"#json-error-message");
-               return;
-           }
-       }
-       $("#convertJsonToTableModal").modal("hide");
-    });
-    $("#convertJsonToTableModal").on("hidden.bs.modal",function () {
-        $("#jsonContent").val("");
-    }).on("shown.bs.modal",function () {
-        $("#jsonContent").focus();
     });
 });
