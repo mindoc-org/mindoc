@@ -197,18 +197,16 @@
  * references.
  * mapping - Optional mapping from field- to attributenames.
  */
-function mxObjectCodec(template, exclude, idrefs, mapping)
-{
+function mxObjectCodec(template, exclude, idrefs, mapping) {
 	this.template = template;
-	
+
 	this.exclude = (exclude != null) ? exclude : [];
 	this.idrefs = (idrefs != null) ? idrefs : [];
 	this.mapping = (mapping != null) ? mapping : [];
-	
+
 	this.reverse = new Object();
-	
-	for (var i in this.mapping)
-	{
+
+	for (var i in this.mapping) {
 		this.reverse[this.mapping[i]] = i;
 	}
 };
@@ -268,8 +266,7 @@ mxObjectCodec.prototype.reverse = null;
  * if that is different than what this returns. The default implementation
  * returns the classname of the template class.
  */
-mxObjectCodec.prototype.getName = function()
-{
+mxObjectCodec.prototype.getName = function () {
 	return mxUtils.getFunctionName(this.template.constructor);
 };
 
@@ -278,8 +275,7 @@ mxObjectCodec.prototype.getName = function()
  * 
  * Returns a new instance of the template for this codec.
  */
-mxObjectCodec.prototype.cloneTemplate = function()
-{
+mxObjectCodec.prototype.cloneTemplate = function () {
 	return new this.template.constructor();
 };
 
@@ -291,18 +287,15 @@ mxObjectCodec.prototype.cloneTemplate = function()
  * the input if there is no reverse mapping for the
  * given name.
  */
-mxObjectCodec.prototype.getFieldName = function(attributename)
-{
-	if (attributename != null)
-	{
+mxObjectCodec.prototype.getFieldName = function (attributename) {
+	if (attributename != null) {
 		var mapped = this.reverse[attributename];
-		
-		if (mapped != null)
-		{
+
+		if (mapped != null) {
 			attributename = mapped;
 		}
 	}
-	
+
 	return attributename;
 };
 
@@ -314,18 +307,15 @@ mxObjectCodec.prototype.getFieldName = function(attributename)
  * the input if there is no mapping for the
  * given name.
  */
-mxObjectCodec.prototype.getAttributeName = function(fieldname)
-{
-	if (fieldname != null)
-	{
+mxObjectCodec.prototype.getAttributeName = function (fieldname) {
+	if (fieldname != null) {
 		var mapped = this.mapping[fieldname];
-		
-		if (mapped != null)
-		{
+
+		if (mapped != null) {
 			fieldname = mapped;
 		}
 	}
-	
+
 	return fieldname;
 };
 
@@ -344,8 +334,7 @@ mxObjectCodec.prototype.getAttributeName = function(fieldname)
  * write - Boolean indicating if the field is being encoded or decoded.
  * Write is true if the field is being encoded, else it is being decoded.
  */
-mxObjectCodec.prototype.isExcluded = function(obj, attr, value, write)
-{
+mxObjectCodec.prototype.isExcluded = function (obj, attr, value, write) {
 	return attr == mxObjectIdentity.FIELD_NAME ||
 		mxUtils.indexOf(this.exclude, attr) >= 0;
 };
@@ -365,8 +354,7 @@ mxObjectCodec.prototype.isExcluded = function(obj, attr, value, write)
  * write - Boolean indicating if the field is being encoded or decoded.
  * Write is true if the field is being encoded, else it is being decoded.
  */
-mxObjectCodec.prototype.isReference = function(obj, attr, value, write)
-{
+mxObjectCodec.prototype.isReference = function (obj, attr, value, write) {
 	return mxUtils.indexOf(this.idrefs, attr) >= 0;
 };
 
@@ -412,16 +400,15 @@ mxObjectCodec.prototype.isReference = function(obj, attr, value, write)
  * enc - <mxCodec> that controls the encoding process.
  * obj - Object to be encoded.
  */
-mxObjectCodec.prototype.encode = function(enc, obj)
-{
+mxObjectCodec.prototype.encode = function (enc, obj) {
 	var node = enc.document.createElement(this.getName());
-	
+
 	obj = this.beforeEncode(enc, obj, node);
 	this.encodeObject(enc, obj, node);
-	
+
 	return this.afterEncode(enc, obj, node);
 };
-	
+
 /**
  * Function: encodeObject
  *
@@ -434,25 +421,21 @@ mxObjectCodec.prototype.encode = function(enc, obj)
  * obj - Object to be encoded.
  * node - XML node that contains the encoded object.
  */
-mxObjectCodec.prototype.encodeObject = function(enc, obj, node)
-{
+mxObjectCodec.prototype.encodeObject = function (enc, obj, node) {
 	enc.setAttribute(node, 'id', enc.getId(obj));
-	
-    for (var i in obj)
-    {
+
+	for (var i in obj) {
 		var name = i;
 		var value = obj[name];
-		
-    	if (value != null && !this.isExcluded(obj, name, value, true))
-    	{
-    		if (mxUtils.isInteger(name))
-    		{
-    			name = null;
-    		}
-    		
-    		this.encodeValue(enc, obj, name, value, node);
-    	}
-    }
+
+		if (value != null && !this.isExcluded(obj, name, value, true)) {
+			if (mxUtils.isInteger(name)) {
+				name = null;
+			}
+
+			this.encodeValue(enc, obj, name, value, node);
+		}
+	}
 };
 
 /**
@@ -470,32 +453,27 @@ mxObjectCodec.prototype.encodeObject = function(enc, obj, node)
  * value - Value of the property to be encoded.
  * node - XML node that contains the encoded object.
  */
-mxObjectCodec.prototype.encodeValue = function(enc, obj, name, value, node)
-{
-	if (value != null)
-	{
-		if (this.isReference(obj, name, value, true))
-		{
+mxObjectCodec.prototype.encodeValue = function (enc, obj, name, value, node) {
+	if (value != null) {
+		if (this.isReference(obj, name, value, true)) {
 			var tmp = enc.getId(value);
-			
-			if (tmp == null)
-			{
-		    	mxLog.warn('mxObjectCodec.encode: No ID for ' +
-		    		this.getName() + '.' + name + '=' + value);
-		    	return; // exit
-		    }
-		    
-		    value = tmp;
+
+			if (tmp == null) {
+				mxLog.warn('mxObjectCodec.encode: No ID for ' +
+					this.getName() + '.' + name + '=' + value);
+				return; // exit
+			}
+
+			value = tmp;
 		}
 
 		var defaultValue = this.template[name];
-		
+
 		// Checks if the value is a default value and
 		// the name is correct
-		if (name == null || enc.encodeDefaults || defaultValue != value)
-		{
+		if (name == null || enc.encodeDefaults || defaultValue != value) {
 			name = this.getAttributeName(name);
-			this.writeAttribute(enc, obj, name, value, node);	
+			this.writeAttribute(enc, obj, name, value, node);
 		}
 	}
 };
@@ -506,14 +484,11 @@ mxObjectCodec.prototype.encodeValue = function(enc, obj, name, value, node)
  * Writes the given value into node using <writePrimitiveAttribute>
  * or <writeComplexAttribute> depending on the type of the value.
  */
-mxObjectCodec.prototype.writeAttribute = function(enc, obj, name, value, node)
-{
-	if (typeof(value) != 'object' /* primitive type */)
-	{
+mxObjectCodec.prototype.writeAttribute = function (enc, obj, name, value, node) {
+	if (typeof (value) != 'object' /* primitive type */) {
 		this.writePrimitiveAttribute(enc, obj, name, value, node);
 	}
-	else /* complex type */
-	{
+	else /* complex type */ {
 		this.writeComplexAttribute(enc, obj, name, value, node);
 	}
 };
@@ -523,51 +498,42 @@ mxObjectCodec.prototype.writeAttribute = function(enc, obj, name, value, node)
  * 
  * Writes the given value as an attribute of the given node.
  */
-mxObjectCodec.prototype.writePrimitiveAttribute = function(enc, obj, name, value, node)
-{
+mxObjectCodec.prototype.writePrimitiveAttribute = function (enc, obj, name, value, node) {
 	value = this.convertAttributeToXml(enc, obj, name, value, node);
-	
-	if (name == null)
-	{
+
+	if (name == null) {
 		var child = enc.document.createElement('add');
-		
-		if (typeof(value) == 'function')
-		{
-    		child.appendChild(enc.document.createTextNode(value));
-    	}
-    	else
-    	{
-    		enc.setAttribute(child, 'value', value);
-    	}
-    	
+
+		if (typeof (value) == 'function') {
+			child.appendChild(enc.document.createTextNode(value));
+		}
+		else {
+			enc.setAttribute(child, 'value', value);
+		}
+
 		node.appendChild(child);
 	}
-	else if (typeof(value) != 'function')
-	{
-    	enc.setAttribute(node, name, value);
-	}		
+	else if (typeof (value) != 'function') {
+		enc.setAttribute(node, name, value);
+	}
 };
-	
+
 /**
  * Function: writeComplexAttribute
  * 
  * Writes the given value as a child node of the given node.
  */
-mxObjectCodec.prototype.writeComplexAttribute = function(enc, obj, name, value, node)
-{
+mxObjectCodec.prototype.writeComplexAttribute = function (enc, obj, name, value, node) {
 	var child = enc.encode(value);
-	
-	if (child != null)
-	{
-		if (name != null)
-		{
-    		child.setAttribute('as', name);
-    	}
-    	
-    	node.appendChild(child);
+
+	if (child != null) {
+		if (name != null) {
+			child.setAttribute('as', name);
+		}
+
+		node.appendChild(child);
 	}
-	else
-	{
+	else {
 		mxLog.warn('mxObjectCodec.encode: No node for ' + this.getName() + '.' + name + ': ' + value);
 	}
 };
@@ -585,16 +551,14 @@ mxObjectCodec.prototype.writeComplexAttribute = function(enc, obj, name, value, 
  * name - Name of the attribute to be converted.
  * value - Value to be converted.
  */
-mxObjectCodec.prototype.convertAttributeToXml = function(enc, obj, name, value)
-{
+mxObjectCodec.prototype.convertAttributeToXml = function (enc, obj, name, value) {
 	// Makes sure to encode boolean values as numeric values
-	if (this.isBooleanAttribute(enc, obj, name, value))
-	{	
+	if (this.isBooleanAttribute(enc, obj, name, value)) {
 		// Checks if the value is true (do not use the value as is, because
 		// this would check if the value is not null, so 0 would be true)
 		value = (value == true) ? '1' : '0';
 	}
-	
+
 	return value;
 };
 
@@ -610,9 +574,8 @@ mxObjectCodec.prototype.convertAttributeToXml = function(enc, obj, name, value)
  * name - Name of the attribute to be converted.
  * value - Value of the attribute to be converted.
  */
-mxObjectCodec.prototype.isBooleanAttribute = function(enc, obj, name, value)
-{
-	return (typeof(value.length) == 'undefined' && (value == true || value == false));
+mxObjectCodec.prototype.isBooleanAttribute = function (enc, obj, name, value) {
+	return (typeof (value.length) == 'undefined' && (value == true || value == false));
 };
 
 /**
@@ -627,20 +590,17 @@ mxObjectCodec.prototype.isBooleanAttribute = function(enc, obj, name, value)
  * attr - XML attribute to be converted.
  * obj - Objec to convert the attribute for.
  */
-mxObjectCodec.prototype.convertAttributeFromXml = function(dec, attr, obj)
-{
+mxObjectCodec.prototype.convertAttributeFromXml = function (dec, attr, obj) {
 	var value = attr.value;
-	
-	if (this.isNumericAttribute(dec, attr, obj))
-	{
+
+	if (this.isNumericAttribute(dec, attr, obj)) {
 		value = parseFloat(value);
-		
-		if (isNaN(value))
-		{
+
+		if (isNaN(value)) {
 			value = 0;
 		}
 	}
-	
+
 	return value;
 };
 
@@ -655,16 +615,15 @@ mxObjectCodec.prototype.convertAttributeFromXml = function(dec, attr, obj)
  * attr - XML attribute to be converted.
  * obj - Objec to convert the attribute for.
  */
-mxObjectCodec.prototype.isNumericAttribute = function(dec, attr, obj)
-{
+mxObjectCodec.prototype.isNumericAttribute = function (dec, attr, obj) {
 	// Handles known numeric attributes for generic objects
 	var result = (obj.constructor == mxGeometry &&
 		(attr.name == 'x' || attr.name == 'y' ||
-		attr.name == 'width' || attr.name == 'height')) ||
+			attr.name == 'width' || attr.name == 'height')) ||
 		(obj.constructor == mxPoint &&
-		(attr.name == 'x' || attr.name == 'y')) ||
+			(attr.name == 'x' || attr.name == 'y')) ||
 		mxUtils.isNumeric(attr.value);
-	
+
 	return result;
 };
 
@@ -682,8 +641,7 @@ mxObjectCodec.prototype.isNumericAttribute = function(dec, attr, obj)
  * obj - Object to be encoded.
  * node - XML node to encode the object into.
  */
-mxObjectCodec.prototype.beforeEncode = function(enc, obj, node)
-{
+mxObjectCodec.prototype.beforeEncode = function (enc, obj, node) {
 	return obj;
 };
 
@@ -702,8 +660,7 @@ mxObjectCodec.prototype.beforeEncode = function(enc, obj, node)
  * obj - Object to be encoded.
  * node - XML node that represents the default encoding.
  */
-mxObjectCodec.prototype.afterEncode = function(enc, obj, node)
-{
+mxObjectCodec.prototype.afterEncode = function (enc, obj, node) {
 	return node;
 };
 
@@ -761,26 +718,23 @@ mxObjectCodec.prototype.afterEncode = function(enc, obj, node)
  * node - XML node to be decoded.
  * into - Optional objec to encode the node into.
  */
-mxObjectCodec.prototype.decode = function(dec, node, into)
-{
+mxObjectCodec.prototype.decode = function (dec, node, into) {
 	var id = node.getAttribute('id');
 	var obj = dec.objects[id];
-	
-	if (obj == null)
-	{
+
+	if (obj == null) {
 		obj = into || this.cloneTemplate();
-		
-		if (id != null)
-		{
+
+		if (id != null) {
 			dec.putObject(id, obj);
 		}
 	}
-	
+
 	node = this.beforeDecode(dec, node, obj);
 	this.decodeNode(dec, node, obj);
-	
-    return this.afterDecode(dec, node, obj);
-};	
+
+	return this.afterDecode(dec, node, obj);
+};
 
 /**
  * Function: decodeNode
@@ -792,11 +746,9 @@ mxObjectCodec.prototype.decode = function(dec, node, into)
  * dec - <mxCodec> that controls the decoding process.
  * node - XML node to be decoded.
  * obj - Objec to encode the node into.
- */	
-mxObjectCodec.prototype.decodeNode = function(dec, node, obj)
-{
-	if (node != null)
-	{
+ */
+mxObjectCodec.prototype.decodeNode = function (dec, node, obj) {
+	if (node != null) {
 		this.decodeAttributes(dec, node, obj);
 		this.decodeChildren(dec, node, obj);
 	}
@@ -812,15 +764,12 @@ mxObjectCodec.prototype.decodeNode = function(dec, node, obj)
  * dec - <mxCodec> that controls the decoding process.
  * node - XML node to be decoded.
  * obj - Objec to encode the node into.
- */	
-mxObjectCodec.prototype.decodeAttributes = function(dec, node, obj)
-{
+ */
+mxObjectCodec.prototype.decodeAttributes = function (dec, node, obj) {
 	var attrs = node.attributes;
-	
-	if (attrs != null)
-	{
-		for (var i = 0; i < attrs.length; i++)
-		{
+
+	if (attrs != null) {
+		for (var i = 0; i < attrs.length; i++) {
 			this.decodeAttribute(dec, attrs[i], obj);
 		}
 	}
@@ -837,9 +786,8 @@ mxObjectCodec.prototype.decodeAttributes = function(dec, node, obj)
  * dec - <mxCodec> that controls the decoding process.
  * attr - XML attribute to be decoded.
  * obj - Objec to encode the attribute into.
- */	
-mxObjectCodec.prototype.isIgnoredAttribute = function(dec, attr, obj)
-{
+ */
+mxObjectCodec.prototype.isIgnoredAttribute = function (dec, attr, obj) {
 	return attr.nodeName == 'as' || attr.nodeName == 'id';
 };
 
@@ -853,36 +801,31 @@ mxObjectCodec.prototype.isIgnoredAttribute = function(dec, attr, obj)
  * dec - <mxCodec> that controls the decoding process.
  * attr - XML attribute to be decoded.
  * obj - Objec to encode the attribute into.
- */	
-mxObjectCodec.prototype.decodeAttribute = function(dec, attr, obj)
-{
-	if (!this.isIgnoredAttribute(dec, attr, obj))
-	{
+ */
+mxObjectCodec.prototype.decodeAttribute = function (dec, attr, obj) {
+	if (!this.isIgnoredAttribute(dec, attr, obj)) {
 		var name = attr.nodeName;
-		
+
 		// Converts the string true and false to their boolean values.
 		// This may require an additional check on the obj to see if
 		// the existing field is a boolean value or uninitialized, in
 		// which case we may want to convert true and false to a string.
 		var value = this.convertAttributeFromXml(dec, attr, obj);
 		var fieldname = this.getFieldName(name);
-		
-		if (this.isReference(obj, fieldname, value, false))
-		{
+
+		if (this.isReference(obj, fieldname, value, false)) {
 			var tmp = dec.getObject(value);
-			
-			if (tmp == null)
-			{
-		    	mxLog.warn('mxObjectCodec.decode: No object for ' +
-		    		this.getName() + '.' + name + '=' + value);
-		    	return; // exit
-		    }
-		    
-		    value = tmp;
+
+			if (tmp == null) {
+				mxLog.warn('mxObjectCodec.decode: No object for ' +
+					this.getName() + '.' + name + '=' + value);
+				return; // exit
+			}
+
+			value = tmp;
 		}
 
-		if (!this.isExcluded(obj, name, value, false))
-		{
+		if (!this.isExcluded(obj, name, value, false)) {
 			//mxLog.debug(mxUtils.getFunctionName(obj.constructor)+'.'+name+'='+value);
 			obj[name] = value;
 		}
@@ -899,21 +842,18 @@ mxObjectCodec.prototype.decodeAttribute = function(dec, attr, obj)
  * dec - <mxCodec> that controls the decoding process.
  * node - XML node to be decoded.
  * obj - Objec to encode the node into.
- */	
-mxObjectCodec.prototype.decodeChildren = function(dec, node, obj)
-{
+ */
+mxObjectCodec.prototype.decodeChildren = function (dec, node, obj) {
 	var child = node.firstChild;
-	
-	while (child != null)
-	{
+
+	while (child != null) {
 		var tmp = child.nextSibling;
-		
+
 		if (child.nodeType == mxConstants.NODETYPE_ELEMENT &&
-			!this.processInclude(dec, child, obj))
-		{
+			!this.processInclude(dec, child, obj)) {
 			this.decodeChild(dec, child, obj);
 		}
-		
+
 		child = tmp;
 	}
 };
@@ -928,27 +868,22 @@ mxObjectCodec.prototype.decodeChildren = function(dec, node, obj)
  * dec - <mxCodec> that controls the decoding process.
  * child - XML child element to be decoded.
  * obj - Objec to encode the node into.
- */	
-mxObjectCodec.prototype.decodeChild = function(dec, child, obj)
-{
+ */
+mxObjectCodec.prototype.decodeChild = function (dec, child, obj) {
 	var fieldname = this.getFieldName(child.getAttribute('as'));
-	
-	if (fieldname == null || !this.isExcluded(obj, fieldname, child, false))
-	{
+
+	if (fieldname == null || !this.isExcluded(obj, fieldname, child, false)) {
 		var template = this.getFieldTemplate(obj, fieldname, child);
 		var value = null;
-		
-		if (child.nodeName == 'add')
-		{
+
+		if (child.nodeName == 'add') {
 			value = child.getAttribute('value');
-			
-			if (value == null && mxObjectCodec.allowEval)
-			{
+
+			if (value == null && mxObjectCodec.allowEval) {
 				value = mxUtils.eval(mxUtils.getTextContent(child));
 			}
 		}
-		else
-		{
+		else {
 			value = dec.decode(child, template);
 		}
 
@@ -965,18 +900,16 @@ mxObjectCodec.prototype.decodeChild = function(dec, child, obj)
  * field for a new instance. For strongly typed languages it may be
  * required to override this to return the correct collection instance
  * based on the encoded child.
- */	
-mxObjectCodec.prototype.getFieldTemplate = function(obj, fieldname, child)
-{
+ */
+mxObjectCodec.prototype.getFieldTemplate = function (obj, fieldname, child) {
 	var template = obj[fieldname];
-	
+
 	// Non-empty arrays are replaced completely
-    if (template instanceof Array && template.length > 0)
-    {
-        template = null;
-    }
-    
-    return template;
+	if (template instanceof Array && template.length > 0) {
+		template = null;
+	}
+
+	return template;
 };
 
 /**
@@ -988,17 +921,13 @@ mxObjectCodec.prototype.getFieldTemplate = function(obj, fieldname, child)
  * else, if the object is a collection, the value is added to the
  * collection. For strongly typed languages it may be required to
  * override this with the correct code to add an entry to an object.
- */	
-mxObjectCodec.prototype.addObjectValue = function(obj, fieldname, value, template)
-{
-	if (value != null && value != template)
-	{
-		if (fieldname != null && fieldname.length > 0)
-		{
+ */
+mxObjectCodec.prototype.addObjectValue = function (obj, fieldname, value, template) {
+	if (value != null && value != template) {
+		if (fieldname != null && fieldname.length > 0) {
 			obj[fieldname] = value;
 		}
-		else
-		{
+		else {
 			obj.push(value);
 		}
 		//mxLog.debug('Decoded '+mxUtils.getFunctionName(obj.constructor)+'.'+fieldname+': '+value);
@@ -1018,32 +947,26 @@ mxObjectCodec.prototype.addObjectValue = function(obj, fieldname, value, templat
  * node - XML node to be checked.
  * into - Optional object to pass-thru to the codec.
  */
-mxObjectCodec.prototype.processInclude = function(dec, node, into)
-{
-	if (node.nodeName == 'include')
-	{
+mxObjectCodec.prototype.processInclude = function (dec, node, into) {
+	if (node.nodeName == 'include') {
 		var name = node.getAttribute('name');
-		
-		if (name != null)
-		{
-			try
-			{
+
+		if (name != null) {
+			try {
 				var xml = mxUtils.load(name).getDocumentElement();
-				
-				if (xml != null)
-				{
+
+				if (xml != null) {
 					dec.decode(xml, into);
 				}
 			}
-			catch (e)
-			{
+			catch (e) {
 				// ignore
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	return false;
 };
 
@@ -1065,8 +988,7 @@ mxObjectCodec.prototype.processInclude = function(dec, node, into)
  * node - XML node to be decoded.
  * obj - Object to encode the node into.
  */
-mxObjectCodec.prototype.beforeDecode = function(dec, node, obj)
-{
+mxObjectCodec.prototype.beforeDecode = function (dec, node, obj) {
 	return node;
 };
 
@@ -1084,7 +1006,6 @@ mxObjectCodec.prototype.beforeDecode = function(dec, node, obj)
  * node - XML node to be decoded.
  * obj - Object that represents the default decoding.
  */
-mxObjectCodec.prototype.afterDecode = function(dec, node, obj)
-{
+mxObjectCodec.prototype.afterDecode = function (dec, node, obj) {
 	return obj;
 };

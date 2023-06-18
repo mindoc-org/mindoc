@@ -51,215 +51,215 @@ $(function () {
         }
     };
 
-var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TYPE_LIST.PAR, {
-    makeHtml(str) {
-      console.warn('custom hook', 'hello');
-      return str;
-    },
-    rule(str) {
-      const regex = {
-        begin: '',
-        content: '',
-        end: '',
-      };
-      regex.reg = new RegExp(regex.begin + regex.content + regex.end, 'g');
-      return regex;
-    },
-  });
-  /**
-   * 自定义一个自定义菜单
-   * 点第一次时，把选中的文字变成同时加粗和斜体
-   * 保持光标选区不变，点第二次时，把加粗斜体的文字变成普通文本
-   */
-  var customMenuA = Cherry.createMenuHook('加粗斜体', {
-    iconName: 'font',
-    onClick: function (selection) {
-      // 获取用户选中的文字，调用getSelection方法后，如果用户没有选中任何文字，会尝试获取光标所在位置的单词或句子
-      let $selection = this.getSelection(selection) || '同时加粗斜体';
-      // 如果是单选，并且选中内容的开始结束内没有加粗语法，则扩大选中范围
-      if (!this.isSelections && !/^\s*(\*\*\*)[\s\S]+(\1)/.test($selection)) {
-        this.getMoreSelection('***', '***', () => {
-          const newSelection = this.editor.editor.getSelection();
-          const isBoldItalic = /^\s*(\*\*\*)[\s\S]+(\1)/.test(newSelection);
-          if (isBoldItalic) {
-            $selection = newSelection;
-          }
-          return isBoldItalic;
-        });
-      }
-      // 如果选中的文本中已经有加粗语法了，则去掉加粗语法
-      if (/^\s*(\*\*\*)[\s\S]+(\1)/.test($selection)) {
-        return $selection.replace(/(^)(\s*)(\*\*\*)([^\n]+)(\3)(\s*)($)/gm, '$1$4$7');
-      }
-      /**
-       * 注册缩小选区的规则
-       *    注册后，插入“***TEXT***”，选中状态会变成“***【TEXT】***”
-       *    如果不注册，插入后效果为：“【***TEXT***】”
-       */
-      this.registerAfterClickCb(() => {
-        this.setLessSelection('***', '***');
-      });
-      return $selection.replace(/(^)([^\n]+)($)/gm, '$1***$2***$3');
-    }
-  });
-  /**
-   * 定义一个空壳，用于自行规划cherry已有工具栏的层级结构
-   */
-  var customMenuB = Cherry.createMenuHook('发布', {
-    iconName: '',
-    onClick: releaseDocument,
-  });
-  
-  var customMenuC = Cherry.createMenuHook("返回", {
-    iconName: '',
-    onClick: backWard,
-  })
+    var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TYPE_LIST.PAR, {
+        makeHtml(str) {
+            console.warn('custom hook', 'hello');
+            return str;
+        },
+        rule(str) {
+            const regex = {
+                begin: '',
+                content: '',
+                end: '',
+            };
+            regex.reg = new RegExp(regex.begin + regex.content + regex.end, 'g');
+            return regex;
+        },
+    });
+    /**
+     * 自定义一个自定义菜单
+     * 点第一次时，把选中的文字变成同时加粗和斜体
+     * 保持光标选区不变，点第二次时，把加粗斜体的文字变成普通文本
+     */
+    var customMenuA = Cherry.createMenuHook('加粗斜体', {
+        iconName: 'font',
+        onClick: function (selection) {
+            // 获取用户选中的文字，调用getSelection方法后，如果用户没有选中任何文字，会尝试获取光标所在位置的单词或句子
+            let $selection = this.getSelection(selection) || '同时加粗斜体';
+            // 如果是单选，并且选中内容的开始结束内没有加粗语法，则扩大选中范围
+            if (!this.isSelections && !/^\s*(\*\*\*)[\s\S]+(\1)/.test($selection)) {
+                this.getMoreSelection('***', '***', () => {
+                    const newSelection = this.editor.editor.getSelection();
+                    const isBoldItalic = /^\s*(\*\*\*)[\s\S]+(\1)/.test(newSelection);
+                    if (isBoldItalic) {
+                        $selection = newSelection;
+                    }
+                    return isBoldItalic;
+                });
+            }
+            // 如果选中的文本中已经有加粗语法了，则去掉加粗语法
+            if (/^\s*(\*\*\*)[\s\S]+(\1)/.test($selection)) {
+                return $selection.replace(/(^)(\s*)(\*\*\*)([^\n]+)(\3)(\s*)($)/gm, '$1$4$7');
+            }
+            /**
+             * 注册缩小选区的规则
+             *    注册后，插入“***TEXT***”，选中状态会变成“***【TEXT】***”
+             *    如果不注册，插入后效果为：“【***TEXT***】”
+             */
+            this.registerAfterClickCb(() => {
+                this.setLessSelection('***', '***');
+            });
+            return $selection.replace(/(^)([^\n]+)($)/gm, '$1***$2***$3');
+        }
+    });
+    /**
+     * 定义一个空壳，用于自行规划cherry已有工具栏的层级结构
+     */
+    var customMenuB = Cherry.createMenuHook('发布', {
+        iconName: '',
+        onClick: releaseDocument,
+    });
 
-  var customMenuD = Cherry.createMenuHook('保存', {
-    iconName: '',
-    onClick: saveDocument,
-  });
+    var customMenuC = Cherry.createMenuHook("返回", {
+        iconName: '',
+        onClick: backWard,
+    })
 
-  var customMenuE = Cherry.createMenuHook('边栏', {
-    iconName: '',
-    onClick: siderChange,
-  });
+    var customMenuD = Cherry.createMenuHook('保存', {
+        iconName: '',
+        onClick: saveDocument,
+    });
 
-  var customMenuF = Cherry.createMenuHook('历史', {
-    iconName: '',
-    onClick: showHistory,
-  });
+    var customMenuE = Cherry.createMenuHook('边栏', {
+        iconName: '',
+        onClick: siderChange,
+    });
 
-  
-  var basicConfig = {
-    id: 'manualEditorContainer',
-    externals: {
-      echarts: window.echarts,
-      katex: window.katex,
-      MathJax: window.MathJax,
-    },
-    isPreviewOnly: false,
-    engine: {
-      global: {
-        urlProcessor(url, srcType) {
-          console.log(`url-processor`, url, srcType);
-          return url;
+    var customMenuF = Cherry.createMenuHook('历史', {
+        iconName: '',
+        onClick: showHistory,
+    });
+
+
+    var basicConfig = {
+        id: 'manualEditorContainer',
+        externals: {
+            echarts: window.echarts,
+            katex: window.katex,
+            MathJax: window.MathJax,
         },
-      },
-      syntax: {
-        codeBlock: {
-          theme: 'twilight',
+        isPreviewOnly: false,
+        engine: {
+            global: {
+                urlProcessor(url, srcType) {
+                    //console.log(`url-processor`, url, srcType);
+                    return url;
+                },
+            },
+            syntax: {
+                codeBlock: {
+                    theme: 'twilight',
+                },
+                table: {
+                    enableChart: false,
+                    // chartEngine: Engine Class
+                },
+                fontEmphasis: {
+                    allowWhitespace: false, // 是否允许首尾空格
+                },
+                strikethrough: {
+                    needWhitespace: false, // 是否必须有前后空格
+                },
+                mathBlock: {
+                    engine: 'MathJax', // katex或MathJax
+                    src: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js', // 如果使用MathJax plugins，则需要使用该url通过script标签引入
+                },
+                inlineMath: {
+                    engine: 'MathJax', // katex或MathJax
+                },
+                emoji: {
+                    useUnicode: false,
+                    customResourceURL: 'https://github.githubassets.com/images/icons/emoji/unicode/${code}.png?v8',
+                    upperCase: true,
+                },
+                // toc: {
+                //     tocStyle: 'nested'
+                // }
+                // 'header': {
+                //   strict: false
+                // }
+            },
+            customSyntax: {
+                // SyntaxHookClass
+                CustomHook: {
+                    syntaxClass: CustomHookA,
+                    force: false,
+                    after: 'br',
+                },
+            },
         },
-        table: {
-          enableChart: false,
-          // chartEngine: Engine Class
+        toolbars: {
+            toolbar: [
+                'customMenuCName',
+                'undo',
+                'redo',
+                'bold',
+                'italic',
+                {
+                    strikethrough: ['strikethrough', 'underline', 'sub', 'sup', 'ruby', 'customMenuAName'],
+                },
+                'size',
+                '|',
+                'color',
+                'header',
+                '|',
+                'drawIo',
+                '|',
+                'ol',
+                'ul',
+                'checklist',
+                'panel',
+                'detail',
+                '|',
+                'formula',
+                {
+                    insert: ['image', 'audio', 'video', 'link', 'hr', 'br', 'code', 'formula', 'toc', 'table', 'pdf', 'word', 'ruby'],
+                },
+                'graph',
+                'togglePreview',
+                'settings',
+                'switchModel',
+                'codeTheme',
+                'export',
+                'customMenuDName',
+                'customMenuBName',
+                'customMenuEName',
+                'customMenuFName',
+                'theme'
+            ],
+            bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
+            sidebar: ['mobilePreview', 'copy', 'theme'],
+            customMenu: {
+                customMenuAName: customMenuA,
+                customMenuBName: customMenuB,
+                customMenuCName: customMenuC,
+                customMenuDName: customMenuD,
+                customMenuEName: customMenuE,
+                customMenuFName: customMenuF,
+            },
         },
-        fontEmphasis: {
-          allowWhitespace: false, // 是否允许首尾空格
+        drawioIframeUrl: '/static/cherry/drawio_demo.html',
+        editor: {
+            defaultModel: 'edit&preview',
+            height: "100%",
         },
-        strikethrough: {
-          needWhitespace: false, // 是否必须有前后空格
+        previewer: {
+            // 自定义markdown预览区域class
+            // className: 'markdown'
         },
-        mathBlock: {
-          engine: 'MathJax', // katex或MathJax
-          src: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js', // 如果使用MathJax plugins，则需要使用该url通过script标签引入
-        },
-        inlineMath: {
-          engine: 'MathJax', // katex或MathJax
-        },
-        emoji: {
-          useUnicode: false,
-          customResourceURL: 'https://github.githubassets.com/images/icons/emoji/unicode/${code}.png?v8',
-          upperCase: true,
-        },
-        // toc: {
-        //     tocStyle: 'nested'
-        // }
-        // 'header': {
-        //   strict: false
-        // }
-      },
-      customSyntax: {
-        // SyntaxHookClass
-        CustomHook: {
-          syntaxClass: CustomHookA,
-          force: false,
-          after: 'br',
-        },
-      },
-    },
-    toolbars: {
-      toolbar: [
-        'customMenuCName',
-        'undo',
-        'redo',
-        'bold',
-        'italic',
-        {
-          strikethrough: ['strikethrough', 'underline', 'sub', 'sup', 'ruby', 'customMenuAName'],
-        },
-        'size',
-        '|',
-        'color',
-        'header',
-        '|',
-        'drawIo',
-        '|',
-        'ol',
-        'ul',
-        'checklist',
-        'panel',
-        'detail',
-        '|',
-        'formula',
-        {
-          insert: ['image', 'audio', 'video', 'link', 'hr', 'br', 'code', 'formula', 'toc', 'table', 'pdf', 'word', 'ruby'],
-        },
-        'graph',
-        'togglePreview',
-        'settings',
-        'switchModel',
-        'codeTheme',
-        'export',
-        'customMenuDName',
-        'customMenuBName',
-        'customMenuEName',
-        'customMenuFName',
-        'theme'
-      ],
-      bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
-      sidebar: ['mobilePreview', 'copy', 'theme'],
-      customMenu: {
-        customMenuAName: customMenuA,
-        customMenuBName: customMenuB,
-        customMenuCName: customMenuC,
-        customMenuDName: customMenuD,
-        customMenuEName: customMenuE,
-        customMenuFName: customMenuF,
-      },
-    },
-    drawioIframeUrl: '/static/cherry/drawio_demo.html',
-    editor: {
-      defaultModel: 'edit&preview',
-      height: "100%",
-    },
-    previewer: {
-      // 自定义markdown预览区域class
-      // className: 'markdown'
-    },
-    keydown: [],
-    //extensions: [],
-    //callback: {
-    //changeString2Pinyin: pinyin,
-    //}
-  };
-  
-  fetch('').then((response) => response.text()).then((value) => {
-    //var markdownarea = document.getElementById("markdown_area").value
-    var config = Object.assign({}, basicConfig);// { value: markdownarea });// { value: value });不显示获取的初始化值
-    window.editor = new Cherry(config);
-    openLastSelectedNode();
-  });
+        keydown: [],
+        //extensions: [],
+        //callback: {
+        //changeString2Pinyin: pinyin,
+        //}
+    };
+
+    fetch('').then((response) => response.text()).then((value) => {
+        //var markdownarea = document.getElementById("markdown_area").value
+        var config = Object.assign({}, basicConfig);// { value: markdownarea });// { value: value });不显示获取的初始化值
+        window.editor = new Cherry(config);
+        openLastSelectedNode();
+    });
 
     function insertToMarkdown(body) {
         window.isLoad = true;
@@ -279,12 +279,12 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
      * 加载指定的文档到编辑器中
      * @param $node
      */
-    window.loadDocument = function($node) {
+    window.loadDocument = function ($node) {
         var index = layer.load(1, {
             shade: [0.1, '#fff'] // 0.1 透明度的白色背景
         });
 
-        $.get(window.editURL + $node.node.id ).done(function (res) {
+        $.get(window.editURL + $node.node.id).done(function (res) {
             layer.close(index);
 
             if (res.errcode === 0) {
@@ -292,7 +292,7 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
                 try {
                     window.editor.setTheme(res.data.markdown_theme);
                     window.editor.setMarkdown(res.data.markdown);
-                }catch(e){
+                } catch (e) {
                     console.log(e);
                 }
                 var node = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id, "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
@@ -346,9 +346,9 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
                 window.saveing = true;
             },
             url: window.editURL,
-            data: { "identify": window.book.identify, "doc_id": doc_id, "markdown": content, "html": html, "markdown_theme":markdownTheme, "cover": $is_cover ? "yes" : "no", "version": version },
+            data: { "identify": window.book.identify, "doc_id": doc_id, "markdown": content, "html": html, "markdown_theme": markdownTheme, "cover": $is_cover ? "yes" : "no", "version": version },
             type: "post",
-            timeout : 30000,
+            timeout: 30000,
             dataType: "json",
             success: function (res) {
                 if (res.errcode === 0) {
@@ -361,7 +361,7 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
                             break;
                         }
                     }
-                    $.each(window.documentCategory,function (i, item) {
+                    $.each(window.documentCategory, function (i, item) {
                         var $item = window.documentCategory[i];
 
                         if (item.id === doc_id) {
@@ -372,10 +372,10 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
                         callback();
                     }
 
-                } else if(res.errcode === 6005) {
+                } else if (res.errcode === 6005) {
                     var confirmIndex = layer.confirm(editormdLocales[lang].overrideModified, {
                         btn: [editormdLocales[lang].confirm, editormdLocales[lang].cancel] // 按钮
-                    }, function() {
+                    }, function () {
                         layer.close(confirmIndex);
                         saveDocument(true, callback);
                     });
@@ -383,16 +383,16 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
                     layer.msg(res.message);
                 }
             },
-            error : function (XMLHttpRequest, textStatus, errorThrown) {
-                layer.msg(window.editormdLocales[window.lang].serverExcept +  errorThrown);
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                layer.msg(window.editormdLocales[window.lang].serverExcept + errorThrown);
             },
-            complete :function () {
+            complete: function () {
                 layer.close(index);
                 window.saveing = false;
             }
         });
     }
-    
+
 
     /**
      * 设置编辑器变更状态
@@ -475,12 +475,12 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
             if (res.errcode === 0) {
                 var data = {
                     "id": res.data.doc_id,
-                    'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id ,
+                    'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id,
                     "text": res.data.doc_name,
                     "identify": res.data.identify,
-                    "version": res.data.version ,
-                    state: { opened: res.data.is_open == 1},
-                    a_attr: { is_open: res.data.is_open == 1}
+                    "version": res.data.version,
+                    state: { opened: res.data.is_open == 1 },
+                    a_attr: { is_open: res.data.is_open == 1 }
                 };
 
                 var node = window.treeCatalog.get_node(data.id);
@@ -561,7 +561,7 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
                 }
             }
         }
-    }).on("ready.jstree",function () {
+    }).on("ready.jstree", function () {
         window.treeCatalog = $("#sidebar").jstree(true);
 
         //如果没有选中节点则选中默认节点
@@ -584,7 +584,7 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
 
 
         loadDocument(selected);
-    }).on("move_node.jstree", jstree_save).on("delete_node.jstree",function($node,$parent) {
+    }).on("move_node.jstree", jstree_save).on("delete_node.jstree", function ($node, $parent) {
         openLastSelectedNode();
     });
     /**
@@ -592,7 +592,7 @@ var CustomHookA = Cherry.createSyntaxHook('codeBlock', Cherry.constants.HOOKS_TY
      */
     $("#documentTemplateModal").on("click", ".section>a[data-type]", function () {
         var $this = $(this).attr("data-type");
-        if($this === "customs"){
+        if ($this === "customs") {
             $("#displayCustomsTemplateModal").modal("show");
             return;
         }

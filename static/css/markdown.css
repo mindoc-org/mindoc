@@ -534,3 +534,32 @@ iframe.cherry-dialog-iframe {
 .manual-article.cherry {
     height: auto !important;
 }
+
+.manual-article.cherry .cherry-highlight-line {
+    background-color: transparent !important;
+}
+
+.manual-article.cherry-markdown .toc {
+    position: fixed;
+    right: 0;
+    width: 200px;
+    margin-top: -70px;
+    overflow: auto;
+    margin-right: 50px;
+}
+
+.markdown-article-body {
+    margin-right: 200px !important;
+}
+
+.markdown-article-head {
+    margin-right: 200px !important;
+    width: unset !important;
+    padding: unset !important;
+    padding-top: 10px !important;
+}
+
+.markdown-title {
+    padding: unset !important;
+    width: 100% !important;
+}

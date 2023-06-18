@@ -21,7 +21,7 @@
     <link href="{{cdncss "/static/nprogress/nprogress.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/kancloud.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/lib/sequence/sequence-diagram-min.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/cherry/cherry-markdown.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
@@ -160,22 +160,21 @@
         </div>
         <div class="manual-right">
             <div class="manual-article {{if eq .Model.Editor "markdown"}} cherry cherry-markdown {{.MarkdownTheme}} {{end}}">
-                <div class="article-head">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-2">
-
-                            </div>
-                            <div class="col-md-8 text-center">
-                                <h1 id="article-title">{{.Title}}</h1>
-                            </div>
-                            <div class="col-md-2">
+                <div class="article-content">
+                    <div class="article-head {{if eq .Model.Editor "markdown"}} markdown-article-head {{end}}">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-2">
+                                </div>
+                                <div class="col-md-8 text-center {{if eq .Model.Editor "markdown"}} markdown-title {{else}} editor-content{{end}}">
+                                    <h1 id="article-title">{{.Title}}</h1>
+                                </div>
+                                <div class="col-md-2">
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="article-content">
-                    <div class="article-body  {{if eq .Model.Editor "markdown"}} cherry-markdown  {{else}}editor-content{{end}}"  id="page-content">
+                    <div class="article-body  {{if eq .Model.Editor "markdown"}} markdown-article-body {{else}} editor-content{{end}}"  id="page-content">
                         {{.Content}}
                     </div>
 
