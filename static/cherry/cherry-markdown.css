@@ -2250,7 +2250,7 @@ div[data-type=codeBlock] .token.inserted {
   overflow: hidden;
   border-radius: 8px;
   box-sizing: border-box;
-  border: 0.5px solid;
+  border: 1px solid;
 }
 
 .cherry-panel .cherry-panel--title {
@@ -2269,12 +2269,13 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry-panel__primary {
-  background-color: #cfe2ff;
+  background-color: #fff5eb;
+  border-color: #fed4a4;
   color: #0a58ca;
 }
 
 .cherry-panel__primary .cherry-panel--title {
-  background-color: #0d6dfe;
+  background-color: #f7cf22;
 }
 
 .cherry-panel__primary .cherry-panel--title.cherry-panel--title__not-empty::before {
@@ -2282,12 +2283,13 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry-panel__info {
-  background-color: #cff4fc;
+  background-color: #ebfeff;
+  border-color: #a4a5fe;
   color: #087990;
 }
 
 .cherry-panel__info .cherry-panel--title {
-  background-color: #099cba;
+  background-color: #22d6f7;
 }
 
 .cherry-panel__info .cherry-panel--title.cherry-panel--title__not-empty::before {
@@ -2295,12 +2297,13 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry-panel__warning {
-  background-color: #fff3cd;
+  background-color: #f1ebff;
+  border-color: #fea4d7;
   color: #997404;
 }
 
 .cherry-panel__warning .cherry-panel--title {
-  background-color: #b38806;
+  background-color: #8e22f7;
 }
 
 .cherry-panel__warning .cherry-panel--title.cherry-panel--title__not-empty::before {
@@ -2308,12 +2311,13 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry-panel__danger {
-  background-color: #f8d7da;
+  background-color: #f4dfdf;
+  border-color: #b9fea4;
   color: #b02a37;
 }
 
 .cherry-panel__danger .cherry-panel--title {
-  background-color: #dc3545;
+  background-color: #ff5959;
 }
 
 .cherry-panel__danger .cherry-panel--title.cherry-panel--title__not-empty::before {
@@ -2321,12 +2325,13 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry-panel__success {
-  background-color: #d1e7dd;
+  background-color: #d6f8de;
+  border-color: #a4a8fe;
   color: #146c43;
 }
 
 .cherry-panel__success .cherry-panel--title {
-  background-color: #198754;
+  background-color: #4be561;
 }
 
 .cherry-panel__success .cherry-panel--title.cherry-panel--title__not-empty::before {
