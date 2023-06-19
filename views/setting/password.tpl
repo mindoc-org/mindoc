@@ -54,7 +54,7 @@
                             <span id="form-error-message" class="error-message"></span>
                         </div>
                         <div class="form-group">
-                            <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "message.save"}}</button>
+                            <button type="submit" class="btn btn-success" data-loading-text="{{i18n .Lang "message.processing"}}">{{i18n .Lang "common.save"}}</button>
                         </div>
                     </form>
                 </div>
