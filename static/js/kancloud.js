@@ -147,6 +147,14 @@ function renderPage($data) {
     else {
         pageClicked(-1, $data.doc_id);
     }
+
+    if ($data.is_markdown) {
+        if ($("#view_container").hasClass($data.markdown_theme)) {
+            return
+        }
+        $("#view_container").removeClass("theme__dark theme__green theme__light theme__red theme__default")
+        $("#view_container").addClass($data.markdown_theme)
+     }
 }
 
 /***

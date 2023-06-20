@@ -159,7 +159,7 @@
             </div>
         </div>
         <div class="manual-right">
-            <div class="manual-article {{if eq .Model.Editor "markdown"}} cherry cherry-markdown {{.MarkdownTheme}} {{end}}">
+            <div id="view_container" class="manual-article {{if eq .Model.Editor "markdown"}} cherry cherry-markdown {{.MarkdownTheme}} {{end}}">
                 <div class="article-content">
                     <div class="article-head {{if eq .Model.Editor "markdown"}} markdown-article-head {{end}}">
                         <div class="container-fluid">
@@ -294,6 +294,7 @@
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/cherry/cherry-markdown.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>

@@ -2,6 +2,11 @@
 window.urlParams = window.urlParams || {};
 
 // Public global variables
+window.DOM_PURIFY_CONFIG = window.DOM_PURIFY_CONFIG ||
+    {ADD_TAGS: ['use'], FORBID_TAGS: ['form'],
+    ALLOWED_URI_REGEXP: /^((?!javascript:).)*$/i,
+    ADD_ATTR: ['target', 'content']};
+// Public global variables
 window.MAX_REQUEST_SIZE = window.MAX_REQUEST_SIZE  || 10485760;
 window.MAX_AREA = window.MAX_AREA || 15000 * 15000;
 

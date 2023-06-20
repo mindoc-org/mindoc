@@ -188,13 +188,15 @@ func (c *DocumentController) Read() {
 
 	if c.IsAjax() {
 		var data struct {
-			DocId       int    `json:"doc_id"`
-			DocIdentify string `json:"doc_identify"`
-			DocTitle    string `json:"doc_title"`
-			Body        string `json:"body"`
-			Title       string `json:"title"`
-			Version     int64  `json:"version"`
-			ViewCount   int    `json:"view_count"`
+			DocId         int    `json:"doc_id"`
+			DocIdentify   string `json:"doc_identify"`
+			DocTitle      string `json:"doc_title"`
+			Body          string `json:"body"`
+			Title         string `json:"title"`
+			Version       int64  `json:"version"`
+			ViewCount     int    `json:"view_count"`
+			MarkdownTheme string `json:"markdown_theme"`
+			IsMarkdown    bool   `json:"is_markdown"`
 		}
 		data.DocId = doc.DocumentId
 		data.DocIdentify = doc.Identify
@@ -203,7 +205,10 @@ func (c *DocumentController) Read() {
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
 		data.Version = doc.Version
 		data.ViewCount = doc.ViewCount
-
+		data.MarkdownTheme = doc.MarkdownTheme
+		if bookResult.Editor == "markdown" {
+			data.IsMarkdown = true
+		}
 		c.JsonResult(0, "ok", data)
 	} else {
 		c.Data["DocumentId"] = doc.DocumentId
@@ -232,13 +237,13 @@ func (c *DocumentController) Read() {
 	c.Data["Content"] = template.HTML(doc.Release)
 	c.Data["ViewCount"] = doc.ViewCount
 	c.Data["FoldSetting"] = "closed"
+	if bookResult.Editor == "markdown" {
+		c.Data["MarkdownTheme"] = doc.MarkdownTheme
+	}
 	if doc.IsOpen == 1 {
 		c.Data["FoldSetting"] = "open"
 	} else if doc.IsOpen == 2 {
 		c.Data["FoldSetting"] = "empty"
-	}
-	if bookResult.Editor == "markdown" {
-		c.Data["MarkdownTheme"] = doc.MarkdownTheme
 	}
 }
 

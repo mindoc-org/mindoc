@@ -259,6 +259,19 @@ $(function () {
         var config = Object.assign({}, basicConfig);// { value: markdownarea });// { value: value });不显示获取的初始化值
         window.editor = new Cherry(config);
         openLastSelectedNode();
+        uploadImage("manualEditorContainer", function ($state, $res) {
+            console.log("注册上传图片")
+            if ($state === "before") {
+                return layer.load(1, {
+                    shade: [0.1, '#fff'] // 0.1 透明度的白色背景
+                });
+            } else if ($state === "success") {
+                if ($res.errcode === 0) {
+                    var value = '![](' + $res.url + ')';
+                    window.editor.insertValue(value);
+                }
+            }
+        });
     });
 
     function insertToMarkdown(body) {
@@ -607,3 +620,79 @@ $(function () {
         $("#documentTemplateModal").modal('hide');
     });
 });
+
+function uploadImage($id, $callback) {
+    locales = {
+        'zh-CN': {
+            unsupportType: '不支持的图片格式',
+            uploadFailed: '图片上传失败'
+        },
+        'en': {
+            unsupportType: 'Unsupport image type',
+            uploadFailed: 'Upload image failed'
+        }
+    }
+    /** 粘贴上传图片 **/
+    document.getElementById($id).addEventListener('paste', function (e) {
+        if (e.clipboardData && e.clipboardData.items) {
+            var clipboard = e.clipboardData;
+            for (var i = 0, len = clipboard.items.length; i < len; i++) {
+                if (clipboard.items[i].kind === 'file' || clipboard.items[i].type.indexOf('image') > -1) {
+
+                    var imageFile = clipboard.items[i].getAsFile();
+
+                    var fileName = String((new Date()).valueOf());
+
+                    switch (imageFile.type) {
+                        case "image/png" :
+                            fileName += ".png";
+                            break;
+                        case "image/jpg" :
+                            fileName += ".jpg";
+                            break;
+                        case "image/jpeg" :
+                            fileName += ".jpeg";
+                            break;
+                        case "image/gif" :
+                            fileName += ".gif";
+                            break;
+                        default :
+                            layer.msg(locales[lang].unsupportType);
+                            return;
+                    }
+                    var form = new FormData();
+
+                    form.append('editormd-image-file', imageFile, fileName);
+
+                    var layerIndex = 0;
+
+                    $.ajax({
+                        url: window.imageUploadURL,
+                        type: "POST",
+                        dataType: "json",
+                        data: form,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function () {
+                            layerIndex = $callback('before');
+                        },
+                        error: function () {
+                            layer.close(layerIndex);
+                            $callback('error');
+                            layer.msg(locales[lang].uploadFailed);
+                        },
+                        success: function (data) {
+                            layer.close(layerIndex);
+                            $callback('success', data);
+                            if (data.errcode !== 0) {
+                                layer.msg(data.message);
+                            }
+
+                        }
+                    });
+                    e.preventDefault();
+                }
+            }
+        }
+    });
+}

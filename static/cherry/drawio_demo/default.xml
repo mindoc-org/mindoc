@@ -6,21 +6,21 @@
 		<add as="fontFamily" value="Helvetica"/>
 		<add as="align" value="center"/>
 		<add as="verticalAlign" value="middle"/>
-		<add as="fillColor" value="#ffffff"/>
-		<add as="strokeColor" value="#000000"/>
-		<add as="fontColor" value="#000000"/>
+		<add as="fillColor" value="default"/>
+		<add as="strokeColor" value="default"/>
+		<add as="fontColor" value="default"/>
 	</add>
 	<add as="defaultEdge">
 		<add as="shape" value="connector"/>
-		<add as="labelBackgroundColor" value="#ffffff"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="endArrow" value="classic"/>
 		<add as="fontSize" value="11"/>
 		<add as="fontFamily" value="Helvetica"/>
 		<add as="align" value="center"/>
 		<add as="verticalAlign" value="middle"/>
 		<add as="rounded" value="1"/>
-		<add as="strokeColor" value="#000000"/>
-		<add as="fontColor" value="#000000"/>
+		<add as="strokeColor" value="default"/>
+		<add as="fontColor" value="default"/>
 	</add>
 	<add as="text">
 		<add as="fillColor" value="none"/>
@@ -28,6 +28,10 @@
 		<add as="strokeColor" value="none"/>
 		<add as="align" value="left"/>
 		<add as="verticalAlign" value="top"/>
+	</add>
+	<add as="edgeLabel" extend="text">
+		<add as="labelBackgroundColor" value="default"/>
+		<add as="fontSize" value="11"/>
 	</add>
 	<add as="label">
 		<add as="fontStyle" value="1"/>
@@ -45,7 +49,7 @@
 		<add as="verticalLabelPosition" value="bottom"/>
 		<add as="verticalAlign" value="top"/>
 		<add as="spacingTop" value="4"/>
-		<add as="labelBackgroundColor" value="#ffffff"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="spacing" value="0"/>
 		<add as="spacingLeft" value="0"/>
 		<add as="spacingTop" value="6"/>
@@ -81,13 +85,13 @@
 	<add as="line">
 		<add as="shape" value="line"/>
 		<add as="strokeWidth" value="4"/>
-		<add as="labelBackgroundColor" value="#ffffff"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="verticalAlign" value="top"/>
 		<add as="spacingTop" value="8"/>
 	</add>
 	<add as="image">
 		<add as="shape" value="image"/>
-		<add as="labelBackgroundColor" value="white"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="verticalAlign" value="top"/>
 		<add as="verticalLabelPosition" value="bottom"/>
 	</add>
@@ -100,6 +104,100 @@
 	<add as="arrow">
 		<add as="shape" value="arrow"/>
 		<add as="edgeStyle" value="none"/>
-		<add as="fillColor" value="#ffffff"/>
+		<add as="fillColor" value="default"/>
+	</add>
+	<add as="fancy">
+		<add as="shadow" value="1"/>
+		<add as="glass" value="1"/>
+	</add>
+	<add as="gray" extend="fancy">
+		<add as="gradientColor" value="#B3B3B3"/>
+		<add as="fillColor" value="#F5F5F5"/>
+		<add as="strokeColor" value="#666666"/>
+	</add>
+	<add as="blue" extend="fancy">
+		<add as="gradientColor" value="#7EA6E0"/>
+		<add as="fillColor" value="#DAE8FC"/>
+		<add as="strokeColor" value="#6C8EBF"/>
+	</add>
+	<add as="green" extend="fancy">
+		<add as="gradientColor" value="#97D077"/>
+		<add as="fillColor" value="#D5E8D4"/>
+		<add as="strokeColor" value="#82B366"/>
+	</add>
+	<add as="turquoise" extend="fancy">
+		<add as="gradientColor" value="#67AB9F"/>
+		<add as="fillColor" value="#D5E8D4"/>
+		<add as="strokeColor" value="#6A9153"/>
+	</add>
+	<add as="yellow" extend="fancy">
+		<add as="gradientColor" value="#FFD966"/>
+		<add as="fillColor" value="#FFF2CC"/>
+		<add as="strokeColor" value="#D6B656"/>
+	</add>
+	<add as="orange" extend="fancy">
+		<add as="gradientColor" value="#FFA500"/>
+		<add as="fillColor" value="#FFCD28"/>
+		<add as="strokeColor" value="#D79B00"/>
+	</add>
+	<add as="red" extend="fancy">
+		<add as="gradientColor" value="#EA6B66"/>
+		<add as="fillColor" value="#F8CECC"/>
+		<add as="strokeColor" value="#B85450"/>
+	</add>
+	<add as="pink" extend="fancy">
+		<add as="gradientColor" value="#B5739D"/>
+		<add as="fillColor" value="#E6D0DE"/>
+		<add as="strokeColor" value="#996185"/>
+	</add>
+	<add as="purple" extend="fancy">
+		<add as="gradientColor" value="#8C6C9C"/>
+		<add as="fillColor" value="#E1D5E7"/>
+		<add as="strokeColor" value="#9673A6"/>
+	</add>
+	<add as="plain-gray">
+		<add as="gradientColor" value="#B3B3B3"/>
+		<add as="fillColor" value="#F5F5F5"/>
+		<add as="strokeColor" value="#666666"/>
+	</add>
+	<add as="plain-blue">
+		<add as="gradientColor" value="#7EA6E0"/>
+		<add as="fillColor" value="#DAE8FC"/>
+		<add as="strokeColor" value="#6C8EBF"/>
+	</add>
+	<add as="plain-green">
+		<add as="gradientColor" value="#97D077"/>
+		<add as="fillColor" value="#D5E8D4"/>
+		<add as="strokeColor" value="#82B366"/>
+	</add>
+	<add as="plain-turquoise">
+		<add as="gradientColor" value="#67AB9F"/>
+		<add as="fillColor" value="#D5E8D4"/>
+		<add as="strokeColor" value="#6A9153"/>
+	</add>
+	<add as="plain-yellow">
+		<add as="gradientColor" value="#FFD966"/>
+		<add as="fillColor" value="#FFF2CC"/>
+		<add as="strokeColor" value="#D6B656"/>
+	</add>
+	<add as="plain-orange">
+		<add as="gradientColor" value="#FFA500"/>
+		<add as="fillColor" value="#FFCD28"/>
+		<add as="strokeColor" value="#D79B00"/>
+	</add>
+	<add as="plain-red">
+		<add as="gradientColor" value="#EA6B66"/>
+		<add as="fillColor" value="#F8CECC"/>
+		<add as="strokeColor" value="#B85450"/>
+	</add>
+	<add as="plain-pink">
+		<add as="gradientColor" value="#B5739D"/>
+		<add as="fillColor" value="#E6D0DE"/>
+		<add as="strokeColor" value="#996185"/>
+	</add>
+	<add as="plain-purple">
+		<add as="gradientColor" value="#8C6C9C"/>
+		<add as="fillColor" value="#E1D5E7"/>
+		<add as="strokeColor" value="#9673A6"/>
 	</add>
 </mxStylesheet>
