@@ -143,10 +143,13 @@ function renderPage($data) {
     $("#doc_id").val($data.doc_id);
     if ($data.page) {
         loadComment($data.page, $data.doc_id);
+        
     }
     else {
         pageClicked(-1, $data.doc_id);
     }
+
+    loadCopySnippets();
 
     if ($data.is_markdown) {
         if ($("#view_container").hasClass($data.markdown_theme)) {
@@ -154,7 +157,7 @@ function renderPage($data) {
         }
         $("#view_container").removeClass("theme__dark theme__green theme__light theme__red theme__default")
         $("#view_container").addClass($data.markdown_theme)
-     }
+    }
 }
 
 /***
@@ -405,4 +408,72 @@ $(function () {
             $("#btnSubmitComment").button("reset");
         }
     });
+
+    loadCopySnippets();
 });
+
+function loadCopySnippets() {
+    var snippets = document.querySelectorAll('pre');
+	[].forEach.call(snippets, function(snippet) {
+		if (snippet.closest('.snippet') !== null) {
+			snippet.firstChild.insertAdjacentHTML('beforebegin', '<button class="codebtn" data-clipboard-snippet><img class="clippy" height="20" src="/static/images/clippy.svg" alt="Copy to clipboard"></button>');
+		}
+	});
+	var clipboardSnippets = new ClipboardJS('[data-clipboard-snippet]', {
+		target: function(trigger) {
+			return trigger.nextElementSibling;
+		}
+	});
+	clipboardSnippets.on('success', function(e) {
+		e.clearSelection();
+		showTooltip(e.trigger, 'Copied!');
+        setTimeout(function(){
+            clearTip(e.trigger);
+          },1000);
+	});
+	clipboardSnippets.on('error', function(e) {
+		showTooltip(e.trigger, fallbackMessage(e.action));
+	});
+
+	// 2. add event listener for all created copy button
+	var btns = document.querySelectorAll('.codebtn');
+	for (var i = 0; i < btns.length; i++) {
+		btns[i].addEventListener('mouseleave', clearTooltip);
+		btns[i].addEventListener('blur', clearTooltip);
+		btns[i].addEventListener('mouseenter', showToolhint);
+	}
+}
+
+function clearTooltip(e) {
+    e.currentTarget.setAttribute('class', 'codebtn');
+    e.currentTarget.removeAttribute('aria-label');
+}
+
+function showTooltip(elem, msg) {
+    elem.setAttribute('class', 'codebtn tooltipped tooltipped-s');
+    elem.setAttribute('aria-label', msg);
+}
+
+function clearTip(elem) {
+    elem.setAttribute('class', 'codebtn');
+    elem.blur();
+    elem.setAttribute('aria-label', 'copy to clipboard');
+}
+
+function showToolhint(e) {
+    e.currentTarget.setAttribute('class', 'codebtn tooltipped tooltipped-s');
+    e.currentTarget.setAttribute('aria-label', 'copy to clipboard');
+}
+
+function fallbackMessage(action) {
+    var actionMsg = '';
+    var actionKey = (action === 'cut' ? 'X' : 'C');
+    if (/iPhone|iPad/i.test(navigator.userAgent)) {
+        actionMsg = 'No support :(';
+    } else if (/Mac/i.test(navigator.userAgent)) {
+        actionMsg = 'Press ⌘-' + actionKey + ' to ' + action;
+    } else {
+        actionMsg = 'Press Ctrl-' + actionKey + ' to ' + action;
+    }
+    return actionMsg;
+}

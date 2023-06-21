@@ -174,7 +174,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="article-body  {{if eq .Model.Editor "markdown"}} markdown-article-body {{else}} editor-content{{end}}"  id="page-content">
+                    <div class="article-body {{if eq .Model.Editor "markdown"}} markdown-article-body {{else}} editor-content{{end}}"  id="page-content">
                         {{.Content}}
                     </div>
 
@@ -243,9 +243,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="password" class="col-sm-2 control-label">{{i18n .Lang "doc.share_url"}}</label>
+                    <label for="shareUrl" class="col-sm-2 control-label">{{i18n .Lang "doc.share_url"}}</label>
                     <div class="col-sm-10">
-                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="{{i18n .Lang "doc.share_url"}}">
+                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="shareUrl" title="{{i18n .Lang "doc.share_url"}}">
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -272,9 +272,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="password" class="col-sm-2 control-label">{{i18n .Lang "doc.share_url"}}</label>
+                    <label for="downloadUrl" class="col-sm-2 control-label">{{i18n .Lang "doc.share_url"}}</label>
                     <div class="col-sm-10">
-                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="{{i18n .Lang "doc.share_url"}}">
+                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="downloadUrl" title="{{i18n .Lang "doc.share_url"}}">
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -296,6 +296,7 @@
 <script src="{{cdnjs "/static/cherry/cherry-markdown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/clipboard.min.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
