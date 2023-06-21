@@ -48,9 +48,7 @@ type Document struct {
 
 // 多字段唯一键
 func (item *Document) TableUnique() [][]string {
-	return [][]string{
-		{"book_id", "identify"},
-	}
+	return [][]string{{"book_id", "identify"}}
 }
 
 // TableName 获取对应数据库表名.

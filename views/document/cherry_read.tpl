@@ -21,10 +21,8 @@
     <link href="{{cdncss "/static/nprogress/nprogress.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/kancloud.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/jstree.css"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/lib/sequence/sequence-diagram-min.css" "version"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/editor.md/css/editormd.preview.css" "version"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
-    <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/css/markdown.css" "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/cherry/cherry-markdown.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
@@ -96,7 +94,7 @@
                         <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "epub"}}" target="_blank">EPUB</a> </li>
                         <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "mobi"}}" target="_blank">MOBI</a> </li>
                         <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "docx"}}" target="_blank">Word</a> </li>
-                        {{if eq .Model.Editor "markdown"}}
+                        {{if eq .Model.Editor "cherry_markdown"}}
                         <li><a href="{{urlfor "DocumentController.Export" ":key" .Model.Identify "output" "markdown"}}" target="_blank">Markdown</a> </li>
                         {{end}}
                     </ul>
@@ -161,23 +159,22 @@
             </div>
         </div>
         <div class="manual-right">
-            <div class="manual-article">
-                <div class="article-head">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-2">
-
-                            </div>
-                            <div class="col-md-8 text-center">
-                                <h1 id="article-title">{{.Title}}</h1>
-                            </div>
-                            <div class="col-md-2">
+            <div id="view_container" class="manual-article {{if eq .Model.Editor "cherry_markdown"}} cherry cherry-markdown {{.MarkdownTheme}} {{end}}">
+                <div class="article-content">
+                    <div class="article-head {{if eq .Model.Editor "cherry_markdown"}} markdown-article-head {{end}}">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-2">
+                                </div>
+                                <div class="col-md-8 text-center {{if eq .Model.Editor "cherry_markdown"}} markdown-title {{else}} editor-content{{end}}">
+                                    <h1 id="article-title">{{.Title}}</h1>
+                                </div>
+                                <div class="col-md-2">
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="article-content">
-                    <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
+                    <div class="article-body {{if eq .Model.Editor "cherry_markdown"}} markdown-article-body {{else}} editor-content{{end}}"  id="page-content">
                         {{.Content}}
                     </div>
 
@@ -246,9 +243,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="password" class="col-sm-2 control-label">{{i18n .Lang "doc.share_url"}}</label>
+                    <label for="shareUrl" class="col-sm-2 control-label">{{i18n .Lang "doc.share_url"}}</label>
                     <div class="col-sm-10">
-                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="{{i18n .Lang "doc.share_url"}}">
+                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="shareUrl" title="{{i18n .Lang "doc.share_url"}}">
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -275,9 +272,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="password" class="col-sm-2 control-label">{{i18n .Lang "doc.share_url"}}</label>
+                    <label for="downloadUrl" class="col-sm-2 control-label">{{i18n .Lang "doc.share_url"}}</label>
                     <div class="col-sm-10">
-                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="projectUrl" title="{{i18n .Lang "doc.share_url"}}">
+                        <input type="text" value="{{urlfor "DocumentController.Index" ":key" .Model.Identify}}" class="form-control" onmouseover="this.select()" id="downloadUrl" title="{{i18n .Lang "doc.share_url"}}">
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -296,6 +293,7 @@
 <script src="{{cdnjs "/static/layer/layer.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/jstree/3.3.4/jstree.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/cherry/cherry-markdown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/clipboard.min.js" "version"}}" type="text/javascript"></script>

@@ -164,8 +164,8 @@ func (c *BookController) SaveBook() {
 	if !models.NewItemsets().Exist(itemId) {
 		c.JsonResult(6006, i18n.Tr(c.Lang, "message.project_space_not_exist"))
 	}
-	if editor != "markdown" && editor != "html" && editor != "new_html" {
-		editor = "markdown"
+	if editor != EditorMarkdown && editor != EditorCherryMarkdown && editor != EditorHtml && editor != EditorNewHtml {
+		editor = EditorMarkdown
 	}
 
 	book.BookName = bookName
@@ -174,6 +174,9 @@ func (c *BookController) SaveBook() {
 	book.Publisher = publisher
 	//book.Label = tag
 	book.Editor = editor
+	if editor == EditorCherryMarkdown {
+		book.Theme = "cherry"
+	}
 	book.HistoryCount = historyCount
 	book.IsDownload = 0
 	book.BookPassword = strings.TrimSpace(c.GetString("bPassword"))
