@@ -1,0 +1,53 @@
+name: Go
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    outputs:
+        tag: ${{ steps.git.outputs.tag }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config: 
+          - {
+              name: "Windows Latest MSVC",
+              artifact: "windows",
+              os: windows-latest
+            }
+          - {
+              name: "Ubuntu Latest GCC",
+              artifact: "linux",
+              os: ubuntu-latest
+            }
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+
+      - name: Build
+        run: |
+          go mod tidy
+          go build -v
+
+      # - name: Test
+      #  run: go test -v ./...
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            conf/**/*
+            static/**/*
+            views/**/*
+            mindoc.*
+          name: mindoc-${{ matrix.config.artifact }}-${{ steps.git.outputs.tag }}.7z
