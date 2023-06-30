@@ -113,6 +113,7 @@ $(function () {
             });
             
             window.isLoad = true;
+            this.tableEditor = TableEditor.initTableEditor(this.cm)
         },
         onchange: function () {
             resetEditorChanged(true);

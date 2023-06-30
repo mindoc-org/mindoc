@@ -455,6 +455,7 @@
 <script src="{{cdnjs "/static/js/jquery.form.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/array.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/editor.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/table-editor/dist/index.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/markdown.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/x-frame-bypass-1.0.2.js"}}" type="text/javascript"></script>
