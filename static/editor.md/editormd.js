@@ -3950,9 +3950,12 @@
                 }
                 return "<svg class='mindmap' style='width:100%;min-height=150px;height:"+custom_height+"px;' id='mindmap-"+ map_id +"'>"+code+"</svg>";
             }
+            if (lang === "drawio") {
+                var svgCode = decodeURIComponent(escape(window.atob(code)))
+                return "<div class=\"svg\" style=\"overflow: auto; padding: 10px;\">" + svgCode + "</div>"
+            } 
             else
             {
-
                 return marked.Renderer.prototype.code.apply(this, arguments);
             }
         };
@@ -4029,7 +4032,6 @@
             html += "<li class=\"directory-item\"><a class=\"directory-item-link directory-item-link-" + level + "\" href=\"#" + id + "\" level=\"" + level + "\">" + text + "</a></li>";
             lastLevel = level;
         }
-        console.log(html);
 
         var tocContainer = container.find(".markdown-toc");
 

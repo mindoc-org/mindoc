@@ -51,6 +51,15 @@
                 display: none;
             }
         }
+
+        .svg { 
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            vertical-align: middle; 
+            overflow: auto; 
+        }
     </style>
 </head>
 <body>
