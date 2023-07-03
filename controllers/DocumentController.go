@@ -188,13 +188,15 @@ func (c *DocumentController) Read() {
 
 	if c.IsAjax() {
 		var data struct {
-			DocId       int    `json:"doc_id"`
-			DocIdentify string `json:"doc_identify"`
-			DocTitle    string `json:"doc_title"`
-			Body        string `json:"body"`
-			Title       string `json:"title"`
-			Version     int64  `json:"version"`
-			ViewCount   int    `json:"view_count"`
+			DocId         int    `json:"doc_id"`
+			DocIdentify   string `json:"doc_identify"`
+			DocTitle      string `json:"doc_title"`
+			Body          string `json:"body"`
+			Title         string `json:"title"`
+			Version       int64  `json:"version"`
+			ViewCount     int    `json:"view_count"`
+			MarkdownTheme string `json:"markdown_theme"`
+			IsMarkdown    bool   `json:"is_markdown"`
 		}
 		data.DocId = doc.DocumentId
 		data.DocIdentify = doc.Identify
@@ -203,7 +205,10 @@ func (c *DocumentController) Read() {
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
 		data.Version = doc.Version
 		data.ViewCount = doc.ViewCount
-
+		data.MarkdownTheme = doc.MarkdownTheme
+		if bookResult.Editor == EditorCherryMarkdown {
+			data.IsMarkdown = true
+		}
 		c.JsonResult(0, "ok", data)
 	} else {
 		c.Data["DocumentId"] = doc.DocumentId
@@ -232,6 +237,9 @@ func (c *DocumentController) Read() {
 	c.Data["Content"] = template.HTML(doc.Release)
 	c.Data["ViewCount"] = doc.ViewCount
 	c.Data["FoldSetting"] = "closed"
+	if bookResult.Editor == EditorCherryMarkdown {
+		c.Data["MarkdownTheme"] = doc.MarkdownTheme
+	}
 	if doc.IsOpen == 1 {
 		c.Data["FoldSetting"] = "open"
 	} else if doc.IsOpen == 2 {
@@ -276,16 +284,7 @@ func (c *DocumentController) Edit() {
 		}
 	}
 
-	// 根据不同编辑器类型加载编辑器
-	if bookResult.Editor == "markdown" {
-		c.TplName = "document/markdown_edit_template.tpl"
-	} else if bookResult.Editor == "html" {
-		c.TplName = "document/html_edit_template.tpl"
-	} else if bookResult.Editor == "new_html" {
-		c.TplName = "document/new_html_edit_template.tpl"
-	} else {
-		c.TplName = "document/" + bookResult.Editor + "_edit_template.tpl"
-	}
+	c.TplName = fmt.Sprintf("document/%s_edit_template.tpl", bookResult.Editor)
 
 	c.Data["Model"] = bookResult
 
@@ -774,6 +773,7 @@ func (c *DocumentController) Content() {
 	if c.Ctx.Input.IsPost() {
 		markdown := strings.TrimSpace(c.GetString("markdown", ""))
 		content := c.GetString("html")
+		markdownTheme := c.GetString("markdown_theme", "theme__light")
 		version, _ := c.GetInt64("version", 0)
 		isCover := c.GetString("cover")
 
@@ -808,6 +808,7 @@ func (c *DocumentController) Content() {
 			doc.Markdown = content
 		} else {
 			doc.Markdown = markdown
+			doc.MarkdownTheme = markdownTheme
 		}
 
 		doc.Version = time.Now().Unix()
@@ -902,8 +903,8 @@ func (c *DocumentController) Export() {
 		bookResult.Cover = conf.URLForWithCdnImage(bookResult.Cover)
 	}
 
-	if output == "markdown" {
-		if bookResult.Editor != "markdown" {
+	if output == Markdown {
+		if bookResult.Editor != EditorMarkdown && bookResult.Editor != EditorCherryMarkdown {
 			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.cur_project_not_support_md"))
 		}
 		p, err := bookResult.ExportMarkdown(c.CruSession.SessionID(context.TODO()))
@@ -1222,7 +1223,7 @@ func (c *DocumentController) Compare() {
 	identify := c.Ctx.Input.Param(":key")
 
 	bookId := 0
-	editor := "markdown"
+	editor := EditorMarkdown
 
 	// 如果是超级管理员则忽略权限判断
 	if c.Member.IsAdministrator() {
@@ -1268,7 +1269,7 @@ func (c *DocumentController) Compare() {
 	c.Data["HistoryId"] = historyId
 	c.Data["DocumentId"] = doc.DocumentId
 
-	if editor == "markdown" {
+	if editor == EditorMarkdown || editor == EditorCherryMarkdown {
 		c.Data["HistoryContent"] = history.Markdown
 		c.Data["Content"] = doc.Markdown
 	} else {

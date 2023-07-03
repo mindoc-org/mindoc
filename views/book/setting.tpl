@@ -89,6 +89,9 @@
                                         <input type="radio"{{if eq .Model.Editor "markdown"}} checked{{end}} name="editor" value="markdown"> Markdown {{i18n $.Lang "blog.text_editor"}}
                                     </label>
                                     <label class="radio-inline">
+                                        <input type="radio"{{if eq .Model.Editor "cherry_markdown"}} checked{{end}} name="editor" value="cherry_markdown"> Markdown {{i18n $.Lang "blog.text_editor"}}(cherry)
+                                    </label>
+                                    <label class="radio-inline">
                                         <input type="radio"{{if eq .Model.Editor "new_html"}} checked{{end}} name="editor" value="new_html"> Html {{i18n $.Lang "blog.text_editor"}}(Quill)
                                     </label>
                                     <label class="radio-inline">

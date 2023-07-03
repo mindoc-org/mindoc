@@ -25,6 +25,7 @@
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/prismjs/prismjs.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
@@ -298,6 +299,8 @@
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/clipboard.min.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/prismjs/prismjs.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>

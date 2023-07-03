@@ -1,7 +1,7 @@
 $(function () {
     editormd.katexURL = {
-        js  : window.katex.js,
-        css : window.katex.css
+        js: window.katex.js,
+        css: window.katex.css
     };
 
     window.editormdLocales = {
@@ -54,7 +54,7 @@ $(function () {
             remark: 'Remark',
         }
     };
-    var htmlDecodeList = ["style","script","title","onmouseover","onmouseout","style"];
+    var htmlDecodeList = ["style", "script", "title", "onmouseover", "onmouseout", "style"];
     if (!window.IS_ENABLE_IFRAME) {
         htmlDecodeList.unshift("iframe");
     }
@@ -65,7 +65,7 @@ $(function () {
         toolbar: true,
         placeholder: window.editormdLocales[window.lang].placeholder,
         imageUpload: true,
-        imageFormats: ["jpg", "jpeg", "gif", "png","svg", "JPG", "JPEG", "GIF", "PNG","SVG"],
+        imageFormats: ["jpg", "jpeg", "gif", "png", "svg", "JPG", "JPEG", "GIF", "PNG", "SVG"],
         imageUploadURL: window.imageUploadURL,
         toolbarModes: "full",
         fileUpload: true,
@@ -79,19 +79,19 @@ $(function () {
         tocm: true,
         previewCodeHighlight: 1,
         highlightStyle: window.highlightStyle ? window.highlightStyle : "github",
-        tex:true,
+        tex: true,
         saveHTMLToTextarea: true,
 
-        onload: function() {
+        onload: function () {
             this.hideToolbar();
             var keyMap = {
-                "Ctrl-S": function(cm) {
+                "Ctrl-S": function (cm) {
                     saveDocument(false);
                 },
-                "Cmd-S": function(cm){
+                "Cmd-S": function (cm) {
                     saveDocument(false);
                 },
-                "Ctrl-A": function(cm) {
+                "Ctrl-A": function (cm) {
                     cm.execCommand("selectAll");
                 }
             };
@@ -111,7 +111,7 @@ $(function () {
                     }
                 }
             });
-            
+
             window.isLoad = true;
         },
         onchange: function () {
@@ -137,20 +137,20 @@ $(function () {
      * 实现标题栏操作
      */
     $("#editormd-tools").on("click", "a[class!='disabled']", function () {
-       var name = $(this).find("i").attr("name");
-       if (name === "attachment") {
-           $("#uploadAttachModal").modal("show");
-       } else if (name === "history") {
-           window.documentHistory();
-       } else if (name === "save") {
+        var name = $(this).find("i").attr("name");
+        if (name === "attachment") {
+            $("#uploadAttachModal").modal("show");
+        } else if (name === "history") {
+            window.documentHistory();
+        } else if (name === "save") {
             saveDocument(false);
-       } else if (name === "template") {
-           $("#documentTemplateModal").modal("show");
-       } else if(name === "save-template"){
-           $("#saveTemplateModal").modal("show");
-       } else if(name === 'json'){
-           $("#convertJsonToTableModal").modal("show");
-       } else if (name === "sidebar") {
+        } else if (name === "template") {
+            $("#documentTemplateModal").modal("show");
+        } else if (name === "save-template") {
+            $("#saveTemplateModal").modal("show");
+        } else if (name === 'json') {
+            $("#convertJsonToTableModal").modal("show");
+        } else if (name === "sidebar") {
             $("#manualCategory").toggle(0, "swing", function () {
                 var $then = $("#manualEditorContainer");
                 var left = parseInt($then.css("left"));
@@ -162,7 +162,7 @@ $(function () {
                 }
                 window.editor.resize();
             });
-       } else if (name === "release") {
+        } else if (name === "release") {
             if (Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0) {
                 if ($("#markdown-save").hasClass('change')) {
                     var confirm_result = confirm(editormdLocales[lang].contentUnsaved);
@@ -176,43 +176,43 @@ $(function () {
             } else {
                 layer.msg(editormdLocales[lang].noDocNeedPublish)
             }
-       } else if (name === "tasks") {
-           // 插入 GFM 任务列表
-           var cm = window.editor.cm;
-           var selection = cm.getSelection();
-           var cursor    = cm.getCursor();
-           if (selection === "") {
-               cm.setCursor(cursor.line, 0);
-               cm.replaceSelection("- [x] " + selection);
-               cm.setCursor(cursor.line, cursor.ch + 6);
-           } else {
-               var selectionText = selection.split("\n");
+        } else if (name === "tasks") {
+            // 插入 GFM 任务列表
+            var cm = window.editor.cm;
+            var selection = cm.getSelection();
+            var cursor = cm.getCursor();
+            if (selection === "") {
+                cm.setCursor(cursor.line, 0);
+                cm.replaceSelection("- [x] " + selection);
+                cm.setCursor(cursor.line, cursor.ch + 6);
+            } else {
+                var selectionText = selection.split("\n");
 
-               for (var i = 0, len = selectionText.length; i < len; i++) {
-                   selectionText[i] = (selectionText[i] === "") ? "" : "- [x] " + selectionText[i];
-               }
-               cm.replaceSelection(selectionText.join("\n"));
-           }
-       } else {
-           var action = window.editor.toolbarHandlers[name];
+                for (var i = 0, len = selectionText.length; i < len; i++) {
+                    selectionText[i] = (selectionText[i] === "") ? "" : "- [x] " + selectionText[i];
+                }
+                cm.replaceSelection(selectionText.join("\n"));
+            }
+        } else {
+            var action = window.editor.toolbarHandlers[name];
 
-           if (!!action && action !== "undefined") {
-               $.proxy(action, window.editor)();
-               window.editor.focus();
-           }
-       }
-   }) ;
+            if (!!action && action !== "undefined") {
+                $.proxy(action, window.editor)();
+                window.editor.focus();
+            }
+        }
+    });
 
     /***
      * 加载指定的文档到编辑器中
      * @param $node
      */
-    window.loadDocument = function($node) {
+    window.loadDocument = function ($node) {
         var index = layer.load(1, {
             shade: [0.1, '#fff'] // 0.1 透明度的白色背景
         });
 
-        $.get(window.editURL + $node.node.id ).done(function (res) {
+        $.get(window.editURL + $node.node.id).done(function (res) {
             layer.close(index);
 
             if (res.errcode === 0) {
@@ -220,8 +220,8 @@ $(function () {
                 try {
                     window.editor.clear();
                     window.editor.insertValue(res.data.markdown);
-                    window.editor.setCursor({line: 0, ch: 0});
-                }catch(e){
+                    window.editor.setCursor({ line: 0, ch: 0 });
+                } catch (e) {
                     console.log(e);
                 }
                 var node = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id, "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
@@ -276,7 +276,7 @@ $(function () {
             url: window.editURL,
             data: { "identify": window.book.identify, "doc_id": doc_id, "markdown": content, "html": html, "cover": $is_cover ? "yes" : "no", "version": version },
             type: "post",
-            timeout : 30000,
+            timeout: 30000,
             dataType: "json",
             success: function (res) {
                 if (res.errcode === 0) {
@@ -289,7 +289,7 @@ $(function () {
                             break;
                         }
                     }
-                    $.each(window.documentCategory,function (i, item) {
+                    $.each(window.documentCategory, function (i, item) {
                         var $item = window.documentCategory[i];
 
                         if (item.id === doc_id) {
@@ -300,10 +300,10 @@ $(function () {
                         callback();
                     }
 
-                } else if(res.errcode === 6005) {
+                } else if (res.errcode === 6005) {
                     var confirmIndex = layer.confirm(editormdLocales[lang].overrideModified, {
                         btn: [editormdLocales[lang].confirm, editormdLocales[lang].cancel] // 按钮
-                    }, function() {
+                    }, function () {
                         layer.close(confirmIndex);
                         saveDocument(true, callback);
                     });
@@ -311,16 +311,16 @@ $(function () {
                     layer.msg(res.message);
                 }
             },
-            error : function (XMLHttpRequest, textStatus, errorThrown) {
-                layer.msg(window.editormdLocales[window.lang].serverExcept +  errorThrown);
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                layer.msg(window.editormdLocales[window.lang].serverExcept + errorThrown);
             },
-            complete :function () {
+            complete: function () {
                 layer.close(index);
                 window.saveing = false;
             }
         });
     }
-    
+
 
     /**
      * 设置编辑器变更状态
@@ -351,12 +351,12 @@ $(function () {
             if (res.errcode === 0) {
                 var data = {
                     "id": res.data.doc_id,
-                    'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id ,
+                    'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id,
                     "text": res.data.doc_name,
                     "identify": res.data.identify,
-                    "version": res.data.version ,
-                    state: { opened: res.data.is_open == 1},
-                    a_attr: { is_open: res.data.is_open == 1}
+                    "version": res.data.version,
+                    state: { opened: res.data.is_open == 1 },
+                    a_attr: { is_open: res.data.is_open == 1 }
                 };
 
                 var node = window.treeCatalog.get_node(data.id);
@@ -437,7 +437,7 @@ $(function () {
                 }
             }
         }
-    }).on("ready.jstree",function () {
+    }).on("ready.jstree", function () {
         window.treeCatalog = $("#sidebar").jstree(true);
 
         //如果没有选中节点则选中默认节点
@@ -460,7 +460,7 @@ $(function () {
 
 
         loadDocument(selected);
-    }).on("move_node.jstree", jstree_save).on("delete_node.jstree",function($node,$parent) {
+    }).on("move_node.jstree", jstree_save).on("delete_node.jstree", function ($node, $parent) {
         openLastSelectedNode();
     });
     /**
@@ -468,7 +468,7 @@ $(function () {
      */
     $("#documentTemplateModal").on("click", ".section>a[data-type]", function () {
         var $this = $(this).attr("data-type");
-        if($this === "customs"){
+        if ($this === "customs") {
             $("#displayCustomsTemplateModal").modal("show");
             return;
         }
@@ -485,30 +485,30 @@ $(function () {
     /**
      * 展示自定义模板列表
      */
-    $("#displayCustomsTemplateModal").on("show.bs.modal",function () {
-        window.sessionStorage.setItem("displayCustomsTemplateList",$("#displayCustomsTemplateList").html());
+    $("#displayCustomsTemplateModal").on("show.bs.modal", function () {
+        window.sessionStorage.setItem("displayCustomsTemplateList", $("#displayCustomsTemplateList").html());
 
-        var index ;
+        var index;
         $.ajax({
             beforeSend: function () {
                 index = layer.load(1, { shade: [0.1, '#fff'] });
             },
-           url : window.template.listUrl,
-           data: {"identify":window.book.identify},
-           type: "POST",
-           dataType: "html",
+            url: window.template.listUrl,
+            data: { "identify": window.book.identify },
+            type: "POST",
+            dataType: "html",
             success: function ($res) {
                 $("#displayCustomsTemplateList").html($res);
             },
-            error : function () {
+            error: function () {
                 layer.msg(window.editormdLocales[window.lang].loadFailed);
             },
-            complete : function () {
+            complete: function () {
                 layer.close(index);
             }
         });
         $("#documentTemplateModal").modal("hide");
-    }).on("hidden.bs.modal",function () {
+    }).on("hidden.bs.modal", function () {
         var cache = window.sessionStorage.getItem("displayCustomsTemplateList");
         $("#displayCustomsTemplateList").html(cache);
     });
@@ -522,7 +522,7 @@ $(function () {
                 return showError(window.editormdLocales[window.lang].tplNameEmpty, "#saveTemplateForm .show-error-message");
             }
             var content = $("#saveTemplateForm").find("input[name='content']").val();
-            if (content === ""){
+            if (content === "") {
                 return showError(window.editormdLocales[window.lang].tplContentEmpty, "#saveTemplateForm .show-error-message");
             }
 
@@ -531,71 +531,71 @@ $(function () {
             return true;
         },
         success: function ($res) {
-            if($res.errcode === 0){
+            if ($res.errcode === 0) {
                 $("#saveTemplateModal").modal("hide");
                 layer.msg(window.editormdLocales[window.lang].saveSucc);
-            }else{
+            } else {
                 return showError($res.message, "#saveTemplateForm .show-error-message");
             }
         },
-        complete : function () {
+        complete: function () {
             $("#btnSaveTemplate").button("reset");
         }
     });
     /**
      * 当添加模板弹窗事件发生
      */
-    $("#saveTemplateModal").on("show.bs.modal",function () {
-        window.sessionStorage.setItem("saveTemplateModal",$(this).find(".modal-body").html());
+    $("#saveTemplateModal").on("show.bs.modal", function () {
+        window.sessionStorage.setItem("saveTemplateModal", $(this).find(".modal-body").html());
         var content = window.editor.getMarkdown();
         $("#saveTemplateForm").find("input[name='content']").val(content);
         $("#saveTemplateForm .show-error-message").html("");
-    }).on("hidden.bs.modal",function () {
+    }).on("hidden.bs.modal", function () {
         $(this).find(".modal-body").html(window.sessionStorage.getItem("saveTemplateModal"));
     });
     /**
      * 插入自定义模板内容
      */
-    $("#displayCustomsTemplateList").on("click",".btn-insert",function () {
+    $("#displayCustomsTemplateList").on("click", ".btn-insert", function () {
         var templateId = $(this).attr("data-id");
 
         $.ajax({
             url: window.template.getUrl,
-            data :{"identify": window.book.identify, "template_id": templateId},
+            data: { "identify": window.book.identify, "template_id": templateId },
             dataType: "json",
             type: "get",
-            success : function ($res) {
-               if ($res.errcode !== 0){
-                   layer.msg($res.message);
-                   return;
-               }
+            success: function ($res) {
+                if ($res.errcode !== 0) {
+                    layer.msg($res.message);
+                    return;
+                }
                 window.isLoad = true;
                 window.editor.clear();
                 window.editor.insertValue($res.data.template_content);
                 window.editor.setCursor({ line: 0, ch: 0 });
                 resetEditorChanged(true);
                 $("#displayCustomsTemplateModal").modal("hide");
-            },error : function () {
+            }, error: function () {
                 layer.msg(window.editormdLocales[window.lang].serverExcept);
             }
         });
-    }).on("click",".btn-delete",function () {
+    }).on("click", ".btn-delete", function () {
         var $then = $(this);
         var templateId = $then.attr("data-id");
         $then.button("loading");
 
         $.ajax({
-            url : window.template.deleteUrl,
-            data: {"identify": window.book.identify, "template_id": templateId},
+            url: window.template.deleteUrl,
+            data: { "identify": window.book.identify, "template_id": templateId },
             dataType: "json",
             type: "post",
             success: function ($res) {
-                if($res.errcode !== 0){
+                if ($res.errcode !== 0) {
                     layer.msg($res.message);
-                }else{
+                } else {
                     $then.parents("tr").empty().remove();
                 }
-            },error : function () {
+            }, error: function () {
                 layer.msg(window.editormdLocales[window.lang].serverExcept);
             },
             complete: function () {
@@ -604,31 +604,31 @@ $(function () {
         })
     });
 
-    $("#btnInsertTable").on("click",function () {
-       var content = $("#jsonContent").val();
-       if(content !== "") {
-           try {
-               var jsonObj = $.parseJSON(content);
-               var data = foreachJson(jsonObj,"");
-               var table = "| " + window.editormdLocales[window.lang].paramName 
-                + "  | " + window.editormdLocales[window.lang].paramType
-                + " | " + window.editormdLocales[window.lang].example
-                + "  |  " + window.editormdLocales[window.lang].remark
-                + " |\n| ------------ | ------------ | ------------ | ------------ |\n";
-               $.each(data,function (i,item) {
-                    table += "|" + item.key + "|" + item.type + "|" + item.value +"| |\n";
-               });
+    $("#btnInsertTable").on("click", function () {
+        var content = $("#jsonContent").val();
+        if (content !== "") {
+            try {
+                var jsonObj = $.parseJSON(content);
+                var data = foreachJson(jsonObj, "");
+                var table = "| " + window.editormdLocales[window.lang].paramName
+                    + "  | " + window.editormdLocales[window.lang].paramType
+                    + " | " + window.editormdLocales[window.lang].example
+                    + "  |  " + window.editormdLocales[window.lang].remark
+                    + " |\n| ------------ | ------------ | ------------ | ------------ |\n";
+                $.each(data, function (i, item) {
+                    table += "|" + item.key + "|" + item.type + "|" + item.value + "| |\n";
+                });
                 insertToMarkdown(table);
-           }catch (e) {
-               showError("Json 格式错误:" + e.toString(),"#json-error-message");
-               return;
-           }
-       }
-       $("#convertJsonToTableModal").modal("hide");
+            } catch (e) {
+                showError("Json 格式错误:" + e.toString(), "#json-error-message");
+                return;
+            }
+        }
+        $("#convertJsonToTableModal").modal("hide");
     });
-    $("#convertJsonToTableModal").on("hidden.bs.modal",function () {
+    $("#convertJsonToTableModal").on("hidden.bs.modal", function () {
         $("#jsonContent").val("");
-    }).on("shown.bs.modal",function () {
+    }).on("shown.bs.modal", function () {
         $("#jsonContent").focus();
     });
 });
