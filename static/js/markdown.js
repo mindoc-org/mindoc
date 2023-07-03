@@ -3,6 +3,150 @@ $(function () {
         js: window.katex.js,
         css: window.katex.css
     };
+    var drawio = new Object()
+
+    drawio.processMarkers = function (from, to) {
+        var _this = this
+        var found = null
+        var foundStart = 0
+        var cm = window.editor.cm;
+        cm.doc.getAllMarks().forEach(mk => {
+            if (mk.__kind) {
+                mk.clear()
+            }
+        })
+        cm.eachLine(from, to, function (ln) {
+            const line = ln.lineNo()
+
+            if (ln.text.startsWith('```drawio')) {
+                found = 'drawio'
+                foundStart = line
+            } else if (ln.text === '```' && found) {
+                switch (found) {
+                    // -> DRAWIO
+                    case 'drawio': {
+                        if (line - foundStart !== 2) {
+                            return
+                        }
+                        _this.addMarker({
+                            kind: 'drawio',
+                            from: { line: foundStart, ch: 3 },
+                            to: { line: foundStart, ch: 10 },
+                            text: 'drawio',
+                            action: (function (start, end) {
+                                return function (ev) {
+                                    cm.doc.setSelection({ line: start, ch: 0 }, { line: end, ch: 3 })
+                                    try {
+                                        // save state data
+                                        const raw = cm.doc.getLine(end - 1)
+                                        window.sessionStorage.setItem("drawio", raw);
+                                        _this.show()
+                                    } catch (err) {
+                                        console.log(err)
+                                    }
+                                }
+                            })(foundStart, line)
+                        })
+
+                        if (ln.height > 0) {
+                            cm.foldCode(foundStart)
+                        }
+                        break;
+                    }
+                }
+                found = null
+            }
+        })
+    }
+
+    drawio.addMarker = function ({ kind, from, to, text, action }) {
+
+        const markerElm = document.createElement('span')
+        markerElm.appendChild(document.createTextNode(text))
+        markerElm.className = 'CodeMirror-buttonmarker'
+        markerElm.addEventListener('click', action)
+
+        var cm = window.editor.cm;
+        cm.markText(from, to, { replacedWith: markerElm, __kind: kind })
+    }
+
+    drawio.show = function () {
+
+        const drawUrl = 'https://embed.diagrams.net/?embed=1&libraries=1&proto=json&spin=1&saveAndExit=1&noSaveBtn=1&noExitBtn=0';
+        this.div = document.createElement('div');
+        this.div.id = 'diagram';
+        this.gXml = '';
+        this.div.innerHTML = '';
+        this.iframe = document.createElement('iframe');
+        this.iframe.setAttribute('frameborder', '0');
+        this.iframe.style.zIndex = 9999;
+        this.iframe.style.width = "100%";
+        this.iframe.style.height = "100%";
+        this.iframe.style.position = "absolute";
+        this.iframe.style.top = window.scrollY + "px";
+        binded = this.postMessage.bind(this);
+        window.addEventListener("message", binded, false);
+        this.iframe.setAttribute('src', drawUrl);
+        document.body.appendChild(this.iframe);
+    }
+
+    drawio.postMessage = function (evt) {
+        if (evt.data.length < 1) return
+        var msg = JSON.parse(evt.data)
+        var svg = '';
+
+        switch (msg.event) {
+            case "configure":
+                this.iframe.contentWindow.postMessage(
+                    JSON.stringify({
+                        action: "configure",
+                        config: {
+                            defaultFonts: ["Humor Sans", "Helvetica", "Times New Roman"],
+                        },
+                    }),
+                    "*"
+                );
+                break;
+            case "init":
+                code = window.sessionStorage.getItem("drawio")
+                svg = decodeURIComponent(escape(window.atob(code)))
+                this.iframe.contentWindow.postMessage(
+                    JSON.stringify({ action: "load", autosave: 1, xml: svg }),
+                    "*"
+                );
+                break;
+            case "autosave":
+                window.sessionStorage.setItem("drawio", svg);
+                break;
+            case "save":
+                this.iframe.contentWindow.postMessage(
+                    JSON.stringify({
+                        action: "export",
+                        format: "xmlsvg",
+                        xml: msg.xml,
+                        spin: "Updating page",
+                    }),
+                    "*"
+                );
+                break;
+            case "export":
+                svgData = msg.data.substring(msg.data.indexOf(',') + 1);
+                // clean event bind
+                window.removeEventListener("message", this.binded);
+                document.body.removeChild(this.iframe);
+
+                // write back svg data
+                var cm = window.editor.cm;
+                cm.doc.replaceSelection('```drawio\n' + svgData + '\n```', 'start')
+                // clean state data
+                window.sessionStorage.setItem("drawio", '');
+                break;
+            case "exit":
+                window.removeEventListener("message", this.binded);
+                document.body.removeChild(this.iframe);
+                break;
+        }
+    }
 
     window.editormdLocales = {
         'zh-CN': {
@@ -81,8 +225,10 @@ $(function () {
         highlightStyle: window.highlightStyle ? window.highlightStyle : "github",
         tex: true,
         saveHTMLToTextarea: true,
+        codeFold: true,
 
-        onload: function () {
+        onload: function() {
+            this.registerHelper()
             this.hideToolbar();
             var keyMap = {
                 "Ctrl-S": function (cm) {
@@ -113,11 +259,86 @@ $(function () {
             });
 
             window.isLoad = true;
+            this.tableEditor = TableEditor.initTableEditor(this.cm)
         },
         onchange: function () {
+            /**
+             * 实现画图的事件注入
+             * 
+             * 1. 分析文本，添加点击编辑事件，processMarkers
+             * 2. 获取内容，存储状态数据
+             * 3. 打开编辑画面
+             * 4. 推出触发变更事件，并回写数据
+             */
+
+            var cm = window.editor.cm;
+            drawio.processMarkers(cm.firstLine(), cm.lastLine() + 1)
+
             resetEditorChanged(true);
         }
     });
+
+    editormd.fn.registerHelper = function () {
+
+        const maxDepth = 100
+        const codeBlockStartMatch = /^`{3}[a-zA-Z0-9]+$/
+        const codeBlockEndMatch = /^`{3}$/
+
+
+        editormd.$CodeMirror.registerHelper('fold', 'markdown', function (cm, start) {
+            const firstLine = cm.getLine(start.line)
+            const lastLineNo = cm.lastLine()
+            let end
+
+            function isHeader(lineNo) {
+                const tokentype = cm.getTokenTypeAt(CodeMirror.Pos(lineNo, 0))
+                return tokentype && /\bheader\b/.test(tokentype)
+            }
+
+            function headerLevel(lineNo, line, nextLine) {
+                let match = line && line.match(/^#+/)
+                if (match && isHeader(lineNo)) return match[0].length
+                match = nextLine && nextLine.match(/^[=-]+\s*$/)
+                if (match && isHeader(lineNo + 1)) return nextLine[0] === '=' ? 1 : 2
+                return maxDepth
+            }
+
+            // -> CODE BLOCK
+
+            if (codeBlockStartMatch.test(cm.getLine(start.line))) {
+                end = start.line
+                let nextNextLine = cm.getLine(end + 1)
+                while (end < lastLineNo) {
+                    if (codeBlockEndMatch.test(nextNextLine)) {
+                        end++
+                        break
+                    }
+                    end++
+                    nextNextLine = cm.getLine(end + 1)
+                }
+            } else {
+                // -> HEADER
+
+                let nextLine = cm.getLine(start.line + 1)
+                const level = headerLevel(start.line, firstLine, nextLine)
+                if (level === maxDepth) return undefined
+
+                end = start.line
+                let nextNextLine = cm.getLine(end + 2)
+                while (end < lastLineNo) {
+                    if (headerLevel(end + 1, nextLine, nextNextLine) <= level) break
+                    ++end
+                    nextLine = nextNextLine
+                    nextNextLine = cm.getLine(end + 2)
+                }
+            }
+
+            return {
+                from: CodeMirror.Pos(start.line, firstLine.length),
+                to: CodeMirror.Pos(end, cm.getLine(end).length)
+            }
+        })
+    }
 
     function insertToMarkdown(body) {
         window.isLoad = true;
@@ -193,6 +414,21 @@ $(function () {
                 }
                 cm.replaceSelection(selectionText.join("\n"));
             }
+        } else if (name === "drawio") {
+            /**
+             * TODO: 画图功能实现
+             * 
+             * 1. 获取光标处数据，存储数据
+             * 2. 打开画图页面，初始化数据（获取数据）
+             */
+            window.sessionStorage.setItem("drawio", '');
+
+            var cm = window.editor.cm;
+            const selStartLine = cm.getCursor('from').line
+            const selEndLine = cm.getCursor('to').line + 1
+
+            drawio.processMarkers(selStartLine, selEndLine)
+            drawio.show()
         } else {
             var action = window.editor.toolbarHandlers[name];
 

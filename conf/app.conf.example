@@ -50,8 +50,6 @@ sessiongcmaxlifetime="${MINDOC_SESSION_MAX_LIFETIME||3600}"
 #时区设置
 timezone = Asia/Shanghai
 
-
-
 ####################MySQL 数据库配置###########################
 #支持MySQL，sqlite3，postgres三种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
 db_adapter="${MINDOC_DB_ADAPTER||sqlite3}"
@@ -127,27 +125,27 @@ baidumapkey=
 
 ################Active Directory/LDAP################
 #是否启用ldap
-ldap_enable=false
+ldap_enable=${MINDOC_LDAP_ENABLE||false}
 #ldap协议(ldap/ldaps)
-ldap_scheme=ldap
+ldap_scheme="${MINDOC_LDAP_SCHEME||ldap}"
 #ldap主机名
-ldap_host=ad.example.com
+ldap_host="${MINDOC_LDAP_HOST||127.0.0.1}"
 #ldap端口
-ldap_port=3268
+ldap_port=${MINDOC_LDAP_PORT||389}
 #ldap内哪个属性作为用户名
-ldap_account=sAMAccountName
+ldap_attribute="${MINDOC_LDAP_ATTRIBUTE||sAMAccountName}"
 #ldap内哪个属性作为邮箱
-ldap_mail=mail
+ldap_mail="${MINDOC_LDAP_MAIL||mail}"
 #搜索范围
-ldap_base=DC=example,DC=com
+ldap_base="${MINDOC_LDAP_BASE||dc=example,dc=com}"
 #第一次绑定ldap用户dn
-ldap_user=CN=ldap helper,OU=example.com,DC=example,DC=com
+ldap_user="${MINDOC_LDAP_USER||cn=ldap helper,ou=example.com,dc=example,dc=com}"
 #第一次绑定ldap用户密码
-ldap_password=superSecret
+ldap_password="${MINDOC_LDAP_PASSWORD||xxx}"
 #自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户
-ldap_user_role=2
+ldap_user_role=${MINDOC_LDAP_USER_ROLE||2}
 #ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
-ldap_filter=objectClass=posixAccount
+ldap_filter="${MINDOC_LDAP_FILTER||objectClass=posixAccount}"
 
 ############# HTTP自定义接口登录 ################
 http_login_url=
