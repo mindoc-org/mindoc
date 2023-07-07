@@ -20,7 +20,6 @@ import (
 	beegoCache "github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/memcache"
 	"github.com/beego/beego/v2/client/cache/redis"
-	_ "github.com/beego/beego/v2/client/cache/redis"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"

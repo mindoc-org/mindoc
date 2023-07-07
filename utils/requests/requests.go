@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"errors"
 	"fmt"
 )
 
@@ -39,7 +38,7 @@ func DownloadAndSaveFile(remoteUrl, dstFile string) (error) {
 	if resp.StatusCode == http.StatusOK {
 		_, err = io.Copy(out, resp.Body)
 	}else{
-		return errors.New(fmt.Sprintf("bad status: %s", resp.Status))
+		return fmt.Errorf("bad status: %s", resp.Status)
 	}
 	return nil
 }
