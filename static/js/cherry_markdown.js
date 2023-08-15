@@ -424,6 +424,11 @@ $(function () {
      * 返回上一个页面
      */
     function backWard() {
+        if (document.referrer == "") { // 没有上一级
+            var homepage = window.location.origin;
+            window.location.href = homepage; // 返回首页
+            return;
+        }
         history.back();
     }
 

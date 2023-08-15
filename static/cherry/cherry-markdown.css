@@ -3057,6 +3057,9 @@ div[data-type=codeBlock] .token.inserted {
 .cherry.theme__dark .cherry-previewer {
   background-color: rgb(51, 51, 51);
 }
+.manual-article.theme__dark {
+  background-color: rgb(51, 51, 51) !important;
+}
 .cherry.theme__dark .cherry-previewer .cherry-mobile-previewer-content {
   background-color: rgb(37, 37, 38);
 }
@@ -3287,6 +3290,9 @@ div[data-type=codeBlock] .token.inserted {
   outline-color: rgb(34, 139, 230);
 }
 
+.manual-article.theme__light {
+  background-color: rgb(255, 255, 255) !important;
+}
 /** 预览区域样式 */
 .cherry-markdown.theme__light {
   color: rgb(63, 74, 86);
@@ -3463,6 +3469,9 @@ div[data-type=codeBlock] .token.inserted {
 }
 .cherry.theme__green .cherry-previewer {
   background-color: #ebfbee;
+}
+.manual-article.theme__green {
+  background-color: #ebfbee !important;
 }
 .cherry.theme__green .cherry-previewer .cherry-mobile-previewer-content {
   background-color: #FFF;
@@ -3673,6 +3682,9 @@ div[data-type=codeBlock] .token.inserted {
 }
 .cherry.theme__red .cherry-previewer {
   background-color: #fff0f6;
+}
+.manual-article.theme__red {
+  background-color: #fff0f6 !important;
 }
 .cherry.theme__red .cherry-previewer .cherry-mobile-previewer-content {
   background-color: #fff0f6;
@@ -3886,6 +3898,9 @@ div[data-type=codeBlock] .token.inserted {
 .cherry.theme__violet .cherry-previewer {
   background-color: #FFF;
 }
+.manual-article.theme__violet {
+  background-color: #FFF !important;
+}
 .cherry.theme__violet .cherry-previewer .cherry-mobile-previewer-content {
   background-color: #FFF;
 }
@@ -4095,6 +4110,9 @@ div[data-type=codeBlock] .token.inserted {
 }
 .cherry.theme__blue .cherry-previewer {
   background-color: #f3f0ff;
+}
+.manual-article.theme__blue {
+  background-color: #f3f0ff !important;
 }
 .cherry.theme__blue .cherry-previewer .cherry-mobile-previewer-content {
   background-color: #f3f0ff;
@@ -4717,4 +4735,223 @@ div.CodeMirror-dragcursors {
 /* Help users use markselection to safely style text background */
 span.CodeMirror-selectedtext {
   background: none;
+}
+iframe.cherry-dialog-iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.manual-article.cherry {
+  height: auto !important;
+}
+
+.cherry img {
+  max-width: 100%;
+}
+
+.tooltipped {
+  position: relative
+}
+
+.tooltipped:after {
+  position: absolute;
+  z-index: 1000000;
+  display: none;
+  padding: 5px 8px;
+  font: normal normal 11px/1.5 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: none;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: break-word;
+  white-space: pre;
+  pointer-events: none;
+  content: attr(aria-label);
+  background: rgba(0, 0, 0, .8);
+  border-radius: 3px;
+  -webkit-font-smoothing: subpixel-antialiased
+}
+
+.tooltipped:before {
+  position: absolute;
+  z-index: 1000001;
+  display: none;
+  width: 0;
+  height: 0;
+  color: rgba(0, 0, 0, .8);
+  pointer-events: none;
+  content: "";
+  border: 5px solid transparent
+}
+
+.tooltipped:hover:before,
+.tooltipped:hover:after,
+.tooltipped:active:before,
+.tooltipped:active:after,
+.tooltipped:focus:before,
+.tooltipped:focus:after {
+  display: inline-block;
+  text-decoration: none
+}
+
+.tooltipped-multiline:hover:after,
+.tooltipped-multiline:active:after,
+.tooltipped-multiline:focus:after {
+  display: table-cell
+}
+
+.tooltipped-s:after,
+.tooltipped-se:after,
+.tooltipped-sw:after {
+  top: 100%;
+  right: 50%;
+  margin-top: 5px
+}
+
+.tooltipped-s:before,
+.tooltipped-se:before,
+.tooltipped-sw:before {
+  top: auto;
+  right: 50%;
+  bottom: -5px;
+  margin-right: -5px;
+  border-bottom-color: rgba(0, 0, 0, .8)
+}
+
+.tooltipped-se:after {
+  right: auto;
+  left: 50%;
+  margin-left: -15px
+}
+
+.tooltipped-sw:after {
+  margin-right: -15px
+}
+
+.tooltipped-n:after,
+.tooltipped-ne:after,
+.tooltipped-nw:after {
+  right: 50%;
+  bottom: 100%;
+  margin-bottom: 5px
+}
+
+.tooltipped-n:before,
+.tooltipped-ne:before,
+.tooltipped-nw:before {
+  top: -5px;
+  right: 50%;
+  bottom: auto;
+  margin-right: -5px;
+  border-top-color: rgba(0, 0, 0, .8)
+}
+
+.tooltipped-ne:after {
+  right: auto;
+  left: 50%;
+  margin-left: -15px
+}
+
+.tooltipped-nw:after {
+  margin-right: -15px
+}
+
+.tooltipped-s:after,
+.tooltipped-n:after {
+  -webkit-transform: translateX(50%);
+  -ms-transform: translateX(50%);
+  transform: translateX(50%)
+}
+
+.tooltipped-w:after {
+  right: 100%;
+  bottom: 50%;
+  margin-right: 5px;
+  -webkit-transform: translateY(50%);
+  -ms-transform: translateY(50%);
+  transform: translateY(50%)
+}
+
+.tooltipped-w:before {
+  top: 50%;
+  bottom: 50%;
+  left: -5px;
+  margin-top: -5px;
+  border-left-color: rgba(0, 0, 0, .8)
+}
+
+.tooltipped-e:after {
+  bottom: 50%;
+  left: 100%;
+  margin-left: 5px;
+  -webkit-transform: translateY(50%);
+  -ms-transform: translateY(50%);
+  transform: translateY(50%)
+}
+
+.tooltipped-e:before {
+  top: 50%;
+  right: -5px;
+  bottom: 50%;
+  margin-top: -5px;
+  border-right-color: rgba(0, 0, 0, .8)
+}
+
+.tooltipped-multiline:after {
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  max-width: 250px;
+  word-break: break-word;
+  word-wrap: normal;
+  white-space: pre-line;
+  border-collapse: separate
+}
+
+.tooltipped-multiline.tooltipped-s:after,
+.tooltipped-multiline.tooltipped-n:after {
+  right: auto;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%)
+}
+
+.tooltipped-multiline.tooltipped-w:after,
+.tooltipped-multiline.tooltipped-e:after {
+  right: 100%
+}
+
+/*styles related to snippet copy to clipboard, borrowed from https://clipboardjs.com/assets/styles/main.css*/
+.clippy {
+  margin-top: -3px;
+  position: relative;
+  top: 3px
+}
+
+.codebtn[disabled] .clippy {
+  opacity: .3
+}
+
+.snippet {
+  position: relative;
+  overflow: visible
+}
+
+.snippet .codebtn {
+  -webkit-transition: opacity .3s ease-in-out;
+  -o-transition: opacity .3s ease-in-out;
+  transition: opacity .3s ease-in-out;
+  opacity: 0;
+  padding: 6px 6px;
+  position: absolute;
+  right: 6px;
+  top: 13px
+}
+
+.snippet:hover .codebtn,
+.snippet .codebtn:focus {
+  opacity: 1
 }

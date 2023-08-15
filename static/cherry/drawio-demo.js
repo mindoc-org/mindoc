@@ -53,7 +53,7 @@ function addPostMessageListener(graphEditor) {
       case 'getData':
         editorUIInstance.editor.graph.stopEditing();
         var xmlData = mxUtils.getXml(editorUIInstance.editor.getGraphXml());
-        editorUIInstance.exportImage(10, "#ffffff", true, null, true, 50, null, "png", function (base64, filename) {
+        editorUIInstance.exportImage(2, "#ffffff", true, null, true, 50, null, "png", function (base64, filename) {
           window.parent.postMessage({
             mceAction: 'getData:success',
             eventName: 'getData:success',
