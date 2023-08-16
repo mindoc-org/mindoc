@@ -106,27 +106,28 @@ $(function () {
      * 定义一个空壳，用于自行规划cherry已有工具栏的层级结构
      */
     var customMenuB = Cherry.createMenuHook('发布', {
-        iconName: '',
+        iconName: 'publish',
         onClick: releaseDocument,
     });
 
     var customMenuC = Cherry.createMenuHook("返回", {
-        iconName: '',
+        iconName: 'back',
         onClick: backWard,
     })
 
     var customMenuD = Cherry.createMenuHook('保存', {
-        iconName: '',
+        id: "markdown-save",
+        iconName: 'save',
         onClick: saveDocument,
     });
 
     var customMenuE = Cherry.createMenuHook('边栏', {
-        iconName: '',
+        iconName: 'sider',
         onClick: siderChange,
     });
 
     var customMenuF = Cherry.createMenuHook('历史', {
-        iconName: '',
+        iconName: 'history',
         onClick: showHistory,
     });
 
@@ -191,6 +192,9 @@ $(function () {
         toolbars: {
             toolbar: [
                 'customMenuCName',
+                'customMenuDName',
+                'customMenuBName',
+                'customMenuEName',
                 'undo',
                 'redo',
                 'bold',
@@ -219,16 +223,11 @@ $(function () {
                 'togglePreview',
                 'settings',
                 'switchModel',
-                'codeTheme',
                 'export',
-                'customMenuDName',
-                'customMenuBName',
-                'customMenuEName',
                 'customMenuFName',
-                'theme'
             ],
             bubble: ['bold', 'italic', 'underline', 'strikethrough', 'sub', 'sup', 'quote', 'ruby', '|', 'size', 'color'], // array or false
-            sidebar: ['mobilePreview', 'copy', 'theme'],
+            sidebar: ['mobilePreview', 'copy', 'codeTheme', 'theme'],
             customMenu: {
                 customMenuAName: customMenuA,
                 customMenuBName: customMenuB,
@@ -258,6 +257,9 @@ $(function () {
         //var markdownarea = document.getElementById("markdown_area").value
         var config = Object.assign({}, basicConfig);// { value: markdownarea });// { value: value });不显示获取的初始化值
         window.editor = new Cherry(config);
+        window.editor.getCodeMirror().on('change', (e, detail)=>{
+            resetEditorChanged(true);
+        });
         openLastSelectedNode();
         uploadImage("manualEditorContainer", function ($state, $res) {
             console.log("注册上传图片")
@@ -273,20 +275,6 @@ $(function () {
             }
         });
     });
-
-    function insertToMarkdown(body) {
-        window.isLoad = true;
-        window.editor.insertValue(body);
-        window.editor.setCursor({ line: 0, ch: 0 });
-        resetEditorChanged(true);
-    }
-    function insertAndClearToMarkdown(body) {
-        window.isLoad = true;
-        window.editor.clear();
-        window.editor.insertValue(body);
-        window.editor.setCursor({ line: 0, ch: 0 });
-        resetEditorChanged(true);
-    }
 
     /***
      * 加载指定的文档到编辑器中
@@ -429,7 +417,7 @@ $(function () {
             window.location.href = homepage; // 返回首页
             return;
         }
-        history.back();
+        window.location.href = document.referrer;
     }
 
     /**
