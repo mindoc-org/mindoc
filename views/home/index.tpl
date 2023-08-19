@@ -49,7 +49,7 @@
             </div>
             <nav class="pagination-container">
                 {{if gt .TotalPages 1}}
-                {{.PageHtml}}
+                    {{.PageHtml}}
                 {{end}}
                 <div class="clearfix"></div>
             </nav>

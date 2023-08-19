@@ -201,7 +201,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		if len(m.Email) > 0 {
 			// 如果member配置的email和ldap配置的email不同
 			if m.Email != ldap_mail {
-				return m, errors.New(fmt.Sprintf("ldap配置的email(%s)与数据库中已有email({%s})不同, 请联系管理员修改", ldap_mail, m.Email))
+				return m, fmt.Errorf("ldap配置的email(%s)与数据库中已有email({%s})不同, 请联系管理员修改", ldap_mail, m.Email)
 			}
 		} else {
 			// 如果member未配置email，则用ldap的email配置
