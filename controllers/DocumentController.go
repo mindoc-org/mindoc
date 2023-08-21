@@ -68,6 +68,10 @@ func (c *DocumentController) Index() {
 			c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
 			c.Data["FoldSetting"] = "first"
 
+			if bookResult.Editor == EditorCherryMarkdown {
+				c.Data["MarkdownTheme"] = doc.MarkdownTheme
+			}
+
 			if bookResult.IsDisplayComment {
 				// 获取评论、分页
 				comments, count, _ := models.NewComment().QueryCommentByDocumentId(doc.DocumentId, 1, conf.PageSize, c.Member)
