@@ -148,6 +148,7 @@ func RegisterModel() {
 // RegisterLogger 注册日志
 func RegisterLogger(log string) {
 
+	logs.Reset()
 	logs.SetLogFuncCall(true)
 	_ = logs.SetLogger("console")
 	logs.EnableFuncCallDepth(true)
