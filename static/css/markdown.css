@@ -548,12 +548,13 @@ iframe.cherry-dialog-iframe {
     margin-right: 50px;
 }
 
-.markdown-article-body {
-    margin-right: 200px !important;
+@media screen and (min-width: 840px) {
+    .markdown-article {
+        margin-right: 200px !important;
+    }
 }
 
 .markdown-article-head {
-    margin-right: 200px !important;
     width: unset !important;
     padding: unset !important;
     padding-top: 10px !important;
@@ -562,4 +563,10 @@ iframe.cherry-dialog-iframe {
 .markdown-title {
     padding: unset !important;
     width: 100% !important;
+}
+
+@media screen and (max-width: 839px) {
+  .toc {
+    display: none !important;
+  }
 }

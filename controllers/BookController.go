@@ -173,6 +173,9 @@ func (c *BookController) SaveBook() {
 	book.CommentStatus = commentStatus
 	book.Publisher = publisher
 	//book.Label = tag
+	if book.Editor == EditorMarkdown && editor == EditorCherryMarkdown || book.Editor == EditorCherryMarkdown && editor == EditorMarkdown {
+		c.JsonResult(6006, i18n.Tr(c.Lang, "message.editors_not_compatible"))
+	}
 	book.Editor = editor
 	if editor == EditorCherryMarkdown {
 		book.Theme = "cherry"
