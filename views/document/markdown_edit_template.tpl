@@ -111,6 +111,7 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.modify_history"}}"><i class="fa fa-history item" name="history" aria-hidden="true"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.sidebar"}}"><i class="fa fa-columns item" aria-hidden="true" name="sidebar"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.help"}}"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.changetheme"}}"><i class="fa fa-paint-brush item" aria-hidden="true" name="changetheme"></i></a>
         </div>
 
         <div class="editormd-group pull-right">
