@@ -72,7 +72,7 @@ $(function () {
 
     drawio.show = function () {
 
-        const drawUrl = 'https://embed.diagrams.net/?embed=1&libraries=1&proto=json&spin=1&saveAndExit=1&noSaveBtn=1&noExitBtn=0';
+        const drawUrl = 'https://embed.diagrams.net/?embed=1&libraries=1&proto=json&spin=1&saveAndExit=1&noSaveBtn=1&noExitBtn=0'; // TODO: with Tomcat & https://github.com/jgraph/drawio
         this.div = document.createElement('div');
         this.div.id = 'diagram';
         this.gXml = '';

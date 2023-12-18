@@ -309,3 +309,23 @@ func (m *DocumentSearchResult) SearchDocument(keyword string, bookId int) (docs 
 
 	return
 }
+
+// 所有项目搜索.
+func (m *DocumentSearchResult) SearchAllDocument(keyword string) (docs []*DocumentSearchResult, err error) {
+	o := orm.NewOrm()
+
+	sql := "SELECT * FROM md_documents WHERE (document_name LIKE ? OR `release` LIKE ?) "
+	keyword = "%" + keyword + "%"
+
+	_need_escape := need_escape(keyword)
+	escape_sql := func(sql string) string {
+		if _need_escape {
+			return escape_re.ReplaceAllString(sql, escape_replace)
+		}
+		return sql
+	}
+
+	_, err = o.Raw(escape_sql(sql), keyword, keyword).QueryRows(&docs)
+
+	return
+}

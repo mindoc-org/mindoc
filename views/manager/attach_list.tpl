@@ -27,8 +27,9 @@
         {{template "manager/widgets.tpl" .}}
             <div class="page-right">
                 <div class="m-box">
-                    <div class="box-head">
+                    <div class="box-head" id="attachAll">
                         <strong class="box-title">{{i18n .Lang "mgr.attachment_mgr"}}</strong>
+                        <button type="button" data-method="clean" class="btn btn-danger btn-sm" data-loading-text="{{i18n $.Lang "message.processing"}}">{{i18n $.Lang "common.clean"}}</button>
                     </div>
                 </div>
                 <div class="box-body">
@@ -92,6 +93,29 @@
                 success : function (res) {
                     if(res.errcode === 0){
                         $this.closest("tr").remove().empty();
+                    }else {
+                        layer.msg(res.message);
+                    }
+                },
+                error : function () {
+                    layer.msg({{i18n .Lang "message.system_error"}});
+                },
+                complete : function () {
+                    $this.button("reset");
+                }
+            });
+        });
+
+        $("#attachAll").on("click","button[data-method='clean']",function () {
+            var $this = $(this);
+            $(this).button("loading");
+            $.ajax({
+                url : "{{urlfor "ManagerController.AttachClean"}}",
+                type : "post",
+                dataType : "json",
+                success : function (res) {
+                    if(res.errcode === 0){
+                        alert("done");
                     }else {
                         layer.msg(res.message);
                     }
