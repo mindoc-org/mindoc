@@ -273,4 +273,5 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 - 若内网部署，draw.io无法使用外网，则需要用tomcat运行war包，见（https://github.com/jgraph/drawio） 从release下载，之后修改markdown.js的TODO行对应的链接即可
 - 为了护眼，简单增加了编辑界面的主题切换，见editormd.js和markdown_edit_template.tpl
 - (需重新编译项)为了对已删除文档/文档引用图片删除文字后，对悬空无引用的图片/附件进行清理，增加了清理接口，需重新编译
+     - 编译后除二进制文件外还需更新三个文件: conf/lang/en-us.ini,zh-cn.ini; attach_list.tpl
      - 若不想重新编译，也可通过database/clean.py，手动执行对无引用图片/附件的文件清理和数据库记录双向清理。
