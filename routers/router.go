@@ -154,6 +154,7 @@ func init() {
 	web.Router("/manager/books/open", &controllers.ManagerController{}, "post:PrivatelyOwned")
 
 	web.Router("/manager/attach/list", &controllers.ManagerController{}, "*:AttachList")
+	web.Router("/manager/attach/clean", &controllers.ManagerController{}, "post:AttachClean")
 	web.Router("/manager/attach/detailed/:id", &controllers.ManagerController{}, "*:AttachDetailed")
 	web.Router("/manager/attach/delete", &controllers.ManagerController{}, "post:AttachDelete")
 	web.Router("/manager/label/list", &controllers.ManagerController{}, "get:LabelList")

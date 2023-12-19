@@ -634,6 +634,41 @@ func (c *ManagerController) AttachList() {
 	c.Data["Lists"] = attachList
 }
 
+//附件清理.
+func (c *ManagerController) AttachClean() {
+	c.Prepare()
+
+	attachList, _, err := models.NewAttachment().FindToPager(0, 0)
+
+	if err != nil {
+		c.Abort("500")
+	}
+
+	for _, item := range attachList {
+
+		p := filepath.Join(conf.WorkingDirectory, item.FilePath)
+
+		item.IsExist = filetil.FileExists(p)
+		if item.IsExist {
+			// 判断
+			searchList, err := models.NewDocumentSearchResult().SearchAllDocument(item.HttpPath)
+			if err != nil {
+				c.Abort("500")
+			} else if len(searchList) == 0 {
+				logs.Info("delete file:", item.FilePath)
+				item.FilePath = p
+				if err := item.Delete(); err != nil {
+					logs.Error("AttachDelete => ", err)
+					c.JsonResult(6002, err.Error())
+					break
+				}
+			}
+		}
+	}
+
+	c.JsonResult(0, "ok")
+}
+
 //附件详情.
 func (c *ManagerController) AttachDetailed() {
 	c.Prepare()
