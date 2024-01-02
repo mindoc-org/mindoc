@@ -207,8 +207,8 @@ $(function () {
         }
         var version = "";
 
-        if(!node){
-            layer.msg("获取当前文档信息失败");
+        if (!node) {
+            layer.msg(editormdLocales[lang].fetchDocFailed);
             return;
         }
         var doc_id = parseInt(node.id);
@@ -248,9 +248,9 @@ $(function () {
                         callback();
                     }
                 }else if(res.errcode === 6005){
-                    var confirmIndex = layer.confirm('文档已被其他人修改确定覆盖已存在的文档吗？', {
-                        btn: ['确定','取消'] //按钮
-                    }, function(){
+                    var confirmIndex = layer.confirm(editormdLocales[lang].overrideModified, {
+                        btn: [editormdLocales[lang].confirm, editormdLocales[lang].cancel] // 按钮
+                    }, function () {
                         layer.close(confirmIndex);
                         saveDocument(true,callback);
                     });
@@ -260,6 +260,7 @@ $(function () {
             }
         });
     }
+
 
 
     /**
@@ -378,25 +379,33 @@ $(function () {
     window.releaseBook = function () {
         if(Object.prototype.toString.call(window.documentCategory) === '[object Array]' && window.documentCategory.length > 0){
             if(window.editor.menus.menuList.find((item) => item.key == 'save').$elem.hasClass('selected')) {
-                if(confirm("编辑内容未保存，需要保存吗？")) {
+                if(confirm(editormdLocales[lang].contentUnsaved)) {
                     saveDocument();
                 }
             }
+            locales = {
+                'zh-CN': {
+                    publishToQueue: '发布任务已推送到任务队列，稍后将在后台执行。',
+                },
+                'en': {
+                    publishToQueue: 'The publish task has been pushed to the queue</br> and will be executed soon.',
+                }
+            }
             $.ajax({
-                url : window.releaseURL,
-                data :{"identify" : window.book.identify },
-                type : "post",
-                dataType : "json",
-                success : function (res) {
-                    if(res.errcode === 0){
-                        layer.msg("发布任务已推送到任务队列，稍后将在后台执行。");
-                    }else{
+                url: window.releaseURL,
+                data: {"identify": window.book.identify},
+                type: "post",
+                dataType: "json",
+                success: function (res) {
+                    if (res.errcode === 0) {
+                        layer.msg(locales[lang].publishToQueue);
+                    } else {
                         layer.msg(res.message);
                     }
                 }
             });
         }else{
-            layer.msg("没有需要发布的文档")
+            layer.msg(editormdLocales[lang].noDocNeedPublish)
         }
     };
 
