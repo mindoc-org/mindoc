@@ -51,6 +51,7 @@ $(function () {
     editor.config.languages['en']['wangEditor']['menus']['title']['保存'] = 'save';
     editor.config.languages['en']['wangEditor']['menus']['title']['发布'] = 'publish';
     editor.config.languages['en']['wangEditor']['menus']['title']['附件'] = 'attachment';
+    editor.config.languages['en']['wangEditor']['menus']['title']['history'] = 'history';
     /*
     editor.config.menus.splice(0,0,"|");
     editor.config.menus.splice(0,0,"history");
