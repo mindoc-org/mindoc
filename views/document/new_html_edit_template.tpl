@@ -24,6 +24,7 @@
         window.historyURL = "{{urlfor "DocumentController.History"}}";
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
         window.highlightStyle = "{{.HighlightStyle}}";
+        window.lang = {{i18n $.Lang "common.js_lang"}};
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
