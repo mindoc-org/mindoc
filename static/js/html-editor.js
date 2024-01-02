@@ -47,6 +47,7 @@ $(function () {
         }
     };
     editor.config.lang = window.lang;
+    editor.i18next = window.i18next;
     /*
     editor.config.menus.splice(0,0,"|");
     editor.config.menus.splice(0,0,"history");
