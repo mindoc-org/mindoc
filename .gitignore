@@ -24,7 +24,7 @@ _testmain.go
 mindoc
 mindoc_linux_amd64
 mindoc_linux_musl_amd64
-database
+database/mindoc.db
 *.test
 *.prof
 .idea

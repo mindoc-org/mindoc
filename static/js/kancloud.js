@@ -178,6 +178,7 @@ function loadDocument($url, $id, $callback) {
                 }
                 renderPage(data);
 
+                loadCopySnippets();
                 events.trigger('article.open', { $url: $url, $id: $id });
 
                 return false;

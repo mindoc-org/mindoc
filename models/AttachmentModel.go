@@ -102,11 +102,15 @@ func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*Attachm
 		return nil, 0, err
 	}
 	totalCount = int(total)
-	offset := (pageIndex - 1) * pageSize
 
 	var list []*Attachment
 
-	_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-attachment_id").Offset(offset).Limit(pageSize).All(&list)
+	offset := (pageIndex - 1) * pageSize
+	if pageSize == 0 {
+		_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-attachment_id").Offset(offset).Limit(pageSize).All(&list)
+	} else {
+		_, err = o.QueryTable(m.TableNameWithPrefix()).OrderBy("-attachment_id").All(&list)
+	}
 
 	if err != nil {
 		if err == orm.ErrNoRows {

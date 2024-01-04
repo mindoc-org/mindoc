@@ -80,12 +80,6 @@
         <div class="editormd-group">
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h1"}}"><i class="fa editormd-bold first" name="h1" unselectable="on">H1</i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h2"}}"><i class="fa editormd-bold item" name="h2" unselectable="on">H2</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h3"}}"><i class="fa editormd-bold item" name="h3" unselectable="on">H3</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h4"}}"><i class="fa editormd-bold item" name="h4" unselectable="on">H4</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h5"}}"><i class="fa editormd-bold item" name="h5" unselectable="on">H5</i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.h6"}}"><i class="fa editormd-bold last" name="h6" unselectable="on">H6</i></a>
-        </div>
-        <div class="editormd-group">
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.unorder_list"}}"><i class="fa fa-list-ul first" name="list-ul" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.order_list"}}"><i class="fa fa-list-ol item" name="list-ol" unselectable="on"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.hline"}}"><i class="fa fa-minus last" name="hr" unselectable="on"></i></a>
@@ -111,10 +105,12 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.modify_history"}}"><i class="fa fa-history item" name="history" aria-hidden="true"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.sidebar"}}"><i class="fa fa-columns item" aria-hidden="true" name="sidebar"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.help"}}"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.changetheme"}}"><i class="fa fa-paint-brush item" aria-hidden="true" name="changetheme"></i></a>
         </div>
 
         <div class="editormd-group pull-right">
-            <a target="_blank" href="{{urlfor "DocumentController.Read" ":key" .Model.Identify ":id" ""}}" data-toggle="tooltip" data-title="{{i18n .Lang "blog.preview"}}"><i class="fa fa-external-link" name="preview-open" aria-hidden="true"></i></a>
+            <!--<a target="_blank" href="{{urlfor "DocumentController.Read" ":key" .Model.Identify ":id" ""}}" data-toggle="tooltip" data-title="{{i18n .Lang "blog.preview"}}"><i class="fa fa-external-link" name="preview-open" aria-hidden="true"></i></a>-->
+            <a href="{{urlfor "DocumentController.Read" ":key" .Model.Identify ":id" ""}}" data-toggle="tooltip" data-title="{{i18n .Lang "blog.preview"}}"><i class="fa fa-external-link" name="preview-open" aria-hidden="true"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.publish"}}"><i class="fa fa-cloud-upload" name="release" aria-hidden="true"></i></a>
         </div>
 
