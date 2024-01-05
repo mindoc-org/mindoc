@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>编辑文档 - Powered by MinDoc</title>
+    <title>{{i18n .Lang "doc.edit_doc"}} - Powered by MinDoc</title>
     <style type="text/css">
         .w-e-menu.selected > i {
             color: #44B036 !important;
@@ -30,6 +30,7 @@
         window.historyURL = "{{urlfor "DocumentController.History"}}";
         window.removeAttachURL = "{{urlfor "DocumentController.RemoveAttachment"}}";
         window.vueApp = null;
+        window.lang = {{i18n $.Lang "common.js_lang"}};
     </script>
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
@@ -54,21 +55,21 @@
 <div class="m-manual manual-editor">
     <!--{{/*<div class="manual-head" id="editormd-tools">
         <div class="editormd-group">
-            <a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" data-toggle="tooltip" data-title="返回"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+            <a href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" data-toggle="tooltip" data-title="{{i18n .Lang "doc.backward"}}"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
         </div>
         <div class="editormd-group">
-            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="保存" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
+            <a href="javascript:;" id="markdown-save" data-toggle="tooltip" data-title="{{i18n .Lang "doc.save"}}" class="disabled save"><i class="fa fa-save" aria-hidden="true" name="save"></i></a>
         </div>
 
 
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="修改历史"><i class="fa fa-history item" name="history" aria-hidden="true"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="边栏"><i class="fa fa-columns item" aria-hidden="true" name="sidebar"></i></a>
-            <a href="javascript:;" data-toggle="tooltip" data-title="使用帮助"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.modify_history"}}"><i class="fa fa-history item" name="history" aria-hidden="true"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.sidebar"}}"><i class="fa fa-columns item" aria-hidden="true" name="sidebar"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.help"}}"><i class="fa fa-question-circle-o last" aria-hidden="true" name="help"></i></a>
         </div>
 
         <div class="editormd-group">
-            <a href="javascript:;" data-toggle="tooltip" data-title="发布"><i class="fa fa-cloud-upload" name="release" aria-hidden="true"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.publish"}}"><i class="fa fa-cloud-upload" name="release" aria-hidden="true"></i></a>
         </div>
 
         <div class="editormd-group">
@@ -81,8 +82,8 @@
     <div class="manual-body">
         <div class="manual-category" id="manualCategory" style="top: 0;">
             <div class="manual-nav">
-                <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> 文档</div>
-                <div class="nav-plus pull-right" data-toggle="tooltip" data-title="返回" data-direction="right">
+                <div class="nav-item active"><i class="fa fa-bars" aria-hidden="true"></i> {{i18n .Lang "doc.document"}}</div>
+                <div class="nav-plus pull-right" data-toggle="tooltip" data-title="{{i18n .Lang "doc.backward"}}" data-direction="right">
                     <a style="color: #999999;" href="{{urlfor "BookController.Dashboard" ":key" .Model.Identify}}" target="_blank"><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
                 </div>
                 <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="{{i18n .Lang "doc.create_doc"}}" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
@@ -97,7 +98,7 @@
                 <div id="htmlEditor" class="manual-editormd-active" style="height: 100%"></div>
             </div>
             <div class="manual-editor-status">
-                <div id="attachInfo" class="item" style="display: inline-block; padding: 0 3em;">0 个附件</div>
+                <div id="attachInfo" class="item" style="display: inline-block; padding: 0 3em;">0 {{i18n .Lang "doc.attachments"}}</div>
             </div>
         </div>
 
@@ -150,7 +151,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">上传附件</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{i18n .Lang "doc.upload_attachment"}}</h4>
                 </div>
                 <div class="modal-body">
                     <div class="attach-drop-panel">
@@ -187,14 +188,15 @@
                 </div>
                 <div class="modal-footer">
                     <span id="add-error-message" class="error-message"></span>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile" data-dismiss="modal">确定</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{i18n .Lang "common.cancel"}}</button>
+                    <button type="button" class="btn btn-primary" id="btnUploadAttachFile" data-dismiss="modal">{{i18n .Lang "common.confirm"}}</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/i18next/i18next.min.js"></script>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}"></script>
 <script src="{{cdnjs "/static/vuejs/vue.min.js"}}" type="text/javascript"></script>
@@ -243,7 +245,7 @@
                            attachment_id : file.id,
                            file_size : file.size,
                            file_name : file.name,
-                           message : "正在上传"
+                           message : "{{i18n .Lang "doc.uploading"}}"
                        };
                        window.vueApp.lists.splice(0,0,item);
 
@@ -252,7 +254,7 @@
                            var item = window.vueApp.lists[i];
                            if(item.attachment_id == file.id){
                                item.state = "error";
-                               item.message = "上传失败";
+                               item.message = "{{i18n .Lang "message.upload_failed"}}:" + reason;
                                break;
                            }
                        }

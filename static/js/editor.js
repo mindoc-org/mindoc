@@ -447,6 +447,14 @@ function initHighlighting() {
 }
 
 $(function () {
+    locales = {
+        'zh-CN': {
+            attachments: ' 个附件',
+        },
+        'en': {
+            attachments: ' attachments',
+        }
+    }
     window.vueApp = new Vue({
         el: "#attachList",
         data: {
@@ -484,7 +492,7 @@ $(function () {
         },
         watch: {
             lists: function ($lists) {
-                $("#attachInfo").text(" " + $lists.length + " 个附件")
+                $("#attachInfo").text(" " + $lists.length + locales[lang].attachments)
             }
         }
     });
