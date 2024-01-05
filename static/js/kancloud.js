@@ -221,7 +221,7 @@ function loadDocument($url, $id, $callback) {
 function initHighlighting() {
     try {
         $('pre,pre.ql-syntax').each(function (i, block) {
-            if ($(this).hasClass('prettyprinted')) {
+            if ($(this).hasClass('prettyprinted') || $(this).hasClass('hljs')) {
                 return;
             }
             hljs.highlightBlock(block);
