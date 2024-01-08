@@ -439,7 +439,7 @@ table>tbody>tr:hover {
     color: #ffffff;
 }
 
-.m-manual .markdown-body .search-highlight {
+.m-manual .search-highlight {
     background-color: #FFFF00 !important;
     font-style: normal;
 }
