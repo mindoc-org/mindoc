@@ -282,9 +282,9 @@ func (item *Document) Processor() *Document {
 			if err == nil && len(attachList) > 0 {
 				content := bytes.NewBufferString("<div class=\"attach-list\"><strong>" + i18n.Tr(item.Lang, "doc.attachment") + "</strong><ul>")
 				for _, attach := range attachList {
-					if strings.HasPrefix(attach.HttpPath, "/") {
-						attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
-					}
+					// if strings.HasPrefix(attach.HttpPath, "/") {
+					// 	attach.HttpPath = strings.TrimSuffix(conf.BaseUrl, "/") + attach.HttpPath
+					// }
 					li := fmt.Sprintf("<li><a href=\"%s\" target=\"_blank\" title=\"%s\">%s</a></li>", attach.HttpPath, attach.FileName, attach.FileName)
 
 					content.WriteString(li)
