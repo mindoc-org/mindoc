@@ -5,8 +5,8 @@
             description : "Open source online Markdown editor.",
             tocTitle    : "Table of Contents",
             toolbar : {
-                undo             : "Undo(Ctrl+Z)",
-                redo             : "Redo(Ctrl+Y)",
+                undo             : "Undo",
+                redo             : "Redo",
                 bold             : "Bold",
                 del              : "Strikethrough",
                 italic           : "Italic",
@@ -22,13 +22,13 @@
                 h6               : "Heading 6",
                 "list-ul"        : "Unordered list",
                 "list-ol"        : "Ordered list",
-                hr               : "Horizontal rule",
+                hr               : "Horizontal line",
                 link             : "Link",
                 "reference-link" : "Reference link",
                 image            : "Image",
-                code             : "Code inline",
+                code             : "Inline code",
                 "preformatted-text" : "Preformatted text / Code block (Tab indent)",
-                "code-block"     : "Code block (Multi-languages)",
+                "code-block"     : "Code block",
                 table            : "Tables",
                 datetime         : "Datetime",
                 emoji            : "Emoji",
@@ -76,16 +76,18 @@
                     formatNotAllowed : "Error: only allows to upload pictures file, upload allowed image file format:"
                 },
                 preformattedText : {
-                    title             : "Preformatted text / Codes", 
-                    emptyAlert        : "Error: Please fill in the Preformatted text or content of the codes."
+                    title             : "Preformatted text / Codes",
+                    emptyAlert        : "Error: Please fill in the Preformatted text or content of the codes.",
+                    placeholder       : "coding now...."
                 },
                 codeBlock : {
-                    title             : "Code block",         
+                    title             : "Code block",
                     selectLabel       : "Languages: ",
                     selectDefaultText : "select a code language...",
                     otherLanguage     : "Other languages",
                     unselectedLanguageAlert : "Error: Please select the code language.",
-                    codeEmptyAlert    : "Error: Please fill in the code content."
+                    codeEmptyAlert    : "Error: Please fill in the code content.",
+                    placeholder       : "coding now...."
                 },
                 htmlEntities : {
                     title : "HTML Entities"
@@ -95,13 +97,13 @@
                 }
             }
         };
-        
+
         exports.defaults.lang = lang;
     };
-    
+
 	// CommonJS/Node.js
 	if (typeof require === "function" && typeof exports === "object" && typeof module === "object")
-    { 
+    {
         module.exports = factory;
     }
 	else if (typeof define === "function")  // AMD/CMD/Sea.js
@@ -118,10 +120,10 @@
                 factory(editormd);
             });
 		}
-	} 
+	}
 	else
 	{
         factory(window.editormd);
 	}
-    
+
 })();

@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -24,7 +24,7 @@ CodeMirror.defineMode("pegjs", function (config) {
         inString: false,
         stringType: null,
         inComment: false,
-        inChracterClass: false,
+        inCharacterClass: false,
         braced: 0,
         lhs: true,
         localState: null
@@ -39,7 +39,7 @@ CodeMirror.defineMode("pegjs", function (config) {
         stream.next(); // Skip quote
         state.inString = true; // Update state
       }
-      if (!state.inString && !state.inComment && stream.match(/^\/\*/)) {
+      if (!state.inString && !state.inComment && stream.match('/*')) {
         state.inComment = true;
       }
 
@@ -59,29 +59,29 @@ CodeMirror.defineMode("pegjs", function (config) {
         return state.lhs ? "property string" : "string"; // Token style
       } else if (state.inComment) {
         while (state.inComment && !stream.eol()) {
-          if (stream.match(/\*\//)) {
+          if (stream.match('*/')) {
             state.inComment = false; // Clear flag
           } else {
             stream.match(/^.[^\*]*/);
           }
         }
         return "comment";
-      } else if (state.inChracterClass) {
-          while (state.inChracterClass && !stream.eol()) {
+      } else if (state.inCharacterClass) {
+          while (state.inCharacterClass && !stream.eol()) {
             if (!(stream.match(/^[^\]\\]+/) || stream.match(/^\\./))) {
-              state.inChracterClass = false;
+              state.inCharacterClass = false;
             }
           }
       } else if (stream.peek() === '[') {
         stream.next();
-        state.inChracterClass = true;
+        state.inCharacterClass = true;
         return 'bracket';
-      } else if (stream.match(/^\/\//)) {
+      } else if (stream.match('//')) {
         stream.skipToEnd();
         return "comment";
       } else if (state.braced || stream.peek() === '{') {
         if (state.localState === null) {
-          state.localState = jsMode.startState();
+          state.localState = CodeMirror.startState(jsMode);
         }
         var token = jsMode.token(stream, state.localState);
         var text = stream.current();

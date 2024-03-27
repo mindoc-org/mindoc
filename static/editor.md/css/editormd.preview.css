@@ -2,12 +2,12 @@
  * Editor.md
  *
  * @file        editormd.preview.css 
- * @version     v1.5.0 
+ * @version     v1.7.17 
  * @description Open source online markdown editor.
  * @license     MIT License
- * @author      Pandao
- * {@link       https://github.com/pandao/editor.md}
- * @updateTime  2015-06-09
+ * @author      IBM Skills Network
+ * {@link       https://github.com/ibm-skills-network/editor.md}
+ * @updateTime  2024-03-27
  */
 
 @charset "UTF-8";
@@ -19,7 +19,7 @@
 /* FONT PATH
  * -------------------------- */
 @font-face {
-  font-family: 'FontAwesome';
+  font-family: "FontAwesome";
   src: url("../fonts/fontawesome-webfont.eot?v=4.3.0");
   src: url("../fonts/fontawesome-webfont.eot?#iefix&v=4.3.0") format("embedded-opentype"), url("../fonts/fontawesome-webfont.woff2?v=4.3.0") format("woff2"), url("../fonts/fontawesome-webfont.woff?v=4.3.0") format("woff"), url("../fonts/fontawesome-webfont.ttf?v=4.3.0") format("truetype"), url("../fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular") format("svg");
   font-weight: normal;
@@ -86,9 +86,9 @@
 }
 
 .fa-border {
-  padding: .2em .25em .15em;
+  padding: 0.2em 0.25em 0.15em;
   border: solid 0.08em #eeeeee;
-  border-radius: .1em;
+  border-radius: 0.1em;
 }
 
 .pull-right {
@@ -100,11 +100,11 @@
 }
 
 .fa.pull-left {
-  margin-right: .3em;
+  margin-right: 0.3em;
 }
 
 .fa.pull-right {
-  margin-left: .3em;
+  margin-left: 0.3em;
 }
 
 .fa-spin {
@@ -2363,9 +2363,9 @@
 
 /*! prefixes.scss v0.1.0 | Author: Pandao | https://github.com/pandao/prefixes.scss | MIT license | Copyright (c) 2015 */
 @font-face {
-  font-family: 'editormd-logo';
+  font-family: "editormd-logo";
   src: url("../fonts/editormd-logo.eot?-5y8q6h");
-  src: url(".../fonts/editormd-logo.eot?#iefix-5y8q6h") format("embedded-opentype"), url("../fonts/editormd-logo.woff?-5y8q6h") format("woff"), url("../fonts/editormd-logo.ttf?-5y8q6h") format("truetype"), url("../fonts/editormd-logo.svg?-5y8q6h#icomoon") format("svg");
+  src: url("../fonts/editormd-logo.eot?#iefix-5y8q6h") format("embedded-opentype"), url("../fonts/editormd-logo.woff?-5y8q6h") format("woff"), url("../fonts/editormd-logo.ttf?-5y8q6h") format("truetype"), url("../fonts/editormd-logo.svg?-5y8q6h#icomoon") format("svg");
   font-weight: normal;
   font-style: normal;
 }
@@ -2378,7 +2378,7 @@
 .editormd-logo-6x,
 .editormd-logo-7x,
 .editormd-logo-8x {
-  font-family: 'editormd-logo';
+  font-family: "editormd-logo";
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -2517,7 +2517,7 @@
   line-height: normal;
 }
 
-.markdown-body input[type="checkbox"] {
+.markdown-body input[type=checkbox] {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   padding: 0;
@@ -2659,7 +2659,7 @@
 }
 
 .markdown-body .octicon-link:before {
-  content: '\f05c';
+  content: "\f05c";
 }
 
 .markdown-body > *:first-child {
@@ -2897,7 +2897,7 @@
 .markdown-body code:before,
 .markdown-body code:after {
   letter-spacing: -0.2em;
-  content: "\00a0";
+  content: " ";
 }
 
 .markdown-body pre > code {
@@ -2920,6 +2920,7 @@
   overflow: auto;
   font-size: 85%;
   line-height: 1.45;
+  background-color: #f7f7f7;
   border-radius: 3px;
 }
 
@@ -2940,6 +2941,7 @@
   overflow: initial;
   line-height: inherit;
   word-wrap: normal;
+  background-color: transparent;
   border: 0;
 }
 
@@ -3111,17 +3113,19 @@
 .editormd-preview-container, .editormd-html-preview {
   text-align: left;
   font-size: 14px;
+  line-height: 1.6;
   padding: 20px;
+  overflow: auto;
   width: 100%;
-  line-height: 1.6em;
+  background-color: #fff;
 }
 .editormd-preview-container blockquote, .editormd-html-preview blockquote {
-  color: #2C3E50;
-  border-left: 4px solid #D6DBDF;
+  color: #666;
+  border-left: 4px solid #ddd;
+  padding-left: 20px;
+  margin-left: 0;
   font-size: 14px;
-  background: none repeat scroll 0 0 rgba(102,128,153,.05);
-  margin: 8px 0;
-  padding: 8px 16px;
+  font-style: italic;
 }
 .editormd-preview-container p code, .editormd-html-preview p code {
   margin-left: 5px;
@@ -3145,6 +3149,7 @@
 }
 .editormd-preview-container pre, .editormd-html-preview pre {
   border: 1px solid #ddd;
+  background: #f6f6f6;
   padding: 10px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
@@ -3186,129 +3191,77 @@
   font-family: "YaHei Consolas Hybrid", Consolas, "Microsoft YaHei", "Malgun Gothic", "Segoe UI", Helvetica, Arial !important;
 }
 
-.editormd-preview-container blockquote.info, .editormd-html-preview blockquote.info  {
-  border-left-color: #5bc0de;
-  color: #5bc0de;
-  background-color: #f4f8fa
-}
-.editormd-preview-container blockquote.warning, .editormd-html-preview blockquote.warning  {
-  background-color: #fcf8f2;
-  border-color: #f0ad4e;
-  color: #f0ad4e
-}
-.editormd-preview-container blockquote.danger, .editormd-html-preview blockquote.danger  {
-  color: #d9534f;
-  background-color: #fdf7f7;
-  border-color: #d9534f
-}
-.editormd-preview-container blockquote.success, .editormd-html-preview blockquote.success  {
-  background-color: #f3f8f3;
-  border-color: #50af51;
-  color: #50af51
-}
-
 /*! Pretty printing styles. Used with prettify.js. */
 /* SPAN elements with the classes below are added by prettyprint. */
 .pln {
   color: #000;
-}
-
-/* plain text */
+} /* plain text */
 @media screen {
   .str {
     color: #080;
-  }
-
-  /* string content */
+  } /* string content */
   .kwd {
     color: #008;
-  }
-
-  /* a keyword */
+  } /* a keyword */
   .com {
     color: #800;
-  }
-
-  /* a comment */
+  } /* a comment */
   .typ {
     color: #606;
-  }
-
-  /* a type name */
+  } /* a type name */
   .lit {
     color: #066;
-  }
-
-  /* a literal value */
+  } /* a literal value */
   /* punctuation, lisp open bracket, lisp close bracket */
   .pun, .opn, .clo {
     color: #660;
   }
-
   .tag {
     color: #008;
-  }
-
-  /* a markup tag name */
+  } /* a markup tag name */
   .atn {
     color: #606;
-  }
-
-  /* a markup attribute name */
+  } /* a markup attribute name */
   .atv {
     color: #080;
-  }
-
-  /* a markup attribute value */
+  } /* a markup attribute value */
   .dec, .var {
     color: #606;
-  }
-
-  /* a declaration; a variable name */
+  } /* a declaration; a variable name */
   .fun {
     color: red;
-  }
-
-  /* a function name */
+  } /* a function name */
 }
 /* Use higher contrast and text-weight for printable form. */
 @media print, projection {
   .str {
     color: #060;
   }
-
   .kwd {
     color: #006;
     font-weight: bold;
   }
-
   .com {
     color: #600;
     font-style: italic;
   }
-
   .typ {
     color: #404;
     font-weight: bold;
   }
-
   .lit {
     color: #044;
   }
-
   .pun, .opn, .clo {
     color: #440;
   }
-
   .tag {
     color: #006;
     font-weight: bold;
   }
-
   .atn {
     color: #404;
   }
-
   .atv {
     color: #060;
   }
@@ -3323,9 +3276,7 @@ pre.prettyprint {
 ol.linenums {
   margin-top: 0;
   margin-bottom: 0;
-}
-
-/* IE indents via margin-left */
+} /* IE indents via margin-left */
 li.L0,
 li.L1,
 li.L2,
@@ -3396,16 +3347,11 @@ li.L9 {
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
   border-radius: 4px;
-  -webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* Webkit browsers */
-  -moz-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* Firefox */
-  -ms-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* IE9 */
-  -o-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* Opera(Old) */
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* IE9+, News */
+  -webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Webkit browsers */
+  -moz-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Firefox */
+  -ms-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* IE9 */
+  -o-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Opera(Old) */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* IE9+, News */
 }
 .editormd-preview-container .editormd-toc-menu > .markdown-toc > ul > li ul, .editormd-html-preview .editormd-toc-menu > .markdown-toc > ul > li ul {
   width: 100%;
@@ -3423,12 +3369,9 @@ li.L9 {
   color: #666;
   padding: 6px 10px;
   display: block;
-  -webkit-transition: background-color 500ms ease-out;
-  /* Safari, Chrome */
-  -moz-transition: background-color 500ms ease-out;
-  /* Firefox 4.0~16.0 */
-  transition: background-color 500ms ease-out;
-  /* IE >9, FF >15, Opera >12.0 */
+  -webkit-transition: background-color 500ms ease-out; /* Safari, Chrome */
+  -moz-transition: background-color 500ms ease-out; /* Firefox 4.0~16.0 */
+  transition: background-color 500ms ease-out; /* IE >9, FF >15, Opera >12.0 */
 }
 .editormd-preview-container .editormd-toc-menu > .markdown-toc > ul > li a:hover, .editormd-html-preview .editormd-toc-menu > .markdown-toc > ul > li a:hover {
   background-color: #f6f6f6;
@@ -3441,16 +3384,11 @@ li.L9 {
   top: 32px;
   left: 10%;
   display: none;
-  -webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* Webkit browsers */
-  -moz-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* Firefox */
-  -ms-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* IE9 */
-  -o-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* Opera(Old) */
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
-  /* IE9+, News */
+  -webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Webkit browsers */
+  -moz-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Firefox */
+  -ms-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* IE9 */
+  -o-box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Opera(Old) */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* IE9+, News */
 }
 .editormd-preview-container .editormd-toc-menu > .markdown-toc li > ul:before, .editormd-preview-container .editormd-toc-menu > .markdown-toc li > ul:after, .editormd-html-preview .editormd-toc-menu > .markdown-toc li > ul:before, .editormd-html-preview .editormd-toc-menu > .markdown-toc li > ul:after {
   pointer-events: pointer-events;
@@ -3493,12 +3431,9 @@ li.L9 {
   padding: 5px 10px;
   border-radius: 4px;
   display: inline-block;
-  -webkit-transition: background-color 500ms ease-out;
-  /* Safari, Chrome */
-  -moz-transition: background-color 500ms ease-out;
-  /* Firefox 4.0~16.0 */
-  transition: background-color 500ms ease-out;
-  /* IE >9, FF >15, Opera >12.0 */
+  -webkit-transition: background-color 500ms ease-out; /* Safari, Chrome */
+  -moz-transition: background-color 500ms ease-out; /* Firefox 4.0~16.0 */
+  transition: background-color 500ms ease-out; /* IE >9, FF >15, Opera >12.0 */
 }
 .editormd-preview-container .editormd-toc-menu .toc-menu-btn:hover, .editormd-html-preview .editormd-toc-menu .toc-menu-btn:hover {
   background-color: #f6f6f6;
@@ -3553,12 +3488,9 @@ hr.editormd-page-break {
   top: 25px;
   right: 35px;
   z-index: 19;
-  -webkit-transition: background-color 300ms ease-out;
-  /* Safari, Chrome */
-  -moz-transition: background-color 300ms ease-out;
-  /* Firefox 4.0~16.0 */
-  transition: background-color 300ms ease-out;
-  /* IE >9, FF >15, Opera >12.0 */
+  -webkit-transition: background-color 300ms ease-out; /* Safari, Chrome */
+  -moz-transition: background-color 300ms ease-out; /* Firefox 4.0~16.0 */
+  transition: background-color 300ms ease-out; /* IE >9, FF >15, Opera >12.0 */
 }
 .editormd-preview-close-btn:hover {
   background-color: #999;

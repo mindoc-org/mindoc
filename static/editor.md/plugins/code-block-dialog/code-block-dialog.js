@@ -4,7 +4,7 @@
  * @file        code-block-dialog.js
  * @author      pandao
  * @version     1.2.0
- * @updateTime  2015-03-07
+ * @updateTime  2021-12-03
  * {@link       https://github.com/pandao/editor.md}
  * @license     MIT
  */
@@ -14,7 +14,7 @@
     var factory = function (exports) {
 		var cmEditor;
 		var pluginName    = "code-block-dialog";
-    
+
 		// for CodeBlock dialog select
 		var codeLanguages = exports.codeLanguages = {
 			asp           : ["ASP", "vbscript"],
@@ -65,8 +65,8 @@
             var cursor      = cm.getCursor();
             var selection   = cm.getSelection();
             var classPrefix = this.classPrefix;
-			var dialogName  = classPrefix + pluginName, dialog;
-			var dialogLang  = lang.dialog.codeBlock;
+            var dialogName  = classPrefix + pluginName, dialog;
+            var dialogLang  = lang.dialog.codeBlock;
 
 			cm.focus();
 
@@ -80,18 +80,19 @@
                 this.dialogLockScreen();
                 dialog.show();
             }
-            else 
-            {      
+            else
+            {
                 var dialogHTML = "<div class=\"" + classPrefix + "code-toolbar\">" +
-                                        dialogLang.selectLabel + "<select><option selected=\"selected\" value=\"\">" + dialogLang.selectDefaultText + "</option></select>" +
+                                        dialogLang.selectLabel + "<select class=\"select_language\" style=\"margin-left: 8px;\"><option selected=\"selected\" value=\"\">" + dialogLang.selectDefaultText + "</option></select>" +
                                     "</div>" +
-                                    "<textarea placeholder=\"coding now....\" style=\"display:none;\">" + selection + "</textarea>";
+                                    "<textarea placeholder=\"" + dialogLang.placeholder + "\" style=\"display:none;\">" + selection + "</textarea>" +
+                                    "<div class='dialog-warning'><span class='warning-sign'></span>Execute code feature only available for Shell and Bash</div>";
 
                 dialog = this.createDialog({
                     name   : dialogName,
                     title  : dialogLang.title,
                     width  : 780,
-                    height : 565,
+                    height : 551,
                     mask   : settings.dialogShowMask,
                     drag   : settings.dialogDraggable,
                     content    : dialogHTML,
@@ -129,7 +130,7 @@
 
                             return false;
                         }],
-                        cancel : [lang.buttons.cancel, function() {                                   
+                        cancel : [lang.buttons.cancel, function() {
                             this.hide().lockScreen(false).hideMask();
 
                             return false;
@@ -140,7 +141,7 @@
 
 			var langSelect = dialog.find("select");
 
-			if (langSelect.find("option").length === 1) 
+			if (langSelect.find("option").length === 1)
 			{
 				for (var key in codeLanguages)
 				{
@@ -150,9 +151,9 @@
 
 				langSelect.append("<option value=\"other\">" + dialogLang.otherLanguage + "</option>");
 			}
-			
+
 			var mode   = langSelect.find("option:selected").attr("mode");
-		
+
 			var cmConfig = {
 				mode                      : (mode) ? mode : "text/html",
 				theme                     : settings.theme,
@@ -173,29 +174,42 @@
 				showTrailingSpace         : true,
 				highlightSelectionMatches : true
 			};
-			
+
 			var textarea = dialog.find("textarea");
 			var cmObj    = dialog.find(".CodeMirror");
 
-			if (dialog.find(".CodeMirror").length < 1) 
+			if (dialog.find(".CodeMirror").length < 1)
 			{
 				cmEditor = exports.$CodeMirror.fromTextArea(textarea[0], cmConfig);
 				cmObj    = dialog.find(".CodeMirror");
 
 				cmObj.css({
-					"float"   : "none", 
+					"float"   : "none",
 					margin    : "8px 0",
-					border    : "1px solid #ddd",
+					border    : "1px solid rgba(141, 141, 141, 0.5)",
+          backgroundColor : "#2c2c2c",
 					fontSize  : settings.fontSize,
 					width     : "100%",
-					height    : "390px"
+					height    : "300px",
+          fontFamily : "Inter",
+          color: "#F4F4F4"
 				});
+
+        let gutter = cmObj.find(".CodeMirror-gutters");
+        gutter.css({
+          backgroundColor: "#262626",
+          borderRight: "1px solid rgba(141, 141, 141, 0.5)",
+          color: "#C6C6C6"
+        });
+
+        let sizer = cmObj.find(".CodeMirror-sizer");
+        sizer.css("margin-top", "3px");
 
 				cmEditor.on("change", function(cm) {
 					textarea.val(cm.getValue());
 				});
-			} 
-			else 
+			}
+			else
 			{
 
 				cmEditor.setValue(cm.getSelection());
@@ -208,10 +222,10 @@
 		};
 
 	};
-    
+
 	// CommonJS/Node.js
 	if (typeof require === "function" && typeof exports === "object" && typeof module === "object")
-    { 
+    {
         module.exports = factory;
     }
 	else if (typeof define === "function")  // AMD/CMD/Sea.js
@@ -228,7 +242,7 @@
                 factory(editormd);
             });
 		}
-	} 
+	}
 	else
 	{
         factory(window.editormd);
