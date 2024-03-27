@@ -133,7 +133,7 @@ ldap_host="${MINDOC_LDAP_HOST||127.0.0.1}"
 #ldap端口
 ldap_port=${MINDOC_LDAP_PORT||389}
 #ldap内哪个属性作为用户名
-ldap_attribute="${MINDOC_LDAP_ATTRIBUTE||sAMAccountName}"
+ldap_account="${MINDOC_LDAP_ACCOUNT||sAMAccountName}"
 #ldap内哪个属性作为邮箱
 ldap_mail="${MINDOC_LDAP_MAIL||mail}"
 #搜索范围
