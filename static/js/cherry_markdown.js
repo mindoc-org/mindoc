@@ -507,6 +507,7 @@ $(function () {
             }
         },
         'core': {
+            'worker':true,
             'check_callback': true,
             "multiple": false,
             'animation': 0,
