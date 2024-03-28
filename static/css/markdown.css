@@ -454,6 +454,10 @@ body .scrollbar-track-color {
     overflow-y: auto;
 }
 
+.markdown-category .editor-status.markdown-tree {
+    bottom: 30px !important;
+}
+
 .markdown-category .markdown-nav .nav-item {
     font-size: 14px;
     padding: 0 9px;
@@ -566,7 +570,7 @@ iframe.cherry-dialog-iframe {
 }
 
 @media screen and (max-width: 839px) {
-  .toc {
-    display: none !important;
-  }
+    .toc {
+        display: none !important;
+    }
 }

@@ -64,15 +64,12 @@
                 <div class="nav-plus pull-right" id="btnAddDocument" data-toggle="tooltip" data-title="{{i18n .Lang "doc.create_doc"}}" data-direction="right"><i class="fa fa-plus" aria-hidden="true"></i></div>
                 <div class="clearfix"></div>
             </div>
-            <div class="markdown-tree" id="sidebar"> </div>
-        </div>
-        <div class="markdown-editor-container" id="manualEditorContainer" style="min-width: 920px;">
-            <div class="markdown-editormd">
-                <div id="docEditor" class="markdown-editormd-active"></div>
-            </div>
+            <div class="markdown-tree editor-status" id="sidebar"> </div>
             <div class="markdown-editor-status">
                 <div id="attachInfo" class="item">0 {{i18n .Lang "doc.attachments"}}</div>
             </div>
+        </div>
+        <div class="markdown-editor-container" id="manualEditorContainer" style="min-width: 920px;">            
         </div>
 
     </div>
