@@ -189,16 +189,13 @@ function loadDocument($url, $id, $callback) {
         },
         success: function ($res) {
             if ($res.errcode === 0) {
-                renderPage($res.data);
-
-                $body = $res.data.body;
+                var data = $res.data;
                 if (typeof $callback === "function") {
-                    $body = $callback(body);
+                    data.body = $callback(data.body);
                 }
+                renderPage(data);
                 loadCopySnippets();
-
-                events.data($id, $res.data);
-
+                events.data($id, data);
                 events.trigger('article.open', { $url: $url, $id: $id });
             } else if ($res.errcode === 6000) {
                 window.location.href = "/";
@@ -221,7 +218,7 @@ function loadDocument($url, $id, $callback) {
 function initHighlighting() {
     try {
         $('pre,pre.ql-syntax').each(function (i, block) {
-            if ($(this).hasClass('prettyprinted')) {
+            if ($(this).hasClass('prettyprinted') || $(this).hasClass('hljs')) {
                 return;
             }
             hljs.highlightBlock(block);
