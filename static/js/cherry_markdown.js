@@ -140,6 +140,7 @@ $(function () {
             MathJax: window.MathJax,
         },
         isPreviewOnly: false,
+        fileUpload: myFileUpload,
         engine: {
             global: {
                 urlProcessor(url, srcType) {
@@ -261,19 +262,6 @@ $(function () {
             resetEditorChanged(true);
         });
         openLastSelectedNode();
-        uploadImage("manualEditorContainer", function ($state, $res) {
-            console.log("注册上传图片")
-            if ($state === "before") {
-                return layer.load(1, {
-                    shade: [0.1, '#fff'] // 0.1 透明度的白色背景
-                });
-            } else if ($state === "success") {
-                if ($res.errcode === 0) {
-                    var value = '![](' + $res.url + ')';
-                    window.editor.insertValue(value);
-                }
-            }
-        });
     });
 
     /***
@@ -519,6 +507,7 @@ $(function () {
             }
         },
         'core': {
+            'worker':true,
             'check_callback': true,
             "multiple": false,
             'animation': 0,
@@ -614,77 +603,36 @@ $(function () {
     });
 });
 
-function uploadImage($id, $callback) {
-    locales = {
-        'zh-CN': {
-            unsupportType: '不支持的图片格式',
-            uploadFailed: '图片上传失败'
+function myFileUpload(file, callback) {
+    // 创建 FormData 对象以便包含要上传的文件
+    var formData = new FormData();
+    formData.append("editormd-file-file", file); // "file" 是与你的服务端接口相对应的字段名
+    var layerIndex = 0;
+    // AJAX 请求
+    $.ajax({
+        url: window.fileUploadURL, // 确保此 URL 是文件上传 API 的正确 URL
+        type: "POST",
+        dataType: "json",
+        data: formData,
+        processData: false, // 必须设置为 false，因为数据是 FormData 对象，不需要对数据进行序列化处理
+        contentType: false, // 必须设置为 false，因为是 FormData 对象，jQuery 将不会设置内容类型头
+        
+        beforeSend: function () {
+            layerIndex = layer.load(1, {
+                shade: [0.1, '#fff'] // 0.1 透明度的白色背景
+            });
         },
-        'en': {
-            unsupportType: 'Unsupport image type',
-            uploadFailed: 'Upload image failed'
-        }
-    }
-    /** 粘贴上传图片 **/
-    document.getElementById($id).addEventListener('paste', function (e) {
-        if (e.clipboardData && e.clipboardData.items) {
-            var clipboard = e.clipboardData;
-            for (var i = 0, len = clipboard.items.length; i < len; i++) {
-                if (clipboard.items[i].kind === 'file' || clipboard.items[i].type.indexOf('image') > -1) {
-
-                    var imageFile = clipboard.items[i].getAsFile();
-
-                    var fileName = String((new Date()).valueOf());
-
-                    switch (imageFile.type) {
-                        case "image/png" :
-                            fileName += ".png";
-                            break;
-                        case "image/jpg" :
-                            fileName += ".jpg";
-                            break;
-                        case "image/jpeg" :
-                            fileName += ".jpeg";
-                            break;
-                        case "image/gif" :
-                            fileName += ".gif";
-                            break;
-                        default :
-                            layer.msg(locales[lang].unsupportType);
-                            return;
-                    }
-                    var form = new FormData();
-
-                    form.append('editormd-image-file', imageFile, fileName);
-
-                    var layerIndex = 0;
-
-                    $.ajax({
-                        url: window.imageUploadURL,
-                        type: "POST",
-                        dataType: "json",
-                        data: form,
-                        processData: false,
-                        contentType: false,
-                        beforeSend: function () {
-                            layerIndex = $callback('before');
-                        },
-                        error: function () {
-                            layer.close(layerIndex);
-                            $callback('error');
-                            layer.msg(locales[lang].uploadFailed);
-                        },
-                        success: function (data) {
-                            layer.close(layerIndex);
-                            $callback('success', data);
-                            if (data.errcode !== 0) {
-                                layer.msg(data.message);
-                            }
-
-                        }
-                    });
-                    e.preventDefault();
-                }
+        
+        error: function () {
+            layer.close(layerIndex);
+            layer.msg(locales[lang].uploadFailed);
+        },
+        success: function (data) {
+            layer.close(layerIndex);
+            if (data.errcode !== 0) {
+                layer.msg(data.message);
+            } else {
+                callback(data.url); // 假设返回的 JSON 中包含上传文件的 URL，调用回调函数并传入 URL
             }
         }
     });
