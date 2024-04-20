@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 
-    <title>{{.Title}} - Powered by MinDoc 3</title>
+    <title>{{.Title}} - Powered by MinDoc</title>
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -197,7 +197,6 @@
                         </div>
                     </div>
 
-                    
                     {{if .Model.IsDisplayComment}}
                     <div id="articleComment" class="m-comment{{if .IS_DOCUMENT_INDEX}} not-show-comment{{end}}">
                         <!-- 评论列表 -->
@@ -221,7 +220,6 @@
                         <!-- 翻页 -->
                         <ul id="page"></ul>
 
-                        
                         <!-- 发表评论 -->
                         <div class="comment-post">
                             <form class="form" id="commentForm" action="{{urlfor "CommentController.Create"}}" method="post">
