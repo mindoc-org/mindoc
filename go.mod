@@ -13,7 +13,7 @@ require (
 	github.com/lib/pq v1.10.5
 	github.com/lifei6671/gocaptcha v0.2.0
 	github.com/mattn/go-runewidth v0.0.13
-	github.com/mattn/go-sqlite3 v1.14.15
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/russross/blackfriday/v2 v2.1.0
 )
@@ -32,6 +32,8 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -50,4 +52,6 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/driver/sqlite v1.5.5 // indirect
+	gorm.io/gorm v1.25.9 // indirect
 )

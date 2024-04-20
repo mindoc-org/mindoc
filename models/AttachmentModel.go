@@ -1,4 +1,4 @@
-//数据库模型.
+// 数据库模型.
 package models
 
 import (
@@ -12,7 +12,14 @@ import (
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils/filetil"
+	// "gorm.io/driver/sqlite"
+	// "gorm.io/gorm"
+	// "gorm.io/gorm/logger"
+	// "gorm.io/gorm/schema"
 )
+
+// 定义全局的db对象，我们执行数据库操作主要通过他实现。
+// var _db *gorm.DB
 
 // Attachment struct .
 type Attachment struct {
@@ -83,7 +90,7 @@ func (m *Attachment) Find(id int) (*Attachment, error) {
 	return m, err
 }
 
-//查询指定文档的附件列表
+// 查询指定文档的附件列表
 func (m *Attachment) FindListByDocumentId(docId int) (attaches []*Attachment, err error) {
 	o := orm.NewOrm()
 
@@ -91,7 +98,7 @@ func (m *Attachment) FindListByDocumentId(docId int) (attaches []*Attachment, er
 	return
 }
 
-//分页查询附件
+// 分页查询附件
 func (m *Attachment) FindToPager(pageIndex, pageSize int) (attachList []*AttachmentResult, totalCount int, err error) {
 	o := orm.NewOrm()
 

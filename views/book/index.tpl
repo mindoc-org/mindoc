@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{i18n $.Lang "common.my_project"}} - Powered by MinDoc</title>
+    <title>{{i18n $.Lang "common.my_project"}} - Powered by MinDoc 1</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet" type="text/css">

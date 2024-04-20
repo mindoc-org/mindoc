@@ -36,6 +36,16 @@ type DocumentController struct {
 	BaseController
 }
 
+// Document prev&next
+type DocumentTreeFlatten struct {
+	DocumentId   int    `json:"id"`
+	DocumentName string `json:"text"`
+	// ParentId     interface{} `json:"parent"`
+	Identify string `json:"identify"`
+	// BookIdentify string      `json:"-"`
+	// Version      int64       `json:"version"`
+}
+
 // 文档首页
 func (c *DocumentController) Index() {
 	c.Prepare()
@@ -98,7 +108,6 @@ func (c *DocumentController) Index() {
 	c.Data["IS_DOCUMENT_INDEX"] = true
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
-
 }
 
 // CheckPassword : Handles password verification for private documents,
@@ -139,6 +148,8 @@ func (c *DocumentController) Read() {
 	identify := c.Ctx.Input.Param(":key")
 	token := c.GetString("token")
 	id := c.GetString(":id")
+	logs.Info(identify)
+	logs.Info(id)
 
 	if identify == "" || id == "" {
 		c.ShowErrorPage(404, i18n.Tr(c.Lang, "message.item_not_exist"))
@@ -229,8 +240,44 @@ func (c *DocumentController) Read() {
 
 	if err != nil && err != orm.ErrNoRows {
 		logs.Error("生成项目文档树时出错 ->", err)
-
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.build_doc_tree_error"))
+	}
+
+	// prev,next
+	treeJson, err := models.NewDocument().FindDocumentTree2(bookResult.BookId)
+	// logs.Info(treeJson)
+	res := getTreeRecursive(treeJson, 0)
+	// explain
+	// for i, v := range res {
+	// 	logs.Info(i, v.Children)
+	// }
+
+	flat := make([]DocumentTreeFlatten, 0)
+	Flatten(res, &flat)
+	// flattened := Flatten(res, &flat)
+	// for i, v := range *flattened {
+	var index int
+	for i, v := range flat {
+		logs.Info(i, v)
+		if v.Identify == id {
+			logs.Info(i, v)
+			index = i
+		}
+	}
+	// logs.Info(flat[index].Identify)
+	// logs.Info(flat[index].Identify)
+
+	if index == 0 {
+		c.Data["PrevName"] = "没有了"
+	} else {
+		c.Data["PrevPath"] = identify + "/" + flat[index-1].Identify
+		c.Data["PrevName"] = flat[index-1].DocumentName
+	}
+	if index == len(flat)-1 {
+		c.Data["NextName"] = "没有了"
+	} else {
+		c.Data["NextPath"] = identify + "/" + flat[index+1].Identify
+		c.Data["NextName"] = flat[index+1].DocumentName
 	}
 
 	c.Data["Description"] = utils.AutoSummary(doc.Release, 120)
@@ -249,6 +296,43 @@ func (c *DocumentController) Read() {
 	} else if doc.IsOpen == 2 {
 		c.Data["FoldSetting"] = "empty"
 	}
+
+	// c.Data["json"] = flat
+	// c.ServeJSON()
+}
+
+// 递归得到树状结构体
+func getTreeRecursive(list []*models.DocumentTree, parentId int) (res []*models.DocumentTree) {
+	// res := make([]*models.DocumentTree, 0)
+	for _, v := range list {
+		// logs.Info(v)
+		if v.ParentId == parentId {
+			v.Children = getTreeRecursive(list, v.DocumentId)
+			res = append(res, v)
+		}
+	}
+	return res
+}
+
+// 递归将树状结构体转换为扁平结构体数组
+// func Flatten(list []*models.DocumentTree, flattened *[]DocumentTreeFlatten) (flatten *[]DocumentTreeFlatten) {
+func Flatten(list []*models.DocumentTree, flattened *[]DocumentTreeFlatten) {
+	// Treeslice := make([]*DocumentTreeFlatten, 0)
+	for _, v := range list {
+		tree := make([]DocumentTreeFlatten, 1)
+		tree[0].DocumentId = v.DocumentId
+		tree[0].DocumentName = v.DocumentName
+		tree[0].Identify = v.Identify
+		// logs.Info(v.DocumentName)
+		*flattened = append(*flattened, tree...)
+		logs.Info(flattened)
+		if len(v.Children) > 0 {
+			// logs.Info(v.Children)
+			Flatten(v.Children, flattened)
+		}
+	}
+	// return flattened
+	return
 }
 
 // 编辑文档
