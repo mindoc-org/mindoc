@@ -576,6 +576,17 @@ table>tbody>tr:hover {
     padding: 5px;
 }
 
+.manual-article .wiki-bottom-left {
+    border-top: 1px solid #E5E5E5;
+    line-height: 25px;
+    color: #333;
+    text-align: left;
+    font-size: 12px;
+    margin-bottom: 20px;
+    margin-top: 30px;
+    padding: 5px;
+}
+
 .manual-article .jump-top .view-backtop {
     position: fixed;
     bottom: -30px;

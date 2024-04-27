@@ -189,12 +189,7 @@
                 <div class="article-content">
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
-                        <div class="col-xs-12 model sxy">
-                        <ul class="row">
-                            <div class="post-previous twofifth"> 上一篇： <br><a href='/docs/{{.PrevPath}}' rel='prev'>{{.PrevName}}</a></div>
-                            <div class="post-next twofifth"> 下一篇： <br><a href='/docs/{{.NextPath}}' rel='next'>{{.NextName}}</a></div>
-                          </ul>
-                        </div>
+                        <!-- <div class="wiki-bottom-left">上一篇： <a href='/docs/{{.PrevPath}}' rel='prev'>{{.PrevName}}</a><br />下一篇： <a href='/docs/{{.NextPath}}' rel='next'>{{.NextName}}</a><br /></div> -->
                     </div>
 
                     {{if .Model.IsDisplayComment}}
@@ -372,6 +367,10 @@ $(function () {
     if (!window.IS_DOCUMENT_INDEX && IS_DISPLAY_COMMENT) {
         pageClicked(-1, parseInt($('#doc_id').val()));
     }
+
+    $("div.wiki-bottom").after("<div class='wiki-bottom-left'>上一篇： <a href='/docs/{{.PrevPath}}' rel='prev'>{{.PrevName}}</a><br />下一篇： <a href='/docs/{{.NextPath}}' rel='next'>{{.NextName}}</a><br /></div>");
+
+
 });
 </script>
 {{.Scripts}}
