@@ -189,7 +189,6 @@
                 <div class="article-content">
                     <div class="article-body  {{if eq .Model.Editor "markdown"}}markdown-body editormd-preview-container{{else}}editor-content{{end}}"  id="page-content">
                         {{.Content}}
-                        <!-- <div class="wiki-bottom-left">上一篇： <a href='/docs/{{.PrevPath}}' rel='prev'>{{.PrevName}}</a><br />下一篇： <a href='/docs/{{.NextPath}}' rel='next'>{{.NextName}}</a><br /></div> -->
                     </div>
 
                     {{if .Model.IsDisplayComment}}
@@ -367,10 +366,6 @@ $(function () {
     if (!window.IS_DOCUMENT_INDEX && IS_DISPLAY_COMMENT) {
         pageClicked(-1, parseInt($('#doc_id').val()));
     }
-
-    $("div.wiki-bottom").after("<div class='wiki-bottom-left'>上一篇： <a href='/docs/{{.PrevPath}}' rel='prev'>{{.PrevName}}</a><br />下一篇： <a href='/docs/{{.NextPath}}' rel='next'>{{.NextName}}</a><br /></div>");
-
-
 });
 </script>
 {{.Scripts}}

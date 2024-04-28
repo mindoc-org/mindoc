@@ -281,7 +281,7 @@ func (c *DocumentController) Read() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = doc.DocumentName
-	c.Data["Content"] = template.HTML(doc.Release)
+	c.Data["Content"] = template.HTML(doc.Release + "<div class='wiki-bottom-left'>上一篇： <a href='/docs/" + PrevPath + "' rel='prev'>" + PrevName + "</a><br />下一篇： <a href='/docs/" + NextPath + "' rel='next'>" + NextName + "</a><br /></div>")
 	c.Data["ViewCount"] = doc.ViewCount
 	c.Data["FoldSetting"] = "closed"
 	if bookResult.Editor == EditorCherryMarkdown {
