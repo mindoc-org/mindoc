@@ -36,6 +36,16 @@ type DocumentController struct {
 	BaseController
 }
 
+// Document prev&next
+type DocumentTreeFlatten struct {
+	DocumentId   int    `json:"id"`
+	DocumentName string `json:"text"`
+	// ParentId     interface{} `json:"parent"`
+	Identify string `json:"identify"`
+	// BookIdentify string      `json:"-"`
+	// Version      int64       `json:"version"`
+}
+
 // 文档首页
 func (c *DocumentController) Index() {
 	c.Prepare()
@@ -98,7 +108,6 @@ func (c *DocumentController) Index() {
 	c.Data["IS_DOCUMENT_INDEX"] = true
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
-
 }
 
 // CheckPassword : Handles password verification for private documents,
@@ -186,6 +195,41 @@ func (c *DocumentController) Read() {
 		doc.AttachList = attach
 	}
 
+	// prev,next
+	treeJson, err := models.NewDocument().FindDocumentTree2(bookResult.BookId)
+	if err != nil {
+		logs.Error("生成项目文档树时出错 ->", err)
+	}
+
+	res := getTreeRecursive(treeJson, 0)
+	flat := make([]DocumentTreeFlatten, 0)
+	Flatten(res, &flat)
+	var index int
+	for i, v := range flat {
+		if v.Identify == id {
+			index = i
+		}
+	}
+	var PrevName, PrevPath, NextName, NextPath string
+	if index == 0 {
+		c.Data["PrevName"] = "没有了"
+		PrevName = "没有了"
+	} else {
+		c.Data["PrevPath"] = identify + "/" + flat[index-1].Identify
+		c.Data["PrevName"] = flat[index-1].DocumentName
+		PrevPath = identify + "/" + flat[index-1].Identify
+		PrevName = flat[index-1].DocumentName
+	}
+	if index == len(flat)-1 {
+		c.Data["NextName"] = "没有了"
+		NextName = "没有了"
+	} else {
+		c.Data["NextPath"] = identify + "/" + flat[index+1].Identify
+		c.Data["NextName"] = flat[index+1].DocumentName
+		NextPath = identify + "/" + flat[index+1].Identify
+		NextName = flat[index+1].DocumentName
+	}
+
 	doc.IncrViewCount(doc.DocumentId)
 	doc.ViewCount = doc.ViewCount + 1
 	doc.PutToCache()
@@ -205,7 +249,7 @@ func (c *DocumentController) Read() {
 		data.DocId = doc.DocumentId
 		data.DocIdentify = doc.Identify
 		data.DocTitle = doc.DocumentName
-		data.Body = doc.Release
+		data.Body = doc.Release + "<div class='wiki-bottom-left'>上一篇： <a href='/docs/" + PrevPath + "' rel='prev'>" + PrevName + "</a><br />下一篇： <a href='/docs/" + NextPath + "' rel='next'>" + NextName + "</a><br /></div>"
 		data.Title = doc.DocumentName + " - Powered by MinDoc"
 		data.Version = doc.Version
 		data.ViewCount = doc.ViewCount
@@ -229,7 +273,6 @@ func (c *DocumentController) Read() {
 
 	if err != nil && err != orm.ErrNoRows {
 		logs.Error("生成项目文档树时出错 ->", err)
-
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.build_doc_tree_error"))
 	}
 
@@ -238,7 +281,7 @@ func (c *DocumentController) Read() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = doc.DocumentName
-	c.Data["Content"] = template.HTML(doc.Release)
+	c.Data["Content"] = template.HTML(doc.Release + "<div class='wiki-bottom-left'>上一篇： <a href='/docs/" + PrevPath + "' rel='prev'>" + PrevName + "</a><br />下一篇： <a href='/docs/" + NextPath + "' rel='next'>" + NextName + "</a><br /></div>")
 	c.Data["ViewCount"] = doc.ViewCount
 	c.Data["FoldSetting"] = "closed"
 	if bookResult.Editor == EditorCherryMarkdown {
@@ -249,6 +292,34 @@ func (c *DocumentController) Read() {
 	} else if doc.IsOpen == 2 {
 		c.Data["FoldSetting"] = "empty"
 	}
+}
+
+// 递归得到树状结构体
+func getTreeRecursive(list []*models.DocumentTree, parentId int) (res []*models.DocumentTree) {
+	for _, v := range list {
+		if v.ParentId == parentId {
+			v.Children = getTreeRecursive(list, v.DocumentId)
+			res = append(res, v)
+		}
+	}
+	return res
+}
+
+// 递归将树状结构体转换为扁平结构体数组
+// func Flatten(list []*models.DocumentTree, flattened *[]DocumentTreeFlatten) (flatten *[]DocumentTreeFlatten) {
+func Flatten(list []*models.DocumentTree, flattened *[]DocumentTreeFlatten) {
+	// Treeslice := make([]*DocumentTreeFlatten, 0)
+	for _, v := range list {
+		tree := make([]DocumentTreeFlatten, 1)
+		tree[0].DocumentId = v.DocumentId
+		tree[0].DocumentName = v.DocumentName
+		tree[0].Identify = v.Identify
+		*flattened = append(*flattened, tree...)
+		if len(v.Children) > 0 {
+			Flatten(v.Children, flattened)
+		}
+	}
+	return
 }
 
 // 编辑文档
@@ -868,24 +939,30 @@ func (c *DocumentController) Export() {
 	c.Prepare()
 
 	identify := c.Ctx.Input.Param(":key")
+
 	if identify == "" {
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.param_error"))
 	}
 
 	output := c.GetString("output")
 	token := c.GetString("token")
-
+	logs.Info(identify)
+	logs.Info(output)
+	logs.Info(token)
 	// 如果没有开启匿名访问则跳转到登录
 	if !c.EnableAnonymous && !c.isUserLoggedIn() {
+		logs.Info(output)
 		promptUserToLogIn(c)
 		return
 	}
 	if !conf.GetEnableExport() {
+		logs.Info(output)
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "export_func_disable"))
 	}
 
 	bookResult := models.NewBookResult()
 	if c.Member != nil && c.Member.IsAdministrator() {
+		logs.Info(output)
 		book, err := models.NewBook().FindByIdentify(identify)
 		if err != nil {
 			if err == orm.ErrNoRows {
@@ -897,17 +974,21 @@ func (c *DocumentController) Export() {
 		}
 		bookResult = models.NewBookResult().ToBookResult(*book)
 	} else {
+		logs.Info(output)
 		bookResult = c.isReadable(identify, token)
 	}
 	if !bookResult.IsDownload {
+		logs.Info(output)
 		c.ShowErrorPage(200, i18n.Tr(c.Lang, "message.cur_project_export_func_disable"))
 	}
 
 	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
+		logs.Info(output)
 		bookResult.Cover = conf.URLForWithCdnImage(bookResult.Cover)
 	}
-
+	logs.Info(Markdown)
 	if output == Markdown {
+		logs.Info("hah")
 		if bookResult.Editor != EditorMarkdown && bookResult.Editor != EditorCherryMarkdown {
 			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.cur_project_not_support_md"))
 		}
