@@ -32,3 +32,5 @@ database/mindoc.db
 /conf/app.conf
 /vendor
 /runtime
+/uploads/*.*
+!/uploads/.gitkeep
