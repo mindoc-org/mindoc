@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"image/png"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -487,156 +488,211 @@ func (c *DocumentController) Upload() {
 
 	name := "editormd-file-file"
 
-	file, moreFile, err := c.GetFile(name)
-	if err == http.ErrMissingFile || moreFile == nil {
+	// file, moreFile, err := c.GetFile(name)
+	// if err == http.ErrMissingFile || moreFile == nil {
+	// 	name = "editormd-image-file"
+	// 	file, moreFile, err = c.GetFile(name)
+	// 	if err == http.ErrMissingFile || moreFile == nil {
+	// 		c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
+	// 		return
+	// 	}
+	// }
+	// ****3xxx
+	files, err := c.GetFiles(name)
+	if err == http.ErrMissingFile {
 		name = "editormd-image-file"
-		file, moreFile, err = c.GetFile(name)
-		if err == http.ErrMissingFile || moreFile == nil {
+		files, err = c.GetFiles(name)
+		if err == http.ErrMissingFile {
 			c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
 			return
 		}
 	}
 
-	if err != nil {
-		c.JsonResult(6002, err.Error())
-	}
+	// if err != nil {
+	// 	http.Error(w, err.Error(), http.StatusNoContent)
+	// 	return
+	// }
+	// jMap := make(map[string]interface{})
+	// s := []map[int]interface{}{}
+	result2 := []map[string]interface{}{}
+	for i, _ := range files {
+		//for each fileheader, get a handle to the actual file
+		file, err := files[i].Open()
 
-	defer file.Close()
-
-	type Size interface {
-		Size() int64
-	}
-
-	if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize() {
-		c.JsonResult(6009, i18n.Tr(c.Lang, "message.upload_file_size_limit"))
-	}
-
-	ext := filepath.Ext(moreFile.Filename)
-	//文件必须带有后缀名
-	if ext == "" {
-		c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_type_error"))
-	}
-	//如果文件类型设置为 * 标识不限制文件类型
-	if conf.IsAllowUploadFileExt(ext) == false {
-		c.JsonResult(6004, i18n.Tr(c.Lang, "message.upload_file_type_error"))
-	}
-
-	bookId := 0
-
-	// 如果是超级管理员，则不判断权限
-	if c.Member.IsAdministrator() {
-		book, err := models.NewBook().FindByFieldFirst("identify", identify)
+		defer file.Close()
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }
+		// 	//create destination file making sure the path is writeable.
+		// 	dst, err := os.Create("upload/" + files[i].Filename)
+		// 	defer dst.Close()
+		// 	if err != nil {
+		// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 		return
+		// 	}
+		// 	//copy the uploaded file to the destination file
+		// 	if _, err := io.Copy(dst, file); err != nil {
+		// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 		return
+		// 	}
+		// }
+		// ****
 
 		if err != nil {
-			c.JsonResult(6006, i18n.Tr(c.Lang, "message.doc_not_exist_or_no_permit"))
+			c.JsonResult(6002, err.Error())
 		}
 
-		bookId = book.BookId
-	} else {
-		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		// defer file.Close()
 
-		if err != nil {
-			logs.Error("DocumentController.Edit => ", err)
-			if err == orm.ErrNoRows {
+		type Size interface {
+			Size() int64
+		}
+
+		// if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize() {
+		if conf.GetUploadFileSize() > 0 && files[i].Size > conf.GetUploadFileSize() {
+			c.JsonResult(6009, i18n.Tr(c.Lang, "message.upload_file_size_limit"))
+		}
+
+		// ext := filepath.Ext(moreFile.Filename)
+		ext := filepath.Ext(files[i].Filename)
+		//文件必须带有后缀名
+		if ext == "" {
+			c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_type_error"))
+		}
+		//如果文件类型设置为 * 标识不限制文件类型
+		if conf.IsAllowUploadFileExt(ext) == false {
+			c.JsonResult(6004, i18n.Tr(c.Lang, "message.upload_file_type_error"))
+		}
+
+		bookId := 0
+
+		// 如果是超级管理员，则不判断权限
+		if c.Member.IsAdministrator() {
+			book, err := models.NewBook().FindByFieldFirst("identify", identify)
+
+			if err != nil {
+				c.JsonResult(6006, i18n.Tr(c.Lang, "message.doc_not_exist_or_no_permit"))
+			}
+
+			bookId = book.BookId
+		} else {
+			book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+			if err != nil {
+				logs.Error("DocumentController.Edit => ", err)
+				if err == orm.ErrNoRows {
+					c.JsonResult(6006, i18n.Tr(c.Lang, "message.no_permission"))
+				}
+
+				c.JsonResult(6001, err.Error())
+			}
+
+			// 如果没有编辑权限
+			if book.RoleId != conf.BookEditor && book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder {
 				c.JsonResult(6006, i18n.Tr(c.Lang, "message.no_permission"))
 			}
 
-			c.JsonResult(6001, err.Error())
+			bookId = book.BookId
 		}
 
-		// 如果没有编辑权限
-		if book.RoleId != conf.BookEditor && book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder {
-			c.JsonResult(6006, i18n.Tr(c.Lang, "message.no_permission"))
+		if docId > 0 {
+			doc, err := models.NewDocument().Find(docId)
+			if err != nil {
+				c.JsonResult(6007, i18n.Tr(c.Lang, "message.doc_not_exist"))
+			}
+
+			if doc.BookId != bookId {
+				c.JsonResult(6008, i18n.Tr(c.Lang, "message.doc_not_belong_project"))
+			}
 		}
 
-		bookId = book.BookId
-	}
+		fileName := "m_" + cryptil.UniqueId() + "_r"
+		filePath := filepath.Join(conf.WorkingDirectory, "uploads", identify)
 
-	if docId > 0 {
-		doc, err := models.NewDocument().Find(docId)
-		if err != nil {
-			c.JsonResult(6007, i18n.Tr(c.Lang, "message.doc_not_exist"))
+		//将图片和文件分开存放
+		// if filetil.IsImageExt(moreFile.Filename) {
+		if filetil.IsImageExt(files[i].Filename) {
+			filePath = filepath.Join(filePath, "images", fileName+ext)
+		} else {
+			filePath = filepath.Join(filePath, "files", fileName+ext)
 		}
 
-		if doc.BookId != bookId {
-			c.JsonResult(6008, i18n.Tr(c.Lang, "message.doc_not_belong_project"))
-		}
-	}
+		path := filepath.Dir(filePath)
 
-	fileName := "m_" + cryptil.UniqueId() + "_r"
-	filePath := filepath.Join(conf.WorkingDirectory, "uploads", identify)
+		_ = os.MkdirAll(path, os.ModePerm)
 
-	//将图片和文件分开存放
-	if filetil.IsImageExt(moreFile.Filename) {
-		filePath = filepath.Join(filePath, "images", fileName+ext)
-	} else {
-		filePath = filepath.Join(filePath, "files", fileName+ext)
-	}
+		// err = c.SaveToFile(name, filePath) // frome beego controller.go: savetofile it only operates the first one of mutil-upload form file field.
 
-	path := filepath.Dir(filePath)
-
-	_ = os.MkdirAll(path, os.ModePerm)
-
-	err = c.SaveToFile(name, filePath)
-
-	if err != nil {
-		logs.Error("保存文件失败 -> ", err)
-		c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
-	}
-
-	attachment := models.NewAttachment()
-	attachment.BookId = bookId
-	attachment.FileName = moreFile.Filename
-	attachment.CreateAt = c.Member.MemberId
-	attachment.FileExt = ext
-	attachment.FilePath = strings.TrimPrefix(filePath, conf.WorkingDirectory)
-	attachment.DocumentId = docId
-
-	if fileInfo, err := os.Stat(filePath); err == nil {
-		attachment.FileSize = float64(fileInfo.Size())
-	}
-
-	if docId > 0 {
-		attachment.DocumentId = docId
-	}
-
-	if filetil.IsImageExt(moreFile.Filename) {
-		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
-		if strings.HasPrefix(attachment.HttpPath, "//") {
-			attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))
-		}
-
-		isAttach = false
-	}
-
-	err = attachment.Insert()
-
-	if err != nil {
-		os.Remove(filePath)
-		logs.Error("文件保存失败 ->", err)
-		c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed"))
-	}
-
-	if attachment.HttpPath == "" {
-		attachment.HttpPath = conf.URLForNotHost("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
-
-		if err := attachment.Update(); err != nil {
-			logs.Error("保存文件失败 ->", err)
+		//copy the uploaded file to the destination file
+		dst, err := os.Create(filePath)
+		defer dst.Close()
+		if _, err := io.Copy(dst, file); err != nil {
+			logs.Error("保存文件失败 -> ", err)
 			c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
 		}
+
+		// if err != nil {
+		// 	logs.Error("保存文件失败 -> ", err)
+		// 	c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
+		// }
+
+		attachment := models.NewAttachment()
+		attachment.BookId = bookId
+		// attachment.FileName = moreFile.Filename
+		attachment.FileName = files[i].Filename
+		attachment.CreateAt = c.Member.MemberId
+		attachment.FileExt = ext
+		attachment.FilePath = strings.TrimPrefix(filePath, conf.WorkingDirectory)
+		attachment.DocumentId = docId
+
+		if fileInfo, err := os.Stat(filePath); err == nil {
+			attachment.FileSize = float64(fileInfo.Size())
+		}
+
+		if docId > 0 {
+			attachment.DocumentId = docId
+		}
+
+		// if filetil.IsImageExt(moreFile.Filename) {
+		if filetil.IsImageExt(files[i].Filename) {
+			attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
+			if strings.HasPrefix(attachment.HttpPath, "//") {
+				attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))
+			}
+
+			isAttach = false
+		}
+
+		err = attachment.Insert()
+
+		if err != nil {
+			os.Remove(filePath)
+			logs.Error("文件保存失败 ->", err)
+			c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed"))
+		}
+
+		if attachment.HttpPath == "" {
+			attachment.HttpPath = conf.URLForNotHost("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
+
+			if err := attachment.Update(); err != nil {
+				logs.Error("保存文件失败 ->", err)
+				c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
+			}
+		}
+		result := map[string]interface{}{
+			"errcode":   0,
+			"success":   1,
+			"message":   "ok",
+			"url":       attachment.HttpPath,
+			"alt":       attachment.FileName,
+			"is_attach": isAttach,
+			"attach":    attachment,
+		}
+		result2 = append(result2, result)
 	}
 
-	result := map[string]interface{}{
-		"errcode":   0,
-		"success":   1,
-		"message":   "ok",
-		"url":       attachment.HttpPath,
-		"alt":       attachment.FileName,
-		"is_attach": isAttach,
-		"attach":    attachment,
-	}
-
-	c.Ctx.Output.JSON(result, true, false)
+	c.Ctx.Output.JSON(result2, true, false)
 	c.StopRun()
 }
 
@@ -946,23 +1002,18 @@ func (c *DocumentController) Export() {
 
 	output := c.GetString("output")
 	token := c.GetString("token")
-	logs.Info(identify)
-	logs.Info(output)
-	logs.Info(token)
+
 	// 如果没有开启匿名访问则跳转到登录
 	if !c.EnableAnonymous && !c.isUserLoggedIn() {
-		logs.Info(output)
 		promptUserToLogIn(c)
 		return
 	}
 	if !conf.GetEnableExport() {
-		logs.Info(output)
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "export_func_disable"))
 	}
 
 	bookResult := models.NewBookResult()
 	if c.Member != nil && c.Member.IsAdministrator() {
-		logs.Info(output)
 		book, err := models.NewBook().FindByIdentify(identify)
 		if err != nil {
 			if err == orm.ErrNoRows {
@@ -974,21 +1025,16 @@ func (c *DocumentController) Export() {
 		}
 		bookResult = models.NewBookResult().ToBookResult(*book)
 	} else {
-		logs.Info(output)
 		bookResult = c.isReadable(identify, token)
 	}
 	if !bookResult.IsDownload {
-		logs.Info(output)
 		c.ShowErrorPage(200, i18n.Tr(c.Lang, "message.cur_project_export_func_disable"))
 	}
 
 	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
-		logs.Info(output)
 		bookResult.Cover = conf.URLForWithCdnImage(bookResult.Cover)
 	}
-	logs.Info(Markdown)
 	if output == Markdown {
-		logs.Info("hah")
 		if bookResult.Editor != EditorMarkdown && bookResult.Editor != EditorCherryMarkdown {
 			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.cur_project_not_support_md"))
 		}

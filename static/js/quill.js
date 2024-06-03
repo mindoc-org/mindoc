@@ -77,10 +77,11 @@ $(function () {
                 shade: [0.1, '#fff'] // 0.1 透明度的白色背景
             });
         } else if ($state === "success") {
-            if ($res.errcode === 0) {
-
+            // if ($res.errcode === 0) {
+            if ($res[0].errcode === 0) {
                 var range = window.editor.getSelection();
-                window.editor.insertEmbed(range.index, 'image', $res.url);
+                // window.editor.insertEmbed(range.index, 'image', $res.url);
+                window.editor.insertEmbed(range.index, 'image', $res[0].url);
             }
         }
     });
