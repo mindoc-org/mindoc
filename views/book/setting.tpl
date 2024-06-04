@@ -97,6 +97,10 @@
                                     <label class="radio-inline">
                                         <input type="radio"{{if eq .Model.Editor "html"}} checked{{end}} name="editor" value="html"> Html {{i18n $.Lang "blog.text_editor"}}(wangEditor)
                                     </label>
+                    <!-- 3xxx 20240603 -->
+                    <label class="radio-inline">
+                      <input type="radio" {{if eq .Model.Editor "froala"}} checked{{end}} name="editor" value="froala"> Froala {{i18n $.Lang "blog.text_editor"}}
+                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
