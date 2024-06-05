@@ -503,8 +503,15 @@ func (c *DocumentController) Upload() {
 		name = "editormd-image-file"
 		files, err = c.GetFiles(name)
 		if err == http.ErrMissingFile {
-			c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
-			return
+			// c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
+			// return
+			name = "file"
+			files, err = c.GetFiles(name)
+			// logs.Info(files)
+			if err == http.ErrMissingFile {
+				c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
+				return
+			}
 		}
 	}
 
@@ -515,6 +522,7 @@ func (c *DocumentController) Upload() {
 	// jMap := make(map[string]interface{})
 	// s := []map[int]interface{}{}
 	result2 := []map[string]interface{}{}
+	var result map[string]interface{}
 	for i, _ := range files {
 		//for each fileheader, get a handle to the actual file
 		file, err := files[i].Open()
@@ -680,19 +688,24 @@ func (c *DocumentController) Upload() {
 				c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
 			}
 		}
-		result := map[string]interface{}{
+		result = map[string]interface{}{
 			"errcode":   0,
 			"success":   1,
 			"message":   "ok",
 			"url":       attachment.HttpPath,
+			"link":      attachment.HttpPath,
 			"alt":       attachment.FileName,
 			"is_attach": isAttach,
 			"attach":    attachment,
 		}
 		result2 = append(result2, result)
 	}
-
-	c.Ctx.Output.JSON(result2, true, false)
+	if name == "file" {
+		// froala单图片上传
+		c.Ctx.Output.JSON(result, true, false)
+	} else {
+		c.Ctx.Output.JSON(result2, true, false)
+	}
 	c.StopRun()
 }
 
