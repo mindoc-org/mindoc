@@ -612,6 +612,7 @@ function myFileUpload(file, callback) {
     $.ajax({
         url: window.fileUploadURL, // 确保此 URL 是文件上传 API 的正确 URL
         type: "POST",
+        async: false, // 3xxx 20240609这里修改为同步，保证cherry批量上传图片时，插入的图片名称是正确的，否则，插入的图片名称都是最后一个名称
         dataType: "json",
         data: formData,
         processData: false, // 必须设置为 false，因为数据是 FormData 对象，不需要对数据进行序列化处理
@@ -629,10 +630,10 @@ function myFileUpload(file, callback) {
         },
         success: function (data) {
             layer.close(layerIndex);
-            if (data.errcode !== 0) {
-                layer.msg(data.message);
+            if (data[0].errcode !== 0) {
+                layer.msg(data[0].message);
             } else {
-                callback(data.url); // 假设返回的 JSON 中包含上传文件的 URL，调用回调函数并传入 URL
+                callback(data[0].url); // 假设返回的 JSON 中包含上传文件的 URL，调用回调函数并传入 URL
             }
         }
     });
