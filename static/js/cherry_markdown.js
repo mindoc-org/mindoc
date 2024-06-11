@@ -629,10 +629,10 @@ function myFileUpload(file, callback) {
         },
         success: function (data) {
             layer.close(layerIndex);
-            if (data.errcode !== 0) {
+            if (data[0].errcode != 0) {
                 layer.msg(data.message);
             } else {
-                callback(data.url); // 假设返回的 JSON 中包含上传文件的 URL，调用回调函数并传入 URL
+                callback(data[0].url); // 假设返回的 JSON 中包含上传文件的 URL，调用回调函数并传入 URL
             }
         }
     });
