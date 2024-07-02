@@ -773,6 +773,35 @@ func (c *BookController) Release() {
 	c.JsonResult(0, i18n.Tr(c.Lang, "message.publish_to_queue"))
 }
 
+// 更新项目排序
+func (c *BookController) UpdateBookOrder() {
+	type Params struct {
+		Ids string `form:"ids"`
+	}
+	var params Params
+	if err := c.ParseForm(&params); err != nil {
+		c.JsonResult(6003, "参数错误")
+		return
+	}
+	idArray := strings.Split(params.Ids, ",")
+	orderCount := len(idArray)
+	for _, id := range idArray {
+		bookId, _ := strconv.Atoi(id)
+		orderCount--
+		book, err := models.NewBook().Find(bookId)
+		if err != nil {
+			continue
+		}
+		book.BookId = bookId
+		book.OrderIndex = orderCount
+		err = book.Update()
+		if err != nil {
+			continue
+		}
+	}
+	c.JsonResult(0, "ok")
+}
+
 // 文档排序.
 func (c *BookController) SaveSort() {
 	c.Prepare()
