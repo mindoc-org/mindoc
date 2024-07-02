@@ -288,7 +288,8 @@ body .scrollbar-track-color {
     padding-left: 15px;
     padding-right: 15px;
     margin: 18px 0;
-    height: 280px
+    height: 280px;
+    border: 1px solid #ffffff;
 }
 
 .manual-list .list-item .manual-item-standard {
