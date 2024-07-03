@@ -775,6 +775,10 @@ func (c *BookController) Release() {
 
 // 更新项目排序
 func (c *BookController) UpdateBookOrder() {
+	if !c.Member.IsAdministrator() {
+		c.JsonResult(403, "权限不足")
+		return
+	}
 	type Params struct {
 		Ids string `form:"ids"`
 	}

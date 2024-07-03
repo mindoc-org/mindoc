@@ -1,8 +1,12 @@
 let draggedItem = null;
+let draggedItemIndex = null;
 
 document.querySelectorAll('.list-item').forEach(item => {
     item.addEventListener('mousedown', function() {
         draggedItem = item;
+        // 获取当前item在list-item中的索引
+        const parentNode = item.parentNode;
+        draggedItemIndex = Array.from(parentNode.children).indexOf(draggedItem);
         item.setAttribute('draggable', true);
     });
 
@@ -45,15 +49,25 @@ document.querySelectorAll('.list-item').forEach(item => {
                 success: function (res) {
                     if (res.errcode === 0) {
                         layer.msg("排序成功", {icon: 1});
+                        draggedItem = null;
                     } else {
-                        layer.msg("排序失败", {icon: 2});
+                        layer.msg(res.message, {icon: 2});
+                        const parentNode = item.parentNode;
+                        // 在parentNode中找到当前拖拽的item
+                        const draggedIndex = Array.from(parentNode.children).indexOf(draggedItem);
+                        console.log('draggedIndex:', draggedIndex);
+                        // 移除当前拖拽的item
+                        parentNode.removeChild(draggedItem);
+                        // 将draggedItem放到原来的位置
+                        parentNode.insertBefore(draggedItem, parentNode.children[draggedItemIndex]);
+                        draggedItem = null;
                     }
                 },
                 error: function (err) {
                     console.log('error:', err)
+                    draggedItem = null;
                 }
             })
-            draggedItem = null;
         }
     });
 });
