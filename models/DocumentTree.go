@@ -173,7 +173,7 @@ func getSelectedNode(array []*DocumentTree, parent_id int) int {
 }
 
 func getDocumentTree(array []*DocumentTree, parentId int, selectedId int, selectedParentId int, buf *bytes.Buffer) {
-	buf.WriteString("<ul>")
+	buf.WriteString("<ul style='display:none;'>")
 
 	for _, item := range array {
 		pid := 0
