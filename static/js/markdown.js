@@ -245,18 +245,20 @@ $(function () {
 
             //如果没有选中节点则选中默认节点
             openLastSelectedNode();
-            uploadImage("docEditor", function ($state, $res) {
+            uploadResource("docEditor", function ($state, $res) {
                 if ($state === "before") {
                     return layer.load(1, {
                         shade: [0.1, '#fff'] // 0.1 透明度的白色背景
                     });
                 } else if ($state === "success") {
-                    // if ($res.errcode === 0) {
-                        // var value = '![](' + $res.url + ')';
-                    // 3xxx 20240602
                     if ($res[0].errcode === 0) {
-                        var value = '![](' + $res[0].url + ')';
-                        window.editor.insertValue(value);
+                        if ($res[0].resource_type === 'video') {
+                            let value = `<video controls><source src="${$res[0].url}" type="video/mp4"></video>`;
+                            window.editor.insertValue(value);
+                        } else {
+                            let value = '![](' + $res[0].url + ')';
+                            window.editor.insertValue(value);
+                        }
                     }
                 }
             });
