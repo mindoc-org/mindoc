@@ -504,10 +504,6 @@ function uploadResource($id, $callback) {
                         success: function (data) {
                             layer.close(layerIndex);
                             $callback('success', data);
-                            if (data.errcode !== 0) {
-                                layer.msg(data.message);
-                            }
-
                         }
                     });
                     e.preventDefault();
