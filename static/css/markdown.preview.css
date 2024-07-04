@@ -20,7 +20,8 @@
     width: 100%;
     overflow: auto;
     border-bottom: none;
-    line-height: 1.5
+    line-height: 1.5;
+    display: table;
 }
 
 .editormd-preview-container table td,.editormd-preview-container table th {
