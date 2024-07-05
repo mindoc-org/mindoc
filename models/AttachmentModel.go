@@ -33,6 +33,7 @@ type Attachment struct {
 	FileExt      string    `orm:"column(file_ext);size(50);description(文件后缀)" json:"file_ext"`
 	CreateTime   time.Time `orm:"type(datetime);column(create_time);auto_now_add;description(创建时间)" json:"create_time"`
 	CreateAt     int       `orm:"column(create_at);type(int);description(创建人id)" json:"create_at"`
+	ResourceType string    `orm:"-" json:"resource_type"`
 }
 
 // TableName 获取对应上传附件数据库表名.

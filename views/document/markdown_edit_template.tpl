@@ -508,7 +508,6 @@
                         }
 
                     }).on("uploadSuccess",function (file, res) {
-
                         for(var index in window.vueApp.lists){
                             var item = window.vueApp.lists[index];
                             if(item.attachment_id === file.id){

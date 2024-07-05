@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"image/png"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -486,41 +487,23 @@ func (c *DocumentController) Upload() {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
 	}
 
-	name := "editormd-file-file"
-
-	// file, moreFile, err := c.GetFile(name)
-	// if err == http.ErrMissingFile || moreFile == nil {
-	// 	name = "editormd-image-file"
-	// 	file, moreFile, err = c.GetFile(name)
-	// 	if err == http.ErrMissingFile || moreFile == nil {
-	// 		c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
-	// 		return
-	// 	}
-	// }
-	// ****3xxx
-	files, err := c.GetFiles(name)
-	if err == http.ErrMissingFile {
-		name = "editormd-image-file"
-		files, err = c.GetFiles(name)
-		if err == http.ErrMissingFile {
-			// c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
-			// return
-			name = "file"
-			files, err = c.GetFiles(name)
-			// logs.Info(files)
-			if err == http.ErrMissingFile {
-				c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
-				return
-			}
+	names := []string{"editormd-file-file", "editormd-image-file", "file", "editormd-resource-file"}
+	var files []*multipart.FileHeader
+	for _, name := range names {
+		file, err := c.GetFiles(name)
+		if err != nil {
+			continue
+		}
+		if len(file) > 0 && err == nil {
+			files = append(files, file...)
 		}
 	}
 
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusNoContent)
-	// 	return
-	// }
-	// jMap := make(map[string]interface{})
-	// s := []map[int]interface{}{}
+	if len(files) == 0 {
+		c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
+		return
+	}
+
 	result2 := []map[string]interface{}{}
 	var result map[string]interface{}
 	for i, _ := range files {
@@ -528,24 +511,6 @@ func (c *DocumentController) Upload() {
 		file, err := files[i].Open()
 
 		defer file.Close()
-		// if err != nil {
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }
-		// 	//create destination file making sure the path is writeable.
-		// 	dst, err := os.Create("upload/" + files[i].Filename)
-		// 	defer dst.Close()
-		// 	if err != nil {
-		// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 		return
-		// 	}
-		// 	//copy the uploaded file to the destination file
-		// 	if _, err := io.Copy(dst, file); err != nil {
-		// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 		return
-		// 	}
-		// }
-		// ****
 
 		if err != nil {
 			c.JsonResult(6002, err.Error())
@@ -619,18 +584,24 @@ func (c *DocumentController) Upload() {
 		filePath := filepath.Join(conf.WorkingDirectory, "uploads", identify)
 
 		//将图片和文件分开存放
-		// if filetil.IsImageExt(moreFile.Filename) {
+		attachment := models.NewAttachment()
+		var strategy filetil.FileTypeStrategy
 		if filetil.IsImageExt(files[i].Filename) {
-			filePath = filepath.Join(filePath, "images", fileName+ext)
+			strategy = filetil.ImageStrategy{}
+			attachment.ResourceType = "image"
+		} else if filetil.IsVideoExt(files[i].Filename) {
+			strategy = filetil.VideoStrategy{}
+			attachment.ResourceType = "video"
 		} else {
-			filePath = filepath.Join(filePath, "files", fileName+ext)
+			strategy = filetil.DefaultStrategy{}
+			attachment.ResourceType = "file"
 		}
+
+		filePath = strategy.GetFilePath(filePath, fileName, ext)
 
 		path := filepath.Dir(filePath)
 
 		_ = os.MkdirAll(path, os.ModePerm)
-
-		// err = c.SaveToFile(name, filePath) // frome beego controller.go: savetofile it only operates the first one of mutil-upload form file field.
 
 		//copy the uploaded file to the destination file
 		dst, err := os.Create(filePath)
@@ -640,12 +611,6 @@ func (c *DocumentController) Upload() {
 			c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
 		}
 
-		// if err != nil {
-		// 	logs.Error("保存文件失败 -> ", err)
-		// 	c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
-		// }
-
-		attachment := models.NewAttachment()
 		attachment.BookId = bookId
 		// attachment.FileName = moreFile.Filename
 		attachment.FileName = files[i].Filename
@@ -662,8 +627,7 @@ func (c *DocumentController) Upload() {
 			attachment.DocumentId = docId
 		}
 
-		// if filetil.IsImageExt(moreFile.Filename) {
-		if filetil.IsImageExt(files[i].Filename) {
+		if filetil.IsImageExt(files[i].Filename) || filetil.IsVideoExt(files[i].Filename) {
 			attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
 			if strings.HasPrefix(attachment.HttpPath, "//") {
 				attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))
@@ -689,19 +653,20 @@ func (c *DocumentController) Upload() {
 			}
 		}
 		result = map[string]interface{}{
-			"errcode":   0,
-			"success":   1,
-			"message":   "ok",
-			"url":       attachment.HttpPath,
-			"link":      attachment.HttpPath,
-			"alt":       attachment.FileName,
-			"is_attach": isAttach,
-			"attach":    attachment,
+			"errcode":       0,
+			"success":       1,
+			"message":       "ok",
+			"url":           attachment.HttpPath,
+			"link":          attachment.HttpPath,
+			"alt":           attachment.FileName,
+			"is_attach":     isAttach,
+			"attach":        attachment,
+			"resource_type": attachment.ResourceType,
 		}
 		result2 = append(result2, result)
 	}
-	if name == "file" {
-		// froala单图片上传
+	if len(files) == 1 {
+		// froala单文件上传
 		c.Ctx.Output.JSON(result, true, false)
 	} else {
 		c.Ctx.Output.JSON(result2, true, false)

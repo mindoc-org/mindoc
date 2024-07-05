@@ -3594,7 +3594,7 @@
   background-color: #f8f8f8;
 }
 
-.markdown-body img {
+.markdown-body img, .markdown-body video {
   max-width: 100%;
   -moz-box-sizing: border-box;
   box-sizing: border-box;

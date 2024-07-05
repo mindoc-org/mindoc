@@ -143,9 +143,7 @@ function renderPage($data) {
     $("#doc_id").val($data.doc_id);
     if ($data.page) {
         loadComment($data.page, $data.doc_id);
-
-    }
-    else {
+    } else {
         pageClicked(-1, $data.doc_id);
     }
 
@@ -156,6 +154,7 @@ function renderPage($data) {
         $("#view_container").removeClass("theme__dark theme__green theme__light theme__red theme__default")
         $("#view_container").addClass($data.markdown_theme)
     }
+    checkMarkdownTocElement();
 }
 
 /***
@@ -230,6 +229,7 @@ function initHighlighting() {
 }
 
 $(function () {
+    checkMarkdownTocElement();
     $(".view-backtop").on("click", function () {
         $('.manual-right').animate({ scrollTop: '0px' }, 200);
     });
@@ -280,7 +280,7 @@ $(function () {
 
 
     $(window).resize(function (e) {
-        var h = $(".manual-catalog").innerHeight() - 20;
+        var h = $(".manual-catalog").innerHeight() - 50;
         $(".markdown-toc").height(h);
     }).resize();
 
@@ -417,4 +417,19 @@ function loadCopySnippets() {
     [].forEach.call(snippets, function (snippet) {
         Prism.highlightElement(snippet);
     });
+}
+
+function checkMarkdownTocElement() {
+    console.log(111)
+    let toc = $(".markdown-toc-list");
+    let articleComment = $("#articleComment");
+    if (toc.length) {
+        $(".wiki-bottom-left").css("width", "calc(100% - 260px)");
+        articleComment.css("width", "calc(100% - 260px)");
+        articleComment.css("margin", "30px 0 70px 0");
+    } else {
+        $(".wiki-bottom-left").css("width", "100%");
+        articleComment.css("width", "100%");
+        articleComment.css("margin", "30px auto 70px auto;");
+    }
 }
