@@ -122,6 +122,7 @@ func (c *BookController) Setting() {
 	if book.PrivateToken != "" {
 		book.PrivateToken = conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
 	}
+	fmt.Println("book.PrintState", book.PrintState)
 	c.Data["Model"] = book
 
 }
@@ -153,6 +154,7 @@ func (c *BookController) SaveBook() {
 	isUseFirstDocument := strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
 	autoSave := strings.TrimSpace(c.GetString("auto_save")) == "on"
 	itemId, _ := c.GetInt("itemId")
+	pringState := strings.TrimSpace(c.GetString("print_state")) == "on"
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, i18n.Tr(c.Lang, "message.project_desc_tips"))
@@ -210,6 +212,11 @@ func (c *BookController) SaveBook() {
 		book.AutoSave = 1
 	} else {
 		book.AutoSave = 0
+	}
+	if pringState {
+		book.PrintSate = 1
+	} else {
+		book.PrintSate = 0
 	}
 	if err := book.Update(); err != nil {
 		c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed"))
