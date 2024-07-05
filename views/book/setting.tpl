@@ -129,6 +129,15 @@
                 {{end}}
 
                 <div class="form-group">
+                    <label for="autoRelease">{{i18n $.Lang "blog.print_text"}}</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="autoSave" name="print_state"{{if .Model.PrintState }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.print_text"}}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="autoRelease">{{i18n $.Lang "blog.auto_publish"}}</label>
                     <div class="controls">
                         <div class="switch switch-small" data-on="primary" data-off="info">
