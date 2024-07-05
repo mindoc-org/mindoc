@@ -488,7 +488,6 @@ func (c *DocumentController) Upload() {
 	}
 
 	names := []string{"editormd-file-file", "editormd-image-file", "file", "editormd-resource-file"}
-	currentName := ""
 	var files []*multipart.FileHeader
 	for _, name := range names {
 		file, err := c.GetFiles(name)
@@ -496,7 +495,6 @@ func (c *DocumentController) Upload() {
 			continue
 		}
 		if len(file) > 0 && err == nil {
-			currentName = name
 			files = append(files, file...)
 		}
 	}
@@ -667,8 +665,8 @@ func (c *DocumentController) Upload() {
 		}
 		result2 = append(result2, result)
 	}
-	if currentName == "file" {
-		// froala单图片上传
+	if len(files) == 1 {
+		// froala单文件上传
 		c.Ctx.Output.JSON(result, true, false)
 	} else {
 		c.Ctx.Output.JSON(result2, true, false)

@@ -263,7 +263,12 @@ func IsImageExt(filename string) bool {
 func IsVideoExt(filename string) bool {
 	ext := filepath.Ext(filename)
 
-	return strings.EqualFold(ext, ".mp4")
+	return strings.EqualFold(ext, ".mp4") ||
+		strings.EqualFold(ext, ".webm") ||
+		strings.EqualFold(ext, ".ogg") ||
+		strings.EqualFold(ext, ".avi") ||
+		strings.EqualFold(ext, ".flv") ||
+		strings.EqualFold(ext, ".mov")
 }
 
 // 忽略字符串中的BOM头

@@ -476,6 +476,9 @@ function uploadResource($id, $callback) {
                         case "video/mp4":
                             fileName += ".mp4";
                             break;
+                        case "video/webm":
+                            fileName += ".webm";
+                            break;
                         default :
                             layer.msg(locales[lang].unsupportType);
                             return;

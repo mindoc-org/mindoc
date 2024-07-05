@@ -251,14 +251,16 @@ $(function () {
                         shade: [0.1, '#fff'] // 0.1 透明度的白色背景
                     });
                 } else if ($state === "success") {
-                    if ($res[0].errcode === 0) {
-                        if ($res[0].resource_type === 'video') {
-                            let value = `<video controls><source src="${$res[0].url}" type="video/mp4"></video>`;
+                    if ($res.errcode === 0) {
+                        if ($res.resource_type === 'video') {
+                            let value = `<video controls><source src="${$res.url}" type="video/mp4"></video>`;
                             window.editor.insertValue(value);
                         } else {
-                            let value = '![](' + $res[0].url + ')';
+                            let value = '![](' + $res.url + ')';
                             window.editor.insertValue(value);
                         }
+                    } else {
+                        layer.msg("上传失败：" + $res.message);
                     }
                 }
             });
