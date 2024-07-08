@@ -143,6 +143,11 @@ func RegisterModel() {
 	gob.Register(models.Document{})
 	gob.Register(models.Template{})
 	//migrate.RegisterMigration()
+	err := orm.RunSyncdb("default", false, true)
+	if err != nil {
+		logs.Error("注册Model失败 ->", err)
+		os.Exit(1)
+	}
 }
 
 // RegisterLogger 注册日志

@@ -82,7 +82,8 @@ type Book struct {
 	//是否使用第一篇文章项目为默认首页,0 否/1 是
 	IsUseFirstDocument int `orm:"column(is_use_first_document);type(int);default(0);description(是否使用第一篇文章项目为默认首页,0 否/1 是)" json:"is_use_first_document"`
 	//是否开启自动保存：0 否/1 是
-	AutoSave int `orm:"column(auto_save);type(tinyint);default(0);description(是否开启自动保存：0 否/1 是)" json:"auto_save"`
+	AutoSave  int `orm:"column(auto_save);type(tinyint);default(0);description(是否开启自动保存：0 否/1 是)" json:"auto_save"`
+	PrintSate int `orm:"column(print_state);type(tinyint);default(1);description(启用打印：0 否/1 是)" json:"print_state"`
 }
 
 func (book *Book) String() string {
