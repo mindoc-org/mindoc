@@ -350,6 +350,11 @@ $(function () {
         $(".m-manual").removeClass("manual-mode-view manual-mode-collect manual-mode-search").addClass("manual-mode-" + mode);
     });
 
+    const input = document.getElementById('searchForm').querySelector('input');
+    input.addEventListener('input', function() {
+        $("#btnSearch").click();
+    });
+
     /**
      * 项目内搜索
      */
