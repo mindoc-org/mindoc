@@ -228,7 +228,23 @@ function initHighlighting() {
     }
 }
 
+function handleEvent(event) {
+    switch (event.keyCode) {
+        case 70: // ctrl + f 打开搜索面板 并获取焦点
+            $(".navg-item[data-mode='search']").click();
+            document.getElementById('searchForm').querySelector('input').focus();
+            event.preventDefault();
+            break;
+        case 27: // esc 关闭搜索面板
+            $(".navg-item[data-mode='view']").click();
+            event.preventDefault();
+            break;
+    }
+}
+
 $(function () {
+    window.addEventListener('keydown', handleEvent)
+
     checkMarkdownTocElement();
     $(".view-backtop").on("click", function () {
         $('.manual-right').animate({ scrollTop: '0px' }, 200);
@@ -420,7 +436,6 @@ function loadCopySnippets() {
 }
 
 function checkMarkdownTocElement() {
-    console.log(111)
     let toc = $(".markdown-toc-list");
     let articleComment = $("#articleComment");
     if (toc.length) {
