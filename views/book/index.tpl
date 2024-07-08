@@ -180,6 +180,25 @@
                             </div>
                             <div class="clearfix"></div>
                         </div>
+                        <!--选择编辑器模式-->
+                        <div class="form-group">
+                            <label>{{i18n $.Lang "blog.text_editor"}}</label>
+                            <div class="col-lg-20">
+                                <label class="radio-inline">
+                                    <input type="radio" name="editor" value="markdown"> Markdown
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="editor" checked value="cherry_markdown"> Markdown (cherry)
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="editor" value="new_html"> Html (Quill)
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="editor" value="html"> Html (wangEditor)
+                                </label>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
                     </div>
                     <div class="pull-right text-center" style="width: 235px;">
                         <canvas id="bookCover" height="230px" width="170px"><img src="{{cdnimg "/static/images/book.jpg"}}"> </canvas>

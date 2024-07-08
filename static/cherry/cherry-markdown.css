@@ -2656,7 +2656,7 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry[data-toolbar-theme=dark] .cherry-insert-table-menu-item.active {
-  background-color: #d7e6fe;
+  background-color: #4b4b4b;
 }
 
 .cherry-dropdown {
@@ -2692,17 +2692,18 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 [data-toolbar-theme=dark] .cherry-dropdown {
-  background: #20304b;
+  background: #ffffff;
 }
 
 [data-toolbar-theme=dark] .cherry-dropdown .cherry-dropdown-item {
   background: transparent;
-  color: #d7e6fe;
+  color: #4b4b4b;
 }
 
 [data-toolbar-theme=dark] .cherry-dropdown .cherry-dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: #e4e4e4;
+  color: #0a001f;
+  transition: all .3s;
 }
 
 .cherry-toolbar {
@@ -2710,7 +2711,7 @@ div[data-type=codeBlock] .token.inserted {
   display: flex;
   justify-content: space-between;
   padding: 0 20px;
-  height: 48px;
+  height: 34px;
   font-size: 16px;
   line-height: 2.3;
   flex-basis: 100%;
@@ -2720,6 +2721,7 @@ div[data-type=codeBlock] .token.inserted {
   box-shadow: 0 0 10px rgba(128, 145, 165, 0.2);
   background: white;
   overflow: hidden;
+  align-items: center;
 }
 
 .cherry-toolbar .icon-loading.loading {
@@ -2742,25 +2744,25 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 [data-toolbar-theme=dark] .cherry-toolbar {
-  background: #20304b;
+  background: #ffffff;
   box-shadow: 0 0 10px rgba(128, 145, 165, 0.2);
 }
 
 [data-toolbar-theme=dark] .cherry-toolbar .cherry-toolbar-button {
-  color: #d7e6fe;
+  color: #4b4b4b;
   background: transparent;
 }
 
 [data-toolbar-theme=dark] .cherry-toolbar .cherry-toolbar-button:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: #0a001f;
+  transition: all .3s;
+  background: #e4e4e4;
 }
 
 .cherry-toolbar .toolbar-left,
 .cherry-toolbar .toolbar-right {
   display: flex;
   align-items: center;
-  height: 48px;
   overflow: hidden;
 }
 
@@ -2935,12 +2937,12 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 [data-toolbar-theme=dark] .cherry-bubble {
-  border-color: #20304b;
-  background: #20304b;
+  border-color: #ffffff;
+  background: #ffffff;
 }
 
 [data-toolbar-theme=dark] .cherry-bubble .cherry-toolbar-button {
-  color: #d7e6fe;
+  color: #4b4b4b;
   background: transparent;
 }
 
@@ -2950,15 +2952,15 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 [data-toolbar-theme=dark] .cherry-bubble .cherry-bubble-top {
-  border-bottom-color: #20304b;
+  border-bottom-color: #ffffff;
 }
 
 [data-toolbar-theme=dark] .cherry-bubble .cherry-bubble-bottom {
-  border-top-color: #20304b;
+  border-top-color: #ffffff;
 }
 
 [data-toolbar-theme=dark] .cherry-bubble .cherry-toolbar-button:hover {
-  border-color: #20304b;
+  border-color: #ffffff;
 }
 
 .cherry-switch-paste .switch-btn--bg {
@@ -3012,7 +3014,7 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 [data-toolbar-theme=dark] .cherry-switch-paste[data-type=text] .cherry-text-btn {
-  color: #d7e6fe;
+  color: #4b4b4b;
 }
 
 [data-toolbar-theme=dark] .cherry-switch-paste[data-type=text] .cherry-md-btn {
@@ -3020,7 +3022,7 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 [data-toolbar-theme=dark] .cherry-switch-paste[data-type=md] .cherry-md-btn {
-  color: #d7e6fe;
+  color: #4b4b4b;
 }
 
 [data-toolbar-theme=dark] .cherry-switch-paste[data-type=md] .cherry-text-btn {
@@ -3192,7 +3194,7 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry-editor .cm-s-default .cm-url {
-  background: #d7e6fe;
+  background: #4b4b4b;
   font-family: "Menlo", "Liberation Mono", "Consolas", "DejaVu Sans Mono", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace;
   font-size: 0.9em;
 }
@@ -3347,7 +3349,7 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 [data-toolbar-theme=dark] .cherry-color-wrap h3 {
-  color: #d7e6fe;
+  color: #4b4b4b;
 }
 
 .cherry-color-wrap .cherry-color-text {
@@ -3522,7 +3524,7 @@ div[data-type=codeBlock] .token.inserted {
 .cherry.theme__dark .cherry-floatmenu .cherry-toolbar-button,
 .cherry.theme__dark .cherry-bubble .cherry-toolbar-button,
 .cherry.theme__dark .cherry-sidebar .cherry-toolbar-button {
-  color: #d7e6fe;
+  color: #4b4b4b;
 }
 
 .cherry.theme__dark .cherry-toolbar .cherry-toolbar-button:hover,
@@ -3547,7 +3549,7 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry.theme__dark .cherry-dropdown .cherry-dropdown-item {
-  color: #d7e6fe;
+  color: #4b4b4b;
 }
 
 .cherry.theme__dark .cherry-dropdown .cherry-dropdown-item:hover {
@@ -3561,7 +3563,7 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry.theme__dark .cherry-dropdown.cherry-color-wrap h3 {
-  color: #d7e6fe;
+  color: #4b4b4b;
 }
 
 .cherry.theme__dark .cherry-dropdown.cherry-color-wrap .cherry-color-item {
