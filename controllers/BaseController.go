@@ -3,7 +3,6 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"strings"
 	"time"
@@ -218,7 +217,6 @@ func (c *BaseController) SetLang() {
 	}
 	if len(lang) == 0 ||
 		!i18n.IsExist(lang) {
-		fmt.Println("c.Data[item.OptionName]", c.Data["language"])
 		if c.Data["language"] != nil {
 			lang = c.Data["language"].(string)
 		} else {
