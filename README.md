@@ -189,7 +189,7 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 
 **创建项目**
 
-![创建项目](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501204438.png)
+![创建项目](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/create.png?raw=true)
 
 **项目列表**
 
