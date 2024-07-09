@@ -61,7 +61,7 @@ go build -ldflags "-w" -o mindoc main.go
 bee run
 ```
 
-## 对旧版本可运行下命令进行更新
+## 旧版本运行 可更新部分数据库配置
 ```base
 ./mindoc update
 ```
