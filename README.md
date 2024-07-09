@@ -61,6 +61,11 @@ go build -ldflags "-w" -o mindoc main.go
 bee run
 ```
 
+## 对旧版本可运行下命令进行更新
+```base
+./mindoc update
+```
+
 MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。请在安装前，把数据库配置填充到项目目录下的 `conf/app.conf` 中。
 
 如果使用 `SQLite` 数据库，则直接在配置文件中配置数据库路径即可.
@@ -193,35 +198,40 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 
 **项目列表**
 
-![项目列表](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203542.png)
+![项目列表](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/project_list.png?raw=true)
 
 **项目概述**
 
-![项目概述](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203619.png)
+![项目概述](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/intro.png?raw=true)
 
 **项目成员**
 
-![项目成员](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203637.png)
+![项目成员](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/member.png?raw=true)
 
 **项目设置**
 
-![项目设置](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203656.png)
+![项目设置](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/project_setting.png?raw=true)
 
 **基于Editor.md开发的Markdown编辑器**
 
-![基于Editor.md开发的Markdown编辑器](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501203854.png)
+![基于Editor.md开发的Markdown编辑器](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/editor_md.png?raw=true)
 
 **基于wangEditor开发的富文本编辑器**
 
-![基于wangEditor开发的富文本编辑器](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501204651.png)
+![基于wangEditor开发的富文本编辑器](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/wang_editor.png?raw=true)
+
+
+**基于cherryMarkdown开发的编辑器**
+
+![基于cherry-markdown开发的编辑器](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/cheery-markdown.png?raw=true)
 
 **项目预览**
 
-![项目预览](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501204609.png)
+![项目预览](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/preview.png?raw=true)
 
 **超级管理员后台**
 
-![超级管理员后台](https://raw.githubusercontent.com/lifei6671/mindoc/master/uploads/20170501204710.png)
+![超级管理员后台](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/admin.png?raw=true)
 
 
 # 使用的技术(TODO: 最新技术栈整理中，使用的第三方库升级中)
@@ -229,6 +239,7 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 - [Beego](https://github.com/beego/beego) ~~1.10.0~~
 - MySQL 5.6
 - [editor.md](https://github.com/pandao/editor.md) Markdown 编辑器
+- [cherry-markdown](https://github.com/Tencent/cherry-markdown) Cherry Markdown Writer
 - [Bootstrap](https://github.com/twbs/bootstrap) 3.2
 - [jQuery](https://github.com/jquery/jquery) 库
 - [WebUploader](https://github.com/fex-team/webuploader) 文件上传框架
@@ -250,13 +261,13 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 
 # 主要功能
 
-- 项目管理，可以对项目进行编辑更改，成员添加等。
+- 项目管理，可以对项目进行编辑更改，成员添加, 项目排序等。
 - 文档管理，添加和删除文档等。
 - 评论管理，可以管理文档评论和自己发布的评论。
 - 用户管理，添加和禁用用户，个人资料更改等。
 - 用户权限管理 ， 实现用户角色的变更。
 - 项目加密，可以设置项目公开状态，私有项目需要通过Token访问。
-- 站点配置，可开启匿名访问、验证码等。
+- 站点配置，多语言切换, 可开启匿名访问、验证码等。
 
 # 参与开发
 
