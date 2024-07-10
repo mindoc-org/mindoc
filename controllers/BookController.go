@@ -122,6 +122,7 @@ func (c *BookController) Setting() {
 	if book.PrivateToken != "" {
 		book.PrivateToken = conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
 	}
+
 	c.Data["Model"] = book
 
 }
@@ -153,6 +154,7 @@ func (c *BookController) SaveBook() {
 	isUseFirstDocument := strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
 	autoSave := strings.TrimSpace(c.GetString("auto_save")) == "on"
 	itemId, _ := c.GetInt("itemId")
+	pringState := strings.TrimSpace(c.GetString("print_state")) == "on"
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, i18n.Tr(c.Lang, "message.project_desc_tips"))
@@ -164,7 +166,8 @@ func (c *BookController) SaveBook() {
 	if !models.NewItemsets().Exist(itemId) {
 		c.JsonResult(6006, i18n.Tr(c.Lang, "message.project_space_not_exist"))
 	}
-	if editor != EditorMarkdown && editor != EditorCherryMarkdown && editor != EditorHtml && editor != EditorNewHtml {
+	// if editor != EditorMarkdown && editor != EditorCherryMarkdown && editor != EditorHtml && editor != EditorNewHtml {
+	if editor != EditorMarkdown && editor != EditorCherryMarkdown && editor != EditorHtml && editor != EditorNewHtml && editor != EditorFroala {
 		editor = EditorMarkdown
 	}
 
@@ -209,6 +212,11 @@ func (c *BookController) SaveBook() {
 		book.AutoSave = 1
 	} else {
 		book.AutoSave = 0
+	}
+	if pringState {
+		book.PrintSate = 1
+	} else {
+		book.PrintSate = 0
 	}
 	if err := book.Update(); err != nil {
 		c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed"))
@@ -455,6 +463,7 @@ func (c *BookController) Create() {
 		description := strings.TrimSpace(c.GetString("description", ""))
 		privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
 		commentStatus := c.GetString("comment_status")
+		editor := c.GetString("editor")
 		itemId, _ := c.GetInt("itemId")
 
 		if bookName == "" {
@@ -521,6 +530,7 @@ func (c *BookController) Create() {
 		book.CommentCount = 0
 		book.PrivatelyOwned = privatelyOwned
 		book.CommentStatus = commentStatus
+
 		book.Identify = identify
 		book.DocCount = 0
 		book.MemberId = c.Member.MemberId
@@ -530,8 +540,7 @@ func (c *BookController) Create() {
 		book.IsDownload = 1
 		book.AutoRelease = 0
 		book.ItemId = itemId
-
-		book.Editor = "markdown"
+		book.Editor = editor
 		book.Theme = "default"
 
 		if err := book.Insert(c.Lang); err != nil {
@@ -770,6 +779,39 @@ func (c *BookController) Release() {
 	go models.NewBook().ReleaseContent(bookId, c.Lang)
 
 	c.JsonResult(0, i18n.Tr(c.Lang, "message.publish_to_queue"))
+}
+
+// 更新项目排序
+func (c *BookController) UpdateBookOrder() {
+	if !c.Member.IsAdministrator() {
+		c.JsonResult(403, "权限不足")
+		return
+	}
+	type Params struct {
+		Ids string `form:"ids"`
+	}
+	var params Params
+	if err := c.ParseForm(&params); err != nil {
+		c.JsonResult(6003, "参数错误")
+		return
+	}
+	idArray := strings.Split(params.Ids, ",")
+	orderCount := len(idArray)
+	for _, id := range idArray {
+		bookId, _ := strconv.Atoi(id)
+		orderCount--
+		book, err := models.NewBook().Find(bookId)
+		if err != nil {
+			continue
+		}
+		book.BookId = bookId
+		book.OrderIndex = orderCount
+		err = book.Update()
+		if err != nil {
+			continue
+		}
+	}
+	c.JsonResult(0, "ok")
 }
 
 // 文档排序.

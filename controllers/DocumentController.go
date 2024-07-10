@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"html/template"
 	"image/png"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -34,6 +36,16 @@ import (
 // DocumentController struct
 type DocumentController struct {
 	BaseController
+}
+
+// Document prev&next
+type DocumentTreeFlatten struct {
+	DocumentId   int    `json:"id"`
+	DocumentName string `json:"text"`
+	// ParentId     interface{} `json:"parent"`
+	Identify string `json:"identify"`
+	// BookIdentify string      `json:"-"`
+	// Version      int64       `json:"version"`
 }
 
 // 文档首页
@@ -98,7 +110,6 @@ func (c *DocumentController) Index() {
 	c.Data["IS_DOCUMENT_INDEX"] = true
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
-
 }
 
 // CheckPassword : Handles password verification for private documents,
@@ -186,6 +197,41 @@ func (c *DocumentController) Read() {
 		doc.AttachList = attach
 	}
 
+	// prev,next
+	treeJson, err := models.NewDocument().FindDocumentTree2(bookResult.BookId)
+	if err != nil {
+		logs.Error("生成项目文档树时出错 ->", err)
+	}
+
+	res := getTreeRecursive(treeJson, 0)
+	flat := make([]DocumentTreeFlatten, 0)
+	Flatten(res, &flat)
+	var index int
+	for i, v := range flat {
+		if v.Identify == id {
+			index = i
+		}
+	}
+	var PrevName, PrevPath, NextName, NextPath string
+	if index == 0 {
+		c.Data["PrevName"] = "没有了"
+		PrevName = "没有了"
+	} else {
+		c.Data["PrevPath"] = identify + "/" + flat[index-1].Identify
+		c.Data["PrevName"] = flat[index-1].DocumentName
+		PrevPath = identify + "/" + flat[index-1].Identify
+		PrevName = flat[index-1].DocumentName
+	}
+	if index == len(flat)-1 {
+		c.Data["NextName"] = "没有了"
+		NextName = "没有了"
+	} else {
+		c.Data["NextPath"] = identify + "/" + flat[index+1].Identify
+		c.Data["NextName"] = flat[index+1].DocumentName
+		NextPath = identify + "/" + flat[index+1].Identify
+		NextName = flat[index+1].DocumentName
+	}
+
 	doc.IncrViewCount(doc.DocumentId)
 	doc.ViewCount = doc.ViewCount + 1
 	doc.PutToCache()
@@ -205,7 +251,7 @@ func (c *DocumentController) Read() {
 		data.DocId = doc.DocumentId
 		data.DocIdentify = doc.Identify
 		data.DocTitle = doc.DocumentName
-		data.Body = doc.Release
+		data.Body = doc.Release + "<div class='wiki-bottom-left'>上一篇： <a href='/docs/" + PrevPath + "' rel='prev'>" + PrevName + "</a><br />下一篇： <a href='/docs/" + NextPath + "' rel='next'>" + NextName + "</a><br /></div>"
 		data.Title = doc.DocumentName + " - Powered by SSHotRiver"
 		data.Version = doc.Version
 		data.ViewCount = doc.ViewCount
@@ -229,7 +275,6 @@ func (c *DocumentController) Read() {
 
 	if err != nil && err != orm.ErrNoRows {
 		logs.Error("生成项目文档树时出错 ->", err)
-
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.build_doc_tree_error"))
 	}
 
@@ -238,7 +283,7 @@ func (c *DocumentController) Read() {
 	c.Data["Model"] = bookResult
 	c.Data["Result"] = template.HTML(tree)
 	c.Data["Title"] = doc.DocumentName
-	c.Data["Content"] = template.HTML(doc.Release)
+	c.Data["Content"] = template.HTML(doc.Release + "<div class='wiki-bottom-left'>上一篇： <a href='/docs/" + PrevPath + "' rel='prev'>" + PrevName + "</a><br />下一篇： <a href='/docs/" + NextPath + "' rel='next'>" + NextName + "</a><br /></div>")
 	c.Data["ViewCount"] = doc.ViewCount
 	c.Data["FoldSetting"] = "closed"
 	if bookResult.Editor == EditorCherryMarkdown {
@@ -249,6 +294,34 @@ func (c *DocumentController) Read() {
 	} else if doc.IsOpen == 2 {
 		c.Data["FoldSetting"] = "empty"
 	}
+}
+
+// 递归得到树状结构体
+func getTreeRecursive(list []*models.DocumentTree, parentId int) (res []*models.DocumentTree) {
+	for _, v := range list {
+		if v.ParentId == parentId {
+			v.Children = getTreeRecursive(list, v.DocumentId)
+			res = append(res, v)
+		}
+	}
+	return res
+}
+
+// 递归将树状结构体转换为扁平结构体数组
+// func Flatten(list []*models.DocumentTree, flattened *[]DocumentTreeFlatten) (flatten *[]DocumentTreeFlatten) {
+func Flatten(list []*models.DocumentTree, flattened *[]DocumentTreeFlatten) {
+	// Treeslice := make([]*DocumentTreeFlatten, 0)
+	for _, v := range list {
+		tree := make([]DocumentTreeFlatten, 1)
+		tree[0].DocumentId = v.DocumentId
+		tree[0].DocumentName = v.DocumentName
+		tree[0].Identify = v.Identify
+		*flattened = append(*flattened, tree...)
+		if len(v.Children) > 0 {
+			Flatten(v.Children, flattened)
+		}
+	}
+	return
 }
 
 // 编辑文档
@@ -414,158 +487,190 @@ func (c *DocumentController) Upload() {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
 	}
 
-	name := "editormd-file-file"
-
-	file, moreFile, err := c.GetFile(name)
-	if err == http.ErrMissingFile || moreFile == nil {
-		name = "editormd-image-file"
-		file, moreFile, err = c.GetFile(name)
-		if err == http.ErrMissingFile || moreFile == nil {
-			c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
-			return
+	names := []string{"editormd-file-file", "editormd-image-file", "file", "editormd-resource-file"}
+	var files []*multipart.FileHeader
+	for _, name := range names {
+		file, err := c.GetFiles(name)
+		if err != nil {
+			continue
+		}
+		if len(file) > 0 && err == nil {
+			files = append(files, file...)
 		}
 	}
 
-	if err != nil {
-		c.JsonResult(6002, err.Error())
+	if len(files) == 0 {
+		c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_empty"))
+		return
 	}
 
-	defer file.Close()
+	result2 := []map[string]interface{}{}
+	var result map[string]interface{}
+	for i, _ := range files {
+		//for each fileheader, get a handle to the actual file
+		file, err := files[i].Open()
 
-	type Size interface {
-		Size() int64
-	}
-
-	if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize() {
-		c.JsonResult(6009, i18n.Tr(c.Lang, "message.upload_file_size_limit"))
-	}
-
-	ext := filepath.Ext(moreFile.Filename)
-	//文件必须带有后缀名
-	if ext == "" {
-		c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_type_error"))
-	}
-	//如果文件类型设置为 * 标识不限制文件类型
-	if conf.IsAllowUploadFileExt(ext) == false {
-		c.JsonResult(6004, i18n.Tr(c.Lang, "message.upload_file_type_error"))
-	}
-
-	bookId := 0
-
-	// 如果是超级管理员，则不判断权限
-	if c.Member.IsAdministrator() {
-		book, err := models.NewBook().FindByFieldFirst("identify", identify)
+		defer file.Close()
 
 		if err != nil {
-			c.JsonResult(6006, i18n.Tr(c.Lang, "message.doc_not_exist_or_no_permit"))
+			c.JsonResult(6002, err.Error())
 		}
 
-		bookId = book.BookId
-	} else {
-		book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+		// defer file.Close()
 
-		if err != nil {
-			logs.Error("DocumentController.Edit => ", err)
-			if err == orm.ErrNoRows {
+		type Size interface {
+			Size() int64
+		}
+
+		// if conf.GetUploadFileSize() > 0 && moreFile.Size > conf.GetUploadFileSize() {
+		if conf.GetUploadFileSize() > 0 && files[i].Size > conf.GetUploadFileSize() {
+			c.JsonResult(6009, i18n.Tr(c.Lang, "message.upload_file_size_limit"))
+		}
+
+		// ext := filepath.Ext(moreFile.Filename)
+		ext := filepath.Ext(files[i].Filename)
+		//文件必须带有后缀名
+		if ext == "" {
+			c.JsonResult(6003, i18n.Tr(c.Lang, "message.upload_file_type_error"))
+		}
+		//如果文件类型设置为 * 标识不限制文件类型
+		if conf.IsAllowUploadFileExt(ext) == false {
+			c.JsonResult(6004, i18n.Tr(c.Lang, "message.upload_file_type_error"))
+		}
+
+		bookId := 0
+
+		// 如果是超级管理员，则不判断权限
+		if c.Member.IsAdministrator() {
+			book, err := models.NewBook().FindByFieldFirst("identify", identify)
+
+			if err != nil {
+				c.JsonResult(6006, i18n.Tr(c.Lang, "message.doc_not_exist_or_no_permit"))
+			}
+
+			bookId = book.BookId
+		} else {
+			book, err := models.NewBookResult().FindByIdentify(identify, c.Member.MemberId)
+
+			if err != nil {
+				logs.Error("DocumentController.Edit => ", err)
+				if err == orm.ErrNoRows {
+					c.JsonResult(6006, i18n.Tr(c.Lang, "message.no_permission"))
+				}
+
+				c.JsonResult(6001, err.Error())
+			}
+
+			// 如果没有编辑权限
+			if book.RoleId != conf.BookEditor && book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder {
 				c.JsonResult(6006, i18n.Tr(c.Lang, "message.no_permission"))
 			}
 
-			c.JsonResult(6001, err.Error())
+			bookId = book.BookId
 		}
 
-		// 如果没有编辑权限
-		if book.RoleId != conf.BookEditor && book.RoleId != conf.BookAdmin && book.RoleId != conf.BookFounder {
-			c.JsonResult(6006, i18n.Tr(c.Lang, "message.no_permission"))
+		if docId > 0 {
+			doc, err := models.NewDocument().Find(docId)
+			if err != nil {
+				c.JsonResult(6007, i18n.Tr(c.Lang, "message.doc_not_exist"))
+			}
+
+			if doc.BookId != bookId {
+				c.JsonResult(6008, i18n.Tr(c.Lang, "message.doc_not_belong_project"))
+			}
 		}
 
-		bookId = book.BookId
-	}
+		fileName := "m_" + cryptil.UniqueId() + "_r"
+		filePath := filepath.Join(conf.WorkingDirectory, "uploads", identify)
 
-	if docId > 0 {
-		doc, err := models.NewDocument().Find(docId)
-		if err != nil {
-			c.JsonResult(6007, i18n.Tr(c.Lang, "message.doc_not_exist"))
+		//将图片和文件分开存放
+		attachment := models.NewAttachment()
+		var strategy filetil.FileTypeStrategy
+		if filetil.IsImageExt(files[i].Filename) {
+			strategy = filetil.ImageStrategy{}
+			attachment.ResourceType = "image"
+		} else if filetil.IsVideoExt(files[i].Filename) {
+			strategy = filetil.VideoStrategy{}
+			attachment.ResourceType = "video"
+		} else {
+			strategy = filetil.DefaultStrategy{}
+			attachment.ResourceType = "file"
 		}
 
-		if doc.BookId != bookId {
-			c.JsonResult(6008, i18n.Tr(c.Lang, "message.doc_not_belong_project"))
-		}
-	}
+		filePath = strategy.GetFilePath(filePath, fileName, ext)
 
-	fileName := "m_" + cryptil.UniqueId() + "_r"
-	filePath := filepath.Join(conf.WorkingDirectory, "uploads", identify)
+		path := filepath.Dir(filePath)
 
-	//将图片和文件分开存放
-	if filetil.IsImageExt(moreFile.Filename) {
-		filePath = filepath.Join(filePath, "images", fileName+ext)
-	} else {
-		filePath = filepath.Join(filePath, "files", fileName+ext)
-	}
+		_ = os.MkdirAll(path, os.ModePerm)
 
-	path := filepath.Dir(filePath)
-
-	_ = os.MkdirAll(path, os.ModePerm)
-
-	err = c.SaveToFile(name, filePath)
-
-	if err != nil {
-		logs.Error("保存文件失败 -> ", err)
-		c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
-	}
-
-	attachment := models.NewAttachment()
-	attachment.BookId = bookId
-	attachment.FileName = moreFile.Filename
-	attachment.CreateAt = c.Member.MemberId
-	attachment.FileExt = ext
-	attachment.FilePath = strings.TrimPrefix(filePath, conf.WorkingDirectory)
-	attachment.DocumentId = docId
-
-	if fileInfo, err := os.Stat(filePath); err == nil {
-		attachment.FileSize = float64(fileInfo.Size())
-	}
-
-	if docId > 0 {
-		attachment.DocumentId = docId
-	}
-
-	if filetil.IsImageExt(moreFile.Filename) {
-		attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
-		if strings.HasPrefix(attachment.HttpPath, "//") {
-			attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))
-		}
-
-		isAttach = false
-	}
-
-	err = attachment.Insert()
-
-	if err != nil {
-		os.Remove(filePath)
-		logs.Error("文件保存失败 ->", err)
-		c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed"))
-	}
-
-	if attachment.HttpPath == "" {
-		attachment.HttpPath = conf.URLForNotHost("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
-
-		if err := attachment.Update(); err != nil {
-			logs.Error("保存文件失败 ->", err)
+		//copy the uploaded file to the destination file
+		dst, err := os.Create(filePath)
+		defer dst.Close()
+		if _, err := io.Copy(dst, file); err != nil {
+			logs.Error("保存文件失败 -> ", err)
 			c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
 		}
-	}
 
-	result := map[string]interface{}{
-		"errcode":   0,
-		"success":   1,
-		"message":   "ok",
-		"url":       attachment.HttpPath,
-		"alt":       attachment.FileName,
-		"is_attach": isAttach,
-		"attach":    attachment,
-	}
+		attachment.BookId = bookId
+		// attachment.FileName = moreFile.Filename
+		attachment.FileName = files[i].Filename
+		attachment.CreateAt = c.Member.MemberId
+		attachment.FileExt = ext
+		attachment.FilePath = strings.TrimPrefix(filePath, conf.WorkingDirectory)
+		attachment.DocumentId = docId
 
-	c.Ctx.Output.JSON(result, true, false)
+		if fileInfo, err := os.Stat(filePath); err == nil {
+			attachment.FileSize = float64(fileInfo.Size())
+		}
+
+		if docId > 0 {
+			attachment.DocumentId = docId
+		}
+
+		if filetil.IsImageExt(files[i].Filename) || filetil.IsVideoExt(files[i].Filename) {
+			attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
+			if strings.HasPrefix(attachment.HttpPath, "//") {
+				attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))
+			}
+
+			isAttach = false
+		}
+
+		err = attachment.Insert()
+
+		if err != nil {
+			os.Remove(filePath)
+			logs.Error("文件保存失败 ->", err)
+			c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed"))
+		}
+
+		if attachment.HttpPath == "" {
+			attachment.HttpPath = conf.URLForNotHost("DocumentController.DownloadAttachment", ":key", identify, ":attach_id", attachment.AttachmentId)
+
+			if err := attachment.Update(); err != nil {
+				logs.Error("保存文件失败 ->", err)
+				c.JsonResult(6005, i18n.Tr(c.Lang, "message.failed"))
+			}
+		}
+		result = map[string]interface{}{
+			"errcode":       0,
+			"success":       1,
+			"message":       "ok",
+			"url":           attachment.HttpPath,
+			"link":          attachment.HttpPath,
+			"alt":           attachment.FileName,
+			"is_attach":     isAttach,
+			"attach":        attachment,
+			"resource_type": attachment.ResourceType,
+		}
+		result2 = append(result2, result)
+	}
+	if len(files) == 1 {
+		// froala单文件上传
+		c.Ctx.Output.JSON(result, true, false)
+	} else {
+		c.Ctx.Output.JSON(result2, true, false)
+	}
 	c.StopRun()
 }
 
@@ -868,6 +973,7 @@ func (c *DocumentController) Export() {
 	c.Prepare()
 
 	identify := c.Ctx.Input.Param(":key")
+
 	if identify == "" {
 		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.param_error"))
 	}
@@ -906,7 +1012,6 @@ func (c *DocumentController) Export() {
 	if !strings.HasPrefix(bookResult.Cover, "http:://") && !strings.HasPrefix(bookResult.Cover, "https:://") {
 		bookResult.Cover = conf.URLForWithCdnImage(bookResult.Cover)
 	}
-
 	if output == Markdown {
 		if bookResult.Editor != EditorMarkdown && bookResult.Editor != EditorCherryMarkdown {
 			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.cur_project_not_support_md"))

@@ -71,6 +71,7 @@ type BookResult struct {
 	IsDisplayComment bool   `json:"is_display_comment"`
 	IsDownload       bool   `json:"is_download"`
 	AutoSave         bool   `json:"auto_save"`
+	PrintState       bool   `json:"print_state"`
 	Lang             string
 }
 
@@ -213,6 +214,7 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.HistoryCount = book.HistoryCount
 	m.IsDownload = book.IsDownload == 0
 	m.AutoSave = book.AutoSave == 1
+	m.PrintState = book.PrintSate == 1
 	m.ItemId = book.ItemId
 	m.RoleId = conf.BookRoleNoSpecific
 

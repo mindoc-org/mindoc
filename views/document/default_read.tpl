@@ -88,7 +88,9 @@
                 </div>
                 {{end}}
                 {{end}}
+                {{if .Model.PrintState}}
                 <a href="javascript:window.print();" id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> {{i18n .Lang "doc.print"}}</a>
+                {{end}}
                 <div class="dropdown pull-right" style="margin-right: 10px;">
                 {{if eq .Model.PrivatelyOwned 0}}
                 {{if .Model.IsEnableShare}}

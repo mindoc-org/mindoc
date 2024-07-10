@@ -20,7 +20,7 @@
 </head>
 <body>
 <div class="manual-reader">
-{{template "widgets/header.tpl" .}}
+    {{template "widgets/header.tpl" .}}
     <div class="container manual-body">
         <div class="row">
             <div class="page-left">
@@ -104,7 +104,7 @@
             </div>
         </div>
     </div>
-{{template "widgets/footer.tpl" .}}
+    {{template "widgets/footer.tpl" .}}
 </div>
 
 
@@ -114,6 +114,7 @@
 <script src="{{cdnjs "/static/js/main.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
+        const blogId = Number($("#blogId").val());
         $("#gloablEditForm").ajaxForm({
             beforeSubmit : function () {
                 var title = $.trim($("#title").val());
@@ -126,6 +127,10 @@
                 if($res.errcode === 0) {
                     showSuccess("{{i18n .Lang "message.success"}}");
                     $("#blogId").val($res.data.blog_id);
+                    if (blogId === 0) {
+                        // 优化新增文章后直接跳转到编辑页面
+                        window.location.href = {{urlfor "BlogController.ManageEdit" ":id" "xxx"}}.replace("xxx", $res.data.blog_id)
+                    }
                 }else{
                     showError($res.message);
                 }
@@ -135,12 +140,12 @@
                 $("#btnSaveBlogInfo").button("reset");
             }
         }).find("input[name='status']").change(function () {
-           var $status = $(this).val();
-           if($status === "password"){
-               $("#blogPassword").show();
-           }else{
-               $("#blogPassword").hide();
-           }
+            var $status = $(this).val();
+            if($status === "password"){
+                $("#blogPassword").show();
+            }else{
+                $("#blogPassword").hide();
+            }
         });
         $("#gloablEditForm").find("input[name='blog_type']").change(function () {
             var $link = $(this).val();
