@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{i18n .Lang "blog.edit_title"}} - Powered by MinDoc</title>
+    <title>{{i18n .Lang "blog.edit_title"}} - Powered by SSHotRiver</title>
     <script type="text/javascript">
         window.baseUrl = "{{.BaseUrl}}";
         window.katex = { js: "{{cdnjs "/static/katex/katex"}}",css: "{{cdncss "/static/katex/katex"}}"};

@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> {{if eq 200 .ErrorCode}}{{i18n .Lang "message.tips"}}{{else if eq 404 .ErrorCode}}{{i18n .Lang "message.page_not_existed"}}{{else}}{{i18n .Lang "message.system_error"}}{{end}} - Powered by MinDoc</title>
+    <title> {{if eq 200 .ErrorCode}}{{i18n .Lang "message.tips"}}{{else if eq 404 .ErrorCode}}{{i18n .Lang "message.page_not_existed"}}{{else}}{{i18n .Lang "message.system_error"}}{{end}} - Powered by SSHotRiver</title>
     <link href="{{cdncss "/static/fonts/lato-100.css"}}" rel="stylesheet" type="text/css">
     <style type="text/css">
         html, body {

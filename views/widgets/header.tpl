@@ -41,9 +41,11 @@
                             <li>
                                 <a href="{{urlfor "SettingController.Index"}}" title={{i18n .Lang "common.person_center"}}><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "common.person_center"}}</a>
                             </li>
+                            {{if eq .Member.Role 0  1}}
                             <li>
                                 <a href="{{urlfor "BookController.Index"}}" title={{i18n .Lang "common.my_project"}}><i class="fa fa-book" aria-hidden="true"></i> {{i18n .Lang "common.my_project"}}</a>
                             </li>
+                            {{end}}
                             <li>
                                 <a href="{{urlfor "BlogController.ManageList"}}" title={{i18n .Lang "common.my_blog"}}><i class="fa fa-file" aria-hidden="true"></i> {{i18n .Lang "common.my_blog"}}</a>
                             </li>
@@ -79,9 +81,11 @@
                         <li>
                             <a href="{{urlfor "SettingController.Index"}}" title={{i18n .Lang "common.person_center"}}><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "common.person_center"}}</a>
                         </li>
+                        {{if eq .Member.Role 0  1}}
                         <li>
                             <a href="{{urlfor "BookController.Index"}}" title={{i18n .Lang "common.my_project"}}><i class="fa fa-book" aria-hidden="true"></i> {{i18n .Lang "common.my_project"}}</a>
                         </li>
+                        {{end}}
                         <li>
                             <a href="{{urlfor "BlogController.ManageList"}}" title={{i18n .Lang "common.my_blog"}}><i class="fa fa-file" aria-hidden="true"></i> {{i18n .Lang "common.my_blog"}}</a>
                         </li>

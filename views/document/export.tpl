@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>
-    <title>{{.Model.BookName}} - Powered by MinDoc</title>
+    <title>{{.Model.BookName}} - Powered by SSHotRiver</title>
     <link href="styles/css/kancloud.css" rel="stylesheet">
     <link href="styles/editor.md/css/editormd.preview.css" rel="stylesheet"/>
     <link href="styles/css/markdown.preview.css" rel="stylesheet"/>

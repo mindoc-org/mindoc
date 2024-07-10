@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{i18n .Lang "doc.input_pwd"}} - Powered by MinDoc</title>
+    <title>{{i18n .Lang "doc.input_pwd"}} - Powered by SSHotRiver</title>
     <script src="{{cdnjs "static/jquery/1.12.4/jquery.min.js"}}"></script>
     <script src="{{cdnjs "static/js/jquery.form.js"}}"></script>
     <style type="text/css">

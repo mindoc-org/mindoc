@@ -7,7 +7,7 @@
     <meta name="renderer" content="webkit" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="MinDoc" />
-    <title>{{i18n .Lang "common.new_account"}} - Powered by MinDoc</title>
+    <title>{{i18n .Lang "common.new_account"}} - Powered by SSHotRiver</title>
 
     <!-- Bootstrap -->
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
