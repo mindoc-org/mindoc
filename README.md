@@ -194,44 +194,44 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
 
 **创建项目**
 
-![创建项目](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/create.png?raw=true)
+![创建项目](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/create.png?raw=true)
 
 **项目列表**
 
-![项目列表](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/project_list.png?raw=true)
+![项目列表](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/project_list.png?raw=true)
 
 **项目概述**
 
-![项目概述](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/intro.png?raw=true)
+![项目概述](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/intro.png?raw=true)
 
 **项目成员**
 
-![项目成员](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/member.png?raw=true)
+![项目成员](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/member.png?raw=true)
 
 **项目设置**
 
-![项目设置](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/project_setting.png?raw=true)
+![项目设置](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/project_setting.png?raw=true)
 
 **基于Editor.md开发的Markdown编辑器**
 
-![基于Editor.md开发的Markdown编辑器](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/editor_md.png?raw=true)
+![基于Editor.md开发的Markdown编辑器](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/editor_md.png?raw=true)
 
 **基于wangEditor开发的富文本编辑器**
 
-![基于wangEditor开发的富文本编辑器](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/wang_editor.png?raw=true)
+![基于wangEditor开发的富文本编辑器](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/wang_editor.png?raw=true)
 
 
 **基于cherryMarkdown开发的编辑器**
 
-![基于cherry-markdown开发的编辑器](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/cheery-markdown.png?raw=true)
+![基于cherry-markdown开发的编辑器](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/cheery-markdown.png?raw=true)
 
 **项目预览**
 
-![项目预览](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/preview.png?raw=true)
+![项目预览](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/preview.png?raw=true)
 
 **超级管理员后台**
 
-![超级管理员后台](https://github.com/Zzhenping/mindoc/blob/perf/uploads/docs/admin.png?raw=true)
+![超级管理员后台](https://github.com/mindoc-org/mindoc/blob/master/uploads/docs/admin.png?raw=true)
 
 
 # 使用的技术(TODO: 最新技术栈整理中，使用的第三方库升级中)
