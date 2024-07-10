@@ -3203,7 +3203,8 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry-editor .cm-s-default .cm-url {
-  background: #4b4b4b;
+  background: #f8fafb;
+  color: #3582fb;
   font-family: "Menlo", "Liberation Mono", "Consolas", "DejaVu Sans Mono", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace;
   font-size: 0.9em;
 }
