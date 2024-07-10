@@ -141,6 +141,7 @@ function renderPage($data) {
     $("#article-info").text($data.doc_info);
     $("#view_count").text("阅读次数：" + $data.view_count);
     $("#doc_id").val($data.doc_id);
+    checkMarkdownTocElement();
     if ($data.page) {
         loadComment($data.page, $data.doc_id);
     } else {
@@ -154,7 +155,7 @@ function renderPage($data) {
         $("#view_container").removeClass("theme__dark theme__green theme__light theme__red theme__default")
         $("#view_container").addClass($data.markdown_theme)
     }
-    checkMarkdownTocElement();
+
 }
 
 /***
@@ -442,6 +443,9 @@ function loadCopySnippets() {
 
 function checkMarkdownTocElement() {
     let toc = $(".markdown-toc-list");
+    if ($(".toc").length) {
+        toc = $(".toc");
+    }
     let articleComment = $("#articleComment");
     if (toc.length) {
         $(".wiki-bottom-left").css("width", "calc(100% - 260px)");

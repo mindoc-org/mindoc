@@ -545,18 +545,20 @@ iframe.cherry-dialog-iframe {
 
 .manual-article.cherry-markdown .toc {
     position: fixed;
-    right: 0;
-    width: 200px;
-    margin-top: -70px;
+    right: 50px;
+    width: 260px;
+    font-size: 12px;
     overflow: auto;
-    margin-right: 50px;
+    border: 1px solid #e8e8e8;
+    padding: 10px;
+    border-radius: 6px;
 }
 
-@media screen and (min-width: 840px) {
-    .markdown-article {
-        margin-right: 200px !important;
-    }
-}
+/*@media screen and (min-width: 840px) {*/
+/*    .markdown-article {*/
+/*        margin-right: 200px !important;*/
+/*    }*/
+/*}*/
 
 .markdown-article-head {
     width: unset !important;

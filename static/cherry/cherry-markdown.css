@@ -1961,6 +1961,15 @@ div[data-type=codeBlock] .token.inserted {
   transform: rotate(-2deg);
 }
 
+.whole-article-wrap > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.whole-article-wrap > div > .markdown-article {
+  width: calc(100% - 260px);
+}
+
 [data-code-block-theme=coy] div[data-type=codeBlock] pre[class*=language-]:after {
   right: 0.75em;
   left: auto;
