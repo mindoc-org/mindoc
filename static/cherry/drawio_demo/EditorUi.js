@@ -5745,7 +5745,7 @@ EditorUi.prototype.convertImages = function (svgRoot, callback, imageCache, conv
 		for (var i = 0; i < images.length; i++) {
 			(mxUtils.bind(this, function (img) {
 				var src = converter.convert(img.getAttribute(srcAttr));
-
+				console.log(src)
 				// Data URIs are pass-through
 				if (src != null && src.substring(0, 5) != 'data:') {
 					var tmp = cache[src];
@@ -6057,6 +6057,21 @@ EditorUi.prototype.saveCanvas = function (canvas, xml, format, exportHandler) {
 EditorUi.prototype.getBaseFilename = function () {
 	return this.editor.getFilename();
 };
+
+
+EditorUi.prototype.convertImageToDataUri = function (src, call) {
+	let img = new Image();
+	img.src = src;
+	img.onload = function() {
+		let canvas = document.createElement('canvas');
+		canvas.width = img.width;
+		canvas.height = img.height;
+		let ctx = canvas.getContext('2d');
+		ctx.drawImage(img, 0, 0);
+		let base64 = canvas.toDataURL('image/png');
+		call(base64)
+	};
+}
 
 
 EditorUi.prototype.createImageDataUri = function (canvas, xml, format) {

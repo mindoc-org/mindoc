@@ -1961,6 +1961,15 @@ div[data-type=codeBlock] .token.inserted {
   transform: rotate(-2deg);
 }
 
+.whole-article-wrap > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.whole-article-wrap > div > .markdown-article {
+  width: calc(100% - 260px);
+}
+
 [data-code-block-theme=coy] div[data-type=codeBlock] pre[class*=language-]:after {
   right: 0.75em;
   left: auto;
@@ -3194,7 +3203,8 @@ div[data-type=codeBlock] .token.inserted {
 }
 
 .cherry-editor .cm-s-default .cm-url {
-  background: #4b4b4b;
+  background: #f8fafb;
+  color: #3582fb;
   font-family: "Menlo", "Liberation Mono", "Consolas", "DejaVu Sans Mono", "Ubuntu Mono", "Courier New", "andale mono", "lucida console", monospace;
   font-size: 0.9em;
 }

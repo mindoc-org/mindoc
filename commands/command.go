@@ -234,6 +234,9 @@ func RegisterCommand() {
 	} else if len(os.Args) >= 2 && os.Args[1] == "version" {
 		CheckUpdate()
 		os.Exit(0)
+	} else if len(os.Args) >= 2 && os.Args[1] == "update" {
+		Update()
+		os.Exit(0)
 	}
 
 }
