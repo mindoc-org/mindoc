@@ -98,7 +98,7 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.draw"}}"><i class="fa fa-paint-brush item" aria-hidden="true" name="drawio"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.template"}}"><i class="fa fa-tachometer last" name="template"></i></a>
 
-            <a href="javascript:;" data-toggle="tooltip" data-title="Word转笔记"><i class="fa fa-file-word-o last" name="wordToContent"></i></a>
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.word_to_html"}}"><i class="fa fa-file-word-o last" name="wordToContent"></i></a>
 
         </div>
 
