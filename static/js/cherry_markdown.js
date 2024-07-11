@@ -630,10 +630,11 @@ function myFileUpload(file, callback) {
         },
         success: function (data) {
             layer.close(layerIndex);
-            if (data[0].errcode !== 0) {
-                layer.msg(data[0].message);
+            // 验证data是否为数组
+            if (data.errcode !== 0) {
+                layer.msg(data.message);
             } else {
-                callback(data[0].url); // 假设返回的 JSON 中包含上传文件的 URL，调用回调函数并传入 URL
+                callback(data.url); // 假设返回的 JSON 中包含上传文件的 URL，调用回调函数并传入 URL
             }
         }
     });

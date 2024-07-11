@@ -164,5 +164,30 @@ func (m *Option) Init() error {
 		}
 	}
 
+	if !o.QueryTable(m.TableNameWithPrefix()).Filter("option_name", "language").Exist() {
+		option := NewOption()
+		option.OptionValue = "zh-cn"
+		option.OptionName = "language"
+		option.OptionTitle = "站点语言"
+		if _, err := o.Insert(option); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Option) Update() error {
+	o := orm.NewOrm()
+
+	if !o.QueryTable(m.TableNameWithPrefix()).Filter("option_name", "language").Exist() {
+		option := NewOption()
+		option.OptionValue = "zh-cn"
+		option.OptionName = "language"
+		option.OptionTitle = "站点语言"
+		if _, err := o.Insert(option); err != nil {
+			return err
+		}
+	}
 	return nil
 }

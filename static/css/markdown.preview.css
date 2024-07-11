@@ -56,6 +56,20 @@
     flex-direction: column;
 }
 
+/*.content > .whole-article-wrap {*/
+/*    flex-direction: row-reverse;*/
+/*}*/
+
+.content > .whole-article-wrap > .markdown-toc {
+    right: 30px;
+    margin-left: 10px;
+    max-height: 550px;
+}
+
+.content > .whole-article-wrap > .markdown-article {
+    width: 100%;
+}
+
 .article-body .markdown-toc{
     position: fixed;
     right: 50px;
@@ -90,7 +104,7 @@
     /*margin-right: 250px;*/
 }
 .article-body.content .markdown-toc{
-    position: relative;
+    position: fixed;
     margin-top: 0;
 }
 .article-body.content .markdown-article{
