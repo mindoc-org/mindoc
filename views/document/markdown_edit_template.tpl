@@ -98,6 +98,8 @@
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.draw"}}"><i class="fa fa-paint-brush item" aria-hidden="true" name="drawio"></i></a>
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.template"}}"><i class="fa fa-tachometer last" name="template"></i></a>
 
+            <a href="javascript:;" data-toggle="tooltip" data-title="Word转笔记"><i class="fa fa-file-word-o last" name="wordToContent"></i></a>
+
         </div>
 
         <div class="editormd-group pull-right">
@@ -456,6 +458,8 @@
 <script src="{{cdnjs "/static/js/markdown.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/x-frame-bypass-1.0.2.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/mammoth/mammoth.browser.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/word-to-html.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         editLangPath = {{cdnjs "/static/editor.md/languages/"}} + lang

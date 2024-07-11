@@ -141,14 +141,13 @@ $(function () {
                     let converter = new WordToHtmlConverter();
                     converter.handleFileSelect(function (response) {
                         if (response.messages.length) {
-                            console.log(response)
                             let messages = response.messages.map((item)=>{
                                 return item.message + "<br/>";
                             }).join('\n');
                             layer.msg(messages);
                         }
                         converter.replaceHtmlBase64(response.value).then((html)=>{
-                            window.editor.setMarkdown(html);
+                            window.editor.insertValue(html);
                         });
                     })
                 }
