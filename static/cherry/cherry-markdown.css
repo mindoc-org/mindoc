@@ -2670,7 +2670,7 @@ div[data-type=codeBlock] .token.inserted {
 
 .cherry-dropdown {
   position: absolute;
-  width: 130px;
+  width: 140px;
   min-height: 40px;
   background: #fff;
   box-shadow: 0 5px 15px -5px rgba(0, 0, 0, 0.5);
