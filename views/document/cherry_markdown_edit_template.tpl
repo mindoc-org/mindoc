@@ -389,7 +389,9 @@
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/x-frame-bypass-1.0.2.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/mammoth/mammoth.browser.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/turndown/turndown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/word-to-html.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/html-to-markdown.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         
