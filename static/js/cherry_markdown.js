@@ -152,6 +152,16 @@ $(function () {
                     })
                 }
             },
+            {
+                noIcon: true,
+                name: 'Htm转Markdown',
+                onclick: ()=>{
+                    let converter = new HtmlToMarkdownConverter();
+                    converter.handleFileSelect(function (response) {
+                        window.editor.insertValue(response);
+                    })
+                }
+            }
         ]
     });
 

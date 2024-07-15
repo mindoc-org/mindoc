@@ -446,8 +446,15 @@ $(function () {
                     layer.msg(messages);
                 }
                 converter.replaceHtmlBase64(response.value).then((html)=>{
-                    insertAndClearToMarkdown(html);
+                    let cm = window.editor.cm;
+                    cm.replaceSelection(html);
                 });
+            })
+        } else if (name === 'htmlToMarkdown') {
+            let converter = new HtmlToMarkdownConverter();
+            converter.handleFileSelect(function (response) {
+                let cm = window.editor.cm;
+                cm.replaceSelection(response);
             })
         } else {
             var action = window.editor.toolbarHandlers[name];

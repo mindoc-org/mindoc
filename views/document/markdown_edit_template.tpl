@@ -100,6 +100,8 @@
 
             <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.word_to_html"}}"><i class="fa fa-file-word-o last" name="wordToContent"></i></a>
 
+            <a href="javascript:;" data-toggle="tooltip" data-title="{{i18n .Lang "doc.html_to_markdown"}}"><i class="fa fa-html5 last" name="htmlToMarkdown"></i></a>
+
         </div>
 
         <div class="editormd-group pull-right">
@@ -459,7 +461,9 @@
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/x-frame-bypass-1.0.2.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/mammoth/mammoth.browser.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/turndown/turndown.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/word-to-html.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/html-to-markdown.js"}}" type="text/javascript"></script>
 <script type="text/javascript">
     $(function () {
         editLangPath = {{cdnjs "/static/editor.md/languages/"}} + lang
