@@ -6078,3 +6078,15 @@ span.change {
   border-radius: 10px !important;
   background-color: #b3d4fc !important;
 }
+
+
+@media screen and (max-width: 1400px) {
+  .cherry-toolbar-button {
+    padding: 0;
+  }
+
+  .cherry-toolbar .toolbar-left {
+    justify-content: space-between;
+    width: 95%;
+  }
+}
