@@ -297,8 +297,12 @@ func (b *Blog) FindToPager(pageIndex, pageSize int, memberId int, status string)
 	if memberId > 0 {
 		query = query.Filter("member_id", memberId)
 	}
-	if status != "" {
+	if status != "" && status != "all" {
 		query = query.Filter("blog_status", status)
+	}
+
+	if status == "" {
+		query = query.Filter("blog_status__ne", "private")
 	}
 
 	_, err = query.OrderBy("-order_index", "-blog_id").Offset(offset).Limit(pageSize).All(&blogList)
