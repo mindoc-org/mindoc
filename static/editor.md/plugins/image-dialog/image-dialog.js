@@ -51,7 +51,7 @@
           "<label>" + imageLang.url + "</label>" +
           "<input type=\"text\" data-url />" + (function() {
             return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
-              // 3xxx ÏÂÐÐÌí¼Ómultiple=\"multiple\"
+              // 3xxx ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½multiple=\"multiple\"
               "<input type=\"file\" name=\"" + classPrefix + "image-file\" accept=\"image/jpeg,image/png,image/gif,image/jpg\" multiple=\"multiple\" />" +
               "<input type=\"submit\" value=\"" + imageLang.uploadButton + "\" />" +
               "</div>" : "";
@@ -78,7 +78,7 @@
             opacity: settings.dialogMaskOpacity,
             backgroundColor: settings.dialogMaskBgColor
           },
-          // ÕâÀï½«¶àÍ¼Æ¬µØÖ·¸ÄÔìºó²åÈëÎÄµµÖÐ
+          // ï¿½ï¿½ï¿½ï½«ï¿½ï¿½Í¼Æ¬ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½
           buttons: {
             enter: [lang.buttons.enter, function() {
               var url = this.find("[data-url]").val();
@@ -88,7 +88,7 @@
                 alert(imageLang.imageURLEmpty);
                 return false;
               }
-              // ÕâÀïÔö¼ÓÑ­»·
+              // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½
               let arr = url.split(";");
               var altAttr = (alt !== "") ? " \"" + alt + "\"" : "";
               for (let i = 0; i < arr.length; i++) {
@@ -121,19 +121,19 @@
         fileInput.bind("change", function() {
           // 3xxx 20240602
           // let formData = new FormData();
-          // »ñÈ¡ÎÄ±¾¿òdom
+          // ï¿½ï¿½È¡ï¿½Ä±ï¿½ï¿½ï¿½dom
           // var doc = document.getElementById('doc');
-          // »ñÈ¡ÉÏ´«¿Ø¼þdom
+          // ï¿½ï¿½È¡ï¿½Ï´ï¿½ï¿½Ø¼ï¿½dom
           // var upload = document.getElementById('upload');
           // let files = upload.files;
-          //±éÀúÎÄ¼þÐÅÏ¢appendµ½formData´æ´¢
+          //ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½Ï¢appendï¿½ï¿½formDataï¿½æ´¢
           // for (let i = 0; i < files.length; i++) {
           //     let file = files[i]
           //     formData.append('files', file)
           // }
-          // »ñÈ¡ÎÄ¼þÃû
+          // ï¿½ï¿½È¡ï¿½Ä¼ï¿½ï¿½ï¿½
           // var fileName = upload.files[0].name;
-          // »ñÈ¡ÎÄ¼þÂ·¾¶
+          // ï¿½ï¿½È¡ï¿½Ä¼ï¿½Â·ï¿½ï¿½
           // var filePath = upload.value;
           // doc.value = fileName;
           // 3xxx
@@ -161,17 +161,11 @@
                 var json = (body.innerText) ? body.innerText : ((body.textContent) ? body.textContent : null);
                 json = (typeof JSON.parse !== "undefined") ? JSON.parse(json) : eval("(" + json + ")");
                 var url="";
-                for (let i = 0; i < json.length; i++) {
-                  if (json[i].success === 1) {
-                    if (i==0){
-                      url=json[i].url;
-                    }else{
-                      url=url+";"+json[i].url;
-                    }
+                  if (json.success === 1) {
+                      url=json.url;
                   } else {
-                    alert(json[i].message);
+                      alert(json.message);
                   }
-                }
                 dialog.find("[data-url]").val(url)
                 return false;
               };

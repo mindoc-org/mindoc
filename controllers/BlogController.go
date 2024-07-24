@@ -128,7 +128,7 @@ func (c *BlogController) ManageList() {
 
 	pageIndex, _ := c.GetInt("page", 1)
 
-	blogList, totalCount, err := models.NewBlog().FindToPager(pageIndex, conf.PageSize, c.Member.MemberId, "")
+	blogList, totalCount, err := models.NewBlog().FindToPager(pageIndex, conf.PageSize, c.Member.MemberId, "all")
 
 	if err != nil {
 		c.ShowErrorPage(500, err.Error())
@@ -168,7 +168,7 @@ func (c *BlogController) ManageSetting() {
 		if strings.Count(blogExcerpt, "") > 500 {
 			c.JsonResult(6008, i18n.Tr(c.Lang, "message.blog_digest_tips"))
 		}
-		if blogStatus != "public" && blogStatus != "password" && blogStatus != "draft" {
+		if blogStatus != "private" && blogStatus != "public" && blogStatus != "password" && blogStatus != "draft" {
 			blogStatus = "public"
 		}
 		if blogStatus == "password" && blogPassword == "" {

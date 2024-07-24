@@ -79,9 +79,12 @@
                                 <label class="radio-inline">
                                     <input type="radio" {{if eq .Model.BlogStatus "password"}}checked{{end}} name="status" value="password">{{i18n .Lang "blog.encryption"}}<span class="text"></span>
                                 </label>
+                                <label class="radio-inline">
+                                    <input type="radio" {{if eq .Model.BlogStatus "private"}}checked{{end}} name="status" value="private">{{i18n .Lang "blog.private"}}<span class="text"></span>
+                                </label>
                             </div>
                         </div>
-                        <div class="form-group"{{if eq .Model.BlogStatus "public"}} style="display: none;"{{end}} id="blogPassword">
+                        <div class="form-group"{{if ne .Model.BlogStatus "password"}} style="display: none;"{{end}} id="blogPassword">
                             <label>{{i18n .Lang "blog.blog_pwd"}}</label>
                             <input type="password" class="form-control" name="password" id="password" placeholder="{{i18n .Lang "blog.blog_pwd"}}" value="{{.Model.Password}}" maxlength="20">
                         </div>
