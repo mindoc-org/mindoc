@@ -802,6 +802,7 @@ table>tbody>tr:hover {
     height: 22px;
     border-radius: 50%;
     margin-right: 4px;
+    display: ruby;
 }
 
 .m-comment .comment-item .vote {
