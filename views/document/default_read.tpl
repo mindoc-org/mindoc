@@ -35,7 +35,7 @@
         window.IS_DOCUMENT_INDEX = '{{if .IS_DOCUMENT_INDEX}}true{{end}}' === 'true';
         window.IS_DISPLAY_COMMENT = '{{if .Model.IsDisplayComment}}true{{end}}' === 'true';
     </script>
-    <script type="text/javascript">window.book={"identify":"{{.Model.Identify}}"};</script>
+    <script type="text/javascript">window.book={"identify": '{{.Model.Identify}}'};</script>
     <style>
         .btn-mobile {
             position: absolute;
@@ -53,13 +53,13 @@
             }
         }
 
-        .svg { 
+        .svg {
             display: inline-block;
             position: relative;
             width: 100%;
             height: 100%;
-            vertical-align: middle; 
-            overflow: auto; 
+            vertical-align: middle;
+            overflow: auto;
         }
     </style>
 </head>

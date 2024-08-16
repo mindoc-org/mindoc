@@ -798,6 +798,12 @@ table>tbody>tr:hover {
     line-height: 24px
 }
 
+.m-comment .comment-item .info img {
+    height: 22px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
 .m-comment .comment-item .vote {
     display: inline-block;
     margin-right: 12px
