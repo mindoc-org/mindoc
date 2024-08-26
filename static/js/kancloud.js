@@ -77,26 +77,39 @@ function pageClicked($page, $docid) {
     });
 }
 
+function renderOperateSection(comment) {
+    const deleteIcon = comment.show_del == 1
+        ? `<i class="delete e-delete glyphicon glyphicon-remove" onclick="onDelComment(${comment.comment_id})"></i>`
+        : '';
+
+    return `
+        <span class="operate ${comment.show_del == 1 ? 'toggle' : ''}">
+            <span class="number">${comment.index}#</span>
+            ${deleteIcon}
+        </span>`;
+}
+
 // 加载评论
 function loadComment($page, $docid) {
     $("#commentList").empty();
-    var html = ""
-    var c = $page.List;
-    for (var i = 0; c && i < c.length; i++) {
-        html += "<div class=\"comment-item\" data-id=\"" + c[i].comment_id + "\">";
-        html += "<p class=\"info\"><a class=\"name\">" + c[i].author + "</a><span class=\"date\">" + timeFormat(c[i].comment_date) + "</span></p>";
-        html += "<div class=\"content\">" + c[i].content + "</div>";
-        html += "<p class=\"util\">";
-        if (c[i].show_del == 1) html += "<span class=\"operate toggle\">";
-        else html += "<span class=\"operate\">";
-        html += "<span class=\"number\">" + c[i].index + "#</span>";
-        if (c[i].show_del == 1) html += "<i class=\"delete e-delete glyphicon glyphicon-remove\" style=\"color:red\" onclick=\"onDelComment(" + c[i].comment_id + ")\"></i>";
-        html += "</span>";
-        html += "</p>";
-        html += "</div>";
+    let html = ""
+    let c = $page.List;
+    for (let i = 0; c && i < c.length; i++) {
+        const comment = c[i];
+        html += `
+        <div class="comment-item" data-id="${comment.comment_id}">
+            <p class="info">
+                <img src="${comment.avatar}" alt="">
+                <a class="name">${comment.author}</a>
+                <span class="date">${timeFormat(comment.comment_date)}</span>
+            </p>
+            <div class="content">${comment.content}</div>
+            <p class="util">
+                ${renderOperateSection(comment)}
+            </p>
+        </div>`;
     }
     $("#commentList").append(html);
-
     if ($page.TotalPage > 1) {
         $("#page").bootstrapPaginator({
             currentPage: $page.PageNo,
@@ -114,7 +127,6 @@ function loadComment($page, $docid) {
 
 // 删除评论
 function onDelComment($id) {
-    console.log($id);
     $.ajax({
         url: "/comment/delete",
         data: { "id": $id },
