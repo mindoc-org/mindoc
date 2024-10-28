@@ -483,6 +483,19 @@ func (c *ManagerController) Setting() {
 	for _, item := range options {
 		c.Data[item.OptionName] = item.OptionValue
 	}
+
+	i18nMapStrs, err := web.AppConfig.String("i18n_map")
+	if err != nil {
+		logs.Error("web.AppConfig `i18n_map` not found")
+		i18nMapStrs = "{}"
+	}
+	var i18nMap map[string]string
+	err = json.Unmarshal([]byte(i18nMapStrs), &i18nMap)
+	if err != nil {
+		logs.Error("json `i18nList` Unmarshal fail")
+		i18nMap = make(map[string]string)
+	}
+	c.Data["i18n_map"] = i18nMap
 }
 
 // Transfer 转让项目.
