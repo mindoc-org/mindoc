@@ -36,6 +36,15 @@ func need_escape(keyword string) bool {
 	return false
 }
 
+func escape_name(name string) string {
+	dbadapter, _ := web.AppConfig.String("db_adapter")
+	ch := "`"
+	if strings.EqualFold(dbadapter, "postgres") {
+		ch = `"`
+	}
+	return fmt.Sprintf("%s%s%s", ch, name, ch)
+}
+
 func NewDocumentSearchResult() *DocumentSearchResult {
 	return &DocumentSearchResult{}
 }
@@ -294,7 +303,7 @@ WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_
 func (m *DocumentSearchResult) SearchDocument(keyword string, bookId int) (docs []*DocumentSearchResult, err error) {
 	o := orm.NewOrm()
 
-	sql := `SELECT * FROM md_documents WHERE book_id = ? AND (document_name LIKE ? OR "release" LIKE ?) `
+	sql := fmt.Sprintf("SELECT * FROM md_documents WHERE book_id = ? AND (document_name LIKE ? OR %s LIKE ?) ", escape_name("release"))
 	keyword = "%" + keyword + "%"
 
 	_need_escape := need_escape(keyword)
@@ -313,7 +322,7 @@ func (m *DocumentSearchResult) SearchDocument(keyword string, bookId int) (docs 
 func (m *DocumentSearchResult) SearchAllDocument(keyword string) (docs []*DocumentSearchResult, err error) {
 	o := orm.NewOrm()
 
-	sql := `SELECT * FROM md_documents WHERE (document_name LIKE ? OR "release" LIKE ?) `
+	sql := fmt.Sprintf("SELECT * FROM md_documents WHERE (document_name LIKE ? OR %s LIKE ?) ", escape_name("release"))
 	keyword = "%" + keyword + "%"
 
 	_need_escape := need_escape(keyword)
