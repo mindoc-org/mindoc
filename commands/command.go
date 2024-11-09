@@ -319,12 +319,42 @@ func RegisterFunction() {
 		logs.Error("注册函数 i18n 出错 ->", err)
 		os.Exit(-1)
 	}
-	langs := strings.Split("en-us|zh-cn", "|")
-	for _, lang := range langs {
+
+	i18nList, err := web.AppConfig.String("i18n_list")
+	if err != nil {
+		logs.Error("error : failed to read i18n_list config ->", err)
+		i18nList = ""
+	}
+	if i18nList == "" { // 之所以分开判断是因为读取出的配置也可能是空串
+		logs.Error("error : config `i18n_list` is empty, please add config item like format: `i18n_list=zh-CN:简体中文|en-US:English`")
+		i18nList = "zh-cn:简体中文|en-us:English|ru-ru:Русский" // 没有配置时给个默认配置，避免啥语言都没有
+	}
+
+	langs := strings.Split(i18nList, "|")
+	i18nMap := make(map[string]string)
+	for _, langItem := range langs {
+		langItemSplit := strings.Split(langItem, ":")
+		if len(langItemSplit) < 2 {
+			logs.Error("error: language config value `" + langItem + "` for `i18n_list` format error")
+			continue
+		}
+		lang := langItemSplit[0]
+		i18nMap[lang] = langItemSplit[1]
 		if err := i18n.SetMessage(lang, "conf/lang/"+lang+".ini"); err != nil {
 			logs.Error("Fail to set message file: " + err.Error())
 			return
 		}
+	}
+
+	i18nMapBytes, err := json.Marshal(i18nMap)
+	if err != nil {
+		logs.Error("error: Fail to marshal i18n map, " + err.Error())
+		i18nMapBytes = []byte("{}")
+	}
+
+	err = web.AppConfig.Set("i18n_map", string(i18nMapBytes))
+	if err != nil {
+		logs.Error("error: Fail to set i18n_map, " + err.Error())
 	}
 }
 

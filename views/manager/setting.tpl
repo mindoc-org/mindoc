@@ -48,8 +48,10 @@
                         <div class="form-group">
                             <label>{{i18n .Lang "mgr.language"}}</label>
                             <select name="language" class="form-control">
-                                <option value="zh-cn" {{if eq .language "zh-cn"}}selected{{end}}>{{i18n .Lang "mgr.zh_cn"}}</option>
-                                <option value="en-us" {{if eq .language "en-us"}}selected{{end}}>{{i18n .Lang "mgr.en_us"}}</option>
+                                {{$curLang := .language}}
+                                {{range $langKey, $langName := .i18n_map }}
+                                    <option value="{{$langKey}}" {{if eq $langKey $curLang}}selected{{end}}>{{$langName}}</option>
+                                {{end}}
                             </select>
                         </div>
                             <div class="form-group">
