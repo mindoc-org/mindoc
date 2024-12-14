@@ -142,7 +142,7 @@ ldap_base="${MINDOC_LDAP_BASE||dc=example,dc=com}"
 ldap_user="${MINDOC_LDAP_USER||cn=ldap helper,ou=example.com,dc=example,dc=com}"
 #第一次绑定ldap用户密码
 ldap_password="${MINDOC_LDAP_PASSWORD||xxx}"
-#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户
+#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户/ 3 只读用户
 ldap_user_role=${MINDOC_LDAP_USER_ROLE||2}
 #ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
 ldap_filter="${MINDOC_LDAP_FILTER||objectClass=posixAccount}"

@@ -328,6 +328,10 @@ func Flatten(list []*models.DocumentTree, flattened *[]DocumentTreeFlatten) {
 func (c *DocumentController) Edit() {
 	c.Prepare()
 
+	if c.Member.Role == conf.MemberReaderRole {
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+	}
+
 	identify := c.Ctx.Input.Param(":key")
 	if identify == "" {
 		c.ShowErrorPage(404, i18n.Tr(c.Lang, "message.project_id_error"))

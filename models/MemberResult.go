@@ -61,7 +61,7 @@ func (m *MemberRelationshipResult) ResolveRoleName(lang string) *MemberRelations
 	} else if m.RoleId == conf.BookEditor {
 		m.RoleName = i18n.Tr(lang, "common.editor")
 	} else if m.RoleId == conf.BookObserver {
-		m.RoleName = i18n.Tr(lang, "common.obverser")
+		m.RoleName = i18n.Tr(lang, "common.observer")
 	}
 	return m
 }

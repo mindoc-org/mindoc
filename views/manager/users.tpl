@@ -77,6 +77,7 @@
                                             <ul class="dropdown-menu">
                                                 <li><a href="javascript:;" @click="setMemberRole(item.member_id,1)">{{i18n $.Lang "uc.admin"}}</a> </li>
                                                 <li><a href="javascript:;" @click="setMemberRole(item.member_id,2)">{{i18n $.Lang "uc.user"}}</a> </li>
+                                                <li><a href="javascript:;" @click="setMemberRole(item.member_id,3)">{{i18n $.Lang "uc.read_usr"}}</a> </li>
                                             </ul>
                                             </div>
                                         </template>

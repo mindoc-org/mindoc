@@ -42,8 +42,8 @@ type Member struct {
 	Email       string `orm:"size(100);column(email);unique;description(邮箱)" json:"email"`
 	Phone       string `orm:"size(255);column(phone);null;default(null);description(手机)" json:"phone"`
 	Avatar      string `orm:"size(1000);column(avatar);description(头像)" json:"avatar"`
-	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户 .
-	Role          conf.SystemRole `orm:"column(role);type(int);default(1);index;description(用户角色： 0：超级管理员 1：管理员 2：普通用户)" json:"role"`
+	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户/ 3 只读用户 .
+	Role          conf.SystemRole `orm:"column(role);type(int);default(1);index;description(用户角色： 0：超级管理员 1：管理员 2：普通用户 3：只读用户)" json:"role"`
 	RoleName      string          `orm:"-" json:"role_name"`
 	Status        int             `orm:"column(status);type(int);default(0);description(状态  0：启用 1：禁用)" json:"status"` //用户状态：0 正常/1 禁用
 	CreateTime    time.Time       `orm:"type(datetime);column(create_time);auto_now_add;description(创建时间)" json:"create_time"`
@@ -389,6 +389,8 @@ func (m *Member) ResolveRoleName() {
 		m.RoleName = i18n.Tr(m.Lang, "uc.admin")
 	} else if m.Role == conf.MemberGeneralRole {
 		m.RoleName = i18n.Tr(m.Lang, "uc.user")
+	} else if m.Role == conf.MemberReaderRole {
+		m.RoleName = i18n.Tr(m.Lang, "uc.read_usr")
 	}
 }
 

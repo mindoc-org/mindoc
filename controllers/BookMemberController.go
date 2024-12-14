@@ -41,6 +41,10 @@ func (c *BookMemberController) AddMember() {
 	if _, err := models.NewRelationship().FindForRoleId(book.BookId, member.MemberId); err == nil {
 		c.JsonResult(6003, i18n.Tr(c.Lang, "message.user_exist_in_proj"))
 	}
+	//如果是只读用户，只能设置为观察者
+	if member.Role == conf.MemberReaderRole && roleId != int(conf.BookObserver) {
+		c.JsonResult(6003, i18n.Tr(c.Lang, "message.readusr_only_observer"))
+	}
 
 	relationship := models.NewRelationship()
 	relationship.BookId = book.BookId
@@ -93,6 +97,10 @@ func (c *BookMemberController) ChangeRole() {
 	}
 	if member.Status == 1 {
 		c.JsonResult(6004, i18n.Tr(c.Lang, "message.user_disable"))
+	}
+	//如果是只读用户，只能设置为观察者
+	if member.Role == conf.MemberReaderRole && role != int(conf.BookObserver) {
+		c.JsonResult(6003, i18n.Tr(c.Lang, "message.readusr_only_observer"))
 	}
 
 	relationship, err := models.NewRelationship().UpdateRoleId(book.BookId, memberId, conf.BookRole(role))
