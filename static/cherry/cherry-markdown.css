@@ -1969,6 +1969,14 @@ div[data-type=codeBlock] .token.inserted {
 .whole-article-wrap > div > .markdown-article {
   width: calc(100% - 260px);
 }
+@media screen and (max-width: 839px) {
+  .toc {
+      display: none !important;
+  }
+  .whole-article-wrap > div > .markdown-article {
+    width: 100%;
+  }
+}
 
 [data-code-block-theme=coy] div[data-type=codeBlock] pre[class*=language-]:after {
   right: 0.75em;
