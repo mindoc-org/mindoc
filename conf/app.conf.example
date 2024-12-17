@@ -22,6 +22,8 @@ highlight_style="${MINDOC_HIGHLIGHT_STYLE||github}"
 #大于0时系统会自动检测配置文件是否变动，变动后自动加载并生效,单位是秒。监听端口和数据库配置无效
 config_auto_delay="${MINDOC_CONFIG_AUTO_DELAY||20}"
 
+#发布pdf时候的默认发布者（项目填写了公司名称以公司名称为准）
+publisher_def =
 
 ########Session储存方式##############
 
