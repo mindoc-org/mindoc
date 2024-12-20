@@ -475,7 +475,7 @@ func (m *Member) Valid(is_hash_password bool) error {
 	if strings.Count(m.Description, "") > 500 {
 		return ErrMemberDescriptionTooLong
 	}
-	if m.Role != conf.MemberGeneralRole && m.Role != conf.MemberSuperRole && m.Role != conf.MemberAdminRole {
+	if m.Role != conf.MemberGeneralRole && m.Role != conf.MemberSuperRole && m.Role != conf.MemberAdminRole && m.Role != conf.MemberReaderRole {
 		return ErrMemberRoleError
 	}
 	if m.Status != 0 && m.Status != 1 {
