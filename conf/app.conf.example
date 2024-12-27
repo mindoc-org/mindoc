@@ -22,6 +22,8 @@ highlight_style="${MINDOC_HIGHLIGHT_STYLE||github}"
 #大于0时系统会自动检测配置文件是否变动，变动后自动加载并生效,单位是秒。监听端口和数据库配置无效
 config_auto_delay="${MINDOC_CONFIG_AUTO_DELAY||20}"
 
+#发布pdf时候的默认发布者（项目填写了公司名称以公司名称为准）
+publisher_def =
 
 ########Session储存方式##############
 
@@ -142,7 +144,7 @@ ldap_base="${MINDOC_LDAP_BASE||dc=example,dc=com}"
 ldap_user="${MINDOC_LDAP_USER||cn=ldap helper,ou=example.com,dc=example,dc=com}"
 #第一次绑定ldap用户密码
 ldap_password="${MINDOC_LDAP_PASSWORD||xxx}"
-#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户
+#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户/ 3 只读用户
 ldap_user_role=${MINDOC_LDAP_USER_ROLE||2}
 #ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
 ldap_filter="${MINDOC_LDAP_FILTER||objectClass=posixAccount}"

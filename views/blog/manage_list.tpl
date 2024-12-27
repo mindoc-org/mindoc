@@ -36,7 +36,9 @@
                     <div class="box-head">
                         <strong class="box-title">{{i18n .Lang "blog.blog_list"}}</strong>
                         &nbsp;
+                        {{if eq .Member.Role 0 1 2 }}
                         <a href="{{urlfor "BlogController.ManageSetting"}}" class="btn btn-success btn-sm pull-right">{{i18n .Lang "blog.add_blog"}}</a>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body" id="blogList">

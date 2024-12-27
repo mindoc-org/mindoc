@@ -175,7 +175,7 @@ func (c *ManagerController) ChangeMemberRole() {
 	if memberId <= 0 {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
 	}
-	if role != int(conf.MemberAdminRole) && role != int(conf.MemberGeneralRole) {
+	if role != int(conf.MemberAdminRole) && role != int(conf.MemberGeneralRole) && role != int(conf.MemberReaderRole) {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
 	}
 	member := models.NewMember()

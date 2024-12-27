@@ -37,8 +37,10 @@
                     <div class="box-head">
                         <strong class="box-title">{{i18n $.Lang "blog.project_list"}}</strong>
                         &nbsp;
+                        {{if eq .Member.Role 0 1 2 }}
                         <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">{{i18n $.Lang "blog.add_project"}}</button>
                         <button type="button" data-toggle="modal" data-target="#importBookDialogModal" class="btn btn-primary btn-sm pull-right" style="margin-right: 5px;">{{i18n $.Lang "blog.import_project"}}</button>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body" id="bookList">

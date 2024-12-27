@@ -162,6 +162,9 @@ func (c *BlogController) ManageSetting() {
 		bookIdentify := strings.TrimSpace(c.GetString("bookIdentify"))
 		documentId := 0
 
+		if c.Member.Role == conf.MemberReaderRole {
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+		}
 		if blogTitle == "" {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.blog_title_empty"))
 		}
@@ -285,6 +288,10 @@ func (c *BlogController) ManageSetting() {
 func (c *BlogController) ManageEdit() {
 	c.Prepare()
 	c.TplName = "blog/manage_edit.tpl"
+
+	if c.Member.Role == conf.MemberReaderRole {
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+	}
 
 	if c.Ctx.Input.IsPost() {
 		blogId, _ := c.GetInt("blogId", 0)

@@ -466,6 +466,9 @@ func (c *BookController) Create() {
 		editor := c.GetString("editor")
 		itemId, _ := c.GetInt("itemId")
 
+		if c.Member.Role == conf.MemberReaderRole {
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+		}
 		if bookName == "" {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.project_name_empty"))
 		}
@@ -566,7 +569,9 @@ func (c *BookController) Copy() {
 		if _, err := c.IsPermission(); err != nil {
 			c.JsonResult(500, err.Error())
 		}
-
+		if c.Member.Role == conf.MemberReaderRole {
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+		}
 		identify := strings.TrimSpace(c.GetString("identify", ""))
 		if identify == "" {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
@@ -587,7 +592,9 @@ func (c *BookController) Copy() {
 
 // 导入zip压缩包或docx
 func (c *BookController) Import() {
-
+	if c.Member.Role == conf.MemberReaderRole {
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+	}
 	file, moreFile, err := c.GetFile("import-file")
 	if err == http.ErrMissingFile {
 		c.JsonResult(6003, "没有发现需要上传的文件")
