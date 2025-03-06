@@ -1,4 +1,4 @@
-FROM amd64/golang:1.18.1 AS build
+FROM golang:bookworm AS build
 
 ARG TAG=0.0.1
 
@@ -30,8 +30,8 @@ ADD simsun.ttc /usr/share/fonts/win/
 ADD start.sh /go/src/github.com/mindoc-org/mindoc
 
 
-# Ubuntu 24.04
-FROM ubuntu:24.04
+# upgrade to the latest
+FROM ubuntu:latest
 
 # 切换默认shell为bash
 SHELL ["/bin/bash", "-c"]
@@ -52,14 +52,8 @@ COPY --from=build /go/src/github.com/mindoc-org/mindoc/uploads /mindoc/__default
 
 RUN chmod a+r /usr/share/fonts/win/simsun.ttc
 
-# 备份原有源
-# RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
-# # 最小化源，缩短apt update时间(ca-certificates必须先安装才支持换aliyun源)
-# RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
-# RUN apt-get update
-# RUN apt install -y ca-certificates
-# 更换aliyun源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
-RUN  sed -i s@/archive.ubuntu.com/@/mirrors.aliyun.com/@g /etc/apt/sources.list
+RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list /etc/apt/sources.list.d/*
+
 
 # 更新软件包信息
 RUN apt-get update
@@ -79,7 +73,7 @@ RUN dpkg-reconfigure --frontend noninteractive tzdata
 # 安装文泉驿字体
 RUN apt install -y fonts-wqy-microhei fonts-wqy-zenhei
 # 安装中文语言包
-RUN apt-get install -y locales language-pack-zh-hans language-pack-zh-hans-base
+RUN apt-get install -y locales language-pack-zh-hans-base
 # 设置默认编码
 RUN locale-gen "zh_CN.UTF-8"
 RUN update-locale LANG=zh_CN.UTF-8
@@ -87,10 +81,22 @@ ENV LANG=zh_CN.UTF-8
 ENV LANGUAGE=zh_CN:en
 ENV LC_ALL=zh_CN.UTF-8
 
-RUN wget -nv -O- https://download.calibre-ebook.com/linux-installer.sh | bash /dev/stdin
-ENV QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox"
-ENV QT_QPA_PLATFORM='offscreen'
-# 测试 calibre 可正常使用
+# 安装必要依赖、下载、解压 calibre 并清理缓存
+RUN apt-get install -y --no-install-recommends \
+      libgl-dev libnss3-dev libxcomposite-dev libxrandr-dev libxi-dev libxdamage-dev \
+      wget xz-utils && \
+    mkdir -p /tmp/calibre-cache /opt/calibre && \
+    wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/7.26.0/calibre-7.26.0-x86_64.txz && \
+    tar xJof /tmp/calibre-cache/calibre-x86_64.txz -C /opt/calibre && \
+    rm -rf /tmp/calibre-cache && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 设置环境变量
+ENV PATH="/opt/calibre:$PATH" \
+    QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox" \
+    QT_QPA_PLATFORM="offscreen"
+
+# 测试 calibre 是否可正常使用
 RUN ebook-convert --version
 
 # refer: https://docs.docker.com/engine/reference/builder/#volume
