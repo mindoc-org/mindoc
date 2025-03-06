@@ -57,8 +57,6 @@ RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list /et
 
 # 更新软件包信息
 RUN apt-get update
-# 安装必要的系统工具
-RUN apt install -y  wget
 
 # 时区设置(如果不设置, calibre依赖的tzdata在安装过程中会要求选择时区)
 ENV TZ=Asia/Shanghai
@@ -71,9 +69,8 @@ RUN apt install -y --no-install-recommends tzdata
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 
 # 安装文泉驿字体
-RUN apt install -y fonts-wqy-microhei fonts-wqy-zenhei
 # 安装中文语言包
-RUN apt-get install -y locales language-pack-zh-hans-base
+RUN apt install -y fonts-wqy-microhei fonts-wqy-zenhei locales language-pack-zh-hans-base
 # 设置默认编码
 RUN locale-gen "zh_CN.UTF-8"
 RUN update-locale LANG=zh_CN.UTF-8
