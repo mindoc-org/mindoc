@@ -1,4 +1,4 @@
-FROM amd64/golang:1.18.1 AS build
+FROM golang:bookworm AS build
 
 ARG TAG=0.0.1
 
@@ -30,8 +30,8 @@ ADD simsun.ttc /usr/share/fonts/win/
 ADD start.sh /go/src/github.com/mindoc-org/mindoc
 
 
-# Ubuntu 20.04
-FROM ubuntu:focal
+# upgrade to the latest
+FROM ubuntu:latest
 
 # 切换默认shell为bash
 SHELL ["/bin/bash", "-c"]
@@ -52,30 +52,11 @@ COPY --from=build /go/src/github.com/mindoc-org/mindoc/uploads /mindoc/__default
 
 RUN chmod a+r /usr/share/fonts/win/simsun.ttc
 
-# 备份原有源
-RUN mv /etc/apt/sources.list /etc/apt/sources.list-backup
-# 最小化源，缩短apt update时间(ca-certificates必须先安装才支持换aliyun源)
-RUN echo 'deb http://archive.ubuntu.com/ubuntu/ focal main restricted' > /etc/apt/sources.list
-RUN apt-get update
-RUN apt install -y ca-certificates
-# 更换aliyun源(echo多行内容不能以#开头，会被docker误判为注释行，所以采用\n#开头)
-RUN echo $'\
-deb http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal main restricted universe multiverse\n\
-deb http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-security main restricted universe multiverse\n\
-deb http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-updates main restricted universe multiverse\n\
-deb http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-proposed main restricted universe multiverse\n\
-deb http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse\
-\n# deb-src http://mirrors.aliyun.com/ubuntu/ focal-backports main restricted universe multiverse'\
-> /etc/apt/sources.list
+RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list /etc/apt/sources.list.d/*
+
 
 # 更新软件包信息
 RUN apt-get update
-# 安装必要的系统工具
-RUN apt install -y apt-transport-https ca-certificates curl wget xz-utils
 
 # 时区设置(如果不设置, calibre依赖的tzdata在安装过程中会要求选择时区)
 ENV TZ=Asia/Shanghai
@@ -87,12 +68,9 @@ RUN apt install -y --no-install-recommends tzdata
 # 重新配置tzdata软件包，使得时区设置生效
 RUN dpkg-reconfigure --frontend noninteractive tzdata
 
-# 安装 calibre 依赖的包
-RUN apt install -y libgl-dev libnss3-dev libxcomposite-dev libxrandr-dev libxi-dev libxdamage-dev
 # 安装文泉驿字体
-RUN apt install -y fonts-wqy-microhei fonts-wqy-zenhei
 # 安装中文语言包
-RUN apt-get install -y locales language-pack-zh-hans language-pack-zh-hans-base
+RUN apt install -y fonts-wqy-microhei fonts-wqy-zenhei locales language-pack-zh-hans-base
 # 设置默认编码
 RUN locale-gen "zh_CN.UTF-8"
 RUN update-locale LANG=zh_CN.UTF-8
@@ -100,25 +78,23 @@ ENV LANG=zh_CN.UTF-8
 ENV LANGUAGE=zh_CN:en
 ENV LC_ALL=zh_CN.UTF-8
 
-# 安装-calibre
-# RUN apt-get install -y calibre # 此种方式安装省事，但会安装很多额外不需要的软件包，导致体积过大
-RUN mkdir -p /tmp/calibre-cache
-# 强制使用 5.44.0 版本(5.x的最新版本)
-RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/5.44.0/calibre-5.44.0-x86_64.txz
-# 注: 调试阶段，下载alibre-5.44.0-x86_64.txz到本地(使用 python -m http.server)，加速构建
-# RUN wget -O /tmp/calibre-cache/calibre-x86_64.txz -c http://10.96.8.252:8000/calibre-5.44.0-x86_64.txz
-# 解压
-RUN mkdir -p /opt/calibre
-# RUN tar --extract --file=/tmp/calibre-cache/calibre-x86_64.txz --directory /opt/calibre
-RUN tar xJof /tmp/calibre-cache/calibre-x86_64.txz -C /opt/calibre
-ENV PATH=$PATH:/opt/calibre
-# 设置calibre相关环境变量
-ENV QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox"
-ENV QT_QPA_PLATFORM='offscreen'
-# 测试 calibre 可正常使用
+# 安装必要依赖、下载、解压 calibre 并清理缓存
+RUN apt-get install -y --no-install-recommends \
+      libgl-dev libnss3-dev libxcomposite-dev libxrandr-dev libxi-dev libxdamage-dev \
+      wget xz-utils && \
+    mkdir -p /tmp/calibre-cache /opt/calibre && \
+    wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/7.26.0/calibre-7.26.0-x86_64.txz && \
+    tar xJof /tmp/calibre-cache/calibre-x86_64.txz -C /opt/calibre && \
+    rm -rf /tmp/calibre-cache && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# 设置环境变量
+ENV PATH="/opt/calibre:$PATH" \
+    QTWEBENGINE_CHROMIUM_FLAGS="--no-sandbox" \
+    QT_QPA_PLATFORM="offscreen"
+
+# 测试 calibre 是否可正常使用
 RUN ebook-convert --version
-# 清理calibre缓存
-RUN rm -rf /tmp/calibre-cache
 
 # refer: https://docs.docker.com/engine/reference/builder/#volume
 VOLUME ["/mindoc/conf","/mindoc/static","/mindoc/views","/mindoc/uploads","/mindoc/runtime","/mindoc/database"]
