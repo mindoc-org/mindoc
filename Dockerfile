@@ -80,10 +80,10 @@ ENV LC_ALL=zh_CN.UTF-8
 
 # 安装必要依赖、下载、解压 calibre 并清理缓存
 RUN apt-get install -y --no-install-recommends \
-      libgl-dev libnss3-dev libxcomposite-dev libxrandr-dev libxi-dev libxdamage-dev \
-      wget xz-utils && \
+        libglx0 libegl1 libnss3 libxcomposite1 libxkbcommon0 libxdamage1 libxrandr-dev libopengl0 libxtst6 libasound2t64 libxkbfile1\
+        wget xz-utils && \
     mkdir -p /tmp/calibre-cache /opt/calibre && \
-    wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/7.26.0/calibre-7.26.0-x86_64.txz && \
+    wget -O /tmp/calibre-cache/calibre-x86_64.txz -c https://download.calibre-ebook.com/7.26.0/calibre-7.26.0-x86_64.txz  --no-check-certificate && \
     tar xJof /tmp/calibre-cache/calibre-x86_64.txz -C /opt/calibre && \
     rm -rf /tmp/calibre-cache && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -113,3 +113,4 @@ ENTRYPOINT ["/bin/bash", "/mindoc/start.sh"]
 # set MINDOC=//d/mindoc # windows
 # export MINDOC=/home/ubuntu/mindoc-docker # linux
 # docker run -d --name=mindoc --restart=always -v /www/mindoc/uploads:/mindoc/uploads -v /www/mindoc/database:/mindoc/database  -v /www/mindoc/conf:/mindoc/conf  -e MINDOC_DB_ADAPTER=sqlite3 -e MINDOC_DB_DATABASE=./database/mindoc.db -e MINDOC_CACHE=true -e MINDOC_CACHE_PROVIDER=file -p 8181:8181 mindoc-org/mindoc:v2.1
+
