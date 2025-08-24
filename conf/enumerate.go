@@ -33,6 +33,8 @@ const (
 	MemberAdminRole
 	//普通用户.
 	MemberGeneralRole
+	//只读用户.
+	MemberReaderRole
 )
 
 // 系统角色

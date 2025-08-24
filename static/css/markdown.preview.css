@@ -160,6 +160,9 @@
         display: none;
     }
     .article-body .markdown-article{
+        width: 100%;
+    }
+    .article-body .markdown-article{
         margin-right: 0;
     }
 }

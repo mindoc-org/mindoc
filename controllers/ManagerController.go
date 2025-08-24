@@ -175,7 +175,7 @@ func (c *ManagerController) ChangeMemberRole() {
 	if memberId <= 0 {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
 	}
-	if role != int(conf.MemberAdminRole) && role != int(conf.MemberGeneralRole) {
+	if role != int(conf.MemberAdminRole) && role != int(conf.MemberGeneralRole) && role != int(conf.MemberReaderRole) {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
 	}
 	member := models.NewMember()
@@ -1017,15 +1017,14 @@ func (c *ManagerController) TeamChangeMemberRole() {
 	if memberId <= 0 || roleId <= 0 || teamId <= 0 || roleId > int(conf.BookObserver) {
 		c.JsonResult(5001, i18n.Tr(c.Lang, "message.param_error"))
 	}
-
 	teamMember, err := models.NewTeamMember().ChangeRoleId(teamId, memberId, conf.BookRole(roleId))
 
 	if err != nil {
 		c.JsonResult(5002, err.Error())
 	} else {
+		teamMember.SetLang(c.Lang).Include()
 		c.JsonResult(0, "OK", teamMember)
 	}
-
 }
 
 // 团队项目列表.
