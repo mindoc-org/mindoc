@@ -14,6 +14,7 @@ import (
 
 	// "github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/controllers"
+	"github.com/mindoc-org/mindoc/mcp"
 )
 
 type CorsTransport struct {
@@ -268,4 +269,10 @@ func init() {
 	web.Router("/items", &controllers.ItemsetsController{}, "get:Index")
 	web.Router("/items/:key", &controllers.ItemsetsController{}, "get:List")
 
+	if web.AppConfig.DefaultBool("enable_mcp_server", false) {
+		mcpServer := mcp.NewMCPServer()
+		web.Any("/mcp/*", func(ctx *context.Context) {
+			mcpServer.ServeHTTP().ServeHTTP(ctx.ResponseWriter, ctx.Request)
+		})
+	}
 }

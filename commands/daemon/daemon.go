@@ -3,12 +3,12 @@ package daemon
 import (
 	"fmt"
 	"os"
-
 	"path/filepath"
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/kardianos/service"
+
 	"github.com/mindoc-org/mindoc/commands"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/controllers"
