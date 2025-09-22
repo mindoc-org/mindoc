@@ -34,23 +34,21 @@ func GlobalSearchMcpHandler(ctx context.Context, request mcp.CallToolRequest) (*
 		pageIndex = int(v)
 	}
 	totalCount, result := globalSearchFunction(paramMap["keyword"].(string), pageIndex)
-	jsonContent, err := json.Marshal(result)
-	if err != nil {
-		return mcp.NewToolResultStructuredOnly(map[string]any{
-			"totalCount": 0,
-			"result":     make([]map[string]any, 0),
-		}), err
+	structContent := make([]map[string]any, 0, len(result))
+	for _, r := range result {
+		m := map[string]any{
+			"DocumentId":   r.DocumentId,
+			"BookId":       r.BookId,
+			"BookName":     r.BookName,
+			"DocumentName": r.DocumentName,
+			"Identify":     r.Identify,
+			"Content":      r.Content,
+			"CreateTime":   r.CreateTime,
+			"MemberId":     r.MemberId,
+			"Username":     r.Username,
+		}
+		structContent = append(structContent, m)
 	}
-
-	structContent := make([]map[string]any, 0)
-	err = json.Unmarshal(jsonContent, &structContent)
-	if err != nil {
-		return mcp.NewToolResultStructuredOnly(map[string]any{
-			"totalCount": 0,
-			"result":     make([]map[string]any, 0),
-		}), err
-	}
-
 	return mcp.NewToolResultStructuredOnly(map[string]any{
 		"totalCount": totalCount,
 		"result":     structContent,
