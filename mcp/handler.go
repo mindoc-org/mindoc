@@ -29,7 +29,10 @@ func GetGlobalSearchMcpTool() mcp.Tool {
 // GlobalSearchMcpHandler 全局搜索的mcp处理函数
 func GlobalSearchMcpHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	paramMap := request.Params.Arguments.(map[string]any)
-	pageIndex, _ := paramMap["pageIndex"].(int)
+	pageIndex := 1
+	if v, ok := paramMap["pageIndex"].(float64); ok {
+		pageIndex = int(v)
+	}
 	totalCount, result := globalSearchFunction(paramMap["keyword"].(string), pageIndex)
 	jsonContent, err := json.Marshal(result)
 	if err != nil {
