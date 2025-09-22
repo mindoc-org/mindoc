@@ -248,3 +248,7 @@ workweixin_secret="${MINDOC_WORKWEIXIN_SECRET}"
 # i18n config
 i18n_list=zh-cn:简体中文|en-us:English|ru-ru:Русский
 default_lang="zh-cn"
+
+# MCP Server 功能
+enable_mcp_server="${MINDOC_ENABLE_MCP_SERVER||false}"
+mcp_api_key="${MINDOC_MCP_API_KEY||demo-mcp-api-key}"
