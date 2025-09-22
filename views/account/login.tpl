@@ -108,7 +108,7 @@
                     <a href="{{urlfor "AccountController.FindPassword" }}" style="display: inline-block;float: right">{{i18n .Lang "common.forgot_password"}}</a>
                 </div>
                 <div class="form-group">
-                    <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="{{i18n .Lang "common.logging_in"}}" autocomplete="off">{{i18n .Lang "common.login"}}</button>
+                    <button type="button" id="btn-login" class="btn btn-success" style="width: 100%"  data-loading-text="{{i18n .Lang "message.logging_in"}}" autocomplete="off">{{i18n .Lang "common.login"}}</button>
                 </div>
                 {{if .ENABLED_REGISTER}}
                     {{if ne .ENABLED_REGISTER "false"}}
