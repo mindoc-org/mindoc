@@ -190,6 +190,33 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
         > 
         > 更多 docker-compose 的使用相关的内容 请查看官网文档或百度
    
+#### MCP服务器对接指导
+1. 请在配置文件中启用MCP服务器功能
+在配置文件`app.conf`中添加或修改为如下内容：
+```
+# MCP Server 功能
+enable_mcp_server="${MINDOC_ENABLE_MCP_SERVER||true}"
+mcp_api_key="${MINDOC_MCP_API_KEY||demo-mcp-api-key}"
+```
+说明：
+`enable_mcp_server`为是否启用MCP服务器功能，默认为true。
+`mcp_api_key` 为MCP服务器的API密钥，示例配置中默认为`demo-mcp-api-key`，可根据需求自行修改。
+
+2. 在Dify等AI应用或其他可调用MCP服务器的项目配置中添加如下Mindoc配置
+```json
+{
+  "mindoc": {
+    "transport": "streamable_http",
+    "url": "http://127.0.0.1:8181/mcp/?api_key=demo-mcp-api-key",
+    "headers":{},
+    "timeout":600
+  }
+}
+```
+说明：
+`transport`为传输方式，目前支持`streamable_http`。
+`url`为Mindoc的MCP服务地址，示例配置中Endpoint默认为`http://127.0.0.1:8181`，默认的API密钥为`demo-mcp-api-key`，可自行修改为对接时项目实际使用的Endpoint和API密钥。
+
 # 项目截图
 
 **创建项目**
