@@ -12,6 +12,7 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 可以用来储存日常接口文档，数据库字典，手册说明等文档。内置项目管理，用户管理，权限管理等功能，能够满足大部分中小团队的文档管理需求。
 
 ##### 演示站点&文档:
+- https://demo.mindoc.cn/docs/mindochelp
 - https://www.iminho.me/wiki/docs/mindoc/
 - https://doc.gsw945.com/docs/mindoc-docs/
 
@@ -38,11 +39,11 @@ MinDoc 的前身是 [SmartWiki](https://github.com/lifei6671/SmartWiki) 文档�
 
 ~~如果你的服务器上没有安装golang程序请手动设置一个环境变量如下：键名为 ZONEINFO，值为MinDoc跟目录下的/lib/time/zoneinfo.zip 。~~
 
-更多信息请查看手册： [MinDoc 使用手册](https://www.iminho.me/wiki/docs/mindoc/mindoc-summary.md)
+更多信息请查看手册： [MinDoc 使用手册](https://demo.mindoc.cn/docs/mindochelp/mindoc-summary)
 
 对于没有Golang使用经验的用户，可以从 [https://github.com/mindoc-org/mindoc/releases](https://github.com/mindoc-org/mindoc/releases) 这里下载编译完的程序。
 
-如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.15.1(需支持`CGO`、`go mod`和`import _ "time/tzdata"`)(推荐Go版本为1.18.1)。
+如果有Golang开发经验，建议通过编译安装，要求golang版本不小于1.23.0(需支持`CGO`、`go mod`和`import _ "time/tzdata"`)(推荐Go版本为1.23.x)。
 > 注意: CentOS7上GLibC版本低，常规编译版本不能使用。需要自行源码编译,或使用使用musl编译版本。
 
 ## 常规编译
@@ -284,6 +285,7 @@ mcp_api_key="${MINDOC_MCP_API_KEY||demo-mcp-api-key}"
     - [扩展菜单注册太过繁琐 #2493](https://github.com/wangeditor-team/wangEditor/issues/2493)
   - 工具： `https://babeljs.io/repl` + `@babel/plugin-transform-classes`
 - [Vue.js](https://github.com/vuejs/vue) 框架
+- [MCP-Go](https://github.com/mark3labs/mcp-go)
 
 
 # 主要功能
