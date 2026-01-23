@@ -79,13 +79,18 @@ MinDoc 如果使用MySQL储存数据，则编码必须是`utf8mb4_general_ci`。
 
 ### 安装 musl-gcc
 ```bash
+# 手动安装
 wget -c http://musl.libc.org/releases/musl-1.2.2.tar.gz
 tar -xvf musl-1.2.2.tar.gz
 cd musl-1.2.2
 ./configure
 make
 sudo make install
+# apt 安装
+sudo apt install musl-tools
 ```
+
+
 ### 使用 musl-gcc 编译 mindoc
 ```bash
 go mod tidy -v
@@ -142,13 +147,13 @@ MINDOC_ENABLE_EXPORT        开启导出(默认为false)
 ##### Windows
 ```bash
 set MINDOC=//d/mindoc
-docker run -it --name=mindoc --restart=always -v "%MINDOC%/conf":"/mindoc/conf" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1
+docker run -it --name=mindoc --restart=always -v "%MINDOC%/conf":"/mindoc/conf" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.2-beta.2
 ```
 
 ##### Linux、Mac
 ```bash
 export MINDOC=/home/ubuntu/mindoc-docker
-docker run -it --name=mindoc --restart=always -v "${MINDOC}/conf":"/mindoc/conf" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.1
+docker run -it --name=mindoc --restart=always -v "${MINDOC}/conf":"/mindoc/conf" -p 8181:8181 -e MINDOC_ENABLE_EXPORT=true -d registry.cn-hangzhou.aliyuncs.com/mindoc-org/mindoc:v2.2-beta.2
 ```
 
 ##### 举个栗子-更多环境变量示例(镜像已过期，仅供参考，请以当前镜像为准)
