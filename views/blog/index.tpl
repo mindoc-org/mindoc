@@ -82,10 +82,10 @@
                 <div class="item user_img"><img src="{{cdnimg .Model.MemberAvatar}}" align="{{.Model.CreateName}}"> </div>
                 <div class="item">&nbsp;{{.Model.CreateName}}</div>
                 <div class="item">{{i18n .Lang "blog.posted_on"}}</div>
-                <div class="item">{{date .Model.Created "Y-m-d H:i:s"}}</div>
+                <div class="item">{{date_format .Model.Created "2006-01-02 15:04:05"}}</div>
                 <div class="item">{{.Model.ModifyRealName}}</div>
                 <div class="item">{{i18n .Lang "blog.modified_on"}}</div>
-                <div class="item">{{date .Model.Modified "Y-m-d H:i:s"}}</div>
+                <div class="item">{{date_format .Model.Modified "2006-01-02 15:04:05"}}</div>
                 {{if eq .Member.MemberId .Model.MemberId}}
                     <div class="item"><a href='{{urlfor "BlogController.ManageEdit" ":id" .Model.BlogId}}' title="{{i18n .Lang "blog.edit_blog"}}"><i class="fa fa-edit"></i> {{i18n .Lang "common.edit"}}</a></div>
                 {{end}}
