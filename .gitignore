@@ -34,3 +34,4 @@ database/mindoc.db
 /runtime
 /uploads/*.*
 !/uploads/.gitkeep
+calibre-*.txz
