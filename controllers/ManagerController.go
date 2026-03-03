@@ -133,7 +133,7 @@ func (c *ManagerController) CreateMember() {
 	c.JsonResult(0, "ok", member)
 }
 
-//更新用户状态.
+// 更新用户状态.
 func (c *ManagerController) UpdateMemberStatus() {
 	c.Prepare()
 
@@ -166,7 +166,7 @@ func (c *ManagerController) UpdateMemberStatus() {
 	c.JsonResult(0, "ok", member)
 }
 
-//变更用户权限.
+// 变更用户权限.
 func (c *ManagerController) ChangeMemberRole() {
 	c.Prepare()
 
@@ -175,7 +175,7 @@ func (c *ManagerController) ChangeMemberRole() {
 	if memberId <= 0 {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
 	}
-	if role != int(conf.MemberAdminRole) && role != int(conf.MemberGeneralRole) {
+	if role != int(conf.MemberAdminRole) && role != int(conf.MemberGeneralRole) && role != int(conf.MemberReaderRole) {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
 	}
 	member := models.NewMember()
@@ -199,7 +199,7 @@ func (c *ManagerController) ChangeMemberRole() {
 	c.JsonResult(0, "ok", member)
 }
 
-//编辑用户信息.
+// 编辑用户信息.
 func (c *ManagerController) EditMember() {
 	c.Prepare()
 	c.TplName = "manager/edit_users.tpl"
@@ -251,7 +251,7 @@ func (c *ManagerController) EditMember() {
 	c.Data["Model"] = member
 }
 
-//删除一个用户，并将该用户的所有信息转移到超级管理员上.
+// 删除一个用户，并将该用户的所有信息转移到超级管理员上.
 func (c *ManagerController) DeleteMember() {
 	c.Prepare()
 	member_id, _ := c.GetInt("id", 0)
@@ -283,7 +283,7 @@ func (c *ManagerController) DeleteMember() {
 	c.JsonResult(0, "ok")
 }
 
-//项目列表.
+// 项目列表.
 func (c *ManagerController) Books() {
 	c.Prepare()
 	c.TplName = "manager/books.tpl"
@@ -313,7 +313,7 @@ func (c *ManagerController) Books() {
 	c.Data["Lists"] = books
 }
 
-//编辑项目.
+// 编辑项目.
 func (c *ManagerController) EditBook() {
 	c.Prepare()
 
@@ -460,7 +460,7 @@ func (c *ManagerController) CreateToken() {
 	}
 }
 
-//项目设置.
+// 项目设置.
 func (c *ManagerController) Setting() {
 	c.Prepare()
 	c.TplName = "manager/setting.tpl"
@@ -483,6 +483,19 @@ func (c *ManagerController) Setting() {
 	for _, item := range options {
 		c.Data[item.OptionName] = item.OptionValue
 	}
+
+	i18nMapStrs, err := web.AppConfig.String("i18n_map")
+	if err != nil {
+		logs.Error("web.AppConfig `i18n_map` not found")
+		i18nMapStrs = "{}"
+	}
+	var i18nMap map[string]string
+	err = json.Unmarshal([]byte(i18nMapStrs), &i18nMap)
+	if err != nil {
+		logs.Error("json `i18nList` Unmarshal fail")
+		i18nMap = make(map[string]string)
+	}
+	c.Data["i18n_map"] = i18nMap
 }
 
 // Transfer 转让项目.
@@ -541,7 +554,7 @@ func (c *ManagerController) Comments() {
 
 }
 
-//DeleteComment 标记评论为已删除
+// DeleteComment 标记评论为已删除
 func (c *ManagerController) DeleteComment() {
 	c.Prepare()
 
@@ -565,7 +578,7 @@ func (c *ManagerController) DeleteComment() {
 	c.JsonResult(0, "ok", comment)
 }
 
-//设置项目私有状态.
+// 设置项目私有状态.
 func (c *ManagerController) PrivatelyOwned() {
 	c.Prepare()
 	status := c.GetString("status")
@@ -603,7 +616,7 @@ func (c *ManagerController) PrivatelyOwned() {
 	c.JsonResult(0, "ok")
 }
 
-//附件列表.
+// 附件列表.
 func (c *ManagerController) AttachList() {
 	c.Prepare()
 	c.TplName = "manager/attach_list.tpl"
@@ -634,7 +647,42 @@ func (c *ManagerController) AttachList() {
 	c.Data["Lists"] = attachList
 }
 
-//附件详情.
+// 附件清理.
+func (c *ManagerController) AttachClean() {
+	c.Prepare()
+
+	attachList, _, err := models.NewAttachment().FindToPager(0, 0)
+
+	if err != nil {
+		c.Abort("500")
+	}
+
+	for _, item := range attachList {
+
+		p := filepath.Join(conf.WorkingDirectory, item.FilePath)
+
+		item.IsExist = filetil.FileExists(p)
+		if item.IsExist {
+			// 判断
+			searchList, err := models.NewDocumentSearchResult().SearchAllDocument(item.HttpPath)
+			if err != nil {
+				c.Abort("500")
+			} else if len(searchList) == 0 {
+				logs.Info("delete file:", item.FilePath)
+				item.FilePath = p
+				if err := item.Delete(); err != nil {
+					logs.Error("AttachDelete => ", err)
+					c.JsonResult(6002, err.Error())
+					break
+				}
+			}
+		}
+	}
+
+	c.JsonResult(0, "ok")
+}
+
+// 附件详情.
 func (c *ManagerController) AttachDetailed() {
 	c.Prepare()
 	c.TplName = "manager/attach_detailed.tpl"
@@ -663,7 +711,7 @@ func (c *ManagerController) AttachDetailed() {
 	c.Data["Model"] = attach
 }
 
-//删除附件.
+// 删除附件.
 func (c *ManagerController) AttachDelete() {
 	c.Prepare()
 	attachId, _ := c.GetInt("attach_id")
@@ -686,7 +734,7 @@ func (c *ManagerController) AttachDelete() {
 	c.JsonResult(0, "ok")
 }
 
-//标签列表
+// 标签列表
 func (c *ManagerController) LabelList() {
 	c.Prepare()
 	c.TplName = "manager/label_list.tpl"
@@ -708,7 +756,7 @@ func (c *ManagerController) LabelList() {
 	c.Data["Lists"] = labels
 }
 
-//删除标签
+// 删除标签
 func (c *ManagerController) LabelDelete() {
 	labelId, err := strconv.Atoi(c.Ctx.Input.Param(":id"))
 	if err != nil {
@@ -901,7 +949,7 @@ func (c *ManagerController) TeamMemberList() {
 	}
 }
 
-//搜索团队用户.
+// 搜索团队用户.
 func (c *ManagerController) TeamSearchMember() {
 	c.Prepare()
 
@@ -969,18 +1017,17 @@ func (c *ManagerController) TeamChangeMemberRole() {
 	if memberId <= 0 || roleId <= 0 || teamId <= 0 || roleId > int(conf.BookObserver) {
 		c.JsonResult(5001, i18n.Tr(c.Lang, "message.param_error"))
 	}
-
 	teamMember, err := models.NewTeamMember().ChangeRoleId(teamId, memberId, conf.BookRole(roleId))
 
 	if err != nil {
 		c.JsonResult(5002, err.Error())
 	} else {
+		teamMember.SetLang(c.Lang).Include()
 		c.JsonResult(0, "OK", teamMember)
 	}
-
 }
 
-//团队项目列表.
+// 团队项目列表.
 func (c *ManagerController) TeamBookList() {
 	c.Prepare()
 	c.TplName = "manager/team_book_list.tpl"
@@ -1027,7 +1074,7 @@ func (c *ManagerController) TeamBookList() {
 	}
 }
 
-//给团队增加项目.
+// 给团队增加项目.
 func (c *ManagerController) TeamBookAdd() {
 	c.Prepare()
 
@@ -1051,7 +1098,7 @@ func (c *ManagerController) TeamBookAdd() {
 	}
 }
 
-//搜索未参与的项目.
+// 搜索未参与的项目.
 func (c *ManagerController) TeamSearchBook() {
 	c.Prepare()
 
@@ -1071,7 +1118,7 @@ func (c *ManagerController) TeamSearchBook() {
 
 }
 
-//删除团队项目.
+// 删除团队项目.
 func (c *ManagerController) TeamBookDelete() {
 	c.Prepare()
 	teamRelationshipId, _ := c.GetInt("teamRelId")
@@ -1088,7 +1135,7 @@ func (c *ManagerController) TeamBookDelete() {
 	c.JsonResult(0, "OK")
 }
 
-//项目空间列表.
+// 项目空间列表.
 func (c *ManagerController) Itemsets() {
 	c.Prepare()
 	c.TplName = "manager/itemsets.tpl"
@@ -1116,7 +1163,7 @@ func (c *ManagerController) Itemsets() {
 	c.Data["Lists"] = items
 }
 
-//编辑或添加项目空间.
+// 编辑或添加项目空间.
 func (c *ManagerController) ItemsetsEdit() {
 	c.Prepare()
 	itemId, _ := c.GetInt("itemId")
@@ -1151,7 +1198,7 @@ func (c *ManagerController) ItemsetsEdit() {
 	c.JsonResult(0, "OK")
 }
 
-//删除项目空间.
+// 删除项目空间.
 func (c *ManagerController) ItemsetsDelete() {
 	c.Prepare()
 	itemId, _ := c.GetInt("itemId")

@@ -14,6 +14,7 @@ import (
 
 	// "github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/controllers"
+	"github.com/mindoc-org/mindoc/mcp"
 )
 
 type CorsTransport struct {
@@ -123,12 +124,13 @@ func init() {
 	web.Router("/", &controllers.HomeController{}, "*:Index")
 
 	web.Router("/login", &controllers.AccountController{}, "*:Login")
-	web.Router("/dingtalk_login", &controllers.AccountController{}, "*:DingTalkLogin")
-	web.Router("/workweixin-login", &controllers.AccountController{}, "*:WorkWeixinLogin")
-	web.Router("/workweixin-callback", &controllers.AccountController{}, "*:WorkWeixinLoginCallback")
-	web.Router("/workweixin-bind", &controllers.AccountController{}, "*:WorkWeixinLoginBind")
-	web.Router("/workweixin-ignore", &controllers.AccountController{}, "*:WorkWeixinLoginIgnore")
-	web.Router("/qrlogin/:app", &controllers.AccountController{}, "*:QRLogin")
+	web.Router("/auth2/redirect/:app", &controllers.AccountController{}, "*:Auth2Redirect")
+	web.Router("/auth2/callback/:app", &controllers.AccountController{}, "*:Auth2Callback")
+	web.Router("/auth2/account/bind/:app", &controllers.AccountController{}, "*:Auth2BindAccount")
+	web.Router("/auth2/account/auto/:app", &controllers.AccountController{}, "*:Auth2AutoAccount")
+
+	//web.Router("/dingtalk_login", &controllers.AccountController{}, "*:DingTalkLogin")
+	//web.Router("/qrlogin/:app", &controllers.AccountController{}, "*:QRLogin")
 	web.Router("/logout", &controllers.AccountController{}, "*:Logout")
 	web.Router("/register", &controllers.AccountController{}, "*:Register")
 	web.Router("/find_password", &controllers.AccountController{}, "*:FindPassword")
@@ -153,6 +155,7 @@ func init() {
 	web.Router("/manager/books/open", &controllers.ManagerController{}, "post:PrivatelyOwned")
 
 	web.Router("/manager/attach/list", &controllers.ManagerController{}, "*:AttachList")
+	web.Router("/manager/attach/clean", &controllers.ManagerController{}, "post:AttachClean")
 	web.Router("/manager/attach/detailed/:id", &controllers.ManagerController{}, "*:AttachDetailed")
 	web.Router("/manager/attach/delete", &controllers.ManagerController{}, "post:AttachDelete")
 	web.Router("/manager/label/list", &controllers.ManagerController{}, "get:LabelList")
@@ -191,6 +194,7 @@ func init() {
 	web.Router("/book/:key/release", &controllers.BookController{}, "post:Release")
 	web.Router("/book/:key/sort", &controllers.BookController{}, "post:SaveSort")
 	web.Router("/book/:key/teams", &controllers.BookController{}, "*:Team")
+	web.Router("/book/updatebookorder", &controllers.BookController{}, "post:UpdateBookOrder")
 
 	web.Router("/book/create", &controllers.BookController{}, "*:Create")
 	web.Router("/book/itemsets/search", &controllers.BookController{}, "*:ItemsetsSearch")
@@ -265,4 +269,10 @@ func init() {
 	web.Router("/items", &controllers.ItemsetsController{}, "get:Index")
 	web.Router("/items/:key", &controllers.ItemsetsController{}, "get:List")
 
+	if web.AppConfig.DefaultBool("enable_mcp_server", false) {
+		mcpServer := mcp.NewMCPServer()
+		web.Any("/mcp/*", func(ctx *context.Context) {
+			mcpServer.ServeHTTP().ServeHTTP(ctx.ResponseWriter, ctx.Request)
+		})
+	}
 }

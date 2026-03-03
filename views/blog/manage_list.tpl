@@ -36,7 +36,9 @@
                     <div class="box-head">
                         <strong class="box-title">{{i18n .Lang "blog.blog_list"}}</strong>
                         &nbsp;
+                        {{if eq .Member.Role 0 1 2 }}
                         <a href="{{urlfor "BlogController.ManageSetting"}}" class="btn btn-success btn-sm pull-right">{{i18n .Lang "blog.add_blog"}}</a>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body" id="blogList">
@@ -56,7 +58,7 @@
                                     <div class="extra">
                                         <div>
                                             <div class="ui horizontal small list">
-                                                <div class="item"><i class="fa fa-clock-o"></i> {{date $item.Modified "Y-m-d H:i:s"}}</div>
+                                                <div class="item"><i class="fa fa-clock-o"></i> {{date_format $item.Modified "2006-01-02 15:04:05"}}</div>
                                                 <div class="item"><a href="{{urlfor "BlogController.ManageEdit" ":id" $item.BlogId}}" title="{{i18n $.Lang "blog.edit_blog"}}" target="_blank"><i class="fa fa-edit"></i> {{i18n $.Lang "blog.edit"}}</a></div>
                                                 <div class="item"><a class="delete-btn" title="{{i18n $.Lang "blog.delete_blog"}}" data-id="{{$item.BlogId}}"><i class="fa fa-trash"></i> {{i18n $.Lang "blog.delete"}}</a></div>
                                                 <div class="item"><a href="{{urlfor "BlogController.ManageSetting" ":id" $item.BlogId}}" title="{{i18n $.Lang "blog.setting_blog"}}" class="setting-btn"><i class="fa fa-gear"></i> {{i18n $.Lang "common.setting"}}</a></div>

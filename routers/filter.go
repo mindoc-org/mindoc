@@ -7,7 +7,9 @@ import (
 
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/beego/v2/server/web/context"
+
 	"github.com/mindoc-org/mindoc/conf"
+	"github.com/mindoc-org/mindoc/mcp"
 	"github.com/mindoc-org/mindoc/models"
 )
 
@@ -38,6 +40,7 @@ func init() {
 	web.InsertFilter("/book/*", web.BeforeRouter, FilterUser)
 	web.InsertFilter("/api/*", web.BeforeRouter, FilterUser)
 	web.InsertFilter("/manage/*", web.BeforeRouter, FilterUser)
+	web.InsertFilter("/mcp/*", web.BeforeRouter, mcp.AuthMiddleware)
 
 	var FinishRouter = func(ctx *context.Context) {
 		ctx.ResponseWriter.Header().Add("MinDoc-Version", conf.VERSION)

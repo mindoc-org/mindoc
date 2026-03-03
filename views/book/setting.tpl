@@ -89,11 +89,18 @@
                                         <input type="radio"{{if eq .Model.Editor "markdown"}} checked{{end}} name="editor" value="markdown"> Markdown {{i18n $.Lang "blog.text_editor"}}
                                     </label>
                                     <label class="radio-inline">
+                                        <input type="radio"{{if eq .Model.Editor "cherry_markdown"}} checked{{end}} name="editor" value="cherry_markdown"> Markdown {{i18n $.Lang "blog.text_editor"}}(cherry)
+                                    </label>
+                                    <label class="radio-inline">
                                         <input type="radio"{{if eq .Model.Editor "new_html"}} checked{{end}} name="editor" value="new_html"> Html {{i18n $.Lang "blog.text_editor"}}(Quill)
                                     </label>
                                     <label class="radio-inline">
                                         <input type="radio"{{if eq .Model.Editor "html"}} checked{{end}} name="editor" value="html"> Html {{i18n $.Lang "blog.text_editor"}}(wangEditor)
                                     </label>
+                    <!-- 3xxx 20240603 -->
+                    <label class="radio-inline">
+                      <input type="radio" {{if eq .Model.Editor "froala"}} checked{{end}} name="editor" value="froala"> Froala {{i18n $.Lang "blog.text_editor"}}
+                    </label>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -120,6 +127,15 @@
                     <p class="text">{{i18n $.Lang "message.access_pass_desc"}}</p>
                 </div>
                 {{end}}
+
+                <div class="form-group">
+                    <label for="autoRelease">{{i18n $.Lang "blog.print_text"}}</label>
+                    <div class="controls">
+                        <div class="switch switch-small" data-on="primary" data-off="info">
+                            <input type="checkbox" id="autoSave" name="print_state"{{if .Model.PrintState }} checked{{end}} data-size="small" placeholder="{{i18n $.Lang "blog.print_text"}}">
+                        </div>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <label for="autoRelease">{{i18n $.Lang "blog.auto_publish"}}</label>

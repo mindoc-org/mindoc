@@ -1,18 +1,22 @@
-body{
+body {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
 }
-::-webkit-scrollbar , body  .scrollbar-track-color{
+
+::-webkit-scrollbar,
+body .scrollbar-track-color {
     height: 9px;
     width: 7px;
     background: #E6E6E6;
 }
+
 ::-webkit-scrollbar:hover {
     background: #CCCCCC;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #A2A2A2;
     -webkit-border-radius: 6px;
@@ -21,15 +25,18 @@ body{
     -o-border-radius: 6px;
     border-radius: 6px;
 }
-.error-message{
+
+.error-message {
     color: red;
 }
-.manual-head{
+
+.manual-head {
     padding: 5px 5px 5px 5px;
     position: fixed;
     width: 100%;
 }
-.manual-category{
+
+.manual-category {
     width: 280px;
     position: fixed;
     border-top: 1px solid #DDDDDD;
@@ -39,17 +46,19 @@ body{
     left: 0;
     right: 0;
     padding-bottom: 15px;
-    overflow-y:auto;
+    overflow-y: auto;
     z-index: 999;
 }
+
 .manual-category .manual-nav {
     font-size: 14px;
     color: #333333;
     font-weight: 200;
-    zoom:1;
+    zoom: 1;
     border-bottom: 1px solid #ddd
 }
-.manual-category .manual-tree{
+
+.manual-category .manual-tree {
     margin-top: 10px;
     width: 280px;
     position: absolute;
@@ -59,7 +68,8 @@ body{
     bottom: 0;
     overflow-y: auto;
 }
-.manual-category .manual-nav .nav-item{
+
+.manual-category .manual-nav .nav-item {
     font-size: 14px;
     padding: 0 9px;
     cursor: pointer;
@@ -68,6 +78,7 @@ body{
     line-height: 30px;
     color: #666;
 }
+
 .manual-category .manual-nav .nav-plus {
     color: #999;
     cursor: pointer;
@@ -77,10 +88,12 @@ body{
     display: inline-block;
     margin-top: 4px
 }
-.manual-category .manual-nav .nav-plus:hover{
+
+.manual-category .manual-nav .nav-plus:hover {
     color: #333333;
 }
-.manual-category .manual-nav .nav-item.active{
+
+.manual-category .manual-nav .nav-item.active {
     border-bottom: 1px solid #fafafa;
     margin-bottom: -1px;
     border-left: 1px solid #ddd;
@@ -88,7 +101,8 @@ body{
     padding-left: 8px;
     padding-right: 8px;
 }
-.manual-editor-container{
+
+.manual-editor-container {
     position: absolute;
     left: 280px;
     top: 40px;
@@ -98,68 +112,86 @@ body{
     border-top: 1px solid #DDDDDD;
     z-index: 999;
 }
-.manual-editor-container .manual-editormd{
+
+.manual-editor-container .manual-editormd {
     position: absolute;
     bottom: 30px;
     top: -1px;
     left: 0;
     right: 0;
 }
+
 .manual-editor-container .manual-editormd .manual-editormd-active,
-.manual-wangEditor,.manual-wangEditor .wangEditor-container,
-.manual-wangEditor .wangEditor-container .wangEditor-txt{
+.manual-wangEditor,
+.manual-wangEditor .wangEditor-container,
+.manual-wangEditor .wangEditor-container .wangEditor-txt {
     position: absolute;
-    top:0;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
 }
-.manual-wangEditor,.manual-wangEditor .wangEditor-container{
+
+.manual-wangEditor,
+.manual-wangEditor .wangEditor-container {
     bottom: 15px;
     border-top: 0;
     overflow: hidden;
 }
-.manual-wangEditor .wangEditor-container .wangEditor-txt{
+
+.manual-wangEditor .wangEditor-container .wangEditor-txt {
     top: 32px;
 }
-.manual-wangEditor .wangEditor-container .wangEditor-menu-container{
+
+.manual-wangEditor .wangEditor-container .wangEditor-menu-container {
     position: fixed;
     z-index: 10000;
 }
-.manual-wangEditor .wangEditor-container .code-textarea{
+
+.manual-wangEditor .wangEditor-container .code-textarea {
     position: absolute;
     top: 32px;
     bottom: 0;
     left: 0;
     right: 0;
 }
-.btn-toolbar{position: absolute;}
-.editormd-group{
+
+.btn-toolbar {
+    position: absolute;
+}
+
+.editormd-group {
     float: left;
     height: 32px;
     margin-right: 10px;
 }
-.editormd-group a,.editormd-group .editor-item{
+
+.editormd-group a,
+.editormd-group .editor-item {
     float: left;
 }
 
-.editormd-group .change i{
+.editormd-group .change i {
     color: #ffffff;
     background-color: #44B036 !important;
     border: 1px #44B036 solid !important;
 }
-.editormd-group .change i:hover{
+
+.editormd-group .change i:hover {
     background-color: #58CB48 !important;
 }
-.editormd-group .disabled i:hover{
+
+.editormd-group .disabled i:hover {
     background: #ffffff !important;
 }
-.editormd-group a.disabled{
+
+.editormd-group a.disabled {
     border-color: #c9c9c9;
     opacity: .6;
     cursor: default
 }
-.editormd-group a>i{
+
+.editormd-group a>i {
     display: inline-block;
     width: 34px !important;
     height: 30px !important;
@@ -171,33 +203,37 @@ body{
     border-radius: 4px;
     font-size: 15px
 }
-.editormd-group a>i.item{
+
+.editormd-group a>i.item {
     border-radius: 0;
     border-right: 0;
 }
-.editormd-group a>i.last{
-    border-bottom-left-radius:0;
-    border-top-left-radius:0;
+
+.editormd-group a>i.last {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
 }
-.editormd-group a>i.first{
+
+.editormd-group a>i.first {
     border-right: 0;
-    border-bottom-right-radius:0;
-    border-top-right-radius:0;
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
 }
-.editormd-group  a i:hover {
+
+.editormd-group a i:hover {
     background-color: #e4e4e4
 }
 
-.editormd-group  a i:after {
+.editormd-group a i:after {
     display: block;
     overflow: hidden;
     line-height: 30px;
     text-align: center;
-    font-family: icomoon,Helvetica,Arial,sans-serif;
+    font-family: icomoon, Helvetica, Arial, sans-serif;
     font-style: normal;
 }
 
-.manual-editor-status{
+.manual-editor-status {
     position: absolute;
     left: 0;
     right: 0;
@@ -210,74 +246,85 @@ body{
     z-index: 1000;
     line-height: 30px;
 }
-.manual-editor-status .item{
+
+.manual-editor-status .item {
     display: inline-block;
     margin-right: 10px;
     margin-left: 10px;
     cursor: pointer;
 }
+
 /***************附件管理的样式*******************/
-.attach-drop-panel{
+.attach-drop-panel {
     display: block;
     position: relative;
     width: 100%;
     height: 100%;
 }
-.attach-drop-panel .webuploader-element-invisible{
+
+.attach-drop-panel .webuploader-element-invisible {
     width: 500px;
     height: 100px;
     position: absolute;
     top: 0;
 
 }
-.attach-drop-panel .webuploader-pick{
+
+.attach-drop-panel .webuploader-pick {
     color: #ccc;
     text-align: center;
-    margin: 20px 20px 15px!important;
-    padding: 5px!important;
+    margin: 20px 20px 15px !important;
+    padding: 5px !important;
     font-size: 65px;
     cursor: pointer;
     border: 2px dotted #999;
-    display: block!important;
+    display: block !important;
     background: #ffffff;
 }
-.attach-drop-panel .webuploader-pick:hover{
+
+.attach-drop-panel .webuploader-pick:hover {
     color: #333;
     border-color: #333;
 }
-.attach-list{
 
-    background:#ffffff;
+.attach-list {
+
+    background: #ffffff;
     font-size: 12px;
 }
-.attach-list .attach-item{
+
+.attach-list .attach-item {
     padding: 8px 10px;
     line-height: 36px;
     border: 1px solid #ddd;
     border-bottom: none;
-    border-top-left-radius:3px;
-    border-top-right-radius:3px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
 }
-.attach-list .attach-item:last-child{
+
+.attach-list .attach-item:last-child {
     border-bottom: 1px solid #ddd;
-    border-bottom-left-radius:3px;
-    border-bottom-right-radius:3px;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
 }
-.attach-list .attach-item .progress{
+
+.attach-list .attach-item .progress {
     margin-top: 10px;
     margin-bottom: 10px;
     height: 10px;
 }
-.attach-list .attach-item .form-control{
+
+.attach-list .attach-item .form-control {
     width: 60%;
     float: left;
 }
 
-.attach-list .attach-item .text{
+.attach-list .attach-item .text {
     display: inline-block;
     padding: 0 15px;
 }
-.attach-list .attach-item .close{
+
+.attach-list .attach-item .close {
     float: right;
     display: inline-block;
     padding: 8px 0;
@@ -285,17 +332,20 @@ body{
     background: #ffffff;
     font-size: 16px;
 }
+
 .attach-list .attach-item .close:hover {
     color: #333;
 }
+
 /***********选择模板时的样式**************/
-.template-list .container{
+.template-list .container {
     margin-top: 60px;
     margin-bottom: 40px;
     padding: 0 15px;
     box-sizing: border-box;
 }
-.template-list .container .section{
+
+.template-list .container .section {
     position: relative;
     margin: 0 15px;
     padding-top: 60px;
@@ -306,12 +356,14 @@ body{
     border: 1px solid #ddddd9;
     text-align: center
 }
-.template-list .container .section>h3 a{
+
+.template-list .container .section>h3 a {
     font-size: 20px;
     font-weight: 200;
     text-decoration: none;
     color: #5d606b
 }
+
 .template-list .container .section>a {
     display: inline-block;
     position: absolute;
@@ -321,6 +373,7 @@ body{
     height: 56px;
     margin-left: -28px
 }
+
 .template-list .container .section>a .fa {
     display: inline-block;
     width: 56px;
@@ -332,6 +385,7 @@ body{
     font-size: 24px;
     color: #ddddd9
 }
+
 .template-list .container .section:hover {
     border-color: #44b035
 }
@@ -345,17 +399,20 @@ body{
     margin-left: -33px;
     top: -33px
 }
+
 .template-list .container .section:hover>a .fa {
     background-color: #78c56d;
     color: #fff;
     border: 0;
     line-height: 54px
 }
+
 .template-list .container .section ul {
     margin-top: 35px;
     padding-left: 0;
     list-style: none
 }
+
 .template-list .container .section ul li {
     margin-bottom: 10px;
     padding: 0 10px;
@@ -364,5 +421,158 @@ body{
 }
 
 
+.markdown-category {
+    width: 280px;
+    position: fixed;
+    border-top: 1px solid #DDDDDD;
+    top: 0;
+    bottom: 0;
+    background-color: #FAFAFA;
+    left: 0;
+    right: 0;
+    padding-bottom: 15px;
+    overflow-y: auto;
+    z-index: 999;
+}
 
+.markdown-category .markdown-nav {
+    font-size: 14px;
+    color: #333333;
+    font-weight: 200;
+    zoom: 1;
+    border-bottom: 1px solid #ddd
+}
 
+.markdown-category .markdown-tree {
+    margin-top: 0;
+    width: 280px;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+}
+
+.markdown-category .editor-status.markdown-tree {
+    bottom: 30px !important;
+}
+
+.markdown-category .markdown-nav .nav-item {
+    font-size: 14px;
+    padding: 0 9px;
+    cursor: pointer;
+    float: left;
+    height: 35px;
+    line-height: 30px;
+    color: #666;
+}
+
+.markdown-category .markdown-nav .nav-plus {
+    color: #999;
+    cursor: pointer;
+    height: 24px;
+    width: 24px;
+    line-height: 24px;
+    display: inline-block;
+    margin-top: 4px
+}
+
+.markdown-category .markdown-nav .nav-plus:hover {
+    color: #333333;
+}
+
+.markdown-category .markdown-nav .nav-item.active {
+    border-bottom: 1px solid #fafafa;
+    margin-bottom: -1px;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.markdown-editor-container {
+    position: absolute;
+    left: 280px;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    border-top: 1px solid #DDDDDD;
+    z-index: 999;
+}
+
+.markdown-editor-container .markdown-editormd {
+    position: absolute;
+    bottom: 30px;
+    top: -1px;
+    left: 0;
+    right: 0;
+}
+
+.markdown-editor-status {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 30px;
+    overflow: hidden;
+    border-left: 1px solid #DDDDDD;
+    color: #555;
+    background-color: #FAFAFA;
+    z-index: 1000;
+    line-height: 30px;
+}
+
+.markdown-editor-status .item {
+    display: inline-block;
+    margin-right: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+iframe.cherry-dialog-iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.manual-article.cherry {
+    height: auto !important;
+}
+
+.manual-article.cherry .cherry-highlight-line {
+    background-color: transparent !important;
+}
+
+.manual-article.cherry-markdown .toc {
+    position: fixed;
+    right: 50px;
+    width: 260px;
+    font-size: 12px;
+    overflow: auto;
+    border: 1px solid #e8e8e8;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+/*@media screen and (min-width: 840px) {*/
+/*    .markdown-article {*/
+/*        margin-right: 200px !important;*/
+/*    }*/
+/*}*/
+
+.markdown-article-head {
+    width: unset !important;
+    padding: unset !important;
+    padding-top: 10px !important;
+}
+
+.markdown-title {
+    padding: unset !important;
+    width: 100% !important;
+}
+
+@media screen and (max-width: 839px) {
+    .toc {
+        display: none !important;
+    }
+}

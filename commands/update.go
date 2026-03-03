@@ -3,15 +3,17 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/mindoc-org/mindoc/models"
 	"io/ioutil"
 	"net/http"
 	"os"
 
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
 )
 
-//检查最新版本.
+// 检查最新版本.
 func CheckUpdate() {
 
 	fmt.Println("MinDoc current version => ", conf.VERSION)
@@ -46,4 +48,24 @@ func CheckUpdate() {
 
 	os.Exit(0)
 
+}
+
+func Update() {
+	fmt.Println("Update...")
+	RegisterDataBase()
+	RegisterModel()
+	err := orm.RunSyncdb("default", false, true)
+	if err == nil {
+		UpdateInitialization()
+	} else {
+		panic(err.Error())
+	}
+	fmt.Println("Update Successfully!")
+	os.Exit(0)
+}
+func UpdateInitialization() {
+	err := models.NewOption().Update()
+	if err != nil {
+		panic(err.Error())
+	}
 }

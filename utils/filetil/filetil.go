@@ -1,21 +1,43 @@
 package filetil
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
-	"io"
-	"fmt"
-	"math"
-	"io/ioutil"
-	"bytes"
 )
 
 //==================================
 //更多文件和目录的操作，使用filepath包和os包
 //==================================
 
-//返回的目录扫描结果
+type FileTypeStrategy interface {
+	GetFilePath(filePath, fileName, ext string) string
+}
+
+type ImageStrategy struct{}
+
+func (i ImageStrategy) GetFilePath(filePath, fileName, ext string) string {
+	return filepath.Join(filePath, "images", fileName+ext)
+}
+
+type VideoStrategy struct{}
+
+func (v VideoStrategy) GetFilePath(filePath, fileName, ext string) string {
+	return filepath.Join(filePath, "videos", fileName+ext)
+}
+
+type DefaultStrategy struct{}
+
+func (d DefaultStrategy) GetFilePath(filePath, fileName, ext string) string {
+	return filepath.Join(filePath, "files", fileName+ext)
+}
+
+// 返回的目录扫描结果
 type FileList struct {
 	IsDir   bool   //是否是目录
 	Path    string //文件路径
@@ -25,10 +47,10 @@ type FileList struct {
 	ModTime int64  //文件修改时间戳
 }
 
-//目录扫描
-//@param			dir			需要扫描的目录
-//@return			fl			文件列表
-//@return			err			错误
+// 目录扫描
+// @param			dir			需要扫描的目录
+// @return			fl			文件列表
+// @return			err			错误
 func ScanFiles(dir string) (fl []FileList, err error) {
 	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err == nil {
@@ -47,7 +69,7 @@ func ScanFiles(dir string) (fl []FileList, err error) {
 	return
 }
 
-//拷贝文件
+// 拷贝文件
 func CopyFile(source string, dst string) (err error) {
 	sourceFile, err := os.Open(source)
 	if err != nil {
@@ -56,16 +78,15 @@ func CopyFile(source string, dst string) (err error) {
 
 	defer sourceFile.Close()
 
-	_,err = os.Stat(filepath.Dir(dst))
+	_, err = os.Stat(filepath.Dir(dst))
 
 	if err != nil {
 		if os.IsNotExist(err) {
-			os.MkdirAll(filepath.Dir(dst),0766)
-		}else{
+			os.MkdirAll(filepath.Dir(dst), 0766)
+		} else {
 			return err
 		}
 	}
-
 
 	destFile, err := os.Create(dst)
 	if err != nil {
@@ -86,7 +107,7 @@ func CopyFile(source string, dst string) (err error) {
 	return
 }
 
-//拷贝目录
+// 拷贝目录
 func CopyDir(source string, dest string) (err error) {
 
 	// get properties of source dir
@@ -107,7 +128,7 @@ func CopyDir(source string, dest string) (err error) {
 
 	for _, obj := range objects {
 
-		sourceFilePointer := filepath.Join(source , obj.Name())
+		sourceFilePointer := filepath.Join(source, obj.Name())
 
 		destinationFilePointer := filepath.Join(dest, obj.Name())
 
@@ -205,15 +226,15 @@ func Round(val float64, places int) float64 {
 	return t
 }
 
-//判断指定目录下是否存在指定后缀的文件
-func HasFileOfExt(path string,exts []string) bool {
+// 判断指定目录下是否存在指定后缀的文件
+func HasFileOfExt(path string, exts []string) bool {
 	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 
 			ext := filepath.Ext(info.Name())
 
-			for _,item := range exts {
-				if strings.EqualFold(ext,item) {
+			for _, item := range exts {
+				if strings.EqualFold(ext, item) {
 					return os.ErrExist
 				}
 			}
@@ -224,6 +245,7 @@ func HasFileOfExt(path string,exts []string) bool {
 
 	return err == os.ErrExist
 }
+
 // IsImageExt 判断是否是图片后缀
 func IsImageExt(filename string) bool {
 	ext := filepath.Ext(filename)
@@ -232,25 +254,37 @@ func IsImageExt(filename string) bool {
 		strings.EqualFold(ext, ".jpeg") ||
 		strings.EqualFold(ext, ".png") ||
 		strings.EqualFold(ext, ".gif") ||
-		strings.EqualFold(ext,".svg") ||
-		strings.EqualFold(ext,".bmp") ||
-		strings.EqualFold(ext,".webp")
+		strings.EqualFold(ext, ".svg") ||
+		strings.EqualFold(ext, ".bmp") ||
+		strings.EqualFold(ext, ".webp")
 }
-//忽略字符串中的BOM头
-func ReadFileAndIgnoreUTF8BOM(filename string) ([]byte,error) {
 
-	data,err := ioutil.ReadFile(filename)
+// IsImageExt 判断是否是视频后缀
+func IsVideoExt(filename string) bool {
+	ext := filepath.Ext(filename)
+
+	return strings.EqualFold(ext, ".mp4") ||
+		strings.EqualFold(ext, ".webm") ||
+		strings.EqualFold(ext, ".ogg") ||
+		strings.EqualFold(ext, ".avi") ||
+		strings.EqualFold(ext, ".flv") ||
+		strings.EqualFold(ext, ".mov")
+}
+
+// 忽略字符串中的BOM头
+func ReadFileAndIgnoreUTF8BOM(filename string) ([]byte, error) {
+
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 	if data == nil {
-		return nil,nil
+		return nil, nil
 	}
-	data = bytes.Replace(data,[]byte("\r"),[]byte(""),-1)
+	data = bytes.Replace(data, []byte("\r"), []byte(""), -1)
 	if len(data) >= 3 && data[0] == 0xef && data[1] == 0xbb && data[2] == 0xbf {
-		return data[3:],err
+		return data[3:], err
 	}
 
-
-	return data,nil
+	return data, nil
 }

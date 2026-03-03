@@ -437,6 +437,85 @@ function uploadImage($id, $callback) {
     });
 }
 
+
+function uploadResource($id, $callback) {
+    locales = {
+        'zh-CN': {
+            unsupportType: '不支持的图片/视频格式',
+            uploadFailed: '图片/视频上传失败'
+        },
+        'en': {
+            unsupportType: 'Unsupport image/video type',
+            uploadFailed: 'Upload image/video failed'
+        }
+    }
+    /** 粘贴上传的资源 **/
+    document.getElementById($id).addEventListener('paste', function (e) {
+        if (e.clipboardData && e.clipboardData.items) {
+            var clipboard = e.clipboardData;
+            for (var i = 0, len = clipboard.items.length; i < len; i++) {
+                if (clipboard.items[i].kind === 'file' || clipboard.items[i].type.indexOf('image') > -1) {
+
+                    var resource = clipboard.items[i].getAsFile();
+
+                    var fileName = String((new Date()).valueOf());
+                    console.log(resource.type)
+                    switch (resource.type) {
+                        case "image/png" :
+                            fileName += ".png";
+                            break;
+                        case "image/jpg" :
+                            fileName += ".jpg";
+                            break;
+                        case "image/jpeg" :
+                            fileName += ".jpeg";
+                            break;
+                        case "image/gif" :
+                            fileName += ".gif";
+                            break;
+                        case "video/mp4":
+                            fileName += ".mp4";
+                            break;
+                        case "video/webm":
+                            fileName += ".webm";
+                            break;
+                        default :
+                            layer.msg(locales[lang].unsupportType);
+                            return;
+                    }
+                    var form = new FormData();
+
+                    form.append('editormd-resource-file', resource, fileName);
+
+                    var layerIndex = 0;
+
+                    $.ajax({
+                        url: window.imageUploadURL,
+                        type: "POST",
+                        dataType: "json",
+                        data: form,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function () {
+                            layerIndex = $callback('before');
+                        },
+                        error: function () {
+                            layer.close(layerIndex);
+                            $callback('error');
+                            layer.msg(locales[lang].uploadFailed);
+                        },
+                        success: function (data) {
+                            layer.close(layerIndex);
+                            $callback('success', data);
+                        }
+                    });
+                    e.preventDefault();
+                }
+            }
+        }
+    });
+}
+
 /**
  * 初始化代码高亮
  */
@@ -447,6 +526,14 @@ function initHighlighting() {
 }
 
 $(function () {
+    locales = {
+        'zh-CN': {
+            attachments: ' 个附件',
+        },
+        'en': {
+            attachments: ' attachments',
+        }
+    }
     window.vueApp = new Vue({
         el: "#attachList",
         data: {
@@ -484,7 +571,7 @@ $(function () {
         },
         watch: {
             lists: function ($lists) {
-                $("#attachInfo").text(" " + $lists.length + " 个附件")
+                $("#attachInfo").text(" " + $lists.length + locales[lang].attachments)
             }
         }
     });

@@ -34,7 +34,7 @@ func (c *BlogController) Prepare() {
 	}
 }
 
-//文章阅读
+// 文章阅读
 func (c *BlogController) Index() {
 	c.Prepare()
 	c.TplName = "blog/index.tpl"
@@ -56,23 +56,14 @@ func (c *BlogController) Index() {
 		if blog.BlogStatus == "password" && password != blog.Password {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.blog_pwd_incorrect"))
 		} else if blog.BlogStatus == "password" && password == blog.Password {
-			// If the password is correct, then determine whether the user is correct
-			if c.Member != nil && (blog.MemberId == c.Member.MemberId || c.Member.IsAdministrator()) {
-				/* Private blog is accessible only to author and administrator.
-				   Anonymous users are not allowed access. */
-				// Store the session value
-				_ = c.CruSession.Set(context.TODO(), blogReadSession, blogId)
-				c.JsonResult(0, "OK")
-			} else {
-				c.JsonResult(6002, i18n.Tr(c.Lang, "blog.private_blog_tips"))
-			}
+			// Store the session value for the next GET request.
+			_ = c.CruSession.Set(context.TODO(), blogReadSession, blogId)
+			c.JsonResult(0, "OK")
 		} else {
 			c.JsonResult(0, "OK")
 		}
-	} else if blog.BlogStatus == "password" &&
-		(c.CruSession.Get(context.TODO(), blogReadSession) == nil || // Read session doesn't exist
-			c.Member == nil || // Anonymous, Not Allow
-			(blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) { // User isn't author or administrator
+	} else if blog.BlogStatus == "password" && c.CruSession.Get(context.TODO(), blogReadSession) == nil && // Read session doesn't exist
+		(c.Member == nil || (blog.MemberId != c.Member.MemberId && !c.Member.IsAdministrator())) { // User isn't author or administrator
 		//如果不存在已输入密码的标记
 		c.TplName = "blog/index_password.tpl"
 	}
@@ -98,7 +89,7 @@ func (c *BlogController) Index() {
 	}
 }
 
-//文章列表
+// 文章列表
 func (c *BlogController) List() {
 	c.Prepare()
 	c.TplName = "blog/list.tpl"
@@ -130,14 +121,14 @@ func (c *BlogController) List() {
 	c.Data["Lists"] = blogList
 }
 
-//管理后台文章列表
+// 管理后台文章列表
 func (c *BlogController) ManageList() {
 	c.Prepare()
 	c.TplName = "blog/manage_list.tpl"
 
 	pageIndex, _ := c.GetInt("page", 1)
 
-	blogList, totalCount, err := models.NewBlog().FindToPager(pageIndex, conf.PageSize, c.Member.MemberId, "")
+	blogList, totalCount, err := models.NewBlog().FindToPager(pageIndex, conf.PageSize, c.Member.MemberId, "all")
 
 	if err != nil {
 		c.ShowErrorPage(500, err.Error())
@@ -153,7 +144,7 @@ func (c *BlogController) ManageList() {
 
 }
 
-//文章设置
+// 文章设置
 func (c *BlogController) ManageSetting() {
 	c.Prepare()
 	c.TplName = "blog/manage_setting.tpl"
@@ -171,13 +162,16 @@ func (c *BlogController) ManageSetting() {
 		bookIdentify := strings.TrimSpace(c.GetString("bookIdentify"))
 		documentId := 0
 
+		if c.Member.Role == conf.MemberReaderRole {
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+		}
 		if blogTitle == "" {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.blog_title_empty"))
 		}
 		if strings.Count(blogExcerpt, "") > 500 {
 			c.JsonResult(6008, i18n.Tr(c.Lang, "message.blog_digest_tips"))
 		}
-		if blogStatus != "public" && blogStatus != "password" && blogStatus != "draft" {
+		if blogStatus != "private" && blogStatus != "public" && blogStatus != "password" && blogStatus != "draft" {
 			blogStatus = "public"
 		}
 		if blogStatus == "password" && blogPassword == "" {
@@ -290,10 +284,14 @@ func (c *BlogController) ManageSetting() {
 	}
 }
 
-//文章创建或编辑
+// 文章创建或编辑
 func (c *BlogController) ManageEdit() {
 	c.Prepare()
 	c.TplName = "blog/manage_edit.tpl"
+
+	if c.Member.Role == conf.MemberReaderRole {
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+	}
 
 	if c.Ctx.Input.IsPost() {
 		blogId, _ := c.GetInt("blogId", 0)
@@ -403,7 +401,7 @@ func (c *BlogController) ManageEdit() {
 	c.Data["Model"] = blog
 }
 
-//删除文章
+// 删除文章
 func (c *BlogController) ManageDelete() {
 	c.Prepare()
 	blogId, _ := c.GetInt("blog_id", 0)
@@ -624,7 +622,7 @@ func (c *BlogController) RemoveAttachment() {
 	c.JsonResult(0, "ok", attach)
 }
 
-//下载附件
+// 下载附件
 func (c *BlogController) Download() {
 	c.Prepare()
 

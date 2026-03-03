@@ -45,6 +45,15 @@
                             <textarea rows="3" class="form-control" name="site_description" style="height: 90px" placeholder="{{i18n .Lang "mgr.site_desc"}}">{{.site_description}}</textarea>
                             <p class="text">{{i18n .Lang "mgr.site_desc_tips"}}</p>
                         </div>
+                        <div class="form-group">
+                            <label>{{i18n .Lang "mgr.language"}}</label>
+                            <select name="language" class="form-control">
+                                {{$curLang := .Lang}}
+                                {{range $langKey, $langName := .i18n_map }}
+                                    <option value="{{$langKey}}" {{if eq $langKey $curLang}}selected{{end}}>{{$langName}}</option>
+                                {{end}}
+                            </select>
+                        </div>
                             <div class="form-group">
                                 <label>{{i18n .Lang "mgr.enable_anonymous_access"}}</label>
                                 <div class="radio">
@@ -123,6 +132,7 @@
             },success : function (res) {
                 if(res.errcode === 0) {
                     showSuccess({{i18n .Lang "message.success"}})
+                    window.location.reload()
                 }else{
                     showError(res.message);
                 }

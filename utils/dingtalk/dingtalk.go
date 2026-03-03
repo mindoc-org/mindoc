@@ -62,7 +62,7 @@ func (d *DingTalkAgent) GetUserIDByCode(code string) (string, error) {
 
 	errcode := rdata["errcode"].(float64)
 	if errcode != 0 {
-		return "", errors.New(fmt.Sprintf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string)))
+		return "", fmt.Errorf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string))
 	}
 
 	userid := rdata["userid"].(string)
@@ -100,7 +100,7 @@ func (d *DingTalkAgent) GetUserNameAndAvatarByUserID(userid string) (string, str
 
 	errcode := rdata["errcode"].(float64)
 	if errcode != 0 {
-		return "", "", errors.New(fmt.Sprintf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string)))
+		return "", "", fmt.Errorf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string))
 	}
 
 	userinfo := rdata["result"].(map[string]interface{})
@@ -138,7 +138,7 @@ func (d *DingTalkAgent) GetUserIDByUnionID(unionid string) (string, error) {
 
 	errcode := rdata["errcode"].(float64)
 	if errcode != 0 {
-		return "", errors.New(fmt.Sprintf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string)))
+		return "", fmt.Errorf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string))
 	}
 
 	result := rdata["result"].(map[string]interface{})
@@ -224,7 +224,7 @@ func (d *DingtalkQRLogin) GetUnionIDByCode(code string) (userid string, err erro
 	}
 	errcode := rdata["errcode"].(float64)
 	if errcode != 0 {
-		return "", errors.New(fmt.Sprintf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string)))
+		return "", fmt.Errorf("登录错误: %.0f, %s", errcode, rdata["errmsg"].(string))
 	}
 	unionid := rdata["user_info"].(map[string]interface{})["unionid"].(string)
 	return unionid, nil

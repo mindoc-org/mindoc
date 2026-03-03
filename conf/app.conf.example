@@ -22,6 +22,8 @@ highlight_style="${MINDOC_HIGHLIGHT_STYLE||github}"
 #大于0时系统会自动检测配置文件是否变动，变动后自动加载并生效,单位是秒。监听端口和数据库配置无效
 config_auto_delay="${MINDOC_CONFIG_AUTO_DELAY||20}"
 
+#发布pdf时候的默认发布者（项目填写了公司名称以公司名称为准）
+publisher_def =
 
 ########Session储存方式##############
 
@@ -50,16 +52,20 @@ sessiongcmaxlifetime="${MINDOC_SESSION_MAX_LIFETIME||3600}"
 #时区设置
 timezone = Asia/Shanghai
 
-
-
 ####################MySQL 数据库配置###########################
-#支持MySQL和sqlite3两种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
+#支持MySQL，sqlite3，postgres三种数据库，如果是sqlite3 则 db_database 标识数据库的物理目录
 db_adapter="${MINDOC_DB_ADAPTER||sqlite3}"
 db_host="${MINDOC_DB_HOST||127.0.0.1}"
 db_port="${MINDOC_DB_PORT||3306}"
 db_database="${MINDOC_DB_DATABASE||./database/mindoc.db}"
 db_username="${MINDOC_DB_USERNAME||root}"
 db_password="${MINDOC_DB_PASSWORD||123456}"
+#是否使用SSL，支持posgres，可选的值有：
+#disable - No SSL
+#require - Always SSL (skip verification)
+#verify-ca - Always SSL (verify that the certificate presented by the server was signed by a trusted CA)
+#verify-full - Always SSL (verify that the certification presented by the server was signed by a trusted CA and the server host name matches the one in the certificate)
+db_sslmode="${MINDOC_DB_SSLMODE||disable}"
 
 ####################sqlite3 数据库配置###########################
 #db_adapter=sqlite3
@@ -75,9 +81,11 @@ avatar=/static/images/headimgurl.jpg
 token_size=12
 
 #上传文件的后缀,如果不限制后缀可以设置为 *
-upload_file_ext=txt|doc|docx|xls|xlsx|ppt|pptx|pdf|7z|rar|jpg|jpeg|png|gif
+upload_file_ext=txt|doc|docx|xls|xlsx|ppt|pptx|pdf|7z|rar|jpg|jpeg|png|gif|mp4|webm|avi
 
-#上传的文件大小限制,如果不填写,默认不限制，单位可以是 GB KB MB
+#上传的文件大小限制
+# - 如果不填写, 则默认1GB，如果希望超过1GB，必须带单位
+# - 如果填写，单位可以是 TB、GB、MB、KB，不带单位表示字节
 upload_file_size=10MB
 
 ####################邮件配置######################
@@ -119,25 +127,27 @@ baidumapkey=
 
 ################Active Directory/LDAP################
 #是否启用ldap
-ldap_enable=false
+ldap_enable=${MINDOC_LDAP_ENABLE||false}
+#ldap协议(ldap/ldaps)
+ldap_scheme="${MINDOC_LDAP_SCHEME||ldap}"
 #ldap主机名
-ldap_host=ad.example.com
+ldap_host="${MINDOC_LDAP_HOST||127.0.0.1}"
 #ldap端口
-ldap_port=3268
+ldap_port=${MINDOC_LDAP_PORT||389}
 #ldap内哪个属性作为用户名
-ldap_account=sAMAccountName
+ldap_account="${MINDOC_LDAP_ACCOUNT||sAMAccountName}"
 #ldap内哪个属性作为邮箱
-ldap_mail=mail
+ldap_mail="${MINDOC_LDAP_MAIL||mail}"
 #搜索范围
-ldap_base=DC=example,DC=com
+ldap_base="${MINDOC_LDAP_BASE||dc=example,dc=com}"
 #第一次绑定ldap用户dn
-ldap_user=CN=ldap helper,OU=example.com,DC=example,DC=com
+ldap_user="${MINDOC_LDAP_USER||cn=ldap helper,ou=example.com,dc=example,dc=com}"
 #第一次绑定ldap用户密码
-ldap_password=superSecret
-#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户
-ldap_user_role=2
+ldap_password="${MINDOC_LDAP_PASSWORD||xxx}"
+#自动注册用户角色：0 超级管理员 /1 管理员/ 2 普通用户/ 3 只读用户
+ldap_user_role=${MINDOC_LDAP_USER_ROLE||2}
 #ldap搜索filter规则,AD服务器: objectClass=User, openldap服务器: objectClass=posixAccount ,也可以定义为其他属性,如: title=mindoc
-ldap_filter=objectClass=posixAccount
+ldap_filter="${MINDOC_LDAP_FILTER||objectClass=posixAccount}"
 
 ############# HTTP自定义接口登录 ################
 http_login_url=
@@ -224,15 +234,6 @@ dingtalk_app_key="${MINDOC_DINGTALK_APPKEY}"
 # 钉钉AppSecret
 dingtalk_app_secret="${MINDOC_DINGTALK_APPSECRET}"
 
-# 钉钉登录默认只读账号
-dingtalk_tmp_reader="${MINDOC_DINGTALK_READER}"
-
-# 钉钉扫码登录Key
-dingtalk_qr_key="${MINDOC_DINGTALK_QRKEY}"
-
-# 钉钉扫码登录Secret
-dingtalk_qr_secret="${MINDOC_DINGTALK_QRSECRET}"
-
 ########企业微信登录配置##############
 
 # 企业ID
@@ -244,8 +245,10 @@ workweixin_agentid="${MINDOC_WORKWEIXIN_AGENTID}"
 # 应用密钥
 workweixin_secret="${MINDOC_WORKWEIXIN_SECRET}"
 
-# 通讯录密钥
-workweixin_contact_secret="${MINDOC_WORKWEIXIN_CONTACT_SECRET}"
-
 # i18n config
+i18n_list=zh-cn:简体中文|en-us:English|ru-ru:Русский
 default_lang="zh-cn"
+
+# MCP Server 功能
+enable_mcp_server="${MINDOC_ENABLE_MCP_SERVER||false}"
+mcp_api_key="${MINDOC_MCP_API_KEY||demo-mcp-api-key}"

@@ -71,6 +71,7 @@ type BookResult struct {
 	IsDisplayComment bool   `json:"is_display_comment"`
 	IsDownload       bool   `json:"is_download"`
 	AutoSave         bool   `json:"auto_save"`
+	PrintState       bool   `json:"print_state"`
 	Lang             string
 }
 
@@ -176,16 +177,16 @@ func (m *BookResult) FindToPager(pageIndex, pageSize int) (books []*BookResult, 
 		FROM md_books AS book
 			LEFT JOIN md_relationship AS rel ON rel.book_id = book.book_id AND rel.role_id = 0
 			LEFT JOIN md_members AS m ON rel.member_id = m.member_id
-		ORDER BY book.order_index DESC ,book.book_id DESC  LIMIT ?,?`
+		ORDER BY book.order_index DESC ,book.book_id DESC  limit ? offset ?`
 
 	offset := (pageIndex - 1) * pageSize
 
-	_, err = o.Raw(sql, offset, pageSize).QueryRows(&books)
+	_, err = o.Raw(sql, pageSize, offset).QueryRows(&books)
 
 	return
 }
 
-//实体转换
+// 实体转换
 func (m *BookResult) ToBookResult(book Book) *BookResult {
 
 	m.BookId = book.BookId
@@ -213,7 +214,9 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	m.HistoryCount = book.HistoryCount
 	m.IsDownload = book.IsDownload == 0
 	m.AutoSave = book.AutoSave == 1
+	m.PrintState = book.PrintSate == 1
 	m.ItemId = book.ItemId
+	m.RoleId = conf.BookRoleNoSpecific
 
 	if book.Theme == "" {
 		m.Theme = "default"
@@ -249,12 +252,13 @@ func (m *BookResult) ToBookResult(book Book) *BookResult {
 	} else if m.CommentStatus == "group_only" {
 		// todo
 	} else {
-		m.IsDisplayComment = false;
+		m.IsDisplayComment = false
 	}
+
 	return m
 }
 
-//后台转换
+// 后台转换
 func BackgroundConvert(sessionId string, bookResult *BookResult) error {
 
 	if err := converter.CheckConvertCommand(); err != nil {
@@ -274,7 +278,7 @@ func BackgroundConvert(sessionId string, bookResult *BookResult) error {
 	return nil
 }
 
-//导出PDF、word等格式
+// 导出PDF、word等格式
 func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 
 	convertBookResult := ConvertBookResult{}
@@ -369,8 +373,12 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 		Toc:          tocList,
 		More:         []string{},
 	}
+
 	if m.Publisher != "" {
 		ebookConfig.Footer = "<p style='color:#8E8E8E;font-size:12px;'>本文档由 <span style='text-decoration:none;color:#1abc9c;font-weight:bold;'>" + m.Publisher + "</span> 生成<span style='float:right'>- _PAGENUM_ -</span></p>"
+	} else if web.AppConfig.DefaultString("publisher_def", "") != "" {
+		defPub := web.AppConfig.DefaultString("publisher_def", "")
+		ebookConfig.Footer = "<p style='color:#8E8E8E;font-size:12px;'>本文档由 <span style='text-decoration:none;color:#1abc9c;font-weight:bold;'>" + defPub + "</span> 生成<span style='float:right'>- _PAGENUM_ -</span></p>"
 	}
 	if m.RealName != "" {
 		ebookConfig.Creator = m.RealName
@@ -521,7 +529,7 @@ func (m *BookResult) Converter(sessionId string) (ConvertBookResult, error) {
 	return convertBookResult, nil
 }
 
-//导出Markdown原始文件
+// 导出Markdown原始文件
 func (m *BookResult) ExportMarkdown(sessionId string) (string, error) {
 	outputPath := filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(m.BookId), "book.zip")
 
@@ -546,7 +554,7 @@ func (m *BookResult) ExportMarkdown(sessionId string) (string, error) {
 	return outputPath, nil
 }
 
-//递归导出Markdown文档
+// 递归导出Markdown文档
 func exportMarkdown(p string, parentId int, bookId int, baseDir string, bookUrl string) error {
 	o := orm.NewOrm()
 
@@ -709,7 +717,7 @@ func recursiveJoinDocumentIdentify(parentDocId int, identify string) string {
 	return identify
 }
 
-//查询项目的第一篇文档
+// 查询项目的第一篇文档
 func (m *BookResult) FindFirstDocumentByBookId(bookId int) (*Document, error) {
 
 	o := orm.NewOrm()

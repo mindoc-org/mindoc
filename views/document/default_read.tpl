@@ -25,6 +25,7 @@
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
+    <link href="{{cdncss "/static/prismjs/prismjs.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
@@ -34,7 +35,7 @@
         window.IS_DOCUMENT_INDEX = '{{if .IS_DOCUMENT_INDEX}}true{{end}}' === 'true';
         window.IS_DISPLAY_COMMENT = '{{if .Model.IsDisplayComment}}true{{end}}' === 'true';
     </script>
-    <script type="text/javascript">window.book={"identify":"{{.Model.Identify}}"};</script>
+    <script type="text/javascript">window.book={"identify": '{{.Model.Identify}}'};</script>
     <style>
         .btn-mobile {
             position: absolute;
@@ -50,6 +51,15 @@
             .btn-mobile{
                 display: none;
             }
+        }
+
+        .svg {
+            display: inline-block;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            vertical-align: middle;
+            overflow: auto;
         }
     </style>
 </head>
@@ -78,7 +88,9 @@
                 </div>
                 {{end}}
                 {{end}}
+                {{if .Model.PrintState}}
                 <a href="javascript:window.print();" id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> {{i18n .Lang "doc.print"}}</a>
+                {{end}}
                 <div class="dropdown pull-right" style="margin-right: 10px;">
                 {{if eq .Model.PrivatelyOwned 0}}
                 {{if .Model.IsEnableShare}}
@@ -298,6 +310,8 @@
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/js/clipboard.min.js" "version"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/prismjs/prismjs.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
@@ -315,39 +329,39 @@ $(function () {
     });
 
     window.menuControl = true;
-    window.menuSetting = "open" ;
-    if (menuSetting == 'open' || menuSetting == 'first') {
+    window.foldSetting = '{{.FoldSetting}}';
+    if (foldSetting == 'open' || foldSetting == 'first') {
         $('#handlerMenuShow').find('span').text('{{i18n .Lang "doc.fold"}}');
         $('#handlerMenuShow').find('i').attr("class","fa fa-angle-down");
-        if (menuSetting == 'open') {
-            window.jsTree.jstree().open_all()
+        if (foldSetting == 'open') {
+            window.jsTree.jstree().open_all();
         }
-        if (menuSetting == 'first') {
-            window.jsTree.jstree('close_all')
+        if (foldSetting == 'first') {
+            window.jsTree.jstree('close_all');
             var $target = $('.jstree-container-ul').children('li').filter(function(index){
                 if($(this).attr('aria-expanded')==false||$(this).attr('aria-expanded')){
-                    return $(this)
+                    return $(this);
                 }else{
-                    delete $(this)
+                    delete $(this);
                 }
-            })
-            $target.children('i').trigger('click')
+            });
+            $target.children('i').trigger('click');
         }
     } else {
         menuControl = false;
-        window.jsTree.jstree('close_all')
+        window.jsTree.jstree('close_all');
     }
     $('#handlerMenuShow').on('click', function(){
         if(menuControl){
-            $(this).find('span').text('{{i18n .Lang "doc.expand"}}')
-            $(this).find('i').attr("class","fa fa-angle-left")
-            window.menuControl = false
-            window.jsTree.jstree('close_all')
+            $(this).find('span').text('{{i18n .Lang "doc.expand"}}');
+            $(this).find('i').attr("class","fa fa-angle-left");
+            window.menuControl = false;
+            window.jsTree.jstree('close_all');
         }else{
             window.menuControl = true
-            $(this).find('span').text('{{i18n .Lang "doc.fold"}}')
-            $(this).find('i').attr("class","fa fa-angle-down")
-            window.jsTree.jstree().open_all()
+            $(this).find('span').text('{{i18n .Lang "doc.fold"}}');
+            $(this).find('i').attr("class","fa fa-angle-down");
+            window.jsTree.jstree().open_all();
         }
     });
 

@@ -8,7 +8,7 @@ import (
 	"github.com/mindoc-org/mindoc/conf"
 )
 
-//Comment struct
+// Comment struct
 type Comment struct {
 	CommentId int `orm:"pk;auto;unique;column(comment_id)" json:"comment_id"`
 	Floor     int `orm:"column(floor);type(unsigned);default(0)" json:"floor"`
@@ -30,11 +30,12 @@ type Comment struct {
 	// UserAgent 评论者浏览器内容
 	UserAgent string `orm:"column(user_agent);size(500)" json:"user_agent"`
 	// Parent 评论所属父级
-	ParentId     int `orm:"column(parent_id);type(int);default(0)" json:"parent_id"`
-	AgreeCount   int `orm:"column(agree_count);type(int);default(0)" json:"agree_count"`
-	AgainstCount int `orm:"column(against_count);type(int);default(0)" json:"against_count"`
-	Index        int `orm:"-" json:"index"`
-	ShowDel      int `orm:"-" json:"show_del"`
+	ParentId     int    `orm:"column(parent_id);type(int);default(0)" json:"parent_id"`
+	AgreeCount   int    `orm:"column(agree_count);type(int);default(0)" json:"agree_count"`
+	AgainstCount int    `orm:"column(against_count);type(int);default(0)" json:"against_count"`
+	Index        int    `orm:"-" json:"index"`
+	ShowDel      int    `orm:"-" json:"show_del"`
+	Avatar       string `orm:"-" json:"avatar"`
 }
 
 // TableName 获取对应数据库表名.
@@ -90,6 +91,7 @@ func (m *Comment) QueryCommentByDocumentId(doc_id, page, pagesize int, member *M
 		comments[i].Index = (i + 1) + (page-1)*pagesize
 		if member != nil && comments[i].CanDelete(member.MemberId, bookRole) {
 			comments[i].ShowDel = 1
+			comments[i].Avatar = member.Avatar
 		}
 	}
 	return
@@ -103,7 +105,7 @@ func (m *Comment) Update(cols ...string) error {
 	return err
 }
 
-//Insert 添加一条评论.
+// Insert 添加一条评论.
 func (m *Comment) Insert() error {
 	if m.DocumentId <= 0 {
 		return errors.New("评论文档不存在")

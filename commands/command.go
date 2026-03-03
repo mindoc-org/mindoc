@@ -20,12 +20,12 @@ import (
 	beegoCache "github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/memcache"
 	"github.com/beego/beego/v2/client/cache/redis"
-	_ "github.com/beego/beego/v2/client/cache/redis"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
 	"github.com/beego/i18n"
 	"github.com/howeyc/fsnotify"
+	_ "github.com/lib/pq"
 	"github.com/lifei6671/gocaptcha"
 	"github.com/mindoc-org/mindoc/cache"
 	"github.com/mindoc-org/mindoc/conf"
@@ -84,6 +84,30 @@ func RegisterDataBase() {
 		if err != nil {
 			logs.Error("注册默认数据库失败->", err)
 		}
+	} else if strings.EqualFold(dbadapter, "postgres") {
+		host, _ := web.AppConfig.String("db_host")
+		database, _ := web.AppConfig.String("db_database")
+		username, _ := web.AppConfig.String("db_username")
+		password, _ := web.AppConfig.String("db_password")
+		sslmode, _ := web.AppConfig.String("db_sslmode")
+
+		timezone, _ := web.AppConfig.String("timezone")
+		location, err := time.LoadLocation(timezone)
+		if err == nil {
+			orm.DefaultTimeLoc = location
+		} else {
+			logs.Error("加载时区配置信息失败,请检查是否存在 ZONEINFO 环境变量->", err)
+		}
+
+		port, _ := web.AppConfig.String("db_port")
+
+		dataSource := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", username, password, host, port, database, sslmode)
+
+		if err := orm.RegisterDataBase("default", "postgres", dataSource); err != nil {
+			logs.Error("注册默认数据库失败->", err)
+			os.Exit(1)
+		}
+
 	} else {
 		logs.Error("不支持的数据库类型.")
 		os.Exit(1)
@@ -111,18 +135,25 @@ func RegisterModel() {
 		new(models.TeamMember),
 		new(models.TeamRelationship),
 		new(models.Itemsets),
-    new(models.Comment),
-    new(models.WorkWeixinAccount),
+		new(models.Comment),
+		new(models.WorkWeixinAccount),
+		new(models.DingTalkAccount),
 	)
 	gob.Register(models.Blog{})
 	gob.Register(models.Document{})
 	gob.Register(models.Template{})
 	//migrate.RegisterMigration()
+	err := orm.RunSyncdb("default", false, true)
+	if err != nil {
+		logs.Error("注册Model失败 ->", err)
+		os.Exit(1)
+	}
 }
 
 // RegisterLogger 注册日志
 func RegisterLogger(log string) {
 
+	logs.Reset()
 	logs.SetLogFuncCall(true)
 	_ = logs.SetLogger("console")
 	logs.EnableFuncCallDepth(true)
@@ -203,11 +234,14 @@ func RegisterCommand() {
 	} else if len(os.Args) >= 2 && os.Args[1] == "version" {
 		CheckUpdate()
 		os.Exit(0)
+	} else if len(os.Args) >= 2 && os.Args[1] == "update" {
+		Update()
+		os.Exit(0)
 	}
 
 }
 
-//注册模板函数
+// 注册模板函数
 func RegisterFunction() {
 	err := web.AddFuncMap("config", models.GetOptionValue)
 
@@ -285,16 +319,46 @@ func RegisterFunction() {
 		logs.Error("注册函数 i18n 出错 ->", err)
 		os.Exit(-1)
 	}
-	langs := strings.Split("en-us|zh-cn", "|")
-	for _, lang := range langs {
+
+	i18nList, err := web.AppConfig.String("i18n_list")
+	if err != nil {
+		logs.Error("error : failed to read i18n_list config ->", err)
+		i18nList = ""
+	}
+	if i18nList == "" { // 之所以分开判断是因为读取出的配置也可能是空串
+		logs.Error("error : config `i18n_list` is empty, please add config item like format: `i18n_list=zh-CN:简体中文|en-US:English`")
+		i18nList = "zh-cn:简体中文|en-us:English|ru-ru:Русский" // 没有配置时给个默认配置，避免啥语言都没有
+	}
+
+	langs := strings.Split(i18nList, "|")
+	i18nMap := make(map[string]string)
+	for _, langItem := range langs {
+		langItemSplit := strings.Split(langItem, ":")
+		if len(langItemSplit) < 2 {
+			logs.Error("error: language config value `" + langItem + "` for `i18n_list` format error")
+			continue
+		}
+		lang := langItemSplit[0]
+		i18nMap[lang] = langItemSplit[1]
 		if err := i18n.SetMessage(lang, "conf/lang/"+lang+".ini"); err != nil {
 			logs.Error("Fail to set message file: " + err.Error())
 			return
 		}
 	}
+
+	i18nMapBytes, err := json.Marshal(i18nMap)
+	if err != nil {
+		logs.Error("error: Fail to marshal i18n map, " + err.Error())
+		i18nMapBytes = []byte("{}")
+	}
+
+	err = web.AppConfig.Set("i18n_map", string(i18nMapBytes))
+	if err != nil {
+		logs.Error("error: Fail to set i18n_map, " + err.Error())
+	}
 }
 
-//解析命令
+// 解析命令
 func ResolveCommand(args []string) {
 	flagSet := flag.NewFlagSet("MinDoc command: ", flag.ExitOnError)
 	flagSet.StringVar(&conf.ConfigurationFile, "config", "", "MinDoc configuration file.")
@@ -343,6 +407,10 @@ func ResolveCommand(args []string) {
 	web.BConfig.WebConfig.StaticDir["/uploads"] = uploads
 	web.BConfig.WebConfig.ViewsPath = conf.WorkingDir("views")
 	web.BConfig.WebConfig.Session.SessionCookieSameSite = http.SameSiteDefaultMode
+	var upload_file_size = conf.GetUploadFileSize()
+	if upload_file_size > web.BConfig.MaxUploadSize {
+		web.BConfig.MaxUploadSize = upload_file_size
+	}
 
 	fonts := conf.WorkingDir("static", "fonts")
 
@@ -362,7 +430,7 @@ func ResolveCommand(args []string) {
 
 }
 
-//注册缓存管道
+// 注册缓存管道
 func RegisterCache() {
 	isOpenCache := web.AppConfig.DefaultBool("cache", false)
 	if !isOpenCache {
@@ -461,7 +529,7 @@ func RegisterCache() {
 	logs.Info("缓存初始化完成.")
 }
 
-//自动加载配置文件.修改了监听端口号和数据库配置无法自动生效.
+// 自动加载配置文件.修改了监听端口号和数据库配置无法自动生效.
 func RegisterAutoLoadConfig() {
 	if conf.AutoLoadDelay > 0 {
 
@@ -502,7 +570,7 @@ func RegisterAutoLoadConfig() {
 	}
 }
 
-//注册错误处理方法.
+// 注册错误处理方法.
 func RegisterError() {
 	web.ErrorHandler("404", func(writer http.ResponseWriter, request *http.Request) {
 		var buf bytes.Buffer

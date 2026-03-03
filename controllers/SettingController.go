@@ -79,6 +79,9 @@ func (c *SettingController) Password() {
 			c.JsonResult(6007, i18n.Tr(c.Lang, "message.pwd_encrypt_failed"))
 		}
 		c.Member.Password = pwd
+		if c.Member.AuthMethod == "" {
+			c.Member.AuthMethod = "local"
+		}
 		if err := c.Member.Update(); err != nil {
 			c.JsonResult(6008, err.Error())
 		}

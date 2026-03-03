@@ -37,8 +37,10 @@
                     <div class="box-head">
                         <strong class="box-title">{{i18n $.Lang "blog.project_list"}}</strong>
                         &nbsp;
+                        {{if eq .Member.Role 0 1 2 }}
                         <button type="button" data-toggle="modal" data-target="#addBookDialogModal" class="btn btn-success btn-sm pull-right">{{i18n $.Lang "blog.add_project"}}</button>
                         <button type="button" data-toggle="modal" data-target="#importBookDialogModal" class="btn btn-primary btn-sm pull-right" style="margin-right: 5px;">{{i18n $.Lang "blog.import_project"}}</button>
+                        {{end}}
                     </div>
                 </div>
                 <div class="box-body" id="bookList">
@@ -176,6 +178,25 @@
                             <div class="col-lg-8">
                                 <label>
                                     <input type="radio" name="privately_owned" value="1"> {{i18n $.Lang "blog.private"}}<span class="text">{{i18n $.Lang "message.project_private_desc"}}</span>
+                                </label>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <!--选择编辑器模式-->
+                        <div class="form-group">
+                            <label>{{i18n $.Lang "blog.text_editor"}}</label>
+                            <div class="col-lg-20">
+                                <label class="radio-inline">
+                                    <input type="radio" name="editor" value="markdown"> Markdown
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="editor" checked value="cherry_markdown"> Markdown (cherry)
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="editor" value="new_html"> Html (Quill)
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="editor" value="html"> Html (wangEditor)
                                 </label>
                             </div>
                             <div class="clearfix"></div>

@@ -2,7 +2,7 @@
 *.o
 *.a
 *.so
-
+.DS_Store
 # Folders
 _obj
 _test
@@ -24,7 +24,7 @@ _testmain.go
 mindoc
 mindoc_linux_amd64
 mindoc_linux_musl_amd64
-database
+database/mindoc.db
 *.test
 *.prof
 .idea
@@ -32,3 +32,6 @@ database
 /conf/app.conf
 /vendor
 /runtime
+/uploads/*.*
+!/uploads/.gitkeep
+calibre-*.txz

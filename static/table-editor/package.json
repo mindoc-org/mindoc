@@ -1,0 +1,28 @@
+{
+  "name": "mte",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build:release": "cross-env NODE_ENV=production webpack",
+    "build:debug": "cross-env NODE_ENV=development webpack",
+    "build": "npm run build:release",
+    "clean": "rimraf build"
+  },
+  "dependencies": {
+    "@susisu/mte-kernel": "^1.0.0",
+    "codemirror": "^5.31.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "cpx": "^1.5.0",
+    "cross-env": "^5.1.1",
+    "eslint": "^4.11.0",
+    "npm-run-all": "^4.1.2",
+    "rimraf": "^2.6.2",
+    "uglifyjs-webpack-plugin": "^1.1.0",
+    "webpack": "^3.8.1"
+  }
+}

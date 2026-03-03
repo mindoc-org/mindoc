@@ -3,11 +3,13 @@ package models
 
 import (
 	"crypto/md5"
+	"crypto/tls"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -27,6 +29,8 @@ import (
 	"github.com/mindoc-org/mindoc/utils"
 )
 
+var LdapDefaultTimeout = 8 * time.Second
+
 type Member struct {
 	MemberId int    `orm:"pk;auto;unique;column(member_id)" json:"member_id"`
 	Account  string `orm:"size(100);unique;column(account);description(登录名)" json:"account"`
@@ -38,8 +42,8 @@ type Member struct {
 	Email       string `orm:"size(100);column(email);unique;description(邮箱)" json:"email"`
 	Phone       string `orm:"size(255);column(phone);null;default(null);description(手机)" json:"phone"`
 	Avatar      string `orm:"size(1000);column(avatar);description(头像)" json:"avatar"`
-	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户 .
-	Role          conf.SystemRole `orm:"column(role);type(int);default(1);index;description(用户角色： 0：超级管理员 1：管理员 2：普通用户)" json:"role"`
+	//用户角色：0 超级管理员 /1 管理员/ 2 普通用户/ 3 只读用户 .
+	Role          conf.SystemRole `orm:"column(role);type(int);default(1);index;description(用户角色： 0：超级管理员 1：管理员 2：普通用户 3：只读用户)" json:"role"`
 	RoleName      string          `orm:"-" json:"role_name"`
 	Status        int             `orm:"column(status);type(int);default(0);description(状态  0：启用 1：禁用)" json:"status"` //用户状态：0 正常/1 禁用
 	CreateTime    time.Time       `orm:"type(datetime);column(create_time);auto_now_add;description(创建时间)" json:"create_time"`
@@ -90,7 +94,6 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 	}
 
 	switch member.AuthMethod {
-	case "":
 	case "local":
 		ok, err := utils.PasswordVerify(member.Password, password)
 		if ok && err == nil {
@@ -109,15 +112,15 @@ func (m *Member) Login(account string, password string) (*Member, error) {
 }
 
 // TmpLogin 用于钉钉临时登录
-func (m *Member) TmpLogin(account string) (*Member, error) {
-	o := orm.NewOrm()
-	member := &Member{}
-	err := o.Raw("select * from md_members where account = ? and status = 0 limit 1;", account).QueryRow(member)
-	if err != nil {
-		return member, ErrorMemberPasswordError
-	}
-	return member, nil
-}
+//func (m *Member) TmpLogin(account string) (*Member, error) {
+//	o := orm.NewOrm()
+//	member := &Member{}
+//	err := o.Raw("select * from md_members where account = ? and status = 0 limit 1;", account).QueryRow(member)
+//	if err != nil {
+//		return member, ErrorMemberPasswordError
+//	}
+//	return member, nil
+//}
 
 // ldapLogin 通过LDAP登陆
 func (m *Member) ldapLogin(account string, password string) (*Member, error) {
@@ -125,8 +128,18 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		return m, ErrMemberAuthMethodInvalid
 	}
 	var err error
-	ldaphost, _ := web.AppConfig.String("ldap_host")
-	lc, err := ldap.DialURL(fmt.Sprintf("ldap://%s:%d", ldaphost, web.AppConfig.DefaultInt("ldap_port", 3268)))
+	var ldapOpt ldap.DialOpt
+	ldap_scheme := web.AppConfig.DefaultString("ldap_scheme", "ldap")
+	dialer := net.Dialer{Timeout: LdapDefaultTimeout}
+	if ldap_scheme == "ldaps" {
+		ldapOpt = ldap.DialWithTLSDialer(&tls.Config{InsecureSkipVerify: true}, &dialer)
+	} else {
+		ldapOpt = ldap.DialWithDialer(&dialer)
+	}
+	ldap_host, _ := web.AppConfig.String("ldap_host")
+	ldap_port := web.AppConfig.DefaultInt("ldap_port", 3268)
+	ldap_url := fmt.Sprintf("%s://%s:%d", ldap_scheme, ldap_host, ldap_port)
+	lc, err := ldap.DialURL(ldap_url, ldapOpt)
 	if err != nil {
 		logs.Error("绑定 LDAP 用户失败 ->", err)
 		return m, ErrLDAPConnect
@@ -188,7 +201,7 @@ func (m *Member) ldapLogin(account string, password string) (*Member, error) {
 		if len(m.Email) > 0 {
 			// 如果member配置的email和ldap配置的email不同
 			if m.Email != ldap_mail {
-				return m, errors.New(fmt.Sprintf("ldap配置的email(%s)与数据库中已有email({%s})不同, 请联系管理员修改", ldap_mail, m.Email))
+				return m, fmt.Errorf("ldap配置的email(%s)与数据库中已有email({%s})不同, 请联系管理员修改", ldap_mail, m.Email)
 			}
 		} else {
 			// 如果member未配置email，则用ldap的email配置
@@ -376,6 +389,8 @@ func (m *Member) ResolveRoleName() {
 		m.RoleName = i18n.Tr(m.Lang, "uc.admin")
 	} else if m.Role == conf.MemberGeneralRole {
 		m.RoleName = i18n.Tr(m.Lang, "uc.user")
+	} else if m.Role == conf.MemberReaderRole {
+		m.RoleName = i18n.Tr(m.Lang, "uc.read_usr")
 	}
 }
 
@@ -460,7 +475,7 @@ func (m *Member) Valid(is_hash_password bool) error {
 	if strings.Count(m.Description, "") > 500 {
 		return ErrMemberDescriptionTooLong
 	}
-	if m.Role != conf.MemberGeneralRole && m.Role != conf.MemberSuperRole && m.Role != conf.MemberAdminRole {
+	if m.Role != conf.MemberGeneralRole && m.Role != conf.MemberSuperRole && m.Role != conf.MemberAdminRole && m.Role != conf.MemberReaderRole {
 		return ErrMemberRoleError
 	}
 	if m.Status != 0 && m.Status != 1 {
@@ -510,8 +525,17 @@ func (m *Member) Delete(oldId int, newId int) error {
 	ormer := orm.NewOrm()
 
 	o, err := ormer.Begin()
-
 	if err != nil {
+		return err
+	}
+	_, err = o.Raw("DELETE FROM md_dingtalk_accounts WHERE member_id = ?", oldId).Exec()
+	if err != nil {
+		o.Rollback()
+		return err
+	}
+	_, err = o.Raw("DELETE FROM md_workweixin_accounts WHERE member_id = ?", oldId).Exec()
+	if err != nil {
+		o.Rollback()
 		return err
 	}
 
@@ -520,7 +544,7 @@ func (m *Member) Delete(oldId int, newId int) error {
 		o.Rollback()
 		return err
 	}
-	_, err = o.Raw("UPDATE md_attachment SET `create_at` = ? WHERE `create_at` = ?", newId, oldId).Exec()
+	_, err = o.Raw("UPDATE md_attachment SET create_at = ? WHERE create_at = ?", newId, oldId).Exec()
 
 	if err != nil {
 		o.Rollback()

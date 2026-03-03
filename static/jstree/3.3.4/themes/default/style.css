@@ -86,7 +86,7 @@
 .jstree-wholerow-ul {
   position: relative;
   display: inline-block;
-  min-width: 100%;
+  width: 100%;
 }
 .jstree-wholerow-ul .jstree-leaf > .jstree-ocl {
   cursor: pointer;

@@ -122,11 +122,12 @@ func (c *BookController) Setting() {
 	if book.PrivateToken != "" {
 		book.PrivateToken = conf.URLFor("DocumentController.Index", ":key", book.Identify, "token", book.PrivateToken)
 	}
+
 	c.Data["Model"] = book
 
 }
 
-//保存项目信息
+// 保存项目信息
 func (c *BookController) SaveBook() {
 	bookResult, err := c.IsPermission()
 
@@ -153,6 +154,7 @@ func (c *BookController) SaveBook() {
 	isUseFirstDocument := strings.TrimSpace(c.GetString("is_use_first_document")) == "on"
 	autoSave := strings.TrimSpace(c.GetString("auto_save")) == "on"
 	itemId, _ := c.GetInt("itemId")
+	pringState := strings.TrimSpace(c.GetString("print_state")) == "on"
 
 	if strings.Count(description, "") > 500 {
 		c.JsonResult(6004, i18n.Tr(c.Lang, "message.project_desc_tips"))
@@ -164,8 +166,9 @@ func (c *BookController) SaveBook() {
 	if !models.NewItemsets().Exist(itemId) {
 		c.JsonResult(6006, i18n.Tr(c.Lang, "message.project_space_not_exist"))
 	}
-	if editor != "markdown" && editor != "html" && editor != "new_html" {
-		editor = "markdown"
+	// if editor != EditorMarkdown && editor != EditorCherryMarkdown && editor != EditorHtml && editor != EditorNewHtml {
+	if editor != EditorMarkdown && editor != EditorCherryMarkdown && editor != EditorHtml && editor != EditorNewHtml && editor != EditorFroala {
+		editor = EditorMarkdown
 	}
 
 	book.BookName = bookName
@@ -173,7 +176,13 @@ func (c *BookController) SaveBook() {
 	book.CommentStatus = commentStatus
 	book.Publisher = publisher
 	//book.Label = tag
+	if book.Editor == EditorMarkdown && editor == EditorCherryMarkdown || book.Editor == EditorCherryMarkdown && editor == EditorMarkdown {
+		c.JsonResult(6006, i18n.Tr(c.Lang, "message.editors_not_compatible"))
+	}
 	book.Editor = editor
+	if editor == EditorCherryMarkdown {
+		book.Theme = "cherry"
+	}
 	book.HistoryCount = historyCount
 	book.IsDownload = 0
 	book.BookPassword = strings.TrimSpace(c.GetString("bPassword"))
@@ -204,6 +213,11 @@ func (c *BookController) SaveBook() {
 	} else {
 		book.AutoSave = 0
 	}
+	if pringState {
+		book.PrintSate = 1
+	} else {
+		book.PrintSate = 0
+	}
 	if err := book.Update(); err != nil {
 		c.JsonResult(6006, i18n.Tr(c.Lang, "message.failed"))
 	}
@@ -216,7 +230,7 @@ func (c *BookController) SaveBook() {
 	c.JsonResult(0, "ok", bookResult)
 }
 
-//设置项目私有状态.
+// 设置项目私有状态.
 func (c *BookController) PrivatelyOwned() {
 
 	status := c.GetString("status")
@@ -296,7 +310,7 @@ func (c *BookController) Transfer() {
 	c.JsonResult(0, "ok")
 }
 
-//上传项目封面.
+// 上传项目封面.
 func (c *BookController) UploadCover() {
 
 	bookResult, err := c.IsPermission()
@@ -449,8 +463,12 @@ func (c *BookController) Create() {
 		description := strings.TrimSpace(c.GetString("description", ""))
 		privatelyOwned, _ := strconv.Atoi(c.GetString("privately_owned"))
 		commentStatus := c.GetString("comment_status")
+		editor := c.GetString("editor")
 		itemId, _ := c.GetInt("itemId")
 
+		if c.Member.Role == conf.MemberReaderRole {
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+		}
 		if bookName == "" {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.project_name_empty"))
 		}
@@ -515,6 +533,7 @@ func (c *BookController) Create() {
 		book.CommentCount = 0
 		book.PrivatelyOwned = privatelyOwned
 		book.CommentStatus = commentStatus
+
 		book.Identify = identify
 		book.DocCount = 0
 		book.MemberId = c.Member.MemberId
@@ -524,8 +543,7 @@ func (c *BookController) Create() {
 		book.IsDownload = 1
 		book.AutoRelease = 0
 		book.ItemId = itemId
-
-		book.Editor = "markdown"
+		book.Editor = editor
 		book.Theme = "default"
 
 		if err := book.Insert(c.Lang); err != nil {
@@ -544,14 +562,16 @@ func (c *BookController) Create() {
 	c.JsonResult(6001, "error")
 }
 
-//复制项目
+// 复制项目
 func (c *BookController) Copy() {
 	if c.Ctx.Input.IsPost() {
 		//检查是否有复制项目的权限
 		if _, err := c.IsPermission(); err != nil {
 			c.JsonResult(500, err.Error())
 		}
-
+		if c.Member.Role == conf.MemberReaderRole {
+			c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+		}
 		identify := strings.TrimSpace(c.GetString("identify", ""))
 		if identify == "" {
 			c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
@@ -572,7 +592,9 @@ func (c *BookController) Copy() {
 
 // 导入zip压缩包或docx
 func (c *BookController) Import() {
-
+	if c.Member.Role == conf.MemberReaderRole {
+		c.JsonResult(6001, i18n.Tr(c.Lang, "message.no_permission"))
+	}
 	file, moreFile, err := c.GetFile("import-file")
 	if err == http.ErrMissingFile {
 		c.JsonResult(6003, "没有发现需要上传的文件")
@@ -622,6 +644,9 @@ func (c *BookController) Import() {
 	tempPath = filepath.Join(tempPath, moreFile.Filename)
 
 	err = c.SaveToFile("import-file", tempPath)
+	if err != nil {
+		c.JsonResult(6004, i18n.Tr(c.Lang, "message.upload_failed"))
+	}
 
 	book := models.NewBook()
 
@@ -724,7 +749,7 @@ func (c *BookController) Delete() {
 	c.JsonResult(0, "ok")
 }
 
-//发布项目.
+// 发布项目.
 func (c *BookController) Release() {
 	c.Prepare()
 
@@ -763,7 +788,40 @@ func (c *BookController) Release() {
 	c.JsonResult(0, i18n.Tr(c.Lang, "message.publish_to_queue"))
 }
 
-//文档排序.
+// 更新项目排序
+func (c *BookController) UpdateBookOrder() {
+	if !c.Member.IsAdministrator() {
+		c.JsonResult(403, "权限不足")
+		return
+	}
+	type Params struct {
+		Ids string `form:"ids"`
+	}
+	var params Params
+	if err := c.ParseForm(&params); err != nil {
+		c.JsonResult(6003, "参数错误")
+		return
+	}
+	idArray := strings.Split(params.Ids, ",")
+	orderCount := len(idArray)
+	for _, id := range idArray {
+		bookId, _ := strconv.Atoi(id)
+		orderCount--
+		book, err := models.NewBook().Find(bookId)
+		if err != nil {
+			continue
+		}
+		book.BookId = bookId
+		book.OrderIndex = orderCount
+		err = book.Update()
+		if err != nil {
+			continue
+		}
+	}
+	c.JsonResult(0, "ok")
+}
+
+// 文档排序.
 func (c *BookController) SaveSort() {
 	c.Prepare()
 
@@ -924,7 +982,7 @@ func (c *BookController) TeamAdd() {
 	c.JsonResult(0, "OK", teamRel)
 }
 
-//删除项目的团队.
+// 删除项目的团队.
 func (c *BookController) TeamDelete() {
 	c.Prepare()
 
@@ -955,7 +1013,7 @@ func (c *BookController) TeamDelete() {
 	c.JsonResult(0, "OK")
 }
 
-//团队搜索.
+// 团队搜索.
 func (c *BookController) TeamSearch() {
 	c.Prepare()
 
@@ -976,7 +1034,7 @@ func (c *BookController) TeamSearch() {
 
 }
 
-//项目空间搜索.
+// 项目空间搜索.
 func (c *BookController) ItemsetsSearch() {
 	c.Prepare()
 

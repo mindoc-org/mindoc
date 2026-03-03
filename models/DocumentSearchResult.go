@@ -1,12 +1,14 @@
 package models
 
 import (
-	"time"
-
+	"fmt"
+	"regexp"
 	"strings"
+	"time"
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 )
 
 type DocumentSearchResult struct {
@@ -24,17 +26,45 @@ type DocumentSearchResult struct {
 	SearchType   string    `json:"search_type"`
 }
 
+var escape_re = regexp.MustCompile(`(?mi)(\bLIKE\s+\?)`)
+var escape_replace = "${1} ESCAPE '\\'"
+
+func need_escape(keyword string) bool {
+	dbadapter, _ := web.AppConfig.String("db_adapter")
+	if strings.EqualFold(dbadapter, "sqlite3") && (strings.Contains(keyword, "\\_") || strings.Contains(keyword, "\\%")) {
+		return true
+	}
+	return false
+}
+
+func escape_name(name string) string {
+	dbadapter, _ := web.AppConfig.String("db_adapter")
+	ch := "`"
+	if strings.EqualFold(dbadapter, "postgres") {
+		ch = `"`
+	}
+	return fmt.Sprintf("%s%s%s", ch, name, ch)
+}
+
 func NewDocumentSearchResult() *DocumentSearchResult {
 	return &DocumentSearchResult{}
 }
 
-//分页全局搜索.
+// 分页全局搜索.
 func (m *DocumentSearchResult) FindToPager(keyword string, pageIndex, pageSize, memberId int) (searchResult []*DocumentSearchResult, totalCount int, err error) {
 	o := orm.NewOrm()
 
 	offset := (pageIndex - 1) * pageSize
 
 	keyword = "%" + strings.Replace(keyword, " ", "%", -1) + "%"
+
+	_need_escape := need_escape(keyword)
+	escape_sql := func(sql string) string {
+		if _need_escape {
+			return escape_re.ReplaceAllString(sql, escape_replace)
+		}
+		return sql
+	}
 
 	if memberId <= 0 {
 		sql1 := `SELECT count(doc.document_id) as total_count FROM md_documents AS doc
@@ -96,9 +126,9 @@ WHERE book.privately_owned = 0 AND (book.book_name LIKE ? OR book.description LI
        WHERE blog.blog_status = 'public' AND (blog.blog_release LIKE ? OR blog.blog_title LIKE ?)
      ) AS union_table
 ORDER BY create_time DESC
-LIMIT ?, ?;`
+LIMIT ? OFFSET ?;`
 
-		err = o.Raw(sql1, keyword, keyword).QueryRow(&totalCount)
+		err = o.Raw(escape_sql(sql1), keyword, keyword).QueryRow(&totalCount)
 		if err != nil {
 			logs.Error("查询搜索结果失败 -> ", err)
 			return
@@ -109,7 +139,7 @@ LIMIT ?, ?;`
        WHERE blog.blog_status = 'public' AND (blog.blog_release LIKE ? OR blog.blog_title LIKE ?);`
 
 		c := 0
-		err = o.Raw(sql3, keyword, keyword).QueryRow(&c)
+		err = o.Raw(escape_sql(sql3), keyword, keyword).QueryRow(&c)
 		if err != nil {
 			logs.Error("查询搜索结果失败 -> ", err)
 			return
@@ -120,7 +150,7 @@ LIMIT ?, ?;`
 		sql4 := `SELECT count(*) as total_count FROM md_books as book
 WHERE book.privately_owned = 0 AND (book.book_name LIKE ? OR book.description LIKE ?);`
 
-		err = o.Raw(sql4, keyword, keyword).QueryRow(&c)
+		err = o.Raw(escape_sql(sql4), keyword, keyword).QueryRow(&c)
 		if err != nil {
 			logs.Error("查询搜索结果失败 -> ", err)
 			return
@@ -128,7 +158,7 @@ WHERE book.privately_owned = 0 AND (book.book_name LIKE ? OR book.description LI
 
 		totalCount += c
 
-		_, err = o.Raw(sql2, keyword, keyword, keyword, keyword, keyword, keyword, offset, pageSize).QueryRows(&searchResult)
+		_, err = o.Raw(escape_sql(sql2), keyword, keyword, keyword, keyword, keyword, keyword, pageSize, offset).QueryRows(&searchResult)
 		if err != nil {
 			logs.Error("查询搜索结果失败 -> ", err)
 			return
@@ -224,9 +254,9 @@ FROM (
              (blog.blog_release LIKE ? OR blog.blog_title LIKE ?)
      ) AS union_table
 ORDER BY create_time DESC
-LIMIT ?, ?;`
+LIMIT ? OFFSET ?;`
 
-		err = o.Raw(sql1, memberId, memberId, keyword, keyword).QueryRow(&totalCount)
+		err = o.Raw(escape_sql(sql1), memberId, memberId, keyword, keyword).QueryRow(&totalCount)
 		if err != nil {
 			return
 		}
@@ -237,7 +267,7 @@ LIMIT ?, ?;`
              (blog.blog_release LIKE ? OR blog.blog_title LIKE ?);`
 
 		c := 0
-		err = o.Raw(sql3, memberId, keyword, keyword).QueryRow(&c)
+		err = o.Raw(escape_sql(sql3), memberId, keyword, keyword).QueryRow(&c)
 		if err != nil {
 			logs.Error("查询搜索结果失败 -> ", err)
 			return
@@ -254,7 +284,7 @@ LIMIT ?, ?;`
 					on team.book_id = book.book_id
 WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_id > 0)  AND (book.book_name LIKE ? OR book.description LIKE ?);`
 
-		err = o.Raw(sql4, memberId, memberId, keyword, keyword).QueryRow(&c)
+		err = o.Raw(escape_sql(sql4), memberId, memberId, keyword, keyword).QueryRow(&c)
 		if err != nil {
 			logs.Error("查询搜索结果失败 -> ", err)
 			return
@@ -262,7 +292,7 @@ WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_
 
 		totalCount += c
 
-		_, err = o.Raw(sql2, memberId, memberId, keyword, keyword, memberId, memberId, keyword, keyword, memberId, keyword, keyword, offset, pageSize).QueryRows(&searchResult)
+		_, err = o.Raw(escape_sql(sql2), memberId, memberId, keyword, keyword, memberId, memberId, keyword, keyword, memberId, keyword, keyword, pageSize, offset).QueryRows(&searchResult)
 		if err != nil {
 			return
 		}
@@ -270,14 +300,41 @@ WHERE (book.privately_owned = 0 OR rel1.relationship_id > 0 or team.team_member_
 	return
 }
 
-//项目内搜索.
+// 项目内搜索.
 func (m *DocumentSearchResult) SearchDocument(keyword string, bookId int) (docs []*DocumentSearchResult, err error) {
 	o := orm.NewOrm()
 
-	sql := "SELECT * FROM md_documents WHERE book_id = ? AND (document_name LIKE ? OR `release` LIKE ?) "
+	sql := fmt.Sprintf("SELECT * FROM md_documents WHERE book_id = ? AND (document_name LIKE ? OR %s LIKE ?) ", escape_name("release"))
 	keyword = "%" + keyword + "%"
 
-	_, err = o.Raw(sql, bookId, keyword, keyword).QueryRows(&docs)
+	_need_escape := need_escape(keyword)
+	escape_sql := func(sql string) string {
+		if _need_escape {
+			return escape_re.ReplaceAllString(sql, escape_replace)
+		}
+		return sql
+	}
+	_, err = o.Raw(escape_sql(sql), bookId, keyword, keyword).QueryRows(&docs)
+
+	return
+}
+
+// 所有项目搜索.
+func (m *DocumentSearchResult) SearchAllDocument(keyword string) (docs []*DocumentSearchResult, err error) {
+	o := orm.NewOrm()
+
+	sql := fmt.Sprintf("SELECT * FROM md_documents WHERE (document_name LIKE ? OR %s LIKE ?) ", escape_name("release"))
+	keyword = "%" + keyword + "%"
+
+	_need_escape := need_escape(keyword)
+	escape_sql := func(sql string) string {
+		if _need_escape {
+			return escape_re.ReplaceAllString(sql, escape_replace)
+		}
+		return sql
+	}
+
+	_, err = o.Raw(escape_sql(sql), keyword, keyword).QueryRows(&docs)
 
 	return
 }

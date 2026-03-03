@@ -14,7 +14,9 @@
     <link href="{{cdncss "/static/bootstrap/css/bootstrap.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/font-awesome/css/font-awesome.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/main.css" "version"}}" rel="stylesheet">
-
+    <script type="text/javascript">
+        window.updateBookOrder = "{{urlfor "BookController.UpdateBookOrder"}}";
+    </script>
 </head>
 <body>
 <div class="manual-reader manual-container">
@@ -23,7 +25,7 @@
         <div class="row">
              <div class="manual-list">
                 {{range $index,$item := .Lists}}
-                    <div class="list-item">
+                    <div class="list-item" data-id="{{$item.BookId}}">
                         <dl class="manual-item-standard">
                             <dt>
                                 <a href="{{urlfor "DocumentController.Index" ":key" $item.Identify}}" title="{{$item.BookName}}-{{$item.CreateName}}">
@@ -49,7 +51,7 @@
             </div>
             <nav class="pagination-container">
                 {{if gt .TotalPages 1}}
-                {{.PageHtml}}
+                    {{.PageHtml}}
                 {{end}}
                 <div class="clearfix"></div>
             </nav>
@@ -59,6 +61,8 @@
 </div>
 <script src="{{cdnjs "/static/jquery/1.12.4/jquery.min.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/bootstrap/js/bootstrap.min.js"}}" type="text/javascript"></script>
+<script src="{{cdnjs "/static/layer/layer.js"}}"></script>
+<script src="{{cdnjs "/static/js/sort.js"}}" type="text/javascript"></script>
 {{.Scripts}}
 </body>
 </html>

@@ -71,7 +71,7 @@
             "list-ul", "list-ol", "hr", "|",
             "link", "reference-link", "image", "code", "preformatted-text", "code-block", "table", "datetime", "emoji", "html-entities", "pagebreak", "|",
             "goto-line", "watch", "preview", "fullscreen", "clear", "search", "|",
-            "help", "info"
+            "help", "changetheme", "info"
         ],
         simple : [
             "undo", "redo", "|",
@@ -79,12 +79,12 @@
             "h1", "h2", "h3", "h4", "h5", "h6", "|",
             "list-ul", "list-ol", "hr", "|",
             "watch", "preview", "fullscreen", "|",
-            "help", "info"
+            "help", "changetheme", "info"
         ],
         mini : [
             "undo", "redo", "|",
             "watch", "preview", "|",
-            "help", "info"
+            "help", "changetheme", "info"
         ]
     };
 
@@ -94,8 +94,8 @@
         name                 : "",             // Form element name
         value                : "",             // value for CodeMirror, if mode not gfm/markdown
         theme                : "",             // Editor.md self themes, before v1.5.0 is CodeMirror theme, default empty
-        editorTheme          : "default",      // Editor area, this is CodeMirror theme at v1.5.0
-        previewTheme         : "",             // Preview area theme, default empty
+        editorTheme          : "pastel-on-dark", //"default",      // Editor area, this is CodeMirror theme at v1.5.0
+        previewTheme         : "dark", //"",             // Preview area theme, default empty
         markdown             : "",             // Markdown source code
         appendMarkdown       : "",             // if in init textarea value not empty, append markdown to textarea
         width                : "100%",
@@ -225,6 +225,7 @@
             fullscreen       : "fa-arrows-alt",
             clear            : "fa-eraser",
             help             : "fa-question-circle",
+            changetheme      : "fa-info-circle",
             info             : "fa-info-circle"
         },
         toolbarIconTexts     : {},
@@ -271,6 +272,7 @@
                 clear            : "清空",
                 search           : "搜索",
                 help             : "使用帮助",
+                changetheme      : "切换编辑主题",
                 info             : "关于" + editormd.title
             },
             buttons : {
@@ -322,7 +324,10 @@
                 },
                 help : {
                     title : "使用帮助"
-                }
+                },
+                changetheme : {
+                    title : "切换编辑主题"
+                },
             }
         }
     };
@@ -3385,6 +3390,11 @@
             this.executePlugin("helpDialog", "help-dialog/help-dialog");
         },
 
+        changetheme : function() {
+            this.setEditorTheme((this.settings.editorTheme=="default")?"pastel-on-dark":"default");
+            this.setPreviewTheme((this.settings.previewTheme=="")?"dark":"");
+        },
+
         info : function() {
             this.showInfoDialog();
         }
@@ -3950,9 +3960,12 @@
                 }
                 return "<svg class='mindmap' style='width:100%;min-height=150px;height:"+custom_height+"px;' id='mindmap-"+ map_id +"'>"+code+"</svg>";
             }
+            if (lang === "drawio") {
+                var svgCode = decodeURIComponent(escape(window.atob(code)))
+                return "<div class=\"svg\" style=\"overflow: auto; padding: 10px;\">" + svgCode + "</div>"
+            } 
             else
             {
-
                 return marked.Renderer.prototype.code.apply(this, arguments);
             }
         };
@@ -4029,7 +4042,6 @@
             html += "<li class=\"directory-item\"><a class=\"directory-item-link directory-item-link-" + level + "\" href=\"#" + id + "\" level=\"" + level + "\">" + text + "</a></li>";
             lastLevel = level;
         }
-        console.log(html);
 
         var tocContainer = container.find(".markdown-toc");
 

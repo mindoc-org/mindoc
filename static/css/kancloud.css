@@ -1,9 +1,32 @@
-html,body {
+html,
+body {
     height: 100%;
     font-size: 12px;
 }
 
-body,form,ul,ol,table,input,button,p,h1,h2,h3,h4,h5,h6,blockquote,pre,dl,dt,dd,div,span,b,i {
+body,
+form,
+ul,
+ol,
+table,
+input,
+button,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+blockquote,
+pre,
+dl,
+dt,
+dd,
+div,
+span,
+b,
+i {
     margin: 0;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
@@ -18,9 +41,22 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-h1,h2,h3,h4,h5,h6,strong,input,select,textarea,button,body,code {
-    font-family: "Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Microsoft Yahei","Helvetica Neue",Helvetica;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+input,
+select,
+textarea,
+button,
+body,
+code {
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Microsoft Yahei", "Helvetica Neue", Helvetica;
 }
+
 h1 {
     font-size: 2.25em;
     font-weight: 500;
@@ -50,21 +86,23 @@ h6 {
     font-size: .8em;
     font-weight: 200
 }
-table>tbody>tr:hover{
+
+table>tbody>tr:hover {
     background-color: #F5F5F5;
 }
+
 .m-manual:not(.manual-mobile) ::-webkit-scrollbar {
     height: 10px;
     width: 7px;
-    background: rgba(0,0,0,.1);
+    background: rgba(0, 0, 0, .1);
 }
 
 .m-manual:not(.manual-mobile) ::-webkit-scrollbar:hover {
-    background: rgba(0,0,0,.2)
+    background: rgba(0, 0, 0, .2)
 }
 
 .m-manual:not(.manual-mobile) ::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,.3);
+    background: rgba(0, 0, 0, .3);
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
     -ms-border-radius: 6px;
@@ -73,13 +111,14 @@ table>tbody>tr:hover{
 }
 
 .m-manual:not(.manual-mobile)::-webkit-scrollbar-thumb:hover {
-    -webkit-box-shadow: inset 1px 1px 1px rgba(0,0,0,.25);
-    -moz-box-shadow: inset 1px 1px 1px rgba(0,0,0,.25);
-    -ms-box-shadow: inset 1px 1px 1px rgba(0,0,0,.25);
-    -o-box-shadow: inset 1px 1px 1px rgba(0,0,0,.25);
-    box-shadow: inset 1px 1px 1px rgba(0,0,0,.25);
-    background-color: rgba(0,0,0,.4)
+    -webkit-box-shadow: inset 1px 1px 1px rgba(0, 0, 0, .25);
+    -moz-box-shadow: inset 1px 1px 1px rgba(0, 0, 0, .25);
+    -ms-box-shadow: inset 1px 1px 1px rgba(0, 0, 0, .25);
+    -o-box-shadow: inset 1px 1px 1px rgba(0, 0, 0, .25);
+    box-shadow: inset 1px 1px 1px rgba(0, 0, 0, .25);
+    background-color: rgba(0, 0, 0, .4)
 }
+
 .m-manual.manual-reader .manual-head .slidebar {
     display: none
 }
@@ -112,10 +151,12 @@ table>tbody>tr:hover{
     -o-transition-timing-function: linear;
     -o-transition-delay: 0s
 }
-.m-manual .slidebar{
+
+.m-manual .slidebar {
     display: none;
 }
-.m-manual .manual-head .manual-title{
+
+.m-manual .manual-head .manual-title {
     display: inline-block;
     height: 30px;
     line-height: 54px;
@@ -123,6 +164,7 @@ table>tbody>tr:hover{
     font-size: 16px;
     font-weight: bold;
 }
+
 .m-manual .manual-tab {
     position: absolute;
     top: 0;
@@ -130,6 +172,7 @@ table>tbody>tr:hover{
     left: 0;
     right: 0
 }
+
 .m-manual .manual-left {
     position: absolute;
     left: 0;
@@ -142,7 +185,8 @@ table>tbody>tr:hover{
 }
 
 .m-manual .manual-tab .tab-navg {
-    zoom:1;border-bottom: 1px solid #ddd
+    zoom: 1;
+    border-bottom: 1px solid #ddd
 }
 
 .m-manual .manual-tab .tab-util {
@@ -150,6 +194,7 @@ table>tbody>tr:hover{
     top: 50%;
     right: -14px
 }
+
 .m-manual .manual-tab .tab-util .item {
     color: #999;
     cursor: pointer;
@@ -163,7 +208,8 @@ table>tbody>tr:hover{
     display: block
 }
 
-.manual-fullscreen-switch .open,.manual-fullscreen-switch .close {
+.manual-fullscreen-switch .open,
+.manual-fullscreen-switch .close {
     display: inline-block;
     width: 30px;
     height: 30px;
@@ -174,15 +220,18 @@ table>tbody>tr:hover{
     position: relative;
     font-size: 16px;
     vertical-align: top;
-    opacity : 1;
-    text-shadow:none;
+    opacity: 1;
+    text-shadow: none;
     font-weight: 400;
 }
-.manual-fullscreen-switch .open:hover,.manual-fullscreen-switch .close:hover {
+
+.manual-fullscreen-switch .open:hover,
+.manual-fullscreen-switch .close:hover {
     background-color: #449d44;
 }
 
-.manual-fullscreen-switch .open:before,.manual-fullscreen-switch .close:before {
+.manual-fullscreen-switch .open:before,
+.manual-fullscreen-switch .close:before {
     position: absolute;
     top: 7px;
     right: 5px;
@@ -203,10 +252,14 @@ table>tbody>tr:hover{
 .m-manual.manual-fullscreen-active .manual-fullscreen-switch .close {
     display: none;
 }
-.m-manual.manual-fullscreen-active .manual-left .m-copyright,.m-manual.manual-fullscreen-active .manual-left .tab-navg,.m-manual.manual-fullscreen-active .manual-left .tab-wrap{
+
+.m-manual.manual-fullscreen-active .manual-left .m-copyright,
+.m-manual.manual-fullscreen-active .manual-left .tab-navg,
+.m-manual.manual-fullscreen-active .manual-left .tab-wrap {
     display: none;
 }
-.m-manual.manual-fullscreen-active .manual-left{
+
+.m-manual.manual-fullscreen-active .manual-left {
     width: 0px;
 }
 
@@ -240,13 +293,18 @@ table>tbody>tr:hover{
     font-weight: 200
 }
 
-.m-manual .manual-tab .tab-navg .navg-item.active,.m-manual .manual-tab .tab-navg .navg-item.active:hover,.m-manual .manual-tab .tab-navg .navg-item:hover {
+.m-manual .manual-tab .tab-navg .navg-item.active,
+.m-manual .manual-tab .tab-navg .navg-item.active:hover,
+.m-manual .manual-tab .tab-navg .navg-item:hover {
     color: #333
 }
 
-.m-manual .manual-tab .tab-navg .navg-item.active .icon,.m-manual .manual-tab .tab-navg .navg-item.active:hover .icon,.m-manual .manual-tab .tab-navg .navg-item:hover .icon {
+.m-manual .manual-tab .tab-navg .navg-item.active .icon,
+.m-manual .manual-tab .tab-navg .navg-item.active:hover .icon,
+.m-manual .manual-tab .tab-navg .navg-item:hover .icon {
     color: #333
 }
+
 .m-manual .manual-tab .tab-navg .navg-item.active {
     border-bottom: 1px solid #fafafa;
     margin-bottom: -1px;
@@ -256,6 +314,7 @@ table>tbody>tr:hover{
     padding-right: 8px;
     height: 31px;
 }
+
 .m-manual .manual-tab .tab-item {
     display: none;
     position: absolute;
@@ -271,25 +330,29 @@ table>tbody>tr:hover{
 .m-manual .manual-tab .tab-item.active {
     display: block
 }
+
 .m-manual.manual-mode-search .manual-search {
     display: block
 }
+
 .m-manual.manual-mode-view .manual-catalog {
     display: block
 }
-.m-manual.manual-mode-search .manual-search .search-container{
+
+.m-manual.manual-mode-search .manual-search .search-container {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
 }
-.m-manual .manual-search .search-form{
+
+.m-manual .manual-search .search-form {
     margin: 5px 5px 10px 5px;
     position: relative;
 }
 
-.m-manual .manual-search .btn-search{
+.m-manual .manual-search .btn-search {
     background-color: #ffffff;
     border: 0;
     padding: 5px;
@@ -297,16 +360,18 @@ table>tbody>tr:hover{
     top: 2px;
     right: 5px;
 }
-.m-manual .manual-search .btn-search .fa{
+
+.m-manual .manual-search .btn-search .fa {
     width: 16px;
     height: 16px;
     vertical-align: middle;
 }
-.m-manual .manual-search .btn-search .loading{
+
+.m-manual .manual-search .btn-search .loading {
     background-image: url("../images/loading.gif");
 }
 
-.m-manual .manual-search .search-result{
+.m-manual .manual-search .search-result {
     position: absolute;
     top: 45px;
     left: 0;
@@ -316,32 +381,37 @@ table>tbody>tr:hover{
     overflow-y: auto;
     border-top: 1px solid #eee;
 }
-.m-manual .manual-search .search-result .search-empty{
+
+.m-manual .manual-search .search-result .search-empty {
     position: absolute;
     top: 45%;
     left: 0;
     right: 0;
     text-align: center;
 }
-.m-manual .manual-search .search-result .search-empty i{
+
+.m-manual .manual-search .search-result .search-empty i {
     font-size: 50px;
     display: block;
     color: #999;
     font-weight: 200;
 }
-.m-manual .manual-search .search-result .search-empty .text{
+
+.m-manual .manual-search .search-result .search-empty .text {
     font-size: 16px;
     font-weight: 200;
     color: #999;
     line-height: 40px;
 }
-.m-manual .manual-search .search-list{
+
+.m-manual .manual-search .search-list {
     position: absolute;
     top: 0;
     bottom: 0;
     min-width: 100%;
 }
-.m-manual .manual-search .search-list a{
+
+.m-manual .manual-search .search-list a {
     display: block;
     border-bottom: 0;
     height: 30px;
@@ -349,27 +419,31 @@ table>tbody>tr:hover{
     padding: 3px 10px 3px 20px;
     color: #666;
     text-decoration: none;
-    white-space:nowrap;
+    white-space: nowrap;
     overflow: hidden;
 }
-.m-manual .manual-search .search-list a:hover{
+
+.m-manual .manual-search .search-list a:hover {
     text-shadow: none;
     background: #116cd6;
     box-shadow: none;
     color: #fff;
     text-decoration: none;
-    white-space:nowrap;
+    white-space: nowrap;
 }
-.m-manual .manual-search .search-list a.active{
+
+.m-manual .manual-search .search-list a.active {
     background: #10af88;
     background: -webkit-linear-gradient(top, #beebff 0%, #a8e4ff 100%);
     background: linear-gradient(to bottom, #10af88 0%, #10af88 100%);
     color: #ffffff;
 }
-.m-manual .markdown-body .search-highlight{
+
+.m-manual .search-highlight {
     background-color: #FFFF00 !important;
     font-style: normal;
 }
+
 .m-manual .manual-left .m-copyright {
     border-top: 0;
     background: #fafafa;
@@ -387,6 +461,7 @@ table>tbody>tr:hover{
     text-align: center;
     line-height: 24px
 }
+
 .m-manual .manual-right {
     position: absolute;
     left: 280px;
@@ -412,21 +487,27 @@ table>tbody>tr:hover{
     -o-transition-timing-function: linear;
     -o-transition-delay: 0s
 }
-.m-manual.manual-fullscreen-active .manual-right{
+
+.m-manual.manual-fullscreen-active .manual-right {
     left: 0;
 }
-.m-manual .manual-right .manual-article{
+
+.m-manual .manual-right .manual-article {
     background: #ffffff;
 }
+
 .manual-article .article-head {
     position: relative;
     zoom: 1;
-    padding: 10px 20px
+    padding: 10px 20px;
+    width: 100%;
 }
-.manual-reader .book-title{
+
+.manual-reader .book-title {
     color: #333333;
 }
-.manual-reader .book-title:hover{
+
+.manual-reader .book-title:hover {
     text-decoration: none;
     color: #333333;
 }
@@ -437,59 +518,76 @@ table>tbody>tr:hover{
     font-weight: 400;
     text-align: center;
     line-height: 42px;
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #636363;
 }
+
 .manual-article .article-head h3 {
     margin: 0;
     font-size: 12px;
     font-weight: 200;
     text-align: center;
     line-height: 18px;
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #444
 }
-.manual-article .article-info{
+
+.manual-article .article-info {
     padding: 5px;
     color: #AAA !important;
 }
-.manual-article .article-content{
+
+.manual-article .article-content {
     min-width: 980px;
     max-width: 90%;
     padding: 10px 20px;
-    margin-left: auto!important;
-    margin-right: auto!important
+    margin-left: auto !important;
+    margin-right: auto !important
 }
+
 @media screen and (max-width: 840px) {
-    .manual-article .article-content{
+    .manual-article .article-content {
         min-width: inherit;
     }
 }
 
-.manual-article .article-content .article-body{
+.manual-article .article-content .article-body {
     min-height: 90px;
     padding: 5px;
 }
-.manual-article .article-content .article-body .attach-list{
+
+.manual-article .article-content .article-body .attach-list {
     list-style: none;
     border-top: 1px solid #DDDDDD;
     padding-top: 15px;
     clear: both;
 }
-.manual-article .wiki-bottom{
+
+.manual-article .wiki-bottom {
     border-top: 1px solid #E5E5E5;
-    line-height: 25px;color: #333;
-    text-align:right;
+    line-height: 25px;
+    color: #333;
+    text-align: right;
     font-size: 12px;
     margin-bottom: 20px;
     margin-top: 30px;
     padding: 5px;
 }
-.manual-article .jump-top .view-backtop{
+
+.manual-article .wiki-bottom-left {
+    border-top: 1px solid #E5E5E5;
+    line-height: 25px;
+    color: #333;
+    text-align: left;
+    font-size: 12px;
+    margin-bottom: 20px;
+    margin-top: 30px;
+    padding: 5px;
+}
+
+.manual-article .jump-top .view-backtop {
     position: fixed;
     bottom: -30px;
     right: 30px;
@@ -523,14 +621,16 @@ table>tbody>tr:hover{
     -o-transition-delay: 0s;
 }
 
-.manual-article .jump-top .view-backtop.active{
+.manual-article .jump-top .view-backtop.active {
     opacity: 0.5;
     bottom: 30px;
 }
-.manual-article .jump-top .view-backtop.active:hover{
+
+.manual-article .jump-top .view-backtop.active:hover {
     background-color: #449D44;
     opacity: 1;
 }
+
 .m-manual .manual-progress {
     position: fixed;
     top: 54px;
@@ -562,9 +662,11 @@ table>tbody>tr:hover{
     background-color: #136ec2;
     height: 100%
 }
-.m-comment{
+
+.m-comment {
     margin: 30px auto 70px auto;
 }
+
 .m-comment .comment-result .title {
     display: block;
     font-size: 16px;
@@ -573,12 +675,15 @@ table>tbody>tr:hover{
     border-bottom: 1px solid #ddddd9;
     margin-bottom: 10px;
 }
+
 .w-textarea.textarea-full {
     display: block;
 }
+
 .w-fragment.fragment-tip {
     color: #999;
 }
+
 .w-textarea .textarea-input {
     font-size: 14px;
     padding: 5px 10px;
@@ -587,12 +692,14 @@ table>tbody>tr:hover{
     line-height: 1.7em;
     font-weight: 200;
 }
+
 .m-comment .comment-post .form .enter textarea {
     resize: none;
     min-height: 72px;
     overflow: hidden;
     width: 100%;
 }
+
 .m-comment .comment-list {
     padding-bottom: 12px
 }
@@ -647,7 +754,7 @@ table>tbody>tr:hover{
     background-color: #f7f7f7;
     border: 0;
     border-radius: 3px;
-    font-family: Consolas,"Liberation Mono",Menlo,Courier,monospace
+    font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace
 }
 
 .m-comment .comment-item .content pre>code {
@@ -691,12 +798,20 @@ table>tbody>tr:hover{
     line-height: 24px
 }
 
+.m-comment .comment-item .info img {
+    height: 22px;
+    border-radius: 50%;
+    margin-right: 4px;
+    display: ruby;
+}
+
 .m-comment .comment-item .vote {
     display: inline-block;
     margin-right: 12px
 }
 
-.m-comment .comment-item .vote .agree,.m-comment .comment-item .vote .oppose {
+.m-comment .comment-item .vote .agree,
+.m-comment .comment-item .vote .oppose {
     display: inline-block;
     vertical-align: top;
     width: 30px;
@@ -706,7 +821,9 @@ table>tbody>tr:hover{
     background-color: #f5f5f5;
     color: #666666;
 }
-.m-comment .comment-item .vote .agree:hover,.m-comment .comment-item .vote .oppose:hover{
+
+.m-comment .comment-item .vote .agree:hover,
+.m-comment .comment-item .vote .oppose:hover {
     color: #333333;
 }
 
@@ -735,15 +852,18 @@ table>tbody>tr:hover{
     border-bottom-left-radius: 0
 }
 
-.m-comment .comment-item .vote.disabled .agree,.m-comment .comment-item .vote.disabled .oppose {
+.m-comment .comment-item .vote.disabled .agree,
+.m-comment .comment-item .vote.disabled .oppose {
     cursor: default
 }
 
-.m-comment .comment-item .vote.disabled .agree i,.m-comment .comment-item .vote.disabled .oppose i {
+.m-comment .comment-item .vote.disabled .agree i,
+.m-comment .comment-item .vote.disabled .oppose i {
     color: #ccc
 }
 
-.m-comment .comment-item .vote.disabled .agree:hover i,.m-comment .comment-item .vote.disabled .oppose:hover i {
+.m-comment .comment-item .vote.disabled .agree:hover i,
+.m-comment .comment-item .vote.disabled .oppose:hover i {
     color: #ccc
 }
 
@@ -773,13 +893,15 @@ table>tbody>tr:hover{
     display: block
 }
 
-.m-comment .comment-more,.m-comment .comment-replace {
+.m-comment .comment-more,
+.m-comment .comment-replace {
     display: none;
     text-align: center;
     margin-bottom: 24px
 }
 
-.m-comment .comment-more .more-inner,.m-comment .comment-replace .more-inner {
+.m-comment .comment-more .more-inner,
+.m-comment .comment-replace .more-inner {
     display: inline-block;
     text-align: center;
     height: 36px;
@@ -790,20 +912,24 @@ table>tbody>tr:hover{
     border: 1px solid #aaa
 }
 
-.m-comment .comment-more .more-inner:hover,.m-comment .comment-replace .more-inner:hover {
+.m-comment .comment-more .more-inner:hover,
+.m-comment .comment-replace .more-inner:hover {
     background-color: #f3f3f3;
     border-color: #888
 }
 
-.m-comment .comment-more .more-inner:active,.m-comment .comment-replace .more-inner:active {
-    box-shadow: 0 3px 6px rgba(99,99,99,.1) inset
+.m-comment .comment-more .more-inner:active,
+.m-comment .comment-replace .more-inner:active {
+    box-shadow: 0 3px 6px rgba(99, 99, 99, .1) inset
 }
 
-.m-comment .comment-more.more-active,.m-comment .comment-replace.more-active {
+.m-comment .comment-more.more-active,
+.m-comment .comment-replace.more-active {
     display: block
 }
 
-.m-comment .comment-more.replace-active,.m-comment .comment-replace.replace-active {
+.m-comment .comment-more.replace-active,
+.m-comment .comment-replace.replace-active {
     display: block
 }
 
@@ -828,61 +954,87 @@ table>tbody>tr:hover{
 .m-comment.comment-disabled .comment-post-disabeld {
     display: block
 }
+
 .editor-content {
     line-height: 1.7em;
     font-size: 14px
 }
-.editor-content p{
+
+.editor-content p {
     margin-bottom: 14px;
     line-height: 1.7em;
     font-size: 1.3rem;
     color: #5D5D5D;
 }
+
 .editor-content a {
     color: #3eb1d0
 }
+
 .editor-content h1 {
     font-size: 1.7rem;
     line-height: 1.2
 }
+
 .editor-content h2 {
     padding-bottom: 0.3em;
     font-size: 1.6rem;
     line-height: 2.5em;
     border-bottom: 1px solid #eee
 }
+
 .editor-content h3 {
     font-size: 1.65rem;
     line-height: 2em;
     border-bottom: 1px solid #eee
 }
+
 .editor-content h4 {
     font-size: 1.5rem
 }
+
 .editor-content h5 {
     font-size: 1.45em
 }
+
 .editor-content h6 {
     font-size: 1.4em;
     color: #777
 }
+
 .editor-content br {
     display: block;
     margin: .2em
 }
+
 .editor-content hr {
     border: 0;
     border-bottom: 1px solid #ddd
 }
+
 .editor-content ul {
     padding-left: 28px
 }
+
 .editor-content ol {
     padding-left: 28px
 }
-.editor-content h1,.editor-content h2,.editor-content h3,.editor-content h4,.editor-content h5,.editor-content h6,.editor-content p,.editor-content ul,.editor-content ol,.editor-content blockquote,.teditor-content pre,.editor-content table {
+
+.editor-content h1,
+.editor-content h2,
+.editor-content h3,
+.editor-content h4,
+.editor-content h5,
+.editor-content h6,
+.editor-content p,
+.editor-content ul,
+.editor-content ol,
+.editor-content blockquote,
+.teditor-content pre,
+.editor-content table {
     margin-bottom: 14px
 }
+
 .editor-content table {
     border-collapse: collapse;
     table-layout: fixed;
@@ -892,17 +1044,22 @@ table>tbody>tr:hover{
     word-break: keep-all;
     margin: 10px 0
 }
+
 .editor-content th {
     text-align: left
 }
-.editor-content table thead tr{
+
+.editor-content table thead tr {
     background-color: #0088CC;
     color: #ffffff;
 }
-.editor-content  table tr:nth-child(2n) {
+
+.editor-content table tr:nth-child(2n) {
     background-color: #f8f8f8
 }
-.editor-content table td,.editor-content table th {
+
+.editor-content table td,
+.editor-content table th {
     padding: 6px 13px;
     border: 1px solid #ddd;
 }
@@ -918,6 +1075,7 @@ table>tbody>tr:hover{
 .editor-content table p {
     margin: 0
 }
+
 .editor-content blockquote {
     padding: 5px 5px 5px 15px;
     color: #777;
@@ -956,18 +1114,23 @@ table>tbody>tr:hover{
     padding-left: 0;
     margin-bottom: 0
 }
-.editor-content pre{
+
+.editor-content pre {
     border: 0;
-    margin-bottom:14px;
+    margin-bottom: 14px;
 }
-.editor-content code, .editor-content pre {
+
+.editor-content code,
+.editor-content pre {
     border-radius: 0;
-    font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
-.editor-content pre>code{
+
+.editor-content pre>code {
     word-break: break-all;
     white-space: inherit;
 }
+
 .editor-content blockquote {
     border-color: inherit;
     color: inherit;
@@ -985,7 +1148,8 @@ table>tbody>tr:hover{
     -ms-user-select: none;
     user-select: none;
 }
-.editor-content .markdown-toc{
+
+.editor-content .markdown-toc {
     padding: 15px 5px;
     background-color: #FFFFFF;
     line-height: 25px;
@@ -996,7 +1160,7 @@ table>tbody>tr:hover{
     margin: 0 0 10px 10px;
 }
 
-.http-method .default{
+.http-method .default {
     width: 70px;
     display: inline-block;
     background-color: #333333;
@@ -1015,21 +1179,25 @@ table>tbody>tr:hover{
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
-.http-method .post{
+
+.http-method .post {
     background-color: #F47023 !important;
 }
-.http-method .get{
-    background-color:#27AE60 !important;
-}
-.http-method .put{
-    background-color:#4A90E2!important;
+
+.http-method .get {
+    background-color: #27AE60 !important;
 }
 
-.http-method .del{
-    background-color:red!important;
+.http-method .put {
+    background-color: #4A90E2 !important;
 }
-.http-method .trace{
-    background-color:#e09d43 !important;
+
+.http-method .del {
+    background-color: red !important;
+}
+
+.http-method .trace {
+    background-color: #e09d43 !important;
 }
 
 
@@ -1037,14 +1205,15 @@ table>tbody>tr:hover{
 @media screen and (max-width: 840px) {
 
     .m-manual.manual-reader {
-        font-size:12px;
+        font-size: 12px;
         min-width: initial
     }
 
     .m-manual.manual-reader .manual-head {
         min-width: initial
     }
-    .m-manual.manual-reader .manual-head .manual-menu{
+
+    .m-manual.manual-reader .manual-head .manual-menu {
         display: none;
     }
 
@@ -1114,7 +1283,8 @@ table>tbody>tr:hover{
         display: none
     }
 
-    .m-manual.manual-reader .article-jump .jump-up,.m-manual.manual-reader .article-jump .jump-down {
+    .m-manual.manual-reader .article-jump .jump-up,
+    .m-manual.manual-reader .article-jump .jump-down {
         float: none;
         display: block
     }
@@ -1147,12 +1317,14 @@ table>tbody>tr:hover{
         padding: 0 12px
     }
 
-    .m-manual.manual-reader .manual-article .article-head{
+    .m-manual.manual-reader .manual-article .article-head {
         display: none
     }
-    .m-manual.manual-reader .manual-article .editor-content .markdown-toc{
+
+    .m-manual.manual-reader .manual-article .editor-content .markdown-toc {
         display: none;
     }
+
     .m-manual.manual-reader .manual-mask {
         position: fixed;
         top: 0;

@@ -53,8 +53,10 @@ $(function () {
                         shade: [0.1, '#fff'] // 0.1 透明度的白色背景
                     });
                 } else if ($state === "success") {
-                    if ($res.errcode === 0) {
-                        var value = '![](' + $res.url + ')';
+                    // if ($res.errcode === 0) {
+                    //     var value = '![](' + $res.url + ')';
+                    if ($res[0].errcode === 0) {
+                        var value = '![](' + $res[0].url + ')';
                         window.editor.insertValue(value);
                     }
                 }

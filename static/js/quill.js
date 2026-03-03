@@ -1,4 +1,54 @@
 $(function () {
+    window.editormdLocales = {
+        'zh-CN': {
+            placeholder: '本编辑器支持 Markdown 编辑，左边编写，右边预览。',
+            contentUnsaved: '编辑内容未保存，需要保存吗？',
+            noDocNeedPublish: '没有需要发布的文档',
+            loadDocFailed: '文档加载失败',
+            fetchDocFailed: '获取当前文档信息失败',
+            cannotAddToEmptyNode: '空节点不能添加内容',
+            overrideModified: '文档已被其他人修改确定覆盖已存在的文档吗？',
+            confirm: '确定',
+            cancel: '取消',
+            contentsNameEmpty: '目录名称不能为空',
+            addDoc: '添加文档',
+            edit: '编辑',
+            delete: '删除',
+            loadFailed: '加载失败请重试',
+            tplNameEmpty: '模板名称不能为空',
+            tplContentEmpty: '模板内容不能为空',
+            saveSucc: '保存成功',
+            serverExcept: '服务器异常',
+            paramName: '参数名称',
+            paramType: '参数类型',
+            example: '示例值',
+            remark: '备注',
+        },
+        'en': {
+            placeholder: 'This editor supports Markdown editing, writing on the left and previewing on the right.',
+            contentUnsaved: 'The edited content is not saved, need to save it?',
+            noDocNeedPublish: 'No Document need to be publish',
+            loadDocFailed: 'Load Document failed',
+            fetchDocFailed: 'Fetch Document info failed',
+            cannotAddToEmptyNode: 'Cannot add content to empty node',
+            overrideModified: 'The document has been modified by someone else, are you sure to overwrite the document?',
+            confirm: 'Confirm',
+            cancel: 'Cancel',
+            contentsNameEmpty: 'Document Name cannot be empty',
+            addDoc: 'Add Document',
+            edit: 'Edit',
+            delete: 'Delete',
+            loadFailed: 'Failed to load, please try again',
+            tplNameEmpty: 'Template name cannot be empty',
+            tplContentEmpty: 'Template content cannot be empty',
+            saveSucc: 'Save success',
+            serverExcept: 'Server Exception',
+            paramName: 'Parameter',
+            paramType: 'Type',
+            example: 'Example',
+            remark: 'Remark',
+        }
+    };
     window.addDocumentModalFormHtml = $(this).find("form").html();
     window.menu_save = $("#markdown-save");
     window.uploader = null;
@@ -27,10 +77,11 @@ $(function () {
                 shade: [0.1, '#fff'] // 0.1 透明度的白色背景
             });
         } else if ($state === "success") {
-            if ($res.errcode === 0) {
-
+            // if ($res.errcode === 0) {
+            if ($res[0].errcode === 0) {
                 var range = window.editor.getSelection();
-                window.editor.insertEmbed(range.index, 'image', $res.url);
+                // window.editor.insertEmbed(range.index, 'image', $res.url);
+                window.editor.insertEmbed(range.index, 'image', $res[0].url);
             }
         }
     });
@@ -286,7 +337,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": "添加文档",
+                    "label": window.editormdLocales[window.lang].addDoc,//"添加文档",
                     "icon": "fa fa-plus",
                     "action": function (data) {
 
@@ -300,7 +351,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": "编辑",
+                    "label": window.editormdLocales[window.lang].edit,
                     "icon": "fa fa-edit",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
@@ -312,7 +363,7 @@ $(function () {
                     "separator_before": false,
                     "separator_after": true,
                     "_disabled": false,
-                    "label": "删除",
+                    "label": window.editormdLocales[window.lang].delete,
                     "icon": "fa fa-trash-o",
                     "action": function (data) {
                         var inst = $.jstree.reference(data.reference);
@@ -329,7 +380,7 @@ $(function () {
 
     }).on('select_node.jstree', function (node, selected, event) {
         if(window.menu_save.hasClass('change')) {
-            if(confirm("编辑内容未保存，需要保存吗？")){
+            if (confirm(window.editormdLocales[window.lang].contentUnsaved)) {
                 saveDocument(false,function () {
                     loadDocument(selected);
                 });
@@ -343,6 +394,7 @@ $(function () {
           window.isLoad = true;
           window.editor.root.innerHTML ='';
       });
+
 
     window.saveDocument = saveDocument;
 

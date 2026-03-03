@@ -72,7 +72,7 @@
                     </div>
                     <div class="form-right">
                         <label>
-                            <a href="javascript:;" data-toggle="modal" data-target="#upload-logo-panel">
+                            <a href="#" onclick="return false;" data-toggle="modal" data-target="#upload-logo-panel">
                                 <img src="{{cdnimg .Member.Avatar}}" onerror="this.src='{{cdnimg "static/images/middle.gif"}}'" class="img-circle" alt="{{i18n .Lang "uc.avatar"}}" style="max-width: 120px;max-height: 120px;" id="headimgurl">
                             </a>
                         </label>

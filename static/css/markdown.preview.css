@@ -20,7 +20,8 @@
     width: 100%;
     overflow: auto;
     border-bottom: none;
-    line-height: 1.5
+    line-height: 1.5;
+    display: table;
 }
 
 .editormd-preview-container table td,.editormd-preview-container table th {
@@ -50,33 +51,60 @@
     width: 100%;
 }
 
+.whole-article-wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+/*.content > .whole-article-wrap {*/
+/*    flex-direction: row-reverse;*/
+/*}*/
+
+.content > .whole-article-wrap > .markdown-toc {
+    right: 30px;
+    margin-left: 10px;
+    max-height: 550px;
+}
+
+.content > .whole-article-wrap > .markdown-article {
+    width: 100%;
+}
+
 .article-body .markdown-toc{
     position: fixed;
-    right: 0;
+    right: 50px;
     width: 260px;
     font-size: 12px;
-    margin-top: -70px;
     overflow: auto;
-    margin-right: 50px;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
 }
 .markdown-toc ul{
     list-style:none;
 }
+
+.markdown-toc-list {
+    padding:20px 0 !important;
+    margin-bottom: 0 !important;
+}
+
 .markdown-toc .markdown-toc-list>li{
     padding: 3px 10px 3px 16px;
     line-height: 18px;
-    border-left: 2px solid #e8e8e8;
+    /*border-left: 2px solid #e8e8e8;*/
     color: #595959;
+    margin-left: -2px;
 }
 .markdown-toc .markdown-toc-list>li.active{
     border-right: 2px solid #25b864;
 }
 
 .article-body .markdown-article{
-    margin-right: 250px;
+    width: calc(100% - 260px);
+    /*margin-right: 250px;*/
 }
 .article-body.content .markdown-toc{
-    position: relative;
+    position: fixed;
     margin-top: 0;
 }
 .article-body.content .markdown-article{
@@ -86,7 +114,7 @@
 .markdown-toc-list .directory-item {
     padding: 3px 10px 3px 16px;
     line-height: 18px;
-    border-left: 2px solid #e8e8e8;
+    /*border-left: 2px solid #e8e8e8;*/
     color: #595959;
 }
 .markdown-toc-list .directory-item-link {
@@ -130,6 +158,9 @@
 @media (max-width: 1200px){
     .article-body .markdown-toc{
         display: none;
+    }
+    .article-body .markdown-article{
+        width: 100%;
     }
     .article-body .markdown-article{
         margin-right: 0;
