@@ -242,6 +242,16 @@ function initHighlighting() {
 }
 
 function handleEvent(event) {
+    // 如果焦点在输入框、textarea或可编辑元素中，不执行快捷键操作
+    var target = event.target;
+    var tagName = target.tagName.toLowerCase();
+    var isInputElement = tagName === 'input' || tagName === 'textarea' || tagName === 'select';
+    var isContentEditable = target.isContentEditable || target.contentEditable === 'true';
+    
+    if (isInputElement || isContentEditable) {
+        return;
+    }
+    
     switch (event.keyCode) {
         case 70: // ctrl + f 打开搜索面板 并获取焦点
             $(".navg-item[data-mode='search']").click();
