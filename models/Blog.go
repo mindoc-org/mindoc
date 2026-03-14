@@ -247,6 +247,20 @@ func (b *Blog) Save(cols ...string) error {
 		_, err = o.Insert(b)
 	}
 
+	if err == nil && b.BlogId > 0 {
+		// 刷新倒排索引
+		go func(blogId int, blogTitle, blogRelease, blogContent string) {
+			content := blogRelease
+			if content == "" {
+				content = blogTitle + "\n" + blogContent
+			}
+			content = utils.StripTags(content)
+			if err := BuildIndexForBlog(blogId, content); err != nil {
+				logs.Error("构建Blog倒排索引失败 ->", blogId, err)
+			}
+		}(b.BlogId, b.BlogTitle, b.BlogRelease, b.BlogContent)
+	}
+
 	return err
 }
 
@@ -336,6 +350,10 @@ func (b *Blog) Delete(blogId int) error {
 	key := fmt.Sprintf("blog-id-%d", blogId)
 	_ = cache.Delete(key)
 	o := orm.NewOrm()
+
+	// 删除博客的倒排索引
+	index := NewContentReverseIndex()
+	_ = index.DeleteByContentTypeAndContentId(2, blogId)
 
 	_, err := o.QueryTable(b.TableNameWithPrefix()).Filter("blog_id", blogId).Delete()
 	if err != nil {

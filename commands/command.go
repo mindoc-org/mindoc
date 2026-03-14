@@ -19,7 +19,6 @@ import (
 
 	beegoCache "github.com/beego/beego/v2/client/cache"
 	_ "github.com/beego/beego/v2/client/cache/memcache"
-	"github.com/beego/beego/v2/client/cache/redis"
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/beego/v2/server/web"
@@ -138,6 +137,7 @@ func RegisterModel() {
 		new(models.Comment),
 		new(models.WorkWeixinAccount),
 		new(models.DingTalkAccount),
+		new(models.ContentReverseIndex),
 	)
 	gob.Register(models.Blog{})
 	gob.Register(models.Document{})
@@ -425,9 +425,9 @@ func ResolveCommand(args []string) {
 	RegisterCache()
 	RegisterModel()
 	RegisterLogger(conf.LogFile)
+	models.InitializeMissingIndexes()
 
 	ModifyPassword()
-
 }
 
 // 注册缓存管道
@@ -469,14 +469,15 @@ func RegisterCache() {
 		beegoCache.DefaultEvery = cacheInterval
 		cache.Init(memory)
 	} else if cacheProvider == "redis" {
-		//设置Redis前缀
-		if key := web.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
-			redis.DefaultKey = key
-		}
 		var redisConfig struct {
 			Conn     string `json:"conn"`
 			Password string `json:"password"`
 			DbNum    string `json:"dbNum"`
+			Key      string `json:"key"`
+		}
+		//设置Redis前缀
+		if key := web.AppConfig.DefaultString("cache_redis_prefix", ""); key != "" {
+			redisConfig.Key = key // 设置Redis前缀，替代原来的 redis.DefaultKey
 		}
 		redisConfig.DbNum = "0"
 		redisConfig.Conn = web.AppConfig.DefaultString("cache_redis_host", "")
