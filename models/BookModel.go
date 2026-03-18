@@ -466,6 +466,30 @@ func (book *Book) ThoroughDeleteBook(id int) error {
 		return err
 	}
 
+	//删除该项目下所有文档的倒排索引
+	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
+		// 先查询该项目下的所有文档ID，然后删除对应的倒排索引
+		var docIds []int
+		_, err := txOrm.Raw("SELECT document_id FROM "+NewDocument().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).QueryRows(&docIds)
+		if err == nil && len(docIds) > 0 {
+			indexTable := NewContentReverseIndex().TableNameWithPrefix()
+			// 删除 content_type=1 (Document) 且 content_id 在 docIds 中的倒排索引
+			placeholders := make([]string, len(docIds))
+			args := make([]interface{}, len(docIds)+1)
+			args[0] = 1 // content_type=1
+			for i, id := range docIds {
+				placeholders[i] = "?"
+				args[i+1] = id
+			}
+			sql := "DELETE FROM " + indexTable + " WHERE content_type = ? AND content_id IN (" + strings.Join(placeholders, ",") + ")"
+			_, _ = txOrm.Raw(sql, args...).Exec()
+		}
+		return nil
+	}); err != nil {
+		// 倒排索引删除失败不影响主流程，记日志即可
+		logs.Error("删除项目文档倒排索引失败 ->", book.BookId, err)
+	}
+
 	//删除文档
 	if err := o.DoTx(func(ctx context.Context, txOrm orm.TxOrmer) error {
 		_, err = txOrm.Raw("DELETE FROM "+NewDocument().TableNameWithPrefix()+" WHERE book_id = ?", book.BookId).Exec()

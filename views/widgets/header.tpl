@@ -21,7 +21,7 @@
                     </li>
                 </ul>
                 <div class="searchbar pull-left visible-lg-inline-block visible-md-inline-block">
-                    <form class="form-inline" action="{{urlfor "SearchController.Index"}}" method="get">
+                    <form class="form-inline" action="{{urlfor "SearchController.IndexV2"}}" method="get">
                         <input class="form-control" name="keyword" type="search" style="width: 230px;" placeholder="{{i18n .Lang "message.keyword_placeholder"}}" value="{{.Keyword}}">
                         <button class="search-btn">
                             <i class="fa fa-search"></i>
