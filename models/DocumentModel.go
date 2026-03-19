@@ -135,6 +135,10 @@ func (item *Document) RecursiveDocument(docId int) error {
 	o := orm.NewOrm()
 
 	if doc, err := item.Find(docId); err == nil {
+		// 删除文档的倒排索引
+		index := NewContentReverseIndex()
+		_ = index.DeleteByContentTypeAndContentId(1, docId)
+
 		o.Delete(doc)
 		NewDocumentHistory().Clear(doc.DocumentId)
 	}
@@ -149,6 +153,10 @@ func (item *Document) RecursiveDocument(docId int) error {
 	for _, param := range maps {
 		if docId, ok := param["document_id"].(string); ok {
 			id, _ := strconv.Atoi(docId)
+			// 删除子文档的倒排索引
+			index := NewContentReverseIndex()
+			_ = index.DeleteByContentTypeAndContentId(1, id)
+
 			o.QueryTable(item.TableNameWithPrefix()).Filter("document_id", id).Delete()
 			item.RecursiveDocument(id)
 		}
@@ -257,6 +265,18 @@ func (item *Document) ReleaseContent() error {
 		logs.Error("删除已缓存的文档目录失败 -> ", filepath.Join(conf.WorkingDirectory, "uploads", "books", strconv.Itoa(item.BookId)))
 		return err
 	}
+
+	// 刷新倒排索引
+	go func(docId int, docName, release, markdown string) {
+		content := docName + "\n" + release
+		if content == "" {
+			content = markdown
+		}
+		content = utils.StripTags(content)
+		if err := BuildIndexForDocument(docId, content); err != nil {
+			logs.Error("error: 构建文档倒排索引失败 ->", docId, err)
+		}
+	}(item.DocumentId, item.DocumentName, item.Release, item.Markdown)
 
 	return nil
 }

@@ -262,6 +262,8 @@ func init() {
 	web.Router("/comment/index", &controllers.CommentController{}, "*:Index")
 
 	web.Router("/search", &controllers.SearchController{}, "get:Index")
+	web.Router("/search-v2", &controllers.SearchController{}, "get:IndexV2")
+	web.Router("/api/search-v2", &controllers.SearchController{}, "get:SearchV2")
 
 	web.Router("/tag/:key", &controllers.LabelController{}, "get:Index")
 	web.Router("/tags", &controllers.LabelController{}, "get:List")
