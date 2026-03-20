@@ -50,6 +50,13 @@
                 display: none;
             }
         }
+
+        .m-manual.manual-reader .manual-article.cherry-markdown .article-body .toc {
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
     </style>
 </head>
 <body>
