@@ -20,8 +20,8 @@ var (
 
 // getDictDir 获取词典目录
 func getDictDir() string {
-	// 使用项目根目录下的 conf/jieba 目录
-	return filepath.Join(conf.WorkingDirectory, "conf", "jieba")
+	// 使用项目根目录下的 lib/jieba 目录
+	return filepath.Join(conf.WorkingDirectory, "lib", "jieba")
 }
 
 // ensureDictDir 确保词典目录存在
@@ -36,12 +36,20 @@ func ensureDictDir() error {
 // initJieba 初始化 jieba 分词器
 func initJieba() {
 	segmenterOnce.Do(func() {
+		dictDir := getDictDir()
+
+		// 显式传入词典路径
+		jiebaDict := filepath.Join(dictDir, "jieba.dict.utf8")
+		hmmDict := filepath.Join(dictDir, "hmm_model.utf8")
+		userDict := filepath.Join(dictDir, "user.dict.utf8")
+		idfDict := filepath.Join(dictDir, "idf.utf8")
+		stopWordsDict := filepath.Join(dictDir, "stop_words.utf8")
 		// 确保词典目录存在
 		if err := ensureDictDir(); err != nil {
 			logs.Error("创建词典目录失败 ->", err)
 		}
 		// 创建分词器
-		jiebaCut = gojieba.NewJieba()
+		jiebaCut = gojieba.NewJieba(jiebaDict, hmmDict, userDict, idfDict, stopWordsDict)
 		logs.Info("jieba分词器初始化完成")
 	})
 }
