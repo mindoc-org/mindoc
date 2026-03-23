@@ -237,6 +237,12 @@ func RegisterCommand() {
 	} else if len(os.Args) >= 2 && os.Args[1] == "update" {
 		Update()
 		os.Exit(0)
+	} else if len(os.Args) >= 2 && os.Args[1] == "reindex" {
+		ResolveCommand(os.Args[2:])
+		fmt.Println("开始全量重建倒排索引...")
+		models.RebuildAllIndexes()
+		fmt.Println("倒排索引重建完成")
+		os.Exit(0)
 	}
 
 }

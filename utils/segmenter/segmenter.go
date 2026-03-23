@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
@@ -67,6 +68,11 @@ func Segment(text string) []string {
 		}
 		// 转小写（英文）
 		word = strings.ToLower(word)
+		// 过滤单字符标点符号/特殊字符，避免匹配大量无关文档
+		runes := []rune(word)
+		if len(runes) == 1 && !unicode.IsLetter(runes[0]) && !unicode.IsDigit(runes[0]) {
+			continue
+		}
 		result = append(result, word)
 	}
 

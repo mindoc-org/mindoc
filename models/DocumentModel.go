@@ -268,10 +268,11 @@ func (item *Document) ReleaseContent() error {
 
 	// 刷新倒排索引
 	go func(docId int, docName, release, markdown string) {
-		content := docName + "\n" + release
+		content := release
 		if content == "" {
 			content = markdown
 		}
+		content = docName + "\n" + content
 		content = utils.StripTags(content)
 		if err := BuildIndexForDocument(docId, content); err != nil {
 			logs.Error("error: 构建文档倒排索引失败 ->", docId, err)

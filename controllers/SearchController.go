@@ -1,9 +1,11 @@
 package controllers
 
 import (
+	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/beego/i18n"
 	"github.com/mindoc-org/mindoc/conf"
@@ -62,16 +64,116 @@ func PerformSearchV2Raw(keyword string, pageIndex, pageSize int, memberId int) (
 		words = []string{keyword}
 	}
 
+	// 将原始关键词（小写）加入搜索词列表，确保能匹配索引中存储的完整词条
+	lowerKeyword := strings.ToLower(strings.TrimSpace(keyword))
+	if lowerKeyword != "" {
+		found := false
+		for _, w := range words {
+			if w == lowerKeyword {
+				found = true
+				break
+			}
+		}
+		if !found {
+			words = append(words, lowerKeyword)
+		}
+	}
+
 	// 使用倒排索引模型进行搜索
 	index := models.NewContentReverseIndex()
-	results, totalCount, err := index.FindByWordsWithPagination(words, pageIndex, pageSize)
+	allResults, err := index.FindByWords(words)
 	if err != nil {
 		return nil, words, 0, err
 	}
 
+	// 收集需要批量查询的ID
+	docIds := make([]int, 0)
+	blogIds := make([]int, 0)
+	for _, result := range allResults {
+		if result.ContentType == 1 {
+			docIds = append(docIds, result.ContentId)
+		} else if result.ContentType == 2 {
+			blogIds = append(blogIds, result.ContentId)
+		}
+	}
+
+	// 批量加载 Document
+	docMap := make(map[int]*models.Document)
+	if len(docIds) > 0 {
+		var docs []*models.Document
+		o := orm.NewOrm()
+		_, err := o.QueryTable(models.NewDocument().TableNameWithPrefix()).Filter("document_id__in", docIds).All(&docs)
+		if err == nil {
+			for _, doc := range docs {
+				docMap[doc.DocumentId] = doc
+			}
+		}
+	}
+
+	// 批量加载 Blog
+	blogMap := make(map[int]*models.Blog)
+	if len(blogIds) > 0 {
+		var blogs []*models.Blog
+		o := orm.NewOrm()
+		_, err := o.QueryTable(models.NewBlog().TableNameWithPrefix()).Filter("blog_id__in", blogIds).All(&blogs)
+		if err == nil {
+			for _, blog := range blogs {
+				blogMap[blog.BlogId] = blog
+			}
+		}
+	}
+
+	// 收集需要加载的 BookId 和 MemberId
+	bookIds := make([]int, 0)
+	memberIds := make([]int, 0)
+	bookIdSet := make(map[int]bool)
+	memberIdSet := make(map[int]bool)
+	for _, doc := range docMap {
+		if doc.BookId > 0 && !bookIdSet[doc.BookId] {
+			bookIds = append(bookIds, doc.BookId)
+			bookIdSet[doc.BookId] = true
+		}
+		if doc.MemberId > 0 && !memberIdSet[doc.MemberId] {
+			memberIds = append(memberIds, doc.MemberId)
+			memberIdSet[doc.MemberId] = true
+		}
+	}
+	for _, blog := range blogMap {
+		if blog.MemberId > 0 && !memberIdSet[blog.MemberId] {
+			memberIds = append(memberIds, blog.MemberId)
+			memberIdSet[blog.MemberId] = true
+		}
+	}
+
+	// 批量加载 Book
+	bookMap := make(map[int]*models.Book)
+	if len(bookIds) > 0 {
+		var books []*models.Book
+		o := orm.NewOrm()
+		_, err := o.QueryTable(models.NewBook().TableNameWithPrefix()).Filter("book_id__in", bookIds).All(&books)
+		if err == nil {
+			for _, book := range books {
+				bookMap[book.BookId] = book
+			}
+		}
+	}
+
+	// 批量加载 Member
+	memberMap := make(map[int]*models.Member)
+	if len(memberIds) > 0 {
+		var members []*models.Member
+		o := orm.NewOrm()
+		_, err := o.QueryTable(models.NewMember().TableNameWithPrefix()).Filter("member_id__in", memberIds).All(&members, "member_id", "account", "real_name")
+		if err == nil {
+			for _, member := range members {
+				memberMap[member.MemberId] = member
+			}
+		}
+	}
+
 	// 构建返回结果
 	searchResults := make([]*SearchV2RawResult, 0)
-	for _, result := range results {
+	for _, result := range allResults {
 		item := &SearchV2RawResult{
 			ContentType: result.ContentType,
 			ContentId:   result.ContentId,
@@ -81,100 +183,150 @@ func PerformSearchV2Raw(keyword string, pageIndex, pageSize int, memberId int) (
 
 		// 根据内容类型获取详细信息
 		if result.ContentType == 1 {
-			// Document类型
-			doc, err := models.NewDocument().Find(result.ContentId)
-			if err == nil {
-				// 检查文档权限
-				book, bookErr := models.NewBook().Find(doc.BookId)
-				if bookErr != nil {
-					continue
-				}
-
-				item.SearchType = "document"
-				item.DocumentId = doc.DocumentId
-				item.DocumentName = doc.DocumentName
-				item.BookId = doc.BookId
-				item.BookName = book.BookName
-				item.Identify = doc.Identify
-				item.BookIdentify = book.Identify
-				item.CreateTime = doc.CreateTime
-				item.ModifyTime = doc.ModifyTime
-				item.Content = doc.Release
-
-				// 获取作者信息
-				if doc.MemberId > 0 {
-					member, _ := models.NewMember().Find(doc.MemberId, "real_name", "account")
-					if member != nil {
-						if member.RealName != "" {
-							item.Author = member.RealName
-						} else {
-							item.Author = member.Account
-						}
-					}
-				}
-
-				// 提取描述
-				description := doc.Release
-				if description == "" {
-					description = doc.Markdown
-				}
-				// 去除HTML标签
-				description = utils.StripTags(description)
-				if len([]rune(description)) > 100 {
-					description = string([]rune(description)[:100]) + "..."
-				}
-				item.Description = description
-
-				searchResults = append(searchResults, item)
+			doc, ok := docMap[result.ContentId]
+			if !ok {
+				continue
 			}
+			book, ok := bookMap[doc.BookId]
+			if !ok {
+				continue
+			}
+
+			item.SearchType = "document"
+			item.DocumentId = doc.DocumentId
+			item.DocumentName = doc.DocumentName
+			item.BookId = doc.BookId
+			item.BookName = book.BookName
+			item.Identify = doc.Identify
+			item.BookIdentify = book.Identify
+			item.CreateTime = doc.CreateTime
+			item.ModifyTime = doc.ModifyTime
+			item.Content = doc.Release
+
+			// 获取作者信息
+			if member, ok := memberMap[doc.MemberId]; ok {
+				if member.RealName != "" {
+					item.Author = member.RealName
+				} else {
+					item.Author = member.Account
+				}
+			}
+
+			// 提取描述
+			description := doc.Release
+			if description == "" {
+				description = doc.Markdown
+			}
+			description = utils.StripTags(description)
+			if len([]rune(description)) > 100 {
+				description = string([]rune(description)[:100]) + "..."
+			}
+			item.Description = description
+
+			// 标题匹配加权：搜索词命中标题时提升分数
+			titleLower := strings.ToLower(doc.DocumentName)
+			for _, w := range words {
+				if strings.Contains(titleLower, w) {
+					item.Score *= 1.5
+				}
+			}
+
+			// 精确匹配加权：文档内容包含原始关键词时大幅提分
+			if lowerKeyword != "" {
+				contentLower := strings.ToLower(utils.StripTags(doc.Release))
+				if contentLower == "" {
+					contentLower = strings.ToLower(utils.StripTags(doc.Markdown))
+				}
+				if strings.Contains(contentLower, lowerKeyword) {
+					item.Score *= 5.0
+				}
+			}
+
+			searchResults = append(searchResults, item)
 		} else if result.ContentType == 2 {
-			// Blog类型
-			blog, err := models.NewBlog().Find(result.ContentId)
-			if err == nil {
-				item.SearchType = "blog"
-				item.BlogId = blog.BlogId
-				item.BlogTitle = blog.BlogTitle
-				item.DocumentId = blog.BlogId
-				item.DocumentName = blog.BlogTitle
-				item.BlogIdentify = blog.BlogIdentify
-				item.Identify = blog.BlogIdentify
-				item.BlogExcerpt = blog.BlogExcerpt
-				item.CreateTime = blog.Created
-				item.ModifyTime = blog.Modified
-				item.Content = blog.BlogRelease
-
-				// 获取作者信息
-				if blog.MemberId > 0 {
-					member, _ := models.NewMember().Find(blog.MemberId, "real_name", "account")
-					if member != nil {
-						if member.RealName != "" {
-							item.Author = member.RealName
-						} else {
-							item.Author = member.Account
-						}
-					}
-				}
-
-				// 提取描述
-				description := blog.BlogExcerpt
-				if description == "" {
-					description = blog.BlogRelease
-					if description == "" {
-						description = blog.BlogContent
-					}
-				}
-				description = utils.StripTags(description)
-				if len([]rune(description)) > 100 {
-					description = string([]rune(description)[:100]) + "..."
-				}
-				item.Description = description
-
-				searchResults = append(searchResults, item)
+			blog, ok := blogMap[result.ContentId]
+			if !ok {
+				continue
 			}
+
+			item.SearchType = "blog"
+			item.BlogId = blog.BlogId
+			item.BlogTitle = blog.BlogTitle
+			item.DocumentId = blog.BlogId
+			item.DocumentName = blog.BlogTitle
+			item.BlogIdentify = blog.BlogIdentify
+			item.Identify = blog.BlogIdentify
+			item.BlogExcerpt = blog.BlogExcerpt
+			item.CreateTime = blog.Created
+			item.ModifyTime = blog.Modified
+			item.Content = blog.BlogRelease
+
+			// 获取作者信息
+			if member, ok := memberMap[blog.MemberId]; ok {
+				if member.RealName != "" {
+					item.Author = member.RealName
+				} else {
+					item.Author = member.Account
+				}
+			}
+
+			// 提取描述
+			description := blog.BlogExcerpt
+			if description == "" {
+				description = blog.BlogRelease
+				if description == "" {
+					description = blog.BlogContent
+				}
+			}
+			description = utils.StripTags(description)
+			if len([]rune(description)) > 100 {
+				description = string([]rune(description)[:100]) + "..."
+			}
+			item.Description = description
+
+			// 标题匹配加权：搜索词命中标题时提升分数
+			titleLower := strings.ToLower(blog.BlogTitle)
+			for _, w := range words {
+				if strings.Contains(titleLower, w) {
+					item.Score *= 1.5
+				}
+			}
+
+			// 精确匹配加权：博客内容包含原始关键词时大幅提分
+			if lowerKeyword != "" {
+				contentLower := strings.ToLower(utils.StripTags(blog.BlogRelease))
+				if contentLower == "" {
+					contentLower = strings.ToLower(utils.StripTags(blog.BlogContent))
+				}
+				if strings.Contains(contentLower, lowerKeyword) {
+					item.Score *= 5.0
+				}
+			}
+
+			searchResults = append(searchResults, item)
 		}
 	}
 
-	return searchResults, words, totalCount, nil
+	// 按加权后的分数重新排序
+	sort.Slice(searchResults, func(i, j int) bool {
+		return searchResults[i].Score > searchResults[j].Score
+	})
+
+	// 分页
+	totalCount := len(searchResults)
+	offset := (pageIndex - 1) * pageSize
+	end := offset + pageSize
+	if offset > totalCount {
+		offset = totalCount
+	}
+	if end > totalCount {
+		end = totalCount
+	}
+	if offset >= end {
+		return nil, words, totalCount, nil
+	}
+
+	return searchResults[offset:end], words, totalCount, nil
 }
 
 // performSearchV2 执行倒排索引搜索，返回 SearchV2Result 列表
