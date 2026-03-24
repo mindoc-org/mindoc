@@ -1102,3 +1102,60 @@ where mtr.book_id = ? and mtm.member_id = ? order by mtm.role_id asc limit 1;`
 	}
 	return conf.BookRole(roleId), nil
 }
+
+// FindRoleIdsByBookIds 批量查询用户对多个项目的角色，返回 bookId -> BookRole 的映射
+// 未找到关系的项目不会出现在结果中
+func (book *Book) FindRoleIdsByBookIds(bookIds []int, memberId int) map[int]conf.BookRole {
+	result := make(map[int]conf.BookRole)
+	if len(bookIds) == 0 || memberId <= 0 {
+		return result
+	}
+	o := orm.NewOrm()
+
+	// 1. 批量查询 relationship 表（直接成员关系）
+	var rels []Relationship
+	_, err := NewRelationship().QueryTable().Filter("book_id__in", bookIds).Filter("member_id", memberId).All(&rels)
+	if err != nil && err != orm.ErrNoRows {
+		logs.Error("批量查询项目角色失败(relationship) ->", err)
+	}
+	for _, rel := range rels {
+		result[rel.BookId] = rel.RoleId
+	}
+
+	// 2. 对未命中的 bookId，批量查询 team 关系
+	remainIds := make([]int, 0)
+	for _, bid := range bookIds {
+		if _, ok := result[bid]; !ok {
+			remainIds = append(remainIds, bid)
+		}
+	}
+	if len(remainIds) > 0 {
+		// 构建 IN 占位符
+		placeholders := make([]string, len(remainIds))
+		args := make([]interface{}, len(remainIds))
+		for i, id := range remainIds {
+			placeholders[i] = "?"
+			args[i] = id
+		}
+		sql := `SELECT mtr.book_id, MIN(mtm.role_id) AS role_id
+FROM ` + conf.GetDatabasePrefix() + `team_relationship AS mtr
+LEFT JOIN ` + conf.GetDatabasePrefix() + `team_member AS mtm ON mtm.team_id = mtr.team_id AND mtm.member_id = ?
+WHERE mtr.book_id IN (` + strings.Join(placeholders, ",") + `) AND mtm.member_id IS NOT NULL
+GROUP BY mtr.book_id`
+		allArgs := append([]interface{}{memberId}, args...)
+		type teamRoleRow struct {
+			BookId int
+			RoleId int
+		}
+		var rows []teamRoleRow
+		_, err := o.Raw(sql, allArgs...).QueryRows(&rows)
+		if err != nil && err != orm.ErrNoRows {
+			logs.Error("批量查询项目角色失败(team) ->", err)
+		}
+		for _, row := range rows {
+			result[row.BookId] = conf.BookRole(row.RoleId)
+		}
+	}
+
+	return result
+}

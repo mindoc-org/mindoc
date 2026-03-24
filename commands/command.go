@@ -237,8 +237,21 @@ func RegisterCommand() {
 	} else if len(os.Args) >= 2 && os.Args[1] == "update" {
 		Update()
 		os.Exit(0)
+	} else if len(os.Args) >= 2 && os.Args[1] == "reindex" {
+		ResolveCommand(os.Args[2:])
+		fmt.Println("开始全量重建倒排索引...")
+		if err := models.RebuildAllIndexes(); err != nil {
+			fmt.Println("倒排索引重建失败，索引表可能处于部分重建状态，请重新执行 reindex:", err)
+			os.Exit(1)
+		}
+		fmt.Println("倒排索引重建完成")
+		os.Exit(0)
 	}
 
+}
+
+func shouldInitializeMissingIndexes() bool {
+	return !(len(os.Args) >= 2 && os.Args[1] == "reindex")
 }
 
 // 注册模板函数
@@ -425,7 +438,9 @@ func ResolveCommand(args []string) {
 	RegisterCache()
 	RegisterModel()
 	RegisterLogger(conf.LogFile)
-	models.InitializeMissingIndexes()
+	if shouldInitializeMissingIndexes() {
+		models.InitializeMissingIndexes()
+	}
 
 	ModifyPassword()
 }

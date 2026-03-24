@@ -1,10 +1,13 @@
 package segmenter
 
 import (
+	"bufio"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/beego/beego/v2/core/logs"
 	"github.com/mindoc-org/mindoc/conf"
@@ -15,6 +18,9 @@ var (
 	// jieba 分词器实例
 	segmenterOnce sync.Once
 	jiebaCut      *gojieba.Jieba
+	// 停用词集合
+	stopWords map[string]bool
+	technicalTermPattern = regexp.MustCompile(`(?i)[a-z0-9][a-z0-9+#._/-]{1,63}`)
 )
 
 // getDictDir 获取词典目录
@@ -49,8 +55,29 @@ func initJieba() {
 		}
 		// 创建分词器
 		jiebaCut = gojieba.NewJieba(jiebaDict, hmmDict, userDict, idfDict, stopWordsDict)
-		logs.Info("jieba分词器初始化完成")
+		// 加载停用词表
+		stopWords = loadStopWords(stopWordsDict)
+		logs.Info("jieba分词器初始化完成, 停用词数:", len(stopWords))
 	})
+}
+
+// loadStopWords 从文件加载停用词集合
+func loadStopWords(filePath string) map[string]bool {
+	sw := make(map[string]bool)
+	f, err := os.Open(filePath)
+	if err != nil {
+		logs.Error("加载停用词表失败 ->", err)
+		return sw
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		word := strings.TrimSpace(scanner.Text())
+		if word != "" {
+			sw[strings.ToLower(word)] = true
+		}
+	}
+	return sw
 }
 
 // Segment 中文分词器
@@ -75,8 +102,56 @@ func Segment(text string) []string {
 		}
 		// 转小写（英文）
 		word = strings.ToLower(word)
+		// 过滤单字符标点符号/特殊字符，避免匹配大量无关文档
+		runes := []rune(word)
+		if len(runes) == 1 && !unicode.IsLetter(runes[0]) && !unicode.IsDigit(runes[0]) {
+			continue
+		}
+		// 过滤停用词
+		if stopWords[word] {
+			continue
+		}
 		result = append(result, word)
 	}
 
+	for _, word := range extractTechnicalTerms(text) {
+		if stopWords[word] {
+			continue
+		}
+		result = append(result, word)
+	}
+
+	return result
+}
+
+func extractTechnicalTerms(text string) []string {
+	matches := technicalTermPattern.FindAllString(text, -1)
+	if len(matches) == 0 {
+		return nil
+	}
+	result := make([]string, 0, len(matches))
+	for _, match := range matches {
+		word := strings.ToLower(strings.TrimSpace(match))
+		if word == "" {
+			continue
+		}
+		if len([]rune(word)) < 2 {
+			continue
+		}
+		if !strings.ContainsAny(word, ".+#/_-") {
+			continue
+		}
+		hasAlphaNumeric := false
+		for _, r := range word {
+			if unicode.IsLetter(r) || unicode.IsDigit(r) {
+				hasAlphaNumeric = true
+				break
+			}
+		}
+		if !hasAlphaNumeric {
+			continue
+		}
+		result = append(result, word)
+	}
 	return result
 }
