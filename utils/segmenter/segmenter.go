@@ -23,6 +23,29 @@ var (
 	technicalTermPattern = regexp.MustCompile(`(?i)[a-z0-9][a-z0-9+#._/-]{1,63}`)
 )
 
+// techTermWhitelist 技术术语白名单
+// 这些词虽然是常见英语词汇，但同时也是 Linux/Unix 命令、编程语言
+// 或重要技术术语，不应被停用词过滤，否则用户搜索相关命令时将无法找到文档
+var techTermWhitelist = map[string]bool{
+	// Linux/Unix 常用命令（同时也是英语常见词）
+	"find": true, "top": true, "last": true, "more": true, "less": true,
+	"who": true, "which": true, "done": true, "move": true, "give": true,
+	"make": true, "take": true, "fill": true, "split": true, "cut": true,
+	// 编程语言/框架名称
+	"go": true, "net": true, "next": true,
+	// HTTP 方法 / 数据库操作
+	"get": true, "put": true, "call": true, "show": true, "describe": true,
+	"like": true,
+	// 系统/运维/容器/网络相关
+	"system": true, "volume": true, "name": true, "save": true, "keep": true,
+	"re": true, "mine": true, "near": true, "fire": true, "front": true,
+	"full": true, "empty": true, "computer": true, "detail": true, "part": true,
+	"back": true, "down": true, "up": true, "bar": true, "round": true,
+	"side": true, "bottom": true,
+	// 工具/软件名称（同时也是英语单词）
+	"everything": true,
+}
+
 // getDictDir 获取词典目录
 func getDictDir() string {
 	// 使用项目根目录下的 lib/jieba 目录
@@ -107,15 +130,15 @@ func Segment(text string) []string {
 		if len(runes) == 1 && !unicode.IsLetter(runes[0]) && !unicode.IsDigit(runes[0]) {
 			continue
 		}
-		// 过滤停用词
-		if stopWords[word] {
+		// 过滤停用词（白名单中的技术术语不过滤）
+		if stopWords[word] && !techTermWhitelist[word] {
 			continue
 		}
 		result = append(result, word)
 	}
 
 	for _, word := range extractTechnicalTerms(text) {
-		if stopWords[word] {
+		if stopWords[word] && !techTermWhitelist[word] {
 			continue
 		}
 		result = append(result, word)
