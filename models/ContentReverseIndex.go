@@ -6,9 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"regexp"
+	"sort"
+	"strings"
 
 	"github.com/beego/beego/v2/client/orm"
 	"github.com/beego/beego/v2/core/logs"
+	"github.com/beego/beego/v2/server/web"
 	"github.com/mindoc-org/mindoc/conf"
 	"github.com/mindoc-org/mindoc/utils"
 	"github.com/mindoc-org/mindoc/utils/segmenter"
@@ -17,6 +21,8 @@ import (
 func init() {
 	//go InitializeMissingIndexes()
 }
+
+const emptyIndexWord = "__mindoc_empty_index__"
 
 // ContentReverseIndex 倒排索引结构
 type ContentReverseIndex struct {
@@ -102,26 +108,31 @@ type ContentReverseIndexResult struct {
 	WordCounts  []int   `json:"word_counts"` // 各个词的词频
 }
 
-// FindByWordsWithPagination 根据多个分词词汇分页批量查询结果，按IDF值排序
+// FindByWords 根据多个分词词汇查询结果，按TF-IDF值排序，返回全部匹配结果（不分页）
 // words: 分词词汇列表
-// pageIndex: 页码，从1开始
-// pageSize: 每页数量
-func (c *ContentReverseIndex) FindByWordsWithPagination(words []string, pageIndex, pageSize int) ([]*ContentReverseIndexResult, int, error) {
+// 返回值: 结果列表, 匹配的总文档数(截断前), error
+func (c *ContentReverseIndex) FindByWords(words []string) ([]*ContentReverseIndexResult, int, error) {
 	if len(words) == 0 {
 		return nil, 0, errors.New("分词词汇列表不能为空")
 	}
-	if pageIndex <= 0 {
-		pageIndex = 1
+	words = normalizeIndexWords(words)
+	if len(words) == 0 {
+		return nil, 0, errors.New("分词词汇列表不能为空")
 	}
-	if pageSize <= 0 {
-		pageSize = 10
+	// 限制查询词数量，防止恶意超长关键词生成巨大IN子句
+	const maxWords = 50
+	if len(words) > maxWords {
+		words = words[:maxWords]
 	}
 
 	o := orm.NewOrm()
 	tableName := c.TableNameWithPrefix()
+	if !validTableName.MatchString(tableName) {
+		return nil, 0, errors.New("非法表名: " + tableName)
+	}
 
 	// 计算总文档数
-	totalDocsSql := "SELECT COUNT(DISTINCT CONCAT(content_type, '-', content_id)) FROM " + tableName
+	totalDocsSql := "SELECT COUNT(*) FROM (SELECT DISTINCT content_type, content_id FROM " + tableName + ") AS t"
 	var totalDocs int
 	err := o.Raw(totalDocsSql).QueryRow(&totalDocs)
 	if err != nil {
@@ -152,99 +163,103 @@ func (c *ContentReverseIndex) FindByWordsWithPagination(words []string, pageInde
 		return nil, 0, err
 	}
 
-	// 计算各文档的总词数
-	sql = "SELECT content_type, content_id, count(word_count) total_word_count FROM " + tableName +
-		" GROUP BY content_type, content_id"
-	type docWordCountRecord struct {
-		ContentType    int
-		ContentId      int
-		TotalWordCount int
-	}
-	var docWordCountRecords []docWordCountRecord
-	_, err = o.Raw(sql).QueryRows(&docWordCountRecords)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	docTotalWordCountMap := make(map[string]int)
-	for _, record := range docWordCountRecords {
-		key := fmt.Sprintf("%d-%d", record.ContentType, record.ContentId)
-		docTotalWordCountMap[key] = record.TotalWordCount
-	}
-
-	// 聚合每个(content_type, content_id)的词频和计算TF-IDF
-	contentMap := make(map[string]*ContentReverseIndexResult)
+	// 计算每个词的文档频率（DF）：每个词出现在多少个文档中
+	wordDocFreq := make(map[string]map[string]bool)
 	for _, record := range records {
 		key := fmt.Sprintf("%d-%d", record.ContentType, record.ContentId)
-		if result, exists := contentMap[key]; exists {
-			result.WordCounts = append(result.WordCounts, record.WordCount)
-		} else {
-			contentMap[key] = &ContentReverseIndexResult{
-				ContentId:   record.ContentId,
-				ContentType: record.ContentType,
-				WordCounts:  []int{record.WordCount},
+		if wordDocFreq[record.Word] == nil {
+			wordDocFreq[record.Word] = make(map[string]bool)
+		}
+		wordDocFreq[record.Word][key] = true
+	}
+
+	// 聚合每个文档的匹配词信息
+	type docWordInfo struct {
+		Word      string
+		WordCount int
+	}
+	docWords := make(map[string][]docWordInfo)
+	for _, record := range records {
+		key := fmt.Sprintf("%d-%d", record.ContentType, record.ContentId)
+		docWords[key] = append(docWords[key], docWordInfo{
+			Word:      record.Word,
+			WordCount: record.WordCount,
+		})
+	}
+
+	// 计算每个文档的TF-IDF分数（使用正确的per-word IDF）
+	results := make([]*ContentReverseIndexResult, 0, len(docWords))
+	for key, wordInfos := range docWords {
+		var contentType, contentId int
+		if _, err := fmt.Sscanf(key, "%d-%d", &contentType, &contentId); err != nil {
+			logs.Error("解析文档key失败 ->", key, err)
+			continue
+		}
+
+		score := 0.0
+		wordCounts := make([]int, 0, len(wordInfos))
+
+		for _, wi := range wordInfos {
+			wordCounts = append(wordCounts, wi.WordCount)
+			// TF: 使用对数TF（sublinear TF），避免长文档被不合理惩罚
+			tf := 1.0 + math.Log(float64(wi.WordCount)+1)
+			// IDF: 每个词独立计算，稀有词权重更高
+			df := len(wordDocFreq[wi.Word])
+			idf := 0.0
+			if df > 0 && totalDocs > 0 {
+				idf = math.Log(float64(totalDocs+1) / float64(df+1))
 			}
-		}
-	}
-
-	docMapWithWords := make(map[string]int) // 用于计算包含搜索词的文档数
-	// 计算每个文档包含多少个查询词
-	docWordCount := make(map[string]int)
-	for _, record := range records {
-		key := fmt.Sprintf("%d-%d", record.ContentType, record.ContentId)
-		docWordCount[key] += record.WordCount
-		docMapWithWords[key] += 1
-	}
-
-	// 计算IDF并生成结果
-	results := make([]*ContentReverseIndexResult, 0, len(contentMap))
-	for key := range contentMap {
-		result := contentMap[key]
-		// 计算TF：词频之和
-		tf := float64(docWordCount[key]) / float64(docTotalWordCountMap[key]+1)
-		// 计算DF：包含该词的文档数（简化处理，使用该文档包含的查询词数量）
-		df := len(docMapWithWords)
-		// 计算IDF
-		idf := 0.0
-		if df > 0 && totalDocs > 0 {
-			idf = math.Log(float64(totalDocs+1) / float64(df))
+			// 词长权重：长词（更具体的词）贡献更大
+			wordLen := float64(len([]rune(wi.Word)))
+			lengthWeight := math.Log2(1.0 + wordLen)
+			score += tf * idf * lengthWeight
 		}
 
-		// 用于根据文档总词数调整TF-IDF的权重，避免总词数过小的文档权重过高
-		alpha := math.Log(1.0+float64(docTotalWordCountMap[key])*0.01) * 100
-		// TF-IDF分数
-		result.Score = float64(tf) * idf * float64(alpha)
-		results = append(results, result)
+		// 查询词覆盖率加成：匹配的查询词越多，分数越高
+		coverage := float64(len(wordInfos)) / float64(len(words))
+		score *= (1.0 + coverage)
+
+		results = append(results, &ContentReverseIndexResult{
+			ContentId:   contentId,
+			ContentType: contentType,
+			Score:       score,
+			WordCounts:  wordCounts,
+		})
 	}
 
 	// 按Score降序排序
 	sortResultsByScore(results)
-	totalCount := len(results)
-	// 分页
-	offset := (pageIndex - 1) * pageSize
-	start := offset
-	end := offset + pageSize
-	if start > totalCount {
-		start = totalCount
-	}
-	if end > totalCount {
-		end = totalCount
-	}
-	if start >= end {
-		return nil, totalCount, nil
-	}
 
-	return results[start:end], totalCount, nil
+	return results, len(results), nil
+}
+
+func normalizeIndexWords(words []string) []string {
+	result := make([]string, 0, len(words))
+	seen := make(map[string]struct{}, len(words))
+	for _, word := range words {
+		word = strings.TrimSpace(word)
+		if word == "" || word == emptyIndexWord {
+			continue
+		}
+		if _, ok := seen[word]; ok {
+			continue
+		}
+		seen[word] = struct{}{}
+		result = append(result, word)
+	}
+	return result
 }
 
 func sortResultsByScore(results []*ContentReverseIndexResult) {
-	for i := 0; i < len(results)-1; i++ {
-		for j := i + 1; j < len(results); j++ {
-			if results[i].Score < results[j].Score {
-				results[i], results[j] = results[j], results[i]
-			}
+	sort.Slice(results, func(i, j int) bool {
+		if results[i].Score != results[j].Score {
+			return results[i].Score > results[j].Score
 		}
-	}
+		if results[i].ContentType != results[j].ContentType {
+			return results[i].ContentType < results[j].ContentType
+		}
+		return results[i].ContentId < results[j].ContentId
+	})
 }
 
 func generateIndexId(contentType, contentId int, word string) string {
@@ -253,6 +268,16 @@ func generateIndexId(contentType, contentId int, word string) string {
 	hasher.Write([]byte(source))
 	hash := hasher.Sum(nil)
 	return hex.EncodeToString(hash)[:32]
+}
+
+func buildEmptyIndexRecord(contentType, contentId int) *ContentReverseIndex {
+	return &ContentReverseIndex{
+		Id:          generateIndexId(contentType, contentId, emptyIndexWord),
+		Word:        emptyIndexWord,
+		ContentType: contentType,
+		ContentId:   contentId,
+		WordCount:   1,
+	}
 }
 
 func BuildIndexForDocument(documentId int, content string) error {
@@ -268,10 +293,6 @@ func BuildIndexForDocument(documentId int, content string) error {
 	}
 
 	words := segmenter.Segment(content)
-	if len(words) == 0 {
-		return nil
-	}
-
 	wordCountMap := make(map[string]int)
 	for _, word := range words {
 		if len(word) > 64 {
@@ -281,6 +302,9 @@ func BuildIndexForDocument(documentId int, content string) error {
 	}
 
 	indices := make([]*ContentReverseIndex, 0, len(wordCountMap))
+	if len(wordCountMap) == 0 {
+		indices = append(indices, buildEmptyIndexRecord(1, documentId))
+	}
 	for word, count := range wordCountMap {
 		id := generateIndexId(1, documentId, word)
 
@@ -317,10 +341,6 @@ func BuildIndexForBlog(blogId int, content string) error {
 	}
 
 	words := segmenter.Segment(content)
-	if len(words) == 0 {
-		return nil
-	}
-
 	wordCountMap := make(map[string]int)
 	for _, word := range words {
 		if len(word) > 64 {
@@ -330,6 +350,9 @@ func BuildIndexForBlog(blogId int, content string) error {
 	}
 
 	indices := make([]*ContentReverseIndex, 0, len(wordCountMap))
+	if len(wordCountMap) == 0 {
+		indices = append(indices, buildEmptyIndexRecord(2, blogId))
+	}
 	for word, count := range wordCountMap {
 		id := generateIndexId(2, blogId, word)
 
@@ -380,6 +403,10 @@ func GetUnindexedDocuments(limit int) ([]*Document, error) {
 	docTable := NewDocument().TableNameWithPrefix()
 	indexTable := NewContentReverseIndex().TableNameWithPrefix()
 
+	if !validTableName.MatchString(docTable) || !validTableName.MatchString(indexTable) {
+		return nil, errors.New("非法表名")
+	}
+
 	sql := "SELECT d.* FROM " + docTable + " d " +
 		"LEFT JOIN " + indexTable + " i ON i.content_type = 1 AND i.content_id = d.document_id " +
 		"WHERE i.id IS NULL " +
@@ -400,6 +427,10 @@ func GetUnindexedBlogs(limit int) ([]*Blog, error) {
 	var blogs []*Blog
 	blogTable := NewBlog().TableNameWithPrefix()
 	indexTable := NewContentReverseIndex().TableNameWithPrefix()
+
+	if !validTableName.MatchString(blogTable) || !validTableName.MatchString(indexTable) {
+		return nil, errors.New("非法表名")
+	}
 
 	sql := "SELECT b.* FROM " + blogTable + " b " +
 		"LEFT JOIN " + indexTable + " i ON i.content_type = 2 AND i.content_id = b.blog_id " +
@@ -446,9 +477,7 @@ func InitializeMissingDocumentIndexes() {
 				if content == "" {
 					content = doc.Markdown
 				}
-				for i := 0; i < 10; i++ { // 标题内容"十分"重要
-					content = doc.DocumentName + "\n" + content
-				}
+				content = doc.DocumentName + "\n" + content
 				content = utils.StripTags(content)
 				err := BuildIndexForDocument(doc.DocumentId, content)
 				if err != nil {
@@ -481,9 +510,7 @@ func InitializeMissingBlogIndexes() {
 				if content == "" {
 					content = blog.BlogContent
 				}
-				for i := 0; i < 10; i++ { // 标题内容"十分"重要
-					content = blog.BlogTitle + "\n" + content
-				}
+				content = blog.BlogTitle + "\n" + content
 				content = utils.StripTags(content)
 
 				err := BuildIndexForBlog(blog.BlogId, content)
@@ -495,4 +522,154 @@ func InitializeMissingBlogIndexes() {
 			}
 		}
 	}
+}
+
+// validTableName 校验表名仅包含安全字符，防止 SQL 注入
+var validTableName = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
+
+// RebuildAllIndexes 全量重建倒排索引（先清空再重建）。
+// 注意：MySQL/Postgres 使用 TRUNCATE，SQLite 使用 DELETE，若后续重建阶段发生错误，
+// 索引表将处于部分重建状态，此时搜索结果可能不完整。
+// 建议在业务低峰期执行，并在返回 error 时手动重新执行本命令。
+func RebuildAllIndexes() error {
+	logs.Info("开始全量重建倒排索引...")
+
+	// 清空倒排索引表
+	o := orm.NewOrm()
+	tableName := NewContentReverseIndex().TableNameWithPrefix()
+	if !validTableName.MatchString(tableName) {
+		err := errors.New("非法表名，拒绝执行: " + tableName)
+		logs.Error(err)
+		return err
+	}
+	err := clearReverseIndexTable(o, tableName)
+	if err != nil {
+		logs.Error("清空倒排索引表失败 ->", err)
+		return err
+	}
+	logs.Info("倒排索引表已清空")
+
+	// 重建文档索引
+	if err := rebuildDocumentIndexes(); err != nil {
+		logs.Error("文档索引重建失败，索引表处于部分重建状态，请重新执行 reindex ->", err)
+		return err
+	}
+	// 重建博客索引
+	if err := rebuildBlogIndexes(); err != nil {
+		logs.Error("博客索引重建失败，索引表处于部分重建状态，请重新执行 reindex ->", err)
+		return err
+	}
+
+	logs.Info("全量重建倒排索引完成")
+	return nil
+}
+
+func clearReverseIndexTable(o orm.Ormer, tableName string) error {
+	dbadapter, _ := web.AppConfig.String("db_adapter")
+	if strings.EqualFold(dbadapter, "sqlite3") {
+		_, err := o.Raw("DELETE FROM " + tableName).Exec()
+		return err
+	}
+	_, err := o.Raw("TRUNCATE TABLE " + tableName).Exec()
+	return err
+}
+
+func rebuildDocumentIndexes() error {
+	o := orm.NewOrm()
+	batchSize := 100
+	offset := 0
+	total := 0
+	failed := 0
+	var firstErr error
+
+	for {
+		var documents []*Document
+		_, err := o.QueryTable(NewDocument().TableNameWithPrefix()).
+			OrderBy("document_id").
+			Limit(batchSize, offset).
+			All(&documents)
+		if err != nil {
+			logs.Error("查询文档失败 ->", err)
+			return err
+		}
+		if len(documents) == 0 {
+			break
+		}
+
+		for _, doc := range documents {
+			content := doc.Release
+			if content == "" {
+				content = doc.Markdown
+			}
+			content = doc.DocumentName + "\n" + content
+			content = utils.StripTags(content)
+			if err := BuildIndexForDocument(doc.DocumentId, content); err != nil {
+				logs.Error("重建文档倒排索引失败 ->", doc.DocumentId, err)
+				failed++
+				if firstErr == nil {
+					firstErr = fmt.Errorf("document_id=%d: %w", doc.DocumentId, err)
+				}
+			} else {
+				total++
+			}
+		}
+
+		offset += batchSize
+		logs.Info("已重建文档索引:", total, "失败:", failed)
+	}
+	logs.Info("文档索引重建完成, 成功:", total, "失败:", failed)
+	if failed > 0 {
+		return fmt.Errorf("文档索引重建存在 %d 条失败，首个错误: %w", failed, firstErr)
+	}
+	return nil
+}
+
+func rebuildBlogIndexes() error {
+	o := orm.NewOrm()
+	batchSize := 100
+	offset := 0
+	total := 0
+	failed := 0
+	var firstErr error
+
+	for {
+		var blogs []*Blog
+		_, err := o.QueryTable(NewBlog().TableNameWithPrefix()).
+			OrderBy("blog_id").
+			Limit(batchSize, offset).
+			All(&blogs)
+		if err != nil {
+			logs.Error("查询博客失败 ->", err)
+			return err
+		}
+		if len(blogs) == 0 {
+			break
+		}
+
+		for _, blog := range blogs {
+			content := blog.BlogRelease
+			if content == "" {
+				content = blog.BlogContent
+			}
+			content = blog.BlogTitle + "\n" + content
+			content = utils.StripTags(content)
+			if err := BuildIndexForBlog(blog.BlogId, content); err != nil {
+				logs.Error("重建Blog倒排索引失败 ->", blog.BlogId, err)
+				failed++
+				if firstErr == nil {
+					firstErr = fmt.Errorf("blog_id=%d: %w", blog.BlogId, err)
+				}
+			} else {
+				total++
+			}
+		}
+
+		offset += batchSize
+		logs.Info("已重建Blog索引:", total, "失败:", failed)
+	}
+	logs.Info("Blog索引重建完成, 成功:", total, "失败:", failed)
+	if failed > 0 {
+		return fmt.Errorf("博客索引重建存在 %d 条失败，首个错误: %w", failed, firstErr)
+	}
+	return nil
 }

@@ -324,6 +324,33 @@ func Flatten(list []*models.DocumentTree, flattened *[]DocumentTreeFlatten) {
 	return
 }
 
+func (c *DocumentController) resolveEditDocument(bookId int, id string) (*models.Document, error) {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return nil, nil
+	}
+
+	doc := models.NewDocument()
+	if docId, err := strconv.Atoi(id); err == nil {
+		doc, err = doc.FromCacheById(docId)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		var err error
+		doc, err = doc.FromCacheByIdentify(id, bookId)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if doc == nil || doc.DocumentId <= 0 || doc.BookId != bookId {
+		return nil, orm.ErrNoRows
+	}
+
+	return doc, nil
+}
+
 // 编辑文档
 func (c *DocumentController) Edit() {
 	c.Prepare()
@@ -396,6 +423,21 @@ func (c *DocumentController) Edit() {
 	} else {
 		c.Data["UploadFileSize"] = "undefined"
 	}
+
+	selectedDocId := 0
+	if doc, err := c.resolveEditDocument(bookResult.BookId, c.Ctx.Input.Param(":id")); err != nil {
+		if err == orm.ErrNoRows || err == models.ErrDataNotExist {
+			c.ShowErrorPage(404, i18n.Tr(c.Lang, "message.doc_not_exist"))
+		} else {
+			logs.Error("resolveEditDocument => ", err)
+			c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.system_error"))
+		}
+		return
+	} else if doc != nil {
+		selectedDocId = doc.DocumentId
+	}
+
+	c.Data["SelectedDocId"] = selectedDocId
 }
 
 // 创建一个文档

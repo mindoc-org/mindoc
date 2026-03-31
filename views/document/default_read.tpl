@@ -34,6 +34,8 @@
         window.BASE_URL = '{{urlfor "HomeController.Index" }}';
         window.IS_DOCUMENT_INDEX = '{{if .IS_DOCUMENT_INDEX}}true{{end}}' === 'true';
         window.IS_DISPLAY_COMMENT = '{{if .Model.IsDisplayComment}}true{{end}}' === 'true';
+        window.editURL = '{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}';
+        window.currentDocumentId = {{.DocumentId}};
     </script>
     <script type="text/javascript">window.book={"identify": '{{.Model.Identify}}'};</script>
     <style>
@@ -80,7 +82,7 @@
                 {{if gt .Member.MemberId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
                 <div class="dropdown pull-left" style="margin-right: 10px;">
-                    <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-danger"><i class="fa fa-edit" aria-hidden="true"></i> {{i18n .Lang "blog.edit"}}</a>
+                    <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" .DocumentId}}" class="btn btn-danger" id="editDocumentLink"><i class="fa fa-edit" aria-hidden="true"></i> {{i18n .Lang "blog.edit"}}</a>
                     {{if eq .Model.RoleId 0 1}}
                     <a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="btn btn-success"><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "blog.member"}}</a>
                     <a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="btn btn-primary"><i class="fa fa-gear" aria-hidden="true"></i> {{i18n .Lang "common.setting"}}</a>

@@ -153,6 +153,7 @@ function renderPage($data) {
     $("#article-info").text($data.doc_info);
     $("#view_count").text("阅读次数：" + $data.view_count);
     $("#doc_id").val($data.doc_id);
+    updateEditLink($data.doc_id);
     checkMarkdownTocElement();
     if ($data.page) {
         loadComment($data.page, $data.doc_id);
@@ -168,6 +169,19 @@ function renderPage($data) {
         $("#view_container").addClass($data.markdown_theme)
     }
 
+}
+
+function updateEditLink($docid) {
+    var $editLink = $("#editDocumentLink");
+    var normalizedDocId = parseInt($docid, 10);
+
+    if ($editLink.length === 0 || !window.editURL || !normalizedDocId) {
+        return;
+    }
+
+    window.currentDocumentId = normalizedDocId;
+    var baseURL = window.editURL.replace(/\/+$/, '');
+    $editLink.attr("href", baseURL + "/" + normalizedDocId);
 }
 
 /***
@@ -242,24 +256,33 @@ function initHighlighting() {
 }
 
 function handleEvent(event) {
-    // 如果焦点在输入框、textarea或可编辑元素中，不执行快捷键操作
     var target = event.target;
     var tagName = target.tagName.toLowerCase();
     var isInputElement = tagName === 'input' || tagName === 'textarea' || tagName === 'select';
     var isContentEditable = target.isContentEditable || target.contentEditable === 'true';
-    
+
+    // ESC 关闭搜索面板，无论焦点在哪里都生效
+    if (event.keyCode === 27) {
+        $(".navg-item[data-mode='view']").click();
+        if (isInputElement) {
+            target.blur();
+        }
+        event.preventDefault();
+        return;
+    }
+
+    // 其他快捷键：焦点在输入框、textarea或可编辑元素中时不执行
     if (isInputElement || isContentEditable) {
         return;
     }
     
     switch (event.keyCode) {
-        case 70: // ctrl + f 打开搜索面板 并获取焦点
+        case 70: // f 打开搜索面板 并获取焦点，ctrl+f 留给浏览器原生搜索
+            if (event.ctrlKey || event.metaKey) {
+                return;
+            }
             $(".navg-item[data-mode='search']").click();
             document.getElementById('searchForm').querySelector('input').focus();
-            event.preventDefault();
-            break;
-        case 27: // esc 关闭搜索面板
-            $(".navg-item[data-mode='view']").click();
             event.preventDefault();
             break;
     }
@@ -267,6 +290,7 @@ function handleEvent(event) {
 
 $(function () {
     window.addEventListener('keydown', handleEvent)
+    updateEditLink(window.currentDocumentId);
 
     checkMarkdownTocElement();
     $(".view-backtop").on("click", function () {

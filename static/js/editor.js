@@ -5,29 +5,48 @@
 /**
  * 打开最后选中的节点
  */
- function openLastSelectedNode() {
+function selectCatalogNode(nodeId, persist) {
+    var selected = false;
+    var normalizedNodeId = parseInt(nodeId, 10);
+
+    if (!normalizedNodeId) {
+        return false;
+    }
+
+    try {
+        $.each(window.documentCategory, function (i, n) {
+            if (parseInt(n.id, 10) === normalizedNodeId && !selected) {
+                var node = {"id": n.id};
+                window.treeCatalog.deselect_all();
+                window.treeCatalog.select_node(node);
+                if (persist) {
+                    setLastSelectNode(node);
+                }
+                selected = true;
+            }
+        });
+    } catch ($ex) {
+        console.log($ex)
+    }
+
+    return selected;
+}
+
+function openLastSelectedNode() {
     //如果文档树或编辑器没有准备好则不加载文档
     if (window.treeCatalog == null || window.editor == null) {
         return false;
     }
     var $isSelected = false;
+
+    if (window.selectedDocId) {
+        $isSelected = selectCatalogNode(window.selectedDocId, true);
+    }
+
     if (window.localStorage) {
         var $selectedNodeId = window.sessionStorage.getItem("MinDoc::LastLoadDocument:" + window.book.identify);
-        try {
-            if ($selectedNodeId) {
-                //遍历文档树判断是否存在节点
-                $.each(window.documentCategory, function (i, n) {
-                    if (n.id == $selectedNodeId && !$isSelected) {
-                        var $node = {"id": n.id};
-                        window.treeCatalog.deselect_all();
-                        window.treeCatalog.select_node($node);
-                        $isSelected = true;
-                    }
-                });
-
-            }
-        } catch ($ex) {
-            console.log($ex)
+        if (!$isSelected && $selectedNodeId) {
+            $isSelected = selectCatalogNode($selectedNodeId, false);
         }
     }
 
@@ -36,9 +55,7 @@
         var doc = window.documentCategory[0];
 
         if (doc && doc.id > 0) {
-            var node = {"id": doc.id};
-            $("#sidebar").jstree(true).select_node(node);
-            $isSelected = true;
+            $isSelected = selectCatalogNode(doc.id, true);
         }
     }
     return $isSelected;

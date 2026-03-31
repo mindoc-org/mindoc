@@ -252,8 +252,9 @@ func (b *Blog) Save(cols ...string) error {
 		go func(blogId int, blogTitle, blogRelease, blogContent string) {
 			content := blogRelease
 			if content == "" {
-				content = blogTitle + "\n" + blogContent
+				content = blogContent
 			}
+			content = blogTitle + "\n" + content
 			content = utils.StripTags(content)
 			if err := BuildIndexForBlog(blogId, content); err != nil {
 				logs.Error("构建Blog倒排索引失败 ->", blogId, err)
