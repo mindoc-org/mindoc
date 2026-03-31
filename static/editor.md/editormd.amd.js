@@ -7,7 +7,7 @@
  * @license     MIT License
  * @author      IBM Skills Network
  * {@link       https://github.com/ibm-skills-network/editor.md}
- * @updateTime  2024-03-27
+ * @updateTime  2026-03-31
  */
 
 /*
@@ -474,6 +474,13 @@
             if (typeof id === "object")
             {
                 options = id;
+            }
+
+            // Backward compatibility: if called with 2 args (id, options), treat 2nd arg as options
+            if (typeof author_ide_version === "object" && !Array.isArray(author_ide_version) && Object.keys(options).length === 0)
+            {
+                options = author_ide_version;
+                author_ide_version = undefined;
             }
 
             var classPrefix      = this.classPrefix  = editormd.classPrefix;

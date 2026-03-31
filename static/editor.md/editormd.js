@@ -7,7 +7,7 @@
  * @license     MIT License
  * @author      IBM Skills Network
  * {@link       https://github.com/ibm-skills-network/editor.md}
- * @updateTime  2024-03-27
+ * @updateTime  2026-03-31
  */
 
 /*
@@ -70,7 +70,6 @@
         return new editormd.fn.init(id,author_ide_version, options);
     };
 
-    editormd.URL_ROOT = document.currentScript.src.replace(/\/[^\/]+$/ig, '') + "/"
     editormd.title        = editormd.$name = "Editor.md";
     editormd.version      = "1.7.17";
     editormd.homePage     = "https://pandao.github.io/editor.md/";
@@ -189,7 +188,7 @@
         mindMap              : true,           // 脑图
         previewCodeHighlight : true,
 
-        toolbar              : false,           // show/hide toolbar
+        toolbar              : true,           // show/hide toolbar
         toolbarAutoFixed     : true,           // on window scroll auto fixed position
         titlebar             : {
             left: {},
@@ -407,12 +406,15 @@
                 options = id;
             }
 
+            // Backward compatibility: if called with 2 args (id, options), treat 2nd arg as options
+            if (typeof author_ide_version === "object" && !Array.isArray(author_ide_version) && Object.keys(options).length === 0)
+            {
+                options = author_ide_version;
+                author_ide_version = undefined;
+            }
+
             var classPrefix      = this.classPrefix  = editormd.classPrefix;
             var settings         = this.settings     = $.extend(true, {}, editormd.defaults, options);
-            if (settings.path.startsWith('.')) {
-                settings.path = editormd.URL_ROOT + settings.path
-            }
-            console.log(settings.path)
 
             id                   = (typeof id === "object") ? settings.id : id;
 
@@ -595,9 +597,9 @@
                 }
             };
 
-            // editormd.loadScript(loadPath + "xss", function () {
-            //     editormd.$filterXSS = filterXSS
-            // });
+            editormd.loadScript(loadPath + "xss", function () {
+                editormd.$filterXSS = filterXSS
+            });
 
             editormd.loadCSS(loadPath + "codemirror/codemirror.min");
 
@@ -630,7 +632,7 @@
 
                         _this.setToolbar();
 
-                        editormd.loadScript(loadPath + "marked.umd", function() {
+                        editormd.loadScript(loadPath + "marked.min", function() {
 
                             editormd.$marked = marked;
 
@@ -1199,6 +1201,53 @@
                 return this;
             }
 
+            // Store html for titlebar
+            var titlebarContent = "";
+
+            // for each titlebar section
+            Object.entries(titlebarModes).forEach(([titlebarSection, sectionButtons]) => {
+
+                var sectionHtml = "";
+
+                if (titlebarSection === "left") {
+                    // set logo and Author IDE title
+                    sectionHtml = "<img class=\"sn-logo\"><span class=\"home-title\">Skills Network Author IDE</span>";
+                } else {
+                    // for each item in the section, add HTML to sectionHTML
+                    for (var name in sectionButtons) {
+                        var htmlSafeName = name.replace(/\s+/g, '-').toLowerCase();
+                        var hoverTitle = (typeof settings.lang.titlebar[name] === "string") ? settings.lang.titlebar[name] : "";
+
+                        switch (sectionButtons[name]) {
+                            case "dropdown":
+                                sectionHtml += "<div class=\"" + classPrefix + "titlebar-dropdown\"> \
+                                        <button class=\"" + classPrefix + "titlebar-button " + htmlSafeName + "\" title=\"" + hoverTitle + "\"> \
+                                            <span class=\"dropdown-text\">" + name + "</span> \
+                                            <span class=\"" + classPrefix + "titlebar-dropdown-chevron\"></span> \
+                                        </button> \
+                                        <div class=\"toolbar-dropdown-content\"></div> \
+                                    </div>";
+                                break;
+                            case "button":
+                                sectionHtml += "<button class=\"" + classPrefix + "titlebar-button " + htmlSafeName + "\" title=\"" + hoverTitle + "\">"
+                                    + name + "</button>";
+                                break;
+                            default:
+                                sectionHtml += "<span class=\"" + classPrefix + "titlebar " + htmlSafeName + "\" title=\"" + hoverTitle + "\">"
+                                    + name + "</span>";
+                        };
+                    }
+                }
+
+                // add generated html for the section to the titlebar
+                titlebarContent += "<div class=\"" + classPrefix + "titlebar-section " + titlebarSection + "\">" + sectionHtml + "</div>";
+
+            });
+
+            // Set html for titlebar
+            toolbar.find("div." + classPrefix + "titlebar-container").html(titlebarContent);
+
+
             // Set toolbar icons
             toolbar.show();
 
@@ -1692,7 +1741,7 @@
                 var mermaid = previewContainer.find(".lang-mermaid");
                 if (mermaid) {
                     try {
-                        mermaid.init(void 0, mermaid.removeClass("hide"));
+                        window.mermaid.init(void 0, mermaid.removeClass("hide"));
                     }catch (e) {
                         console.log(e);
                     }
@@ -2206,6 +2255,7 @@
                     tables      : true,
                     breaks      : true,
                     pedantic    : false,
+                    sanitize    : (settings.htmlDecode) ? false : true,  // 关闭忽略HTML标签，即开启识别HTML标签，默认为false
                     smartLists  : true,
                     smartypants : true
                 };
@@ -4379,6 +4429,7 @@
             tocContainer         : "",
             markdown             : "",
             markdownSourceCode   : false,
+            htmlDecode           : false,
             autoLoadKaTeX        : true,
             pageBreak            : true,
             atLink               : true,    // for @link
@@ -4431,6 +4482,7 @@
             tables      : true,
             breaks      : true,
             pedantic    : false,
+            sanitize    : (settings.htmlDecode) ? false : true, // 是否忽略HTML标签，即是否开启HTML标签解析，为了安全性，默认不开启
             smartLists  : true,
             smartypants : true
         };

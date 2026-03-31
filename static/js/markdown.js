@@ -1,7 +1,8 @@
 $(function () {
     editormd.katexURL = {
-        js: window.katex.js,
-        css: window.katex.css
+        css: window.katex.css,
+        jsmain: window.katex.js,
+        jsauto: window.katex.jsauto || (window.katex.js.replace(/\/[^\/]+$/, '') + '/contrib/auto-render.min')
     };
     var drawio = new Object()
 

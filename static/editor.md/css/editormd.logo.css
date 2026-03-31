@@ -7,7 +7,7 @@
  * @license     MIT License
  * @author      IBM Skills Network
  * {@link       https://github.com/ibm-skills-network/editor.md}
- * @updateTime  2024-03-27
+ * @updateTime  2026-03-31
  */
 
 @charset "UTF-8";
@@ -51,7 +51,7 @@
 .editormd-logo-6x:before,
 .editormd-logo-7x:before,
 .editormd-logo-8x:before {
-  content: "\e1987";
+  content: "󡦇";
   /* 
   HTML Entity &#xe1987; 
   example: <span class="editormd-logo">&#xe1987;</span>
