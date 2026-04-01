@@ -353,7 +353,7 @@ func RegisterFunction() {
 		}
 		lang := langItemSplit[0]
 		i18nMap[lang] = langItemSplit[1]
-		if err := i18n.SetMessage(lang, "conf/lang/"+lang+".ini"); err != nil {
+		if err := i18n.SetMessage(lang, conf.WorkingDir("conf", "lang", lang+".ini")); err != nil {
 			logs.Error("Fail to set message file: " + err.Error())
 			return
 		}
