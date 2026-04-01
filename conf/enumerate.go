@@ -367,14 +367,30 @@ func WorkingDir(elem ...string) string {
 	return filepath.Join(elems...)
 }
 
+// resolveBaseDir 按优先级返回程序的工作根目录：
+// 1. 可执行文件所在目录（存在 conf/app.conf 则认为有效）
+// 2. 当前工作目录
+func resolveBaseDir() string {
+	// 优先：可执行文件所在目录
+	if exe, err := os.Executable(); err == nil {
+		exeDir := filepath.Dir(exe)
+		// 处理 go run 时的临时路径（路径含 go-build）
+		if !strings.Contains(exeDir, "go-build") {
+			if _, err := os.Stat(filepath.Join(exeDir, "conf", "app.conf")); err == nil {
+				return exeDir
+			}
+		}
+	}
+	// 兜底：当前工作目录
+	if cwd, err := filepath.Abs("."); err == nil {
+		return cwd
+	}
+	return "."
+}
+
 func init() {
-	if p, err := filepath.Abs("./conf/app.conf"); err == nil {
-		ConfigurationFile = p
-	}
-	if p, err := filepath.Abs("./"); err == nil {
-		WorkingDirectory = p
-	}
-	if p, err := filepath.Abs("./runtime/logs"); err == nil {
-		LogFile = p
-	}
+	base := resolveBaseDir()
+	ConfigurationFile = filepath.Join(base, "conf", "app.conf")
+	WorkingDirectory = base
+	LogFile = filepath.Join(base, "runtime", "logs")
 }
