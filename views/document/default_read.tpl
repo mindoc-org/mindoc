@@ -25,7 +25,6 @@
     <link href="{{cdncss "/static/editor.md/css/editormd.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/markdown.preview.css" "version"}}" rel="stylesheet">
     <link href="{{cdncss (print "/static/editor.md/lib/highlight/styles/" .HighlightStyle ".css") "version"}}" rel="stylesheet">
-    <link href="{{cdncss "/static/prismjs/prismjs.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/katex/katex.min.css"}}" rel="stylesheet">
     <link href="{{cdncss "/static/css/print.css" "version"}}" media="print" rel="stylesheet">
 
@@ -34,10 +33,8 @@
         window.BASE_URL = '{{urlfor "HomeController.Index" }}';
         window.IS_DOCUMENT_INDEX = '{{if .IS_DOCUMENT_INDEX}}true{{end}}' === 'true';
         window.IS_DISPLAY_COMMENT = '{{if .Model.IsDisplayComment}}true{{end}}' === 'true';
-        window.editURL = '{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}';
-        window.currentDocumentId = {{.DocumentId}};
     </script>
-    <script type="text/javascript">window.book={"identify": '{{.Model.Identify}}'};</script>
+    <script type="text/javascript">window.book={"identify":"{{.Model.Identify}}"};</script>
     <style>
         .btn-mobile {
             position: absolute;
@@ -53,15 +50,6 @@
             .btn-mobile{
                 display: none;
             }
-        }
-
-        .svg {
-            display: inline-block;
-            position: relative;
-            width: 100%;
-            height: 100%;
-            vertical-align: middle;
-            overflow: auto;
         }
     </style>
 </head>
@@ -82,7 +70,7 @@
                 {{if gt .Member.MemberId 0}}
                 {{if eq .Model.RoleId 0 1 2}}
                 <div class="dropdown pull-left" style="margin-right: 10px;">
-                    <a href="{{if gt .DocumentId 0}}{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" .DocumentId}}{{else}}{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}{{end}}" class="btn btn-danger" id="editDocumentLink"><i class="fa fa-edit" aria-hidden="true"></i> {{i18n .Lang "blog.edit"}}</a>
+                    <a href="{{urlfor "DocumentController.Edit" ":key" .Model.Identify ":id" ""}}" class="btn btn-danger"><i class="fa fa-edit" aria-hidden="true"></i> {{i18n .Lang "blog.edit"}}</a>
                     {{if eq .Model.RoleId 0 1}}
                     <a href="{{urlfor "BookController.Users" ":key" .Model.Identify}}" class="btn btn-success"><i class="fa fa-user" aria-hidden="true"></i> {{i18n .Lang "blog.member"}}</a>
                     <a href="{{urlfor "BookController.Setting" ":key" .Model.Identify}}" class="btn btn-primary"><i class="fa fa-gear" aria-hidden="true"></i> {{i18n .Lang "common.setting"}}</a>
@@ -90,9 +78,7 @@
                 </div>
                 {{end}}
                 {{end}}
-                {{if .Model.PrintState}}
                 <a href="javascript:window.print();" id="printSinglePage" class="btn btn-default" style="margin-right: 10px;"><i class="fa fa-print"></i> {{i18n .Lang "doc.print"}}</a>
-                {{end}}
                 <div class="dropdown pull-right" style="margin-right: 10px;">
                 {{if eq .Model.PrivatelyOwned 0}}
                 {{if .Model.IsEnableShare}}
@@ -125,7 +111,7 @@
                 <div class="tab-navg">
                     <span data-mode="view" class="navg-item active"><i class="fa fa-align-justify"></i><b class="text">{{i18n .Lang "doc.contents"}}</b></span>
                     <span data-mode="search" class="navg-item"><i class="fa fa-search"></i><b class="text">{{i18n .Lang "doc.search"}}</b></span>
-                    <span id="handlerMenuShow" style="float: right;display: inline-block;padding: 5px;cursor: pointer;">
+                    <span id="handlerMenuShow" style="float: right;display: inline-block;padding: 5px;cursor: pointer;" data-expand-text="{{i18n .Lang "doc.expand"}}" data-fold-text="{{i18n .Lang "doc.fold"}}">
                         <i class="fa fa-angle-left" style="font-size: 20px;padding-right: 5px;"></i>
                         <span class="pull-right" style="padding-top: 4px;">{{i18n .Lang "doc.expand"}}</span>
                     </span>
@@ -138,7 +124,7 @@
                 </div>
                 <div class="tab-wrap">
                     <div class="tab-item manual-catalog">
-                        <div class="catalog-list read-book-preview" id="sidebar">
+                        <div class="catalog-list read-book-preview" id="sidebar" style="visibility: hidden;">
                         {{.Result}}
                         </div>
 
@@ -312,8 +298,6 @@
 <script src="{{cdnjs "/static/nprogress/nprogress.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/editor.md/lib/highlight/highlight.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/jquery.highlight.js"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/js/clipboard.min.js" "version"}}" type="text/javascript"></script>
-<script src="{{cdnjs "/static/prismjs/prismjs.js"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/kancloud.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/splitbar.js" "version"}}" type="text/javascript"></script>
 <script src="{{cdnjs "/static/js/custom-elements-builtin-0.6.5.min.js"}}" type="text/javascript"></script>
@@ -330,40 +314,51 @@ $(function () {
         });
     });
 
-    window.menuControl = true;
-    window.foldSetting = '{{.FoldSetting}}';
-    if (foldSetting == 'open' || foldSetting == 'first') {
+    // 修改：不再默认展开，而是使用localStorage记忆的状态
+    window.menuSetting = localStorage.getItem('mindoc_menu_setting_' + window.book.identify) || "close";
+    
+    if (menuSetting == 'open' || menuSetting == 'first') {
+        window.menuControl = true;
         $('#handlerMenuShow').find('span').text('{{i18n .Lang "doc.fold"}}');
         $('#handlerMenuShow').find('i').attr("class","fa fa-angle-down");
-        if (foldSetting == 'open') {
-            window.jsTree.jstree().open_all();
+        if (menuSetting == 'open') {
+            // 不再调用open_all，让restoreTreeState处理
+            // window.jsTree.jstree().open_all()
         }
-        if (foldSetting == 'first') {
-            window.jsTree.jstree('close_all');
+        if (menuSetting == 'first') {
+            window.jsTree.jstree('close_all')
             var $target = $('.jstree-container-ul').children('li').filter(function(index){
                 if($(this).attr('aria-expanded')==false||$(this).attr('aria-expanded')){
-                    return $(this);
+                    return $(this)
                 }else{
-                    delete $(this);
+                    delete $(this)
                 }
-            });
-            $target.children('i').trigger('click');
+            })
+            $target.children('i').trigger('click')
         }
     } else {
-        menuControl = false;
-        window.jsTree.jstree('close_all');
+        // 默认收起状态
+        window.menuControl = false;
+        $('#handlerMenuShow').find('span').text('{{i18n .Lang "doc.expand"}}');
+        $('#handlerMenuShow').find('i').attr("class","fa fa-angle-left");
+        // 已经在kancloud.js中处理了默认收起
+        // window.jsTree.jstree('close_all')
     }
     $('#handlerMenuShow').on('click', function(){
         if(menuControl){
-            $(this).find('span').text('{{i18n .Lang "doc.expand"}}');
-            $(this).find('i').attr("class","fa fa-angle-left");
-            window.menuControl = false;
-            window.jsTree.jstree('close_all');
+            $(this).find('span').text('{{i18n .Lang "doc.expand"}}')
+            $(this).find('i').attr("class","fa fa-angle-left")
+            window.menuControl = false
+            window.jsTree.jstree('close_all')
+            // 保存设置
+            localStorage.setItem('mindoc_menu_setting_' + window.book.identify, 'close');
         }else{
             window.menuControl = true
-            $(this).find('span').text('{{i18n .Lang "doc.fold"}}');
-            $(this).find('i').attr("class","fa fa-angle-down");
-            window.jsTree.jstree().open_all();
+            $(this).find('span').text('{{i18n .Lang "doc.fold"}}')
+            $(this).find('i').attr("class","fa fa-angle-down")
+            window.jsTree.jstree().open_all()
+            // 保存设置
+            localStorage.setItem('mindoc_menu_setting_' + window.book.identify, 'open');
         }
     });
 

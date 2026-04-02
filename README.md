@@ -1,5 +1,62 @@
 # MinDoc 简介
 
+---
+
+## V2.1.1 更新说明 (2024-04-02)
+
+### 🎉 新增功能
+
+#### 目录树优化
+- ✨ **默认收起**：文档编辑和阅读界面的目录树默认全部收起，界面更清爽
+- 💾 **状态记忆**：自动记忆用户的展开/收起状态，刷新页面后自动恢复
+- 🔄 **独立管理**：编辑界面和阅读界面的展开状态独立存储，互不影响
+- 🏢 **项目隔离**：不同项目的目录树状态独立保存
+- ⚡ **性能优化**：消除刷新时的闪烁问题，提升用户体验
+
+### 🔧 技术改进
+
+#### 修改的文件
+- `static/js/markdown.js` - 编辑界面目录树逻辑
+- `static/js/kancloud.js` - 阅读界面目录树逻辑
+- `views/document/default_read.tpl` - 阅读界面模板
+
+#### 实现原理
+- 使用浏览器 `localStorage` 保存展开状态
+- 通过 `isRestoringState` 标志位防止自动展开被保存
+- 使用 `visibility: hidden` 避免页面闪烁
+- 区分"全部展开"和"部分展开"两种状态
+
+### 📝 使用说明
+
+#### 默认行为
+- 首次打开文档页面时，目录树默认全部收起
+- 手动展开的节点会自动保存
+- 刷新页面后自动恢复上次的展开状态
+
+#### 清除状态
+如需清除保存的展开状态，在浏览器控制台执行：
+```javascript
+// 清除当前项目的状态
+localStorage.removeItem('mindoc_tree_state_' + window.book.identify);
+localStorage.removeItem('mindoc_read_tree_state_' + window.book.identify);
+
+// 清除所有项目的状态
+Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('mindoc_tree_state_') || 
+        key.startsWith('mindoc_read_tree_state_')) {
+        localStorage.removeItem(key);
+    }
+});
+```
+
+### 🔗 相关链接
+- 原始仓库：[mindoc-org/mindoc](https://github.com/mindoc-org/mindoc)
+- 基于版本：V2.1
+- 修改者：[@RogerXie314](https://github.com/RogerXie314)
+
+---
+
+
 [![Build Status](https://travis-ci.com/mindoc-org/mindoc.svg?branch=master)](https://travis-ci.com/mindoc-org/mindoc)
 [![Build status](https://ci.appveyor.com/api/projects/status/7680ia6mu29m12wx?svg=true)](https://ci.appveyor.com/project/mindoc-org/mindoc)
 

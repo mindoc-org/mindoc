@@ -19,7 +19,7 @@ var events = function () {
 
         $(".manual-right").scrollTop(0);
         //使用layer相册功能查看图片
-        layer.photos({ photos: "#page-content" });
+        layer.photos({photos: "#page-content"});
     };
 
     return {
@@ -65,58 +65,45 @@ function pageClicked($page, $docid) {
     }
     $("#articleComment").removeClass('not-show-comment');
     $.ajax({
-        url: "/comment/lists?page=" + $page + "&docid=" + $docid,
-        type: "GET",
-        success: function ($res) {
+        url : "/comment/lists?page=" + $page + "&docid=" + $docid,
+        type : "GET",
+        success : function ($res) {
             console.log($res.data);
             loadComment($res.data.page, $res.data.doc_id);
         },
-        error: function () {
+        error : function () {
             layer.msg("加载失败");
         }
     });
 }
 
-function renderOperateSection(comment) {
-    const deleteIcon = comment.show_del == 1
-        ? `<i class="delete e-delete glyphicon glyphicon-remove" onclick="onDelComment(${comment.comment_id})"></i>`
-        : '';
-
-    return `
-        <span class="operate ${comment.show_del == 1 ? 'toggle' : ''}">
-            <span class="number">${comment.index}#</span>
-            ${deleteIcon}
-        </span>`;
-}
-
 // 加载评论
 function loadComment($page, $docid) {
     $("#commentList").empty();
-    let html = ""
-    let c = $page.List;
-    for (let i = 0; c && i < c.length; i++) {
-        const comment = c[i];
-        html += `
-        <div class="comment-item" data-id="${comment.comment_id}">
-            <p class="info">
-                <img src="${comment.avatar}" alt="">
-                <a class="name">${comment.author}</a>
-                <span class="date">${timeFormat(comment.comment_date)}</span>
-            </p>
-            <div class="content">${comment.content}</div>
-            <p class="util">
-                ${renderOperateSection(comment)}
-            </p>
-        </div>`;
+    var html = ""
+    var c = $page.List;
+    for (var i = 0; c && i < c.length; i++) {
+        html += "<div class=\"comment-item\" data-id=\"" + c[i].comment_id + "\">";
+            html += "<p class=\"info\"><a class=\"name\">" + c[i].author + "</a><span class=\"date\">" + timeFormat(c[i].comment_date) + "</span></p>";
+            html += "<div class=\"content\">" + c[i].content + "</div>";
+            html += "<p class=\"util\">";
+                if (c[i].show_del == 1) html += "<span class=\"operate toggle\">";
+                else html += "<span class=\"operate\">";
+                    html += "<span class=\"number\">" + c[i].index + "#</span>";
+                    if (c[i].show_del == 1) html += "<i class=\"delete e-delete glyphicon glyphicon-remove\" style=\"color:red\" onclick=\"onDelComment(" + c[i].comment_id + ")\"></i>";
+                html += "</span>";
+            html += "</p>";
+        html += "</div>";
     }
     $("#commentList").append(html);
+
     if ($page.TotalPage > 1) {
         $("#page").bootstrapPaginator({
             currentPage: $page.PageNo,
             totalPages: $page.TotalPage,
             bootstrapMajorVersion: 3,
             size: "middle",
-            onPageClicked: function (e, originalEvent, type, page) {
+            onPageClicked: function(e, originalEvent, type, page){
                 pageClicked(page, $docid);
             }
         });
@@ -127,11 +114,12 @@ function loadComment($page, $docid) {
 
 // 删除评论
 function onDelComment($id) {
+    console.log($id);
     $.ajax({
-        url: "/comment/delete",
-        data: { "id": $id },
-        type: "POST",
-        success: function ($res) {
+        url : "/comment/delete",
+        data : {"id": $id},
+        type : "POST",
+        success : function ($res) {
             if ($res.errcode == 0) {
                 layer.msg("删除成功");
                 $("div[data-id=" + $id + "]").remove();
@@ -139,7 +127,7 @@ function onDelComment($id) {
                 layer.msg($res.message);
             }
         },
-        error: function () {
+        error : function () {
             layer.msg("删除失败");
         }
     });
@@ -153,35 +141,12 @@ function renderPage($data) {
     $("#article-info").text($data.doc_info);
     $("#view_count").text("阅读次数：" + $data.view_count);
     $("#doc_id").val($data.doc_id);
-    updateEditLink($data.doc_id);
-    checkMarkdownTocElement();
     if ($data.page) {
         loadComment($data.page, $data.doc_id);
-    } else {
+    }
+    else {
         pageClicked(-1, $data.doc_id);
     }
-
-    if ($data.is_markdown) {
-        if ($("#view_container").hasClass($data.markdown_theme)) {
-            return
-        }
-        $("#view_container").removeClass("theme__dark theme__green theme__light theme__red theme__default")
-        $("#view_container").addClass($data.markdown_theme)
-    }
-
-}
-
-function updateEditLink($docid) {
-    var $editLink = $("#editDocumentLink");
-    var normalizedDocId = parseInt($docid, 10);
-
-    if ($editLink.length === 0 || !window.editURL || !normalizedDocId) {
-        return;
-    }
-
-    window.currentDocumentId = normalizedDocId;
-    var baseURL = window.editURL.replace(/\/+$/, '');
-    $editLink.attr("href", baseURL + "/" + normalizedDocId);
 }
 
 /***
@@ -192,20 +157,19 @@ function updateEditLink($docid) {
  */
 function loadDocument($url, $id, $callback) {
     $.ajax({
-        url: $url,
-        type: "GET",
-        beforeSend: function () {
+        url : $url,
+        type : "GET",
+        beforeSend : function () {
             var data = events.data($id);
-            if (data) {
+            if(data) {
                 if (typeof $callback === "function") {
                     data.body = $callback(data.body);
-                } else if (data.version && data.version != $callback) {
+                }else if(data.version && data.version != $callback){
                     return true;
                 }
                 renderPage(data);
 
-                loadCopySnippets();
-                events.trigger('article.open', { $url: $url, $id: $id });
+                events.trigger('article.open', {$url: $url, $id: $id});
 
                 return false;
 
@@ -213,26 +177,28 @@ function loadDocument($url, $id, $callback) {
 
             NProgress.start();
         },
-        success: function ($res) {
+        success : function ($res) {
             if ($res.errcode === 0) {
-                var data = $res.data;
-                if (typeof $callback === "function") {
-                    data.body = $callback(data.body);
+                renderPage($res.data);
+
+                $body = $res.data.body;
+                if (typeof $callback === "function" ) {
+                    $body = $callback(body);
                 }
-                renderPage(data);
-                loadCopySnippets();
-                events.data($id, data);
-                events.trigger('article.open', { $url: $url, $id: $id });
+
+                events.data($id, $res.data);
+
+                events.trigger('article.open', { $url : $url, $id : $id });
             } else if ($res.errcode === 6000) {
                 window.location.href = "/";
             } else {
                 layer.msg("加载失败");
             }
         },
-        complete: function () {
+        complete : function () {
             NProgress.done();
         },
-        error: function () {
+        error : function () {
             layer.msg("加载失败");
         }
     });
@@ -244,55 +210,18 @@ function loadDocument($url, $id, $callback) {
 function initHighlighting() {
     try {
         $('pre,pre.ql-syntax').each(function (i, block) {
-            if ($(this).hasClass('prettyprinted') || $(this).hasClass('hljs')) {
+            if ($(this).hasClass('prettyprinted')) {
                 return;
             }
             hljs.highlightBlock(block);
         });
         // hljs.initLineNumbersOnLoad();
-    } catch (e) {
+    }catch (e){
         console.log(e);
     }
 }
 
-function handleEvent(event) {
-    var target = event.target;
-    var tagName = target.tagName.toLowerCase();
-    var isInputElement = tagName === 'input' || tagName === 'textarea' || tagName === 'select';
-    var isContentEditable = target.isContentEditable || target.contentEditable === 'true';
-
-    // ESC 关闭搜索面板，无论焦点在哪里都生效
-    if (event.keyCode === 27) {
-        $(".navg-item[data-mode='view']").click();
-        if (isInputElement) {
-            target.blur();
-        }
-        event.preventDefault();
-        return;
-    }
-
-    // 其他快捷键：焦点在输入框、textarea或可编辑元素中时不执行
-    if (isInputElement || isContentEditable) {
-        return;
-    }
-    
-    switch (event.keyCode) {
-        case 70: // f 打开搜索面板 并获取焦点，ctrl+f 留给浏览器原生搜索
-            if (event.ctrlKey || event.metaKey) {
-                return;
-            }
-            $(".navg-item[data-mode='search']").click();
-            document.getElementById('searchForm').querySelector('input').focus();
-            event.preventDefault();
-            break;
-    }
-}
-
 $(function () {
-    window.addEventListener('keydown', handleEvent)
-    updateEditLink(window.currentDocumentId);
-
-    checkMarkdownTocElement();
     $(".view-backtop").on("click", function () {
         $('.manual-right').animate({ scrollTop: '0px' }, 200);
     });
@@ -304,64 +233,156 @@ $(function () {
             } else {
                 $(".view-backtop").removeClass("active");
             }
-        } catch (e) {
+        }catch (e) {
             console.log(e);
         }
 
-        try {
+        try{
             var scrollTop = $("body").scrollTop();
             var oItem = $(".markdown-heading").find(".reference-link");
             var oName = "";
-            $.each(oItem, function () {
+            $.each(oItem,function(){
                 var oneItem = $(this);
                 var offsetTop = oneItem.offset().top;
 
-                if (offsetTop - scrollTop < 100) {
+                if(offsetTop-scrollTop < 100){
                     oName = "#" + oneItem.attr("name");
                 }
             });
             $(".markdown-toc-list a").each(function () {
-                if (oName === $(this).attr("href")) {
+                if(oName === $(this).attr("href")) {
                     $(this).parents("li").addClass("directory-item-active");
-                } else {
+                }else{
                     $(this).parents("li").removeClass("directory-item-active");
                 }
             });
-            if (!$(".markdown-toc-list li").hasClass('directory-item-active')) {
+            if(!$(".markdown-toc-list li").hasClass('directory-item-active')) {
                 $(".markdown-toc-list li:eq(0)").addClass("directory-item-active");
             }
-        } catch (e) {
+        }catch (e) {
             console.log(e);
         }
-    }).on("click", ".markdown-toc-list a", function () {
+    }).on("click",".markdown-toc-list a", function () {
         var $this = $(this);
         setTimeout(function () {
             $(".markdown-toc-list li").removeClass("directory-item-active");
             $this.parents("li").addClass("directory-item-active");
-        }, 10);
+        },10);
     }).find(".markdown-toc-list li:eq(0)").addClass("directory-item-active");
 
 
     $(window).resize(function (e) {
-        var h = $(".manual-catalog").innerHeight() - 50;
+        var h = $(".manual-catalog").innerHeight() - 20;
         $(".markdown-toc").height(h);
     }).resize();
 
     window.isFullScreen = false;
 
     initHighlighting();
+    
+    /**
+     * 处理树数据，默认全部收起
+     */
+    function processTreeData(data) {
+        if (!data || !data.length) return data;
+        return data.map(function(node) {
+            // 默认全部收起
+            if (node.state) {
+                node.state.opened = false;
+            } else {
+                node.state = { opened: false };
+            }
+            return node;
+        });
+    }
+
+    /**
+     * 保存树展开状态到localStorage
+     */
+    var isRestoringState = false; // 标记是否正在恢复状态
+    
+    function saveTreeState() {
+        if (!window.jsTree || isRestoringState) return;
+        
+        var openNodes = [];
+        try {
+            window.jsTree.jstree(true).get_json('#', {flat:true}).forEach(function(node) {
+                if (node.state && node.state.opened) {
+                    openNodes.push(node.id);
+                }
+            });
+            
+            var stateKey = 'mindoc_read_tree_state_' + window.book.identify;
+            localStorage.setItem(stateKey, JSON.stringify(openNodes));
+        } catch(e) {
+            console.error('Failed to save tree state:', e);
+        }
+    }
+
+    /**
+     * 从localStorage恢复树展开状态
+     */
+    function restoreTreeState() {
+        if (!window.jsTree) return;
+        
+        isRestoringState = true; // 开始恢复状态，禁用保存
+        
+        var stateKey = 'mindoc_read_tree_state_' + window.book.identify;
+        var savedState = localStorage.getItem(stateKey);
+        
+        if (savedState) {
+            try {
+                var openNodes = JSON.parse(savedState);
+                if (openNodes.length > 0) {
+                    openNodes.forEach(function(nodeId) {
+                        window.jsTree.jstree(true).open_node(nodeId);
+                    });
+                    // 如果有展开的节点，更新按钮状态
+                    var $btn = $('#handlerMenuShow');
+                    var foldText = $btn.data('fold-text');
+                    if (foldText) {
+                        $btn.find('span').text(foldText);
+                        $btn.find('i').attr("class","fa fa-angle-down");
+                        window.menuControl = true;
+                    }
+                }
+            } catch(e) {
+                console.error('Failed to restore tree state:', e);
+            }
+        }
+        
+        // 延迟恢复保存功能，确保初始化完成
+        setTimeout(function() {
+            isRestoringState = false;
+        }, 1000);
+    }
+    
+    // 在jstree初始化之前，移除所有jstree-open类，实现默认收起
+    $("#sidebar").find("li.jstree-open").removeClass("jstree-open").addClass("jstree-closed");
+    
     window.jsTree = $("#sidebar").jstree({
-        'plugins': ["wholerow", "types"],
+        'plugins' : ["wholerow", "types"],
         "types": {
-            "default": {
-                "icon": false  // 删除默认图标
+            "default" : {
+                "icon" : false  // 删除默认图标
             }
         },
-        'core': {
-            'check_callback': true,
-            "multiple": false,
-            'animation': 0
+        'core' : {
+            'check_callback' : true,
+            "multiple" : false,
+            'animation' : 0
         }
+    }).on('ready.jstree', function() {
+        // 恢复保存的展开状态
+        restoreTreeState();
+        
+        // 显示目录树，避免闪烁
+        setTimeout(function() {
+            $("#sidebar").css('visibility', 'visible');
+        }, 100);
+    }).on("open_node.jstree close_node.jstree", function(e, data) {
+        // 节点展开/收起时保存状态
+        saveTreeState();
     }).on('select_node.jstree', function (node, selected) {
         //如果是空目录则直接出发展开下一级功能
         if (selected.node.a_attr && selected.node.a_attr.disabled) {
@@ -369,7 +390,7 @@ $(function () {
             return false
         }
         $(".m-manual").removeClass('manual-mobile-show-left');
-        loadDocument(selected.node.a_attr.href, selected.node.id, selected.node.a_attr['data-version']);
+        loadDocument(selected.node.a_attr.href, selected.node.id,selected.node.a_attr['data-version']);
     });
 
     $("#slidebar").on("click", function () {
@@ -397,16 +418,11 @@ $(function () {
         $(".m-manual").removeClass("manual-mode-view manual-mode-collect manual-mode-search").addClass("manual-mode-" + mode);
     });
 
-    const input = document.getElementById('searchForm').querySelector('input');
-    input.addEventListener('input', function() {
-        $("#btnSearch").click();
-    });
-
     /**
      * 项目内搜索
      */
     $("#searchForm").ajaxForm({
-        beforeSubmit: function () {
+        beforeSubmit : function () {
             var keyword = $.trim($("#searchForm").find("input[name='keyword']").val());
             if (keyword === "") {
                 $(".search-empty").show();
@@ -416,10 +432,10 @@ $(function () {
             $("#btnSearch").attr("disabled", "disabled").find("i").removeClass("fa-search").addClass("loading");
             window.keyword = keyword;
         },
-        success: function (res) {
+        success : function (res) {
             var html = "";
             if (res.errcode === 0) {
-                for (var i in res.data) {
+                for(var i in res.data) {
                     var item = res.data[i];
                     html += '<li><a href="javascript:;" title="' + item.doc_name + '" data-id="' + item.doc_id + '"> ' + item.doc_name + ' </a></li>';
                 }
@@ -431,7 +447,7 @@ $(function () {
             }
             $("#searchList").html(html);
         },
-        complete: function () {
+        complete : function () {
             $("#btnSearch").removeAttr("disabled").find("i").removeClass("loading").addClass("fa-search");
         }
     });
@@ -439,14 +455,18 @@ $(function () {
     window.onpopstate = function (e) {
         var $param = e.state;
         if (!$param) return;
-        if ($param.hasOwnProperty("$url")) {
+        if($param.hasOwnProperty("$url")) {
+            isRestoringState = true; // 禁用保存
             window.jsTree.jstree().deselect_all();
 
             if ($param.$id) {
-                window.jsTree.jstree().select_node({ id: $param.$id });
-            } else {
+                window.jsTree.jstree().select_node({ id : $param.$id });
+            }else{
                 window.location.assign($param.$url);
             }
+            setTimeout(function() {
+                isRestoringState = false;
+            }, 500);
             // events.trigger('article.open', $param);
         } else {
             console.log($param);
@@ -455,51 +475,22 @@ $(function () {
 
     // 提交评论
     $("#commentForm").ajaxForm({
-        beforeSubmit: function () {
+        beforeSubmit : function () {
             $("#btnSubmitComment").button("loading");
         },
-        success: function (res) {
-            if (res.errcode === 0) {
+        success : function (res) {
+            if(res.errcode === 0){
                 layer.msg("保存成功");
-            } else {
-                layer.msg(res.message);
+            }else{
+                layer.msg("保存失败");
             }
             $("#btnSubmitComment").button("reset");
             $("#commentContent").val("");
             pageClicked(-1, res.data.doc_id); // -1 表示请求最后一页
         },
-        error: function () {
+        error : function () {
             layer.msg("服务错误");
             $("#btnSubmitComment").button("reset");
         }
     });
-    loadCopySnippets();
 });
-
-function loadCopySnippets() {
-    $("pre").addClass("line-numbers language-bash");
-    $("pre").attr('data-prismjs-copy', '复制');
-    $("pre").attr('data-prismjs-copy-error', '按Ctrl+C复制');
-    $("pre").attr('data-prismjs-copy-success', '代码已复制！');
-    var snippets = document.querySelectorAll('pre code');
-    [].forEach.call(snippets, function (snippet) {
-        Prism.highlightElement(snippet);
-    });
-}
-
-function checkMarkdownTocElement() {
-    let toc = $(".markdown-toc-list");
-    if ($(".toc").length) {
-        toc = $(".toc");
-    }
-    let articleComment = $("#articleComment");
-    if (toc.length) {
-        $(".wiki-bottom-left").css("width", "calc(100% - 260px)");
-        articleComment.css("width", "calc(100% - 260px)");
-        articleComment.css("margin", "30px 0 70px 0");
-    } else {
-        $(".wiki-bottom-left").css("width", "100%");
-        articleComment.css("width", "100%");
-        articleComment.css("margin", "30px auto 70px auto;");
-    }
-}
