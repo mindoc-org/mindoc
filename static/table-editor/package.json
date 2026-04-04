@@ -23,6 +23,6 @@
     "npm-run-all": "^4.1.2",
     "rimraf": "^2.6.2",
     "uglifyjs-webpack-plugin": "^1.1.0",
-    "webpack": "^3.8.1"
+    "webpack": "^5.88.1"
   }
 }
