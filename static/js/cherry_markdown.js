@@ -323,6 +323,20 @@ $(function () {
                 var node = { "id": res.data.doc_id, 'parent': res.data.parent_id === 0 ? '#' : res.data.parent_id, "text": res.data.doc_name, "identify": res.data.identify, "version": res.data.version };
                 pushDocumentCategory(node);
                 window.selectNode = node;
+                // 更新浏览器地址栏和预览链接
+                var docIdentify = res.data.identify;
+                if (docIdentify && window.history) {
+                    var editBase = window.editURL.replace(/\/content\/$/, '/edit/');
+                    var newURL = editBase + docIdentify;
+                    if (window._initialDocLoaded) {
+                        history.pushState({ docId: res.data.doc_id }, res.data.doc_name, newURL);
+                    } else {
+                        history.replaceState({ docId: res.data.doc_id }, res.data.doc_name, newURL);
+                        window._initialDocLoaded = true;
+                    }
+                    var readBase = window.editURL.replace(/\/api\/([^/]+)\/content\/$/, '/docs/$1/');
+                    $('a:has(i[name="preview-open"])').attr('href', readBase + docIdentify);
+                }
                 pushVueLists(res.data.attach);
                 setLastSelectNode($node);
             } else {
@@ -510,7 +524,7 @@ $(function () {
                     "identify": res.data.identify,
                     "version": res.data.version,
                     state: { opened: res.data.is_open == 1 },
-                    a_attr: { is_open: res.data.is_open == 1 }
+                    a_attr: { is_open: res.data.is_open == 1, href: window.editURL.replace(/\/content\/$/, '/edit/') + res.data.identify }
                 };
 
                 var node = window.treeCatalog.get_node(data.id);
@@ -535,6 +549,16 @@ $(function () {
     /**
      * 文档目录树
      */
+    // 为目录树节点注入 href，使鼠标悬浮时浏览器状态栏显示对应编辑 URL
+    (function () {
+        var editBase = window.editURL.replace(/\/content\/$/, '/edit/');
+        window.documentCategory.forEach(function (item) {
+            if (item.identify && !(item.a_attr && item.a_attr.disabled)) {
+                if (!item.a_attr) item.a_attr = {};
+                item.a_attr.href = editBase + item.identify;
+            }
+        });
+    }());
     $("#sidebar").jstree({
         'plugins': ["wholerow", "types", 'dnd', 'contextmenu'],
         "types": {

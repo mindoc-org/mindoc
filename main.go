@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	// preinit must be the first import: it chdirs to the exe directory before
+	// beego's init() tries to open conf/app.conf via a relative path.
+	_ "github.com/mindoc-org/mindoc/internal/preinit"
 
 	_ "github.com/beego/beego/v2/server/web/session/memcache"
 	_ "github.com/beego/beego/v2/server/web/session/mysql"
@@ -17,12 +20,13 @@ import (
 	"github.com/mindoc-org/mindoc/commands"
 	"github.com/mindoc-org/mindoc/commands/daemon"
 	_ "github.com/mindoc-org/mindoc/routers"
+	"github.com/mindoc-org/mindoc/utils"
 )
 
 func isViaDaemonUnix() bool {
 	parentPid := os.Getppid()
 
-	cmdLineBytes, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/cmdline", parentPid))
+	cmdLineBytes, err := os.ReadFile(fmt.Sprintf("/proc/%d/cmdline", parentPid))
 	if err != nil {
 		return false
 	}
@@ -48,6 +52,11 @@ func main() {
 	commands.RegisterCommand()
 
 	d := daemon.NewDaemon()
+
+	// 安卓 go/src/time/zoneinfo_android.go 固定localLoc 为 UTC
+	if runtime.GOOS == "android" {
+		utils.FixTimezone()
+	}
 
 	if runtime.GOOS != "windows" && !isViaDaemonUnix() {
 		s, err := service.New(d, d.Config())

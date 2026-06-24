@@ -14,13 +14,14 @@
         window.treeCatalog = null;
         window.baseUrl = "{{.BaseUrl}}";
         window.saveing = false;
-        window.katex = { js: "{{cdnjs "/static/katex/katex"}}",css: "{{cdncss "/static/katex/katex"}}"};
+        window.katex = { js: "{{cdnjs "/static/katex/katex"}}",css: "{{cdncss "/static/katex/katex"}}",jsauto: "{{cdnjs "/static/katex/contrib/auto-render.min"}}"};
         window.editormdLib = "{{cdnjs "/static/editor.md/lib/"}}";
         window.editor = null;
         window.imageUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
         window.fileUploadURL = "{{urlfor "DocumentController.Upload" "identify" .Model.Identify}}";
         window.documentCategory = {{.Result}};
         window.book = {{.ModelResult}};
+        window.selectedDocId = {{.SelectedDocId}};
         window.selectNode = null;
         window.deleteURL = "{{urlfor "DocumentController.Delete" ":key" .Model.Identify}}";
         window.editURL = "{{urlfor "DocumentController.Content" ":key" .Model.Identify ":id" ""}}";

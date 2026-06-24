@@ -6,8 +6,7 @@ import (
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mindoc-org/mindoc/conf"
-	"github.com/mindoc-org/mindoc/models"
-	"github.com/mindoc-org/mindoc/utils/sqltil"
+	"github.com/mindoc-org/mindoc/controllers"
 )
 
 // GetGlobalSearchMcpTool 获取全局搜索的mcp工具
@@ -16,11 +15,11 @@ func GetGlobalSearchMcpTool() mcp.Tool {
 		mcp.WithDescription("MinDoc全局文档内容搜索"),
 		mcp.WithString("keyword",
 			mcp.Required(),
-			mcp.Description("要执行全局搜索的关键词，多个搜索关键词请用空格分割，请使用最少的关键词来检索，结果中只会出现包含全部关键词的结果，过多的无关词会导致更少的检索结果"),
+			mcp.Description("要执行全局搜索的关键词，多个搜索关键词请用空格分割，请尽量使用最精简的关键词来检索，不要输入无关词汇"),
 		),
 		mcp.WithNumber("pageIndex",
 			mcp.Required(),
-			mcp.Description("全局搜索时指定分页的顺序下标，每页最多有10条结果，建议只查看1-10页文档内容的搜索结果"),
+			mcp.Description("全局搜索时指定分页的顺序下标，每页最多有10条结果，建议只查看最相关的1-10页文档内容的搜索结果"),
 			mcp.Enum("1", "2", "3", "4", "5", "6", "7", "8", "9", "10"),
 		),
 	)
@@ -57,12 +56,12 @@ func GlobalSearchMcpHandler(ctx context.Context, request mcp.CallToolRequest) (*
 	}), nil
 }
 
-func globalSearchFunction(keyword string, pageIndex int) (int, []*models.DocumentSearchResult) {
+func globalSearchFunction(keyword string, pageIndex int) (int, []*controllers.SearchV2RawResult) {
 	memberId := 0
-	searchResult, totalCount, err := models.NewDocumentSearchResult().FindToPager(sqltil.EscapeLike(keyword),
-		pageIndex, conf.PageSize, memberId)
+	// 使用底层搜索函数
+	searchResult, _, totalCount, err := controllers.PerformSearchV2Raw(keyword, pageIndex, conf.PageSize, memberId)
 	if err != nil {
-		return 0, make([]*models.DocumentSearchResult, 0)
+		return 0, make([]*controllers.SearchV2RawResult, 0)
 	}
 	return totalCount, searchResult
 }

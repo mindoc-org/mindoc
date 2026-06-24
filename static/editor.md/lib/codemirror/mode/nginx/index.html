@@ -1,5 +1,5 @@
 <!doctype html>
-
+<head>
 <title>CodeMirror: NGINX mode</title>
 <meta charset="utf-8"/>
 <link rel=stylesheet href="../../doc/docs.css">
@@ -21,7 +21,7 @@
     }
   </style>
 <div id=nav>
-  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt=""></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
@@ -62,7 +62,7 @@ server {
   location / {
     index index.html index.php;     ## Allow a static html file to be shown first
     try_files $uri $uri/ @handler;  ## If missing pass the URI to Magento's front handler
-    expires 30d;                    ## Assume all files are cachable
+    expires 30d;                    ## Assume all files are cacheable
   }
 
   ## These locations would be hidden by .htaccess normally
@@ -128,7 +128,7 @@ server {
   location / {
     index index.html index.php; ## Allow a static html file to be shown first
     try_files $uri $uri/ @handler; ## If missing pass the URI to Magento's front handler
-    expires 30d; ## Assume all files are cachable
+    expires 30d; ## Assume all files are cacheable
   }
 
   ## These locations would be hidden by .htaccess normally
@@ -176,6 +176,6 @@ server {
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {});
     </script>
 
-    <p><strong>MIME types defined:</strong> <code>text/nginx</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/x-nginx-conf</code>.</p>
 
   </article>
