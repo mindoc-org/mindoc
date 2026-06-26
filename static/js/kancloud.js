@@ -333,8 +333,55 @@ $(function () {
         } catch (e) {
             console.log(e);
         }
-    }).on("click", ".markdown-toc-list a", function () {
+    }).on("click", ".markdown-toc-list a", function (e) {
+        e.preventDefault();
         var $this = $(this);
+        var href = $this.attr("href");
+        if (href) {
+            var name = href.replace(/^#/, "");
+            var target = null;
+            // 1. 按 name 属性查找
+            var found = $("a[name='" + name + "']");
+            if (found.length > 0) {
+                target = found;
+            }
+            // 2. 按 id 查找
+            if (!target) {
+                var el = document.getElementById(name);
+                if (el) target = $(el);
+            }
+            // 3. 尝试带 h{n}- 前缀的id格式
+            if (!target) {
+                $("h1,h2,h3,h4,h5,h6").each(function() {
+                    if (this.id && this.id.replace(/^h\d-/, "") === name) {
+                        target = $(this);
+                        return false;
+                    }
+                });
+            }
+            // 4. 按标题文本匹配（兼容旧文档无锚点的情况）
+            if (!target) {
+                var linkText = $this.text().trim();
+                $(".markdown-heading, h1, h2, h3, h4, h5, h6", "#page-content").each(function() {
+                    var headingText = $(this).clone().children("a, span").remove().end().text().trim();
+                    if (!headingText) headingText = $(this).text().trim();
+                    if (headingText === linkText) {
+                        target = $(this);
+                        return false;
+                    }
+                });
+            }
+            if (target && target.length > 0) {
+                var container = $(".manual-right");
+                var scrollTo = target.offset().top - container.offset().top + container.scrollTop();
+                container.animate({ scrollTop: scrollTo }, 200);
+                if (history.replaceState) {
+                    history.replaceState(null, null, href);
+                } else {
+                    location.hash = href;
+                }
+            }
+        }
         setTimeout(function () {
             $(".markdown-toc-list li").removeClass("directory-item-active");
             $this.parents("li").addClass("directory-item-active");
