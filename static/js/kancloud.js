@@ -308,15 +308,21 @@ $(function () {
             console.log(e);
         }
 
+        // 点击跳转期间暂停 scroll 驱动的 active 更新，避免竞争
+        if (window._tocClickScrolling) { return; }
+
         try {
-            var scrollTop = $("body").scrollTop();
+            // 滚动容器是 .manual-right，需用容器内的相对偏移量判断当前标题
+            var container = $(".manual-right");
+            var containerTop = container.offset().top;
             var oItem = $(".markdown-heading").find(".reference-link");
             var oName = "";
             $.each(oItem, function () {
                 var oneItem = $(this);
-                var offsetTop = oneItem.offset().top;
+                // 标题相对视口的 top，减去容器视口 top，即标题在容器内的可见位置
+                var offsetTop = oneItem.offset().top - containerTop;
 
-                if (offsetTop - scrollTop < 100) {
+                if (offsetTop < 100) {
                     oName = "#" + oneItem.attr("name");
                 }
             });
@@ -337,6 +343,11 @@ $(function () {
         e.preventDefault();
         var $this = $(this);
         var href = $this.attr("href");
+
+        // 立即同步设置选中状态，避免 scroll 事件竞争导致首次点击字色不变
+        $(".markdown-toc-list li").removeClass("directory-item-active");
+        $this.parents("li").addClass("directory-item-active");
+
         if (href) {
             var name = href.replace(/^#/, "");
             var target = null;
@@ -374,18 +385,20 @@ $(function () {
             if (target && target.length > 0) {
                 var container = $(".manual-right");
                 var scrollTo = target.offset().top - container.offset().top + container.scrollTop();
-                container.animate({ scrollTop: scrollTo }, 200);
+                // 在 animate 调用前先设标志，确保整个动画期间 scroll 事件都被屏蔽
+                window._tocClickScrolling = true;
+                // 动画结束后延迟一点再放开，防止最后一帧 scroll 仍覆盖选中状态
+                container.animate({ scrollTop: scrollTo }, 200, function () {
+                    setTimeout(function () {
+                        window._tocClickScrolling = false;
+                    }, 50);
+                });
+                // 只用 replaceState 更新 URL，避免 location.hash 赋值触发 hashchange/页面跳转
                 if (history.replaceState) {
                     history.replaceState(null, null, href);
-                } else {
-                    location.hash = href;
                 }
             }
         }
-        setTimeout(function () {
-            $(".markdown-toc-list li").removeClass("directory-item-active");
-            $this.parents("li").addClass("directory-item-active");
-        }, 10);
     }).find(".markdown-toc-list li:eq(0)").addClass("directory-item-active");
 
 

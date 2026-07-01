@@ -128,6 +128,9 @@
 .markdown-toc-list .directory-item-link:hover {
     color: #8C8C8C;
 }
+.markdown-toc-list .directory-item-link:focus {
+    outline: none;
+}
 .markdown-toc-list .directory-item-link-1 {
     padding-left: 0;
 }
