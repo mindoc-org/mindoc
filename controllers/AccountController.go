@@ -134,7 +134,8 @@ func (c *AccountController) Login() {
 		if account == "" || password == "" {
 			c.JsonResult(6002, i18n.Tr(c.Lang, "message.account_or_password_empty"))
 		}
-
+		logs.Info(account)
+		logs.Info(password)
 		member, err := models.NewMember().Login(account, password)
 		if err == nil {
 			member.LastLoginTime = time.Now()

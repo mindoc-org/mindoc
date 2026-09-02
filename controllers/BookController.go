@@ -32,6 +32,26 @@ type BookController struct {
 	BaseController
 }
 
+// List returns the books visible to the current user as JSON.
+// Used by the deskmindoc middleware to populate the publish target selector.
+func (c *BookController) List() {
+	c.Prepare()
+
+	if c.Member == nil || c.Member.MemberId <= 0 {
+		c.JsonResult(403, i18n.Tr(c.Lang, "message.no_permission"))
+		return
+	}
+
+	books, _, err := models.NewBook().FindToPager(1, 1000, c.Member.MemberId, c.Lang)
+	if err != nil {
+		logs.Error("BookController.List => ", err)
+		c.JsonResult(500, err.Error())
+		return
+	}
+
+	c.JsonResult(0, "ok", books)
+}
+
 func (c *BookController) Index() {
 	c.Prepare()
 	c.TplName = "book/index.tpl"

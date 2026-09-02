@@ -235,6 +235,7 @@ func init() {
 	web.Router("/api/attach/remove/", &controllers.DocumentController{}, "post:RemoveAttachment")
 	web.Router("/api/:key/edit/?:id", &controllers.DocumentController{}, "*:Edit")
 	web.Router("/api/upload", &controllers.DocumentController{}, "post:Upload")
+	web.Router("/api/book/list", &controllers.BookController{}, "get:List")
 	web.Router("/api/:key/create", &controllers.DocumentController{}, "post:Create")
 	web.Router("/api/:key/delete", &controllers.DocumentController{}, "post:Delete")
 	web.Router("/api/:key/content/?:id", &controllers.DocumentController{}, "*:Content")
