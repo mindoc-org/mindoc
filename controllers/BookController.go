@@ -32,6 +32,7 @@ type BookController struct {
 	BaseController
 }
 
+// 为deskmindoc提供查询接口
 // List returns the books visible to the current user as JSON.
 // Used by the deskmindoc middleware to populate the publish target selector.
 func (c *BookController) List() {
