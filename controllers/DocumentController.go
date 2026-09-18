@@ -37,6 +37,18 @@ type DocumentController struct {
 	BaseController
 }
 
+// documentPasswordSessionKey builds the session key used to remember that a
+// password-protected document has been unlocked.
+func documentPasswordSessionKey(documentId int) string {
+	return fmt.Sprintf("DocumentPassword.%d", documentId)
+}
+
+// docPasswordRequiredCode is returned for AJAX document reads when the target
+// document is password-protected and the current session has not unlocked it.
+// The front-end uses this code to navigate to the full document page, which then
+// renders the password prompt.
+const docPasswordRequiredCode = 6010
+
 // Document prev&next
 type DocumentTreeFlatten struct {
 	DocumentId   int    `json:"id"`
@@ -73,6 +85,14 @@ func (c *DocumentController) Index() {
 	if bookResult.IsUseFirstDocument {
 		doc, err := bookResult.FindFirstDocumentByBookId(bookResult.BookId)
 		if err == nil {
+			if doc.IsPassword == 1 && !c.hasDocumentAccess(doc) {
+				docIdentify := doc.Identify
+				if docIdentify == "" {
+					docIdentify = strconv.Itoa(doc.DocumentId)
+				}
+				c.renderDocumentPasswordPage(identify, docIdentify)
+				return
+			}
 			selected = doc.DocumentId
 			c.Data["Title"] = doc.DocumentName
 			c.Data["Content"] = template.HTML(doc.Release)
@@ -144,6 +164,64 @@ func (c *DocumentController) CheckPassword() {
 	}
 }
 
+// CheckDocumentPassword : Handles password verification for a password-protected
+// document. The front-end submits the password via Ajax from the document
+// password page.
+func (c *DocumentController) CheckDocumentPassword() {
+	identify := c.Ctx.Input.Param(":key")
+	id := c.Ctx.Input.Param(":id")
+	password := c.GetString("bPassword")
+
+	if identify == "" || id == "" || password == "" {
+		c.JsonResult(http.StatusBadRequest, i18n.Tr(c.Lang, "message.param_error"))
+		return
+	}
+
+	// You have not logged in and need to log in again.
+	if !c.EnableAnonymous && !c.isUserLoggedIn() {
+		logs.Info("You have not logged in and need to log in again(SessionId: %s).",
+			c.CruSession.SessionID(context.TODO()))
+		c.JsonResult(6000, i18n.Tr(c.Lang, "message.need_relogin"))
+		return
+	}
+
+	book, err := models.NewBook().FindByFieldFirst("identify", identify)
+	if err != nil {
+		logs.Error(err)
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.item_not_exist"))
+		return
+	}
+
+	doc := models.NewDocument()
+	var docErr error
+	if docId, err := strconv.Atoi(id); err == nil {
+		doc, docErr = doc.FromCacheById(docId)
+	} else {
+		doc, docErr = doc.FromCacheByIdentify(id, book.BookId)
+	}
+	if docErr != nil || doc == nil {
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.doc_not_exist"))
+		return
+	}
+	if doc.BookId != book.BookId {
+		c.JsonResult(500, i18n.Tr(c.Lang, "message.doc_not_exist"))
+		return
+	}
+
+	if doc.IsPassword != 1 {
+		c.JsonResult(0, "OK")
+		return
+	}
+
+	if doc.Password == "" || password != doc.Password {
+		c.JsonResult(5001, i18n.Tr(c.Lang, "message.wrong_password"))
+		return
+	}
+
+	c.SetSession(documentPasswordSessionKey(doc.DocumentId), password)
+	c.JsonResult(0, "OK")
+}
+
 // 阅读文档
 func (c *DocumentController) Read() {
 	identify := c.Ctx.Input.Param(":key")
@@ -188,6 +266,19 @@ func (c *DocumentController) Read() {
 	if doc.BookId != bookResult.BookId {
 		c.ShowErrorPage(404, i18n.Tr(c.Lang, "message.doc_not_exist"))
 	}
+
+	if doc.IsPassword == 1 && !c.hasDocumentAccess(doc) {
+		// AJAX requests (document loaded from the directory tree) cannot render a
+		// standalone page, so return a code that makes the front-end navigate to the
+		// full document page, which then shows the password prompt.
+		if c.IsAjax() {
+			c.JsonResult(docPasswordRequiredCode, i18n.Tr(c.Lang, "message.doc_need_password"))
+			return
+		}
+		c.renderDocumentPasswordPage(identify, id)
+		return
+	}
+
 	doc.Lang = c.Lang
 	doc.Processor()
 
@@ -401,6 +492,8 @@ func (c *DocumentController) Create() {
 	parentId, _ := c.GetInt("parent_id", 0)
 	docId, _ := c.GetInt("doc_id", 0)
 	isOpen, _ := c.GetInt("is_open", 0)
+	isPassword, _ := c.GetInt("is_password", 0)
+	password := c.GetString("password")
 
 	if identify == "" {
 		c.JsonResult(6001, i18n.Tr(c.Lang, "message.param_error"))
@@ -466,6 +559,26 @@ func (c *DocumentController) Create() {
 		document.IsOpen = 2
 	} else {
 		document.IsOpen = 0
+	}
+
+	if isPassword == 1 {
+		document.IsPassword = 1
+	} else {
+		document.IsPassword = 0
+	}
+
+	// Only update the stored password when a value is provided. This avoids
+	// accidentally clearing the existing password while editing an existing document.
+	if password != "" {
+		document.Password = password
+	} else if docId == 0 {
+		document.Password = ""
+	}
+
+	// Enabling password protection without a password would lock the document out.
+	if document.IsPassword == 1 && document.Password == "" {
+		c.JsonResult(6007, i18n.Tr(c.Lang, "message.doc_password_empty"))
+		return
 	}
 
 	if err := document.InsertOrUpdate(); err != nil {
@@ -663,7 +776,7 @@ func (c *DocumentController) Upload() {
 		}
 
 		// if filetil.IsImageExt(moreFile.Filename) {
-		if filetil.IsImageExt(files[i].Filename) {
+		if filetil.IsImageExt(files[i].Filename) || filetil.IsVideoExt(files[i].Filename) {
 			attachment.HttpPath = "/" + strings.Replace(strings.TrimPrefix(filePath, conf.WorkingDirectory), "\\", "/", -1)
 			if strings.HasPrefix(attachment.HttpPath, "//") {
 				attachment.HttpPath = conf.URLForWithCdnImage(string(attachment.HttpPath[1:]))
@@ -1495,6 +1608,34 @@ func (c *DocumentController) isReadable(identify, token string) *models.BookResu
 	}
 
 	return bookResult
+}
+
+// hasDocumentAccess returns true when the current user may read the document:
+// administrators are always allowed, an unlocked session is allowed, and
+// documents that do not require a password are allowed.
+func (c *DocumentController) hasDocumentAccess(doc *models.Document) bool {
+	// Administrators can access any password-protected document directly.
+	if c.Member.IsAdministrator() {
+		return true
+	}
+	if doc == nil || doc.IsPassword != 1 {
+		return true
+	}
+	password, ok := c.GetSession(documentPasswordSessionKey(doc.DocumentId)).(string)
+	return ok && doc.Password != "" && password == doc.Password
+}
+
+// renderDocumentPasswordPage renders the standalone password prompt for a
+// password-protected document and aborts the current request.
+func (c *DocumentController) renderDocumentPasswordPage(identify, docIdentify string) {
+	body, err := c.ExecuteViewPathTemplate("document/document_doc_password.tpl",
+		map[string]string{"Identify": identify, "DocIdentify": docIdentify, "Lang": c.Lang})
+	if err != nil {
+		logs.Error("显示文档密码页面失败 ->", err)
+		c.ShowErrorPage(500, i18n.Tr(c.Lang, "message.system_error"))
+		return
+	}
+	c.CustomAbort(200, body)
 }
 
 func promptUserToLogIn(c *DocumentController) {

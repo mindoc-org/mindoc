@@ -115,6 +115,8 @@ function openCreateCatalogDialog($node) {
     $then.find("input[name='parent_id']").val(doc_id);
     $then.find("input[name='doc_id']").val('');
     $then.find("input[name='doc_name']").val('');
+    $then.find("input[name='is_password']").prop("checked", false);
+    $then.find("input[name='password']").val('');
 
     $then.modal("show");
 }
@@ -204,6 +206,8 @@ function openEditCatalogDialog($node) {
     $then.find("input[name='doc_id']").val(doc_id);
     $then.find("input[name='parent_id']").val(parentId);
     $then.find("input[name='doc_name']").val(text);
+    $then.find("input[name='is_password']").prop("checked", false);
+    $then.find("input[name='password']").val('');
 
     var open = $node.a_attr && $node.a_attr.opened ? $node.a_attr.opened  : 0;
 
@@ -215,6 +219,7 @@ function openEditCatalogDialog($node) {
         var item = window.documentCategory[index];
         if (item.id === doc_id) {
             $then.find("input[name='doc_identify']").val(item.identify);
+            $then.find("input[name='is_password']").prop("checked", item.is_password == 1);
             break;
         }
     }
@@ -309,6 +314,7 @@ $("#addDocumentModal").on("hidden.bs.modal", function () {
     $then.find("input[name='parent_id']").val('');
     $then.find("input[name='doc_id']").val('');
     $then.find("input[name='doc_name']").val('');
+    $then.find("input[name='password']").val('');
 }).on("shown.bs.modal", function () {
     $(this).find("input[name='doc_name']").focus();
 }).on("show.bs.modal", function () {

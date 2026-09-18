@@ -324,3 +324,40 @@ docker run -p 8181:8181 --name mindoc -e DB_ADAPTER=mysql -e MYSQL_PORT_3306_TCP
          - conf/
          - ...
      ```
+
+---
+
+# 文档访问密码（本次开发）
+
+为满足「单个目录（文章）单独设置访问密码」的需求，在原有项目级加密之外，新增了文档级访问密码功能。
+
+## 功能说明
+
+- 后台编辑某篇文章时，可勾选「访问密码保护」并设置自定义「访问密码」（密码为空时不允许开启保护）。
+- 普通用户打开该文章时需输入密码才能阅读，同一会话（Session）内再次访问无需重复输入。
+- 支持 Markdown（Editor.md）与 Cherry Markdown 两种编辑器的文档新建/编辑弹窗。
+- 管理员（`Role == 0 || Role == 1`）可直接访问任何设置了密码的文档，无需输入密码。
+
+## 使用步骤
+
+1. 进入项目编辑页 → 新建或编辑某篇文章。
+2. 勾选「访问密码保护」→ 在「访问密码」输入框填写密码（编辑时留空表示保持原密码）。
+3. 保存后，普通用户点击该文章会跳转到密码输入页，输入正确密码即可阅读。
+
+## 涉及改动
+
+- 数据模型：`models/DocumentModel.go` 新增 `IsPassword`（是否启用）与 `Password`（访问密码）字段。
+- 数据库：`md_documents` 表新增 `is_password`、`password` 两列。
+- 控制器：`controllers/DocumentController.go` 新增 `CheckDocumentPassword`、`hasDocumentAccess`、`renderDocumentPasswordPage` 等逻辑，并在 `Read`/`Index` 中拦截密码保护文档。
+- 路由：`routers/router.go` 新增 `/docs/:key/:id/check-password`。
+- 前端：
+  - `views/document/document_doc_password.tpl` 新增文档密码输入页。
+  - `views/document/markdown_edit_template.tpl`、`cherry_markdown_edit_template.tpl` 新增密码复选框与密码输入框。
+  - `static/js/editor.js` 处理密码输入框的创建/编辑回填与重置。
+  - `static/js/kancloud.js` 处理 AJAX 加载加密文档时跳转到整页密码输入页（`errcode === 6010`）。
+- 国际化：`conf/lang/zh-cn.ini`、`en-us.ini` 新增相关文案。
+
+## 备注
+
+- 密码当前以明文保存（与项目级 `BookPassword` 一致）。
+- 修改了模型字段，部署时需重新编译并在数据库执行对应列的新增（或使用 `./mindoc install` 重新初始化）。

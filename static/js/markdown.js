@@ -594,6 +594,7 @@ $(function () {
                     "text": res.data.doc_name,
                     "identify": res.data.identify,
                     "version": res.data.version,
+                    "is_password": res.data.is_password,
                     state: { opened: res.data.is_open == 1 },
                     a_attr: { is_open: res.data.is_open == 1 }
                 };

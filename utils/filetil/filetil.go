@@ -236,6 +236,20 @@ func IsImageExt(filename string) bool {
 		strings.EqualFold(ext,".bmp") ||
 		strings.EqualFold(ext,".webp")
 }
+
+// IsVideoExt 判断是否是视频后缀（用于按内联直链方式回传，供 <video> 播放）
+func IsVideoExt(filename string) bool {
+	ext := filepath.Ext(filename)
+
+	return strings.EqualFold(ext, ".mp4") ||
+		strings.EqualFold(ext, ".webm") ||
+		strings.EqualFold(ext, ".mkv") ||
+		strings.EqualFold(ext, ".mov") ||
+		strings.EqualFold(ext, ".avi") ||
+		strings.EqualFold(ext, ".m4v") ||
+		strings.EqualFold(ext, ".mpg") ||
+		strings.EqualFold(ext, ".mpeg")
+}
 //忽略字符串中的BOM头
 func ReadFileAndIgnoreUTF8BOM(filename string) ([]byte,error) {
 

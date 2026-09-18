@@ -40,6 +40,8 @@ type Document struct {
 	ModifyAt      int           `orm:"column(modify_at);type(int);description(修改人id)" json:"-"`
 	Version       int64         `orm:"column(version);type(bigint);description(版本，关联历史文档里的version)" json:"version"`
 	IsOpen        int           `orm:"column(is_open);type(int);default(0);description(是否展开子目录 0：阅读时关闭节点 1：阅读时展开节点 2：空目录 单击时会展开下级节点)" json:"is_open"` //是否展开子目录：0 否/1 是 /2 空间节点，单击时展开下一级
+	IsPassword    int           `orm:"column(is_password);type(int);default(0);description(是否启用访问密码 0 否/1 是)" json:"is_password"`                     //Whether access password is required: 0 no / 1 yes
+	Password      string        `orm:"column(password);size(100);null;default(null);description(访问密码)" json:"-"`                                      //Password required to unlock an access-protected document; excluded from JSON responses.
 	ViewCount     int           `orm:"column(view_count);type(int);description(浏览量)" json:"view_count"`
 	AttachList    []*Attachment `orm:"-" json:"attach"`
 	//i18n

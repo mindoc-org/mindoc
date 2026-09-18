@@ -19,6 +19,7 @@ type DocumentTree struct {
 	Identify     string                 `json:"identify"`
 	BookIdentify string                 `json:"-"`
 	Version      int64                  `json:"version"`
+	IsPassword   int                    `json:"is_password"`
 	State        *DocumentSelected      `json:"-"`
 	AAttrs       map[string]interface{} `json:"a_attr"`
 	Children     []*DocumentTree        `json:"children"`
@@ -49,7 +50,7 @@ func (item *Document) FindDocumentTree(bookId int) ([]*DocumentTree, error) {
 	count, err := o.QueryTable(item).Filter("book_id", bookId).
 		OrderBy("order_sort", "document_id").
 		Limit(math.MaxInt32).
-		All(&docs, "document_id", "version", "document_name", "parent_id", "identify", "is_open")
+		All(&docs, "document_id", "version", "document_name", "parent_id", "identify", "is_open", "is_password")
 
 	if err != nil {
 		return trees, err
@@ -77,6 +78,7 @@ func (item *Document) FindDocumentTree(bookId int) ([]*DocumentTree, error) {
 		tree.Identify = item.Identify
 		tree.Version = item.Version
 		tree.BookIdentify = book.Identify
+		tree.IsPassword = item.IsPassword
 		if item.ParentId > 0 {
 			tree.ParentId = item.ParentId
 		} else {

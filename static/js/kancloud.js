@@ -199,6 +199,10 @@ function loadDocument($url, $id, $callback) {
                 events.trigger('article.open', { $url: $url, $id: $id });
             } else if ($res.errcode === 6000) {
                 window.location.href = "/";
+            } else if ($res.errcode === 6010) {
+                // The document is password-protected. Navigate to the full document
+                // page so the password prompt can be rendered as a standalone page.
+                window.location.href = $url;
             } else {
                 layer.msg("加载失败");
             }
@@ -300,7 +304,7 @@ $(function () {
             'animation': 0
         }
     }).on('select_node.jstree', function (node, selected) {
-        //如果是空目录则直接出发展开下一级功能
+        //如果是空目录则直接触发展开下一级功能
         if (selected.node.a_attr && selected.node.a_attr.disabled) {
             selected.instance.toggle_node(selected.node);
             return false

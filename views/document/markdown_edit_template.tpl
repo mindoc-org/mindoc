@@ -188,6 +188,21 @@
                     </div>
                     <div class="clearfix"></div>
                 </div>
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label>
+                            <input type="checkbox" name="is_password" value="1"> {{i18n .Lang "doc.access_password"}}<span class="text">{{i18n .Lang "doc.access_password_desc"}}</span>
+                        </label>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{i18n .Lang "doc.access_password_input"}}</label>
+                    <div class="col-sm-10">
+                        <input type="password" name="password" id="documentPassword" placeholder="{{i18n .Lang "doc.access_password_input_tips"}}" class="form-control" maxlength="100">
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <span id="add-error-message" class="error-message"></span>
